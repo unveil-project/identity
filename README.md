@@ -19,15 +19,32 @@ npm install @unveil/identity
 ```js
 import { identify } from "@unveil/identity";
 
-const user = {}; // <-- `https://api.github.com/users/${username}`
-const events = []; // <-- `https://api.github.com/users/${username}/events?per_page=100`
+// Fetch user data from GitHub API
+const username = "github_account_username";
+const userRes = await fetch(`https://api.github.com/users/${username}`);
+const user = await userRes.json();
 
+// Fetch user's recent events
+const eventsRes = await fetch(
+  `https://api.github.com/users/${username}/events?per_page=100`
+);
+const events = await eventsRes.json();
+
+// Analyze the account
 const analysis = identify({
   createdAt: user.created_at,
   reposCount: user.public_repos,
   accountName: user.login,
   events,
 });
+
+console.log(analysis);
+// Output:
+// {
+//   classification: "organic",
+//   score: 100,
+//   flags: []
+// }
 ```
 
 ### Issues and feature requests
