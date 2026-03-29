@@ -1,0 +1,131 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Signals > analysis 'automation/joannwalsh' 1`] = `
+{
+  "classification": "automation",
+  "flags": [
+    {
+      "detail": "21 comments to 21 different repos in 1.3 minutes (16.2 comments/min)",
+      "label": "Issue comment spam",
+      "points": 40,
+    },
+    {
+      "detail": "31/31 branch creations followed by PRs within 71s",
+      "label": "Automated branch/PR workflow",
+      "points": 35,
+    },
+    {
+      "detail": "6 repos forked within 24 hours",
+      "label": "Multiple forks",
+      "points": 26,
+    },
+  ],
+  "profile": {
+    "age": 1096,
+    "repos": 134,
+  },
+  "score": 0,
+}
+`;
+
+exports[`Signals > analysis 'automation/reedpurdy' 1`] = `
+{
+  "classification": "automation",
+  "flags": [
+    {
+      "detail": "13 repos forked within 24 hours",
+      "label": "Many recent forks",
+      "points": 51,
+    },
+  ],
+  "profile": {
+    "age": 1372,
+    "repos": 125,
+  },
+  "score": 49,
+}
+`;
+
+exports[`Signals > analysis 'automation/sheilaleffler' 1`] = `
+{
+  "classification": "mixed",
+  "flags": [
+    {
+      "detail": "14/20 branch creations followed by PRs within 41s",
+      "label": "Automated branch/PR workflow",
+      "points": 35,
+    },
+  ],
+  "profile": {
+    "age": 396,
+    "repos": 31,
+  },
+  "score": 65,
+}
+`;
+
+exports[`Signals > analysis 'user/claudiaschoen' 1`] = `
+{
+  "classification": "organic",
+  "flags": [],
+  "profile": {
+    "age": 4993,
+    "repos": 536,
+  },
+  "score": 100,
+}
+`;
+
+exports[`Signals > analysis 'user/elenahowe' 1`] = `
+{
+  "classification": "organic",
+  "flags": [],
+  "profile": {
+    "age": 3220,
+    "repos": 859,
+  },
+  "score": 100,
+}
+`;
+
+exports[`Signals > analysis 'user/robinsatterfield' 1`] = `
+{
+  "classification": "organic",
+  "flags": [
+    {
+      "detail": "Account is 12 days old",
+      "label": "Recently created",
+      "points": 20,
+    },
+  ],
+  "profile": {
+    "age": 12,
+    "repos": 0,
+  },
+  "score": 80,
+}
+`;
+
+exports[`Signals > analysis 'user/shellychristiansen' 1`] = `
+{
+  "classification": "organic",
+  "flags": [],
+  "profile": {
+    "age": 2352,
+    "repos": 53,
+  },
+  "score": 100,
+}
+`;
+
+exports[`Signals > analysis 'user/vaughnjohnston' 1`] = `
+{
+  "classification": "organic",
+  "flags": [],
+  "profile": {
+    "age": 4576,
+    "repos": 30,
+  },
+  "score": 100,
+}
+`;
