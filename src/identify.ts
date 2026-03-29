@@ -10,7 +10,13 @@
 
  * Here be dragons. Tread carefully.
  */
-
+import type {
+  IdentifyFlag,
+  IdentifyOptions,
+  IdentifyResult,
+  IdentityClassification,
+} from "./types";
+import { calculateNormalizedShannonsEntropy } from "./utils";
 import { CONFIG } from "./config";
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
@@ -18,49 +24,6 @@ import utc from "dayjs/plugin/utc";
 
 dayjs.extend(minMax);
 dayjs.extend(utc);
-
-import type {
-  IdentifyFlag,
-  IdentifyOptions,
-  IdentifyResult,
-  IdentityClassification,
-} from "./types";
-
-/**
- * Calculate Shannon's entropy of a probability distribution
- * Lower entropy = more concentrated/predictable (bot-like)
- * Higher entropy = more uniformly distributed / random
- */
-function calculateShannonsEntropy(counts: number[]): number {
-  if (counts.length === 0) return 0;
-
-  const total = counts.reduce((sum, count) => sum + count, 0);
-  if (total === 0) return 0;
-
-  let entropy = 0;
-  for (const count of counts) {
-    if (count > 0) {
-      const probability = count / total;
-      entropy -= probability * Math.log2(probability);
-    }
-  }
-
-  return entropy;
-}
-
-/**
- * Calculate normalized Shannon's entropy (0 to 1)
- * Useful for comparing distributions with different state counts
- * Returns 0-1 where 0 = completely concentrated, 1 = perfectly uniform
- */
-function calculateNormalizedShannonsEntropy(counts: number[]): number {
-  if (counts.length <= 1) return 0;
-
-  const entropy = calculateShannonsEntropy(counts);
-  const maxEntropy = Math.log2(counts.length);
-
-  return entropy / maxEntropy;
-}
 
 export function identify({
   createdAt,
@@ -91,14 +54,12 @@ export function identify({
     return repoOwner && repoOwner !== accountName.toLowerCase();
   });
 
-  const hasAllExternal =
-    reposCount === 0 && foreignEvents.length === events.length;
+  const hasAllExternal = reposCount === 0 && foreignEvents.length === events.length;
 
   if (hasAllExternal && events.length >= CONFIG.ZERO_REPOS_MIN_EVENTS) {
     flags.push({
       label: "Only active on other people's repos",
-      points:
-        CONFIG.POINTS_ZERO_REPOS_ACTIVE + CONFIG.POINTS_NO_PERSONAL_ACTIVITY,
+      points: CONFIG.POINTS_ZERO_REPOS_ACTIVE + CONFIG.POINTS_NO_PERSONAL_ACTIVITY,
       detail: `No personal repos, all ${events.length} events are on repos they don't own`,
     });
   }
@@ -126,10 +87,7 @@ export function identify({
         const windowEnd = createTimestamps[endIdx];
 
         // Slide window to include only events within 24 hours
-        while (
-          windowEnd &&
-          windowEnd.diff(createTimestamps[windowStartIdx], "hour", true) > 24
-        ) {
+        while (windowEnd && windowEnd.diff(createTimestamps[windowStartIdx], "hour", true) > 24) {
           windowStartIdx++;
         }
 
@@ -184,8 +142,7 @@ export function identify({
       // Only check days with significant activity
       if (hoursActive >= CONFIG.HOURS_ACTIVE_EXTREME && eventsOnDay >= 10) {
         const avgEventsPerHour = eventsOnDay / hoursActive;
-        const meetsEventThreshold =
-          avgEventsPerHour >= CONFIG.EVENTS_PER_HOUR_MIN;
+        const meetsEventThreshold = avgEventsPerHour >= CONFIG.EVENTS_PER_HOUR_MIN;
 
         // Only consider days that meet event density requirement
         if (meetsEventThreshold) {
@@ -245,9 +202,7 @@ export function identify({
     const eventTypeEntropy = calculateNormalizedShannonsEntropy(eventTypeCount);
 
     const eventTypes = new Set(
-      events
-        .map((e) => e.type)
-        .filter((t): t is string => t !== null && t !== undefined),
+      events.map((e) => e.type).filter((t): t is string => t !== null && t !== undefined),
     );
     const hasInteraction =
       eventTypes.has("IssueCommentEvent") ||
@@ -261,11 +216,7 @@ export function identify({
     const narrowTypeProfile = eventTypes.size <= 3 && eventTypeEntropy < 0.8;
     const automatedCycling = eventTypeEntropy > 0.85 && eventTypes.size >= 5;
 
-    if (
-      (narrowTypeProfile || automatedCycling) &&
-      !hasInteraction &&
-      !hasWatches
-    ) {
+    if ((narrowTypeProfile || automatedCycling) && !hasInteraction && !hasWatches) {
       flags.push({
         label: "Narrow activity focus",
         points: CONFIG.POINTS_LOW_DIVERSITY,
@@ -274,9 +225,7 @@ export function identify({
     }
 
     // Issue comment spam detection (multiple comments across different repos in short time)
-    const issueCommentEvents = events.filter(
-      (e) => e.type === "IssueCommentEvent",
-    );
+    const issueCommentEvents = events.filter((e) => e.type === "IssueCommentEvent");
 
     if (issueCommentEvents.length >= CONFIG.ISSUE_COMMENT_MIN_FOR_SPRAY) {
       // Sort by timestamp
@@ -291,22 +240,14 @@ export function identify({
       let windowStartIdx = 0;
       const windowMinutes = CONFIG.ISSUE_COMMENT_SPAM_WINDOW_MINUTES;
 
-      for (
-        let windowEndIdx = 0;
-        windowEndIdx < commentTimestamps.length;
-        windowEndIdx++
-      ) {
+      for (let windowEndIdx = 0; windowEndIdx < commentTimestamps.length; windowEndIdx++) {
         const windowEnd = commentTimestamps[windowEndIdx]?.time;
 
         // Slide window start forward until within the time window
         while (
           commentTimestamps[windowStartIdx] &&
           windowEnd &&
-          windowEnd.diff(
-            commentTimestamps[windowStartIdx]!.time,
-            "minute",
-            true,
-          ) > windowMinutes
+          windowEnd.diff(commentTimestamps[windowStartIdx]!.time, "minute", true) > windowMinutes
         ) {
           windowStartIdx++;
         }
@@ -330,8 +271,7 @@ export function identify({
       if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_EXTREME) {
         const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
         const windowEnd = commentTimestamps[maxReposWindowEndIdx]?.time;
-        const commentsInWindow =
-          maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
+        const commentsInWindow = maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
         const timeSpanMinutes =
           windowEnd && windowStart
             ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
@@ -349,8 +289,7 @@ export function identify({
       } else if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_HIGH) {
         const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
         const windowEnd = commentTimestamps[maxReposWindowEndIdx]?.time;
-        const commentsInWindow =
-          maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
+        const commentsInWindow = maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
         const timeSpanMinutes =
           windowEnd && windowStart
             ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
@@ -389,10 +328,7 @@ export function identify({
     (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
   );
 
-  if (
-    branchCreates.length >= branchPRMinPairs &&
-    prEvents.length >= branchPRMinPairs
-  ) {
+  if (branchCreates.length >= branchPRMinPairs && prEvents.length >= branchPRMinPairs) {
     // branch/PR ratio must be near 1:1
     const branchPRRatio = branchCreates.length / prEvents.length;
 
@@ -423,20 +359,11 @@ export function identify({
 
         // Check if there's a PR within the time window after this branch
         if (prIdx < prTimes.length) {
-          const timeDiffSeconds = prTimes[prIdx]!.time.diff(
-            branchEntry.time,
-            "second",
-          );
+          const timeDiffSeconds = prTimes[prIdx]!.time.diff(branchEntry.time, "second");
 
-          if (
-            timeDiffSeconds >= 0 &&
-            timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS
-          ) {
+          if (timeDiffSeconds >= 0 && timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS) {
             matchedPairs++;
-            maxObservedTimeDiff = Math.max(
-              maxObservedTimeDiff,
-              timeDiffSeconds,
-            );
+            maxObservedTimeDiff = Math.max(maxObservedTimeDiff, timeDiffSeconds);
             prIdx++; // Consume this PR so it matches at most one branch (1:1 pairing)
           }
         }
@@ -472,11 +399,7 @@ export function identify({
     let windowStartIdx = 0;
 
     // Find the densest fork cluster within 24 hours
-    for (
-      let windowEndIdx = 0;
-      windowEndIdx < forkTimestamps.length;
-      windowEndIdx++
-    ) {
+    for (let windowEndIdx = 0; windowEndIdx < forkTimestamps.length; windowEndIdx++) {
       const windowEnd = forkTimestamps[windowEndIdx];
 
       // Slide window start forward until within 24 hours
@@ -535,18 +458,11 @@ export function identify({
       let maxCommitsInHour = 0;
       let windowStartIndex = 0;
 
-      for (
-        let windowEndIndex = 0;
-        windowEndIndex < timestamps.length;
-        windowEndIndex++
-      ) {
+      for (let windowEndIndex = 0; windowEndIndex < timestamps.length; windowEndIndex++) {
         const windowEnd = timestamps[windowEndIndex];
 
         // Slide window start forward until within 1 hour
-        while (
-          windowEnd &&
-          windowEnd.diff(timestamps[windowStartIndex], "hour", true) > 1
-        ) {
+        while (windowEnd && windowEnd.diff(timestamps[windowStartIndex], "hour", true) > 1) {
           windowStartIndex++;
         }
 
@@ -654,9 +570,7 @@ export function identify({
       });
 
       const uniqueHours = hourMap.size;
-      const hourEntropy = calculateNormalizedShannonsEntropy(
-        Array.from(hourMap.values()),
-      );
+      const hourEntropy = calculateNormalizedShannonsEntropy(Array.from(hourMap.values()));
 
       // Only flag days with many hours AND uniform distribution (bot-like)
       if (uniqueHours >= CONFIG.HOURS_PER_DAY_INHUMAN && hourEntropy > 0.8) {
@@ -665,10 +579,7 @@ export function identify({
     });
 
     // Check if these inhuman days are consecutive (require both many hours AND high entropy)
-    if (
-      daysWithUniformDistribution.length >=
-      CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME
-    ) {
+    if (daysWithUniformDistribution.length >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
       daysWithUniformDistribution.sort();
       let consecutiveCount = 1;
       let maxConsecutive = 1;
@@ -692,9 +603,7 @@ export function identify({
           points: CONFIG.POINTS_NONSTOP_ACTIVITY,
           detail: `${maxConsecutive} days in a row with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding`,
         });
-      } else if (
-        daysWithUniformDistribution.length >= CONFIG.FREQUENT_MARATHON_DAYS
-      ) {
+      } else if (daysWithUniformDistribution.length >= CONFIG.FREQUENT_MARATHON_DAYS) {
         flags.push({
           label: "Frequent long coding days",
           points: CONFIG.POINTS_FREQUENT_MARATHON,
@@ -778,12 +687,8 @@ export function identify({
     const oneWeekAgo = now.subtract(1, "week");
     const oneDayAgo = now.subtract(1, "day");
 
-    const prsThisWeek = externalPRs.filter((e) =>
-      dayjs(e.created_at).isAfter(oneWeekAgo),
-    );
-    const prsToday = externalPRs.filter((e) =>
-      dayjs(e.created_at).isAfter(oneDayAgo),
-    );
+    const prsThisWeek = externalPRs.filter((e) => dayjs(e.created_at).isAfter(oneWeekAgo));
+    const prsToday = externalPRs.filter((e) => dayjs(e.created_at).isAfter(oneDayAgo));
 
     // Many PRs in a single day
     // only flag extreme cases
@@ -803,10 +708,7 @@ export function identify({
     }
 
     // Also flag if lots of PRs AND few personal repos (regardless of time)
-    if (
-      externalPRs.length >= CONFIG.EXTERNAL_PRS_MIN &&
-      reposCount < CONFIG.PERSONAL_REPOS_LOW
-    ) {
+    if (externalPRs.length >= CONFIG.EXTERNAL_PRS_MIN && reposCount < CONFIG.PERSONAL_REPOS_LOW) {
       let detail = `${externalPRs.length} PRs to other repos, but only ${reposCount} of their own`;
       if (reposCount === 0) {
         detail = `${externalPRs.length} PRs to other repos, none of their own`;

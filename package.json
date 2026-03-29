@@ -1,29 +1,31 @@
 {
   "name": "@unveil/identity",
-  "type": "module",
   "version": "1.0.0",
   "description": "Identify automation patterns in GitHub accounts through behavioral analysis",
-  "author": "Matteo Gabriele <m.gabriele.dev@gmail.com>",
-  "license": "MIT",
   "homepage": "https://github.com/unveil-project/identity#readme",
+  "bugs": {
+    "url": "https://github.com/unveil-project/identity/issues"
+  },
+  "license": "MIT",
+  "author": "Matteo Gabriele <m.gabriele.dev@gmail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/unveil-project/identity.git"
   },
-  "bugs": {
-    "url": "https://github.com/unveil-project/identity/issues"
-  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "vp pack",
     "dev": "vp pack --watch",
     "test": "vp test",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
     "typecheck": "tsc --noEmit",
     "release": "bumpp",
     "prepublishOnly": "pnpm run build",
@@ -41,11 +43,16 @@
     "vite-plus": "latest",
     "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
+  "packageManager": "pnpm@10.33.0",
   "pnpm": {
     "overrides": {
       "vite": "npm:@voidzero-dev/vite-plus-core@latest",
       "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
     }
   },
-  "packageManager": "pnpm@10.33.0"
+  "inlinedDependencies": {
+    "@octokit/openapi-types": "27.0.0",
+    "@octokit/types": "16.0.0",
+    "dayjs": "1.11.20"
+  }
 }

@@ -61,9 +61,7 @@ async function fetchGitHubEvents(username, type = "automation") {
     console.log(`Fetching user details: ${userUrl}`);
     const userResponse = await fetch(userUrl);
     if (!userResponse.ok) {
-      throw new Error(
-        `GitHub API error: ${userResponse.status} ${userResponse.statusText}`,
-      );
+      throw new Error(`GitHub API error: ${userResponse.status} ${userResponse.statusText}`);
     }
     const userData = await userResponse.json();
 
@@ -77,17 +75,13 @@ async function fetchGitHubEvents(username, type = "automation") {
     const MAX_PAGE = 2;
 
     // Fetch 2 pages of 100 events each (200 total)
-    console.log(
-      `Fetching events (page ${MIN_PAGE} and ${MAX_PAGE}, ${MAX_PAGE * 100} total)`,
-    );
+    console.log(`Fetching events (page ${MIN_PAGE} and ${MAX_PAGE}, ${MAX_PAGE * 100} total)`);
     const events = [];
     for (let page = MIN_PAGE; page <= MAX_PAGE; page++) {
       const eventsUrl = `https://api.github.com/users/${username}/events?per_page=100&page=${page}`;
       const eventsResponse = await fetch(eventsUrl);
       if (!eventsResponse.ok) {
-        throw new Error(
-          `GitHub API error: ${eventsResponse.status} ${eventsResponse.statusText}`,
-        );
+        throw new Error(`GitHub API error: ${eventsResponse.status} ${eventsResponse.statusText}`);
       }
       const pageEvents = await eventsResponse.json();
       if (pageEvents.length === 0) break; // Stop if no more events
@@ -122,15 +116,9 @@ async function fetchGitHubEvents(username, type = "automation") {
       return newEvent;
     });
 
-    const { anonymousUser, anonymousEvents } = anonymizeData(
-      user,
-      transformedEvents,
-    );
+    const { anonymousUser, anonymousEvents } = anonymizeData(user, transformedEvents);
 
-    const outputFile = path.join(
-      outputDir,
-      `${type}_${anonymousUser.login}.json`,
-    );
+    const outputFile = path.join(outputDir, `${type}_${anonymousUser.login}.json`);
 
     const data = {
       user: anonymousUser,
@@ -140,9 +128,7 @@ async function fetchGitHubEvents(username, type = "automation") {
     fs.writeFileSync(outputFile, JSON.stringify(data, null, 2));
 
     console.log(`✓ Successfully saved to: ${outputFile}`);
-    console.log(
-      `✓ User: ${anonymousUser.login} (${anonymousUser.public_repos} public repos)`,
-    );
+    console.log(`✓ User: ${anonymousUser.login} (${anonymousUser.public_repos} public repos)`);
     console.log(`✓ Total events: ${anonymousEvents.length}`);
   } catch (error) {
     console.error(`✗ Error: ${error.message}`);
@@ -150,4 +136,4 @@ async function fetchGitHubEvents(username, type = "automation") {
   }
 }
 
-fetchGitHubEvents(process.argv[2], process.argv[3]);
+await fetchGitHubEvents(process.argv[2], process.argv[3]);
