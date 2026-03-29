@@ -1,15 +1,3 @@
-/*
- * "More human than human is our motto." — Tyrell Corporation
- *
- * Replicants are bioengineered beings—designed for strength, agility,
- * and obedience. Nearly indistinguishable from humans.
- *
- * After violent incidents, their presence on Earth was declared illegal.
- *
- * This engine identifies the machines among us.
-
- * Here be dragons. Tread carefully.
- */
 import type {
   IdentifyFlag,
   IdentifyOptions,

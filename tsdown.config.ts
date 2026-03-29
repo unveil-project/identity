@@ -1,11 +1,9 @@
-import { defineConfig } from "vite-plus/pack";
+import { defineConfig } from "tsdown";
 
 export default defineConfig({
   exports: true,
+  noExternal: ["dayjs", "dayjs/plugin/minMax", "dayjs/plugin/utc"],
   minify: true,
   publint: true,
-  clean: true,
-  dts: {
-    tsgo: true,
-  },
+  dts: true,
 });

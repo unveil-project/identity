@@ -12,47 +12,37 @@
     "type": "git",
     "url": "git+https://github.com/unveil-project/identity.git"
   },
-  "files": [
-    "dist"
+  "workspaces": [
+    ".",
+    "playground"
   ],
-  "type": "module",
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "vp pack",
-    "dev": "vp pack --watch",
-    "test": "vp test",
-    "check": "vp check",
-    "check:fix": "vp check --fix",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "release": "bumpp",
-    "prepublishOnly": "pnpm run build",
-    "prepare": "vp config"
+    "add:fixture": "node scripts/fetch-github-events.js",
+    "prepublishOnly": "vitest --run && pnpm run build"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.4.0",
+    "@faker-js/faker": "^10.3.0",
     "@octokit/types": "^16.0.0",
-    "@types/node": "^25.5.0",
-    "@typescript/native-preview": "7.0.0-dev.20260328.1",
-    "bumpp": "^11.0.1",
+    "@types/node": "^25.0.3",
+    "bumpp": "^10.3.2",
     "dayjs": "^1.11.20",
-    "publint": "^0.3.18",
-    "typescript": "^6.0.2",
-    "vite-plus": "latest",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
-  },
-  "packageManager": "pnpm@10.33.0",
-  "pnpm": {
-    "overrides": {
-      "vite": "npm:@voidzero-dev/vite-plus-core@latest",
-      "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
-    }
-  },
-  "inlinedDependencies": {
-    "@octokit/openapi-types": "27.0.0",
-    "@octokit/types": "16.0.0",
-    "dayjs": "1.11.20"
+    "publint": "^0.3.17",
+    "tsdown": "^0.18.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   }
 }
