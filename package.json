@@ -1,6 +1,7 @@
 {
   "name": "@unveil/identity",
   "version": "1.0.0",
+  "type": "module",
   "description": "Identify automation patterns in GitHub accounts through behavioral analysis",
   "homepage": "https://github.com/unveil-project/identity#readme",
   "bugs": {
@@ -13,8 +14,7 @@
     "url": "git+https://github.com/unveil-project/identity.git"
   },
   "workspaces": [
-    ".",
-    "playground"
+    "."
   ],
   "exports": {
     ".": "./dist/index.mjs",
