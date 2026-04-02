@@ -33,6 +33,7 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "add:fixture": "node scripts/fetch-github-events.js",
+    "ai:analyse": "npx jiti scripts/ai-analyser-user.ts",
     "prepublishOnly": "vitest --run && pnpm run build"
   },
   "devDependencies": {
