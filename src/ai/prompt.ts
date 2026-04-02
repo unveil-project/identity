@@ -1,5 +1,6 @@
 import { compactor } from "voight-kampff-compactor";
 import type { AIAnalysisInput } from "./types";
+import type { GitHubEvent } from "../types";
 
 export const SYSTEM_PROMPT = [
   "You are an expert AI system designed to analyze GitHub user accounts and classify them as human-operated (\"organic\"), bot/automated (\"automation\"), or mixed behavior patterns.",
@@ -138,13 +139,13 @@ export function buildUserPrompt(input: AIAnalysisInput): string {
 }
 
 
-function slimEvents(events: Record<string, unknown>[]) {
+function slimEvents(events: GitHubEvent[]) {
   return events.map((e) => {
-    const payload = (e.payload ?? {}) as Record<string, unknown>;
+    const payload = (e.payload ?? {});
     return {
       type: e.type,
       created_at: e.created_at,
-      repo: (e.repo as { name?: string })?.name,
+      repo: e.repo?.name,
       action: payload.action,
       ref: payload.ref,
       ref_type: payload.ref_type,

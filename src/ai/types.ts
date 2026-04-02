@@ -1,4 +1,4 @@
-import type { IdentifyResult } from "../types";
+import type { GitHubEvent, IdentifyResult } from "../types";
 
 export type AIAnalysisInput = {
   token: string;
@@ -7,7 +7,7 @@ export type AIAnalysisInput = {
   analysis: IdentifyResult;
   accountCreatedAt: string;
   publicRepos: number;
-  events: Record<string, unknown>[];
+  events: GitHubEvent[];
 };
 
 export type AIAnalysisResult = {
