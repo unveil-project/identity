@@ -117,21 +117,24 @@ export const SYSTEM_PROMPT = [
 export function buildUserPrompt(input: AIAnalysisInput): string {
   const compactedData = compactor(
     JSON.stringify({
-      user: {
-        login: input.username,
-        created_at: input.accountCreatedAt,
-        public_repos: input.publicRepos,
-      },
-      heuristic: {
-        score: input.analysis.score,
-        classification: input.analysis.classification,
-        flags: input.analysis.flags,
-      },
       events: slimEvents(input.events),
     }),
   );
 
-  return `Here is the data to analyze: ${compactedData}`;
+  return [
+    'User information:',
+    `- Username: ${input.username}`,
+    `- Account Created At: ${input.accountCreatedAt}`,
+    `- Public Repos: ${input.publicRepos}`,
+    `- Heuristic Score: ${input.analysis.score}`,
+    `- Heuristic Classification: ${input.analysis.classification}`,
+    `- Heuristic Flags: ${input.analysis.flags.join(", ")}`,
+    "",
+    'Here is the GitHub user events to analyze:',
+    compactedData,
+    "",
+    "Based on this data, provide your classification and reasoning according to the system prompt guidelines.",
+  ].join('\n');
 }
 
 
