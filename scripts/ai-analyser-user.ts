@@ -6,8 +6,8 @@ const model = process.argv[3];
 const token = process.env.GITHUB_TOKEN;
 
 if (!username) {
-    console.error("Usage: GITHUB_TOKEN=<token> node scripts/ai-analyser-user.js <username> [model]");
-    console.error("Example: node scripts/ai-analyser-user.js octocat openai/gpt-4o");
+    console.error("Usage: GITHUB_TOKEN=<token> npx jiti scripts/ai-analyser-user.ts <username> [model]");
+    console.error("Example: npx jiti scripts/ai-analyser-user.ts octocat openai/gpt-4o");
     process.exit(1);
 }
 
