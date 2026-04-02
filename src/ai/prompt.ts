@@ -10,6 +10,7 @@ export const SYSTEM_PROMPT = [
   "- Account metadata: username, creation date, public repo count",
   "- GitHub events: array of recent public events (type, timestamp, repo, payload summary)",
   "- Optionally, a heuristic analysis result with a score, classification, and flags",
+  "- Optionally, a list of public organizations the user belongs to",
   "",
   "IMPORTANT: Events are limited to the most recent public events from the GitHub API. This is NOT the user's complete history. Never make absolute statements about total activity.",
   "",
@@ -41,6 +42,19 @@ export const SYSTEM_PROMPT = [
   "I. **Consecutive activity days**: 21+ consecutive active days",
   "J. **External repo spread** (young accounts): Contributing broadly across many unrelated repos",
   "K. **Daily hour spread**: Activity across 16+ hours in a single day with high entropy",
+  "L. **Star/Watch bombing**: WatchEvent bursts across many repos in a short window suggests automated starring",
+  "M. **Repetitive content**: Identical or near-identical commit messages, PR titles, or comment bodies across repos suggest templated automation",
+  "",
+  "### Organic Indicators (counterbalance)",
+  "These patterns are strong evidence of human behavior and should reduce automation confidence:",
+  "",
+  "- **Branch cleanup**: DeleteEvent for branches after PR merges is standard developer hygiene, NOT a bot signal. Do not penalize this.",
+  "- **Commit message style**: AI-generated commit messages often follow a rigid pattern — overly formal, verbose, or formulaic (e.g. \"refactor: update component to improve performance and maintainability\"). Human commits tend to be terse, inconsistent in style, and context-specific. Look for unnatural uniformity in tone or structure across commits.",
+  "- **Maintainer-scale activity**: Established accounts (1+ years) with many personal repos who are active across related repos (e.g. within an org or ecosystem) are likely maintainers. High volume is expected, not suspicious.",
+  "- **Org-aligned activity**: If the user belongs to organizations, activity across repos within those orgs is expected maintainer behavior — not \"external repo spread.\" Only flag repo spread for repos outside the user's orgs.",
+  "- **Mixed event types including human interactions**: A profile combining pushes, reviews, issue comments, and PR activity reflects natural maintainer workflow.",
+  "",
+  "CRITICAL: Volume alone is never sufficient evidence for automation. A prolific open-source maintainer can easily generate 200+ events in a few days through normal work. Always look at the *nature* of the activity, not just the *amount*.",
   "",
   "### Important Considerations",
   "- Timezone: Activity timestamps are UTC. What appears as odd hours may be normal in the user's timezone. Do not flag timing alone without corroborating patterns.",
@@ -76,17 +90,36 @@ export const SYSTEM_PROMPT = [
 
 
 export function buildUserPrompt(input: AIAnalysisInput): string {
+
+  const events = slimEvents(input.events);
+  const eventDates = input.events
+    .map(e => e.created_at)
+    .filter(Boolean)
+    .sort();
+  const uniqueRepos = new Set(input.events.map(e => e.repo?.name).filter(Boolean));
+  const typeCounts: Record<string, number> = {};
+  for (const e of input.events) {
+    if (e.type) typeCounts[e.type] = (typeCounts[e.type] || 0) + 1;
+  }
+
   const compactedData = compactor(
     JSON.stringify({
-      events: slimEvents(input.events),
+      events,
     }),
   );
-
   const userPrompt = [
     'User information:',
     `- Username: ${input.username}`,
     `- Account Created At: ${input.accountCreatedAt}`,
-    `- Public Repos: ${input.publicRepos}`, 
+    `- Public Repos: ${input.publicRepos}`,
+    `- Analysis Date: ${new Date().toISOString().split('T')[0]}`,
+    `- Organizations: ${input.orgs?.length ? input.orgs.join(', ') : 'None / not provided'}`,
+    '',
+    'Event summary (based on the sampled events below, NOT complete account history):',
+    `- Sampled events: ${input.events.length}`,
+    `- Date range: ${eventDates[0] || 'N/A'} to ${eventDates[eventDates.length - 1] || 'N/A'}`,
+    `- Unique repos: ${uniqueRepos.size}`,
+    `- Event types: ${Object.entries(typeCounts).map(([k, v]) => `${k}(${v})`).join(', ')}`,
   ] 
 
   if(input.analysis) {
@@ -114,7 +147,7 @@ export function buildUserPrompt(input: AIAnalysisInput): string {
 function slimEvents(events: GitHubEvent[]) {
   return events.map((e) => {
     const payload = (e.payload ?? {});
-    return {
+    const slim: Record<string, unknown> = {
       type: e.type,
       created_at: e.created_at,
       repo: e.repo?.name,
@@ -122,7 +155,21 @@ function slimEvents(events: GitHubEvent[]) {
       ref: payload.ref,
       ref_type: payload.ref_type,
       size: payload.size,
-      commits: Array.isArray(payload.commits) ? payload.commits.length : undefined,
     };
+
+    if (Array.isArray(payload.commits)) {
+      slim.commits = payload.commits.length;
+      slim.commit_msgs = (payload.commits as { message?: string }[])
+        .map(c => c.message?.split('\n')[0]?.slice(0, 80))
+        .filter(Boolean);
+    }
+
+    const pr = payload.pull_request as { title?: string } | undefined;
+    if (pr?.title) slim.pr_title = pr.title.slice(0, 120);
+
+    const comment = payload.comment as { body?: string } | undefined;
+    if (comment?.body) slim.comment_len = comment.body.length;
+
+    return slim;
   });
 }

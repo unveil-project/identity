@@ -31,6 +31,10 @@ export type AIAnalysisInput = {
    * The events associated with the user's account
    */
   events: GitHubEvent[];
+  /**
+   * Public organizations the user belongs to
+   */
+  orgs?: string[];
 };
 
 export type AIAnalysisResult = {

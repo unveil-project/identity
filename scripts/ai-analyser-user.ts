@@ -2,7 +2,7 @@ import { identify } from "../src/index";
 import { getAIAnalysis } from "../src/ai/index";
 
 const username = process.argv[2];
-const model = process.argv[3];
+const model = process.argv[3] || "openai/gpt-4o-mini";
 const token = process.env.GITHUB_TOKEN;
 
 if (!username) {
@@ -25,11 +25,18 @@ async function run() {
     if (!userRes.ok) throw new Error(`GitHub API error: ${userRes.status} ${userRes.statusText}`);
     const user = await userRes.json();
 
+    console.log(`Fetching orgs...`);
+    const orgsRes = await fetch(`https://api.github.com/users/${username}/orgs`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    const orgs = orgsRes.ok
+        ? (await orgsRes.json()).map((o: { login: string }) => o.login)
+        : []; 
     console.log(`Fetching events...`);
     const events = [];
     for (let page = 1; page <= 2; page++) {
         const res = await fetch(
-            `https://api.github.com/users/${username}/events?per_page=200&page=${page}`,
+            `https://api.github.com/users/${username}/events?per_page=300&page=${page}`,
             { headers: { Authorization: `Bearer ${token}` } },
         );
         if (!res.ok) throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
@@ -61,10 +68,12 @@ async function run() {
         token: token!,
         model,
         username: user.login,
+        // let's test without. Feels like this influence too much the LLM
         // analysis,
         accountCreatedAt: user.created_at,
         publicRepos: user.public_repos,
         events,
+        orgs,
     });
 
     if (!aiResult) {
