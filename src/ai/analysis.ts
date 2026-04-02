@@ -1,19 +1,11 @@
 import { buildUserPrompt, SYSTEM_PROMPT } from "./prompt";
 import type { AIAnalysisInput, AIAnalysisResult } from "./types";
 
-export async function getAIAnalysis({
-  token,
-  model,
-  username,
-  analysis,
-  accountCreatedAt,
-  publicRepos,
-  events,
-}: AIAnalysisInput): Promise<AIAnalysisResult | null> {
+export async function getAIAnalysis(input: AIAnalysisInput): Promise<AIAnalysisResult | null> {
+  const { token, model = 'openai/gpt-4o-mini', username, analysis, accountCreatedAt, publicRepos, events } = input;
   const prompt = buildUserPrompt({ token, model, username, analysis, accountCreatedAt, publicRepos, events });
 
-
-  // todo: extract into separate module for calling different AI providers and handling their specific quirks (like the DeepSeek markers bs)
+  // todo: extract into separate module for calling different AI providers and handling their specific quirks
   const response = await fetch(
     "https://models.github.ai/inference/chat/completions",
     {
@@ -44,10 +36,10 @@ export async function getAIAnalysis({
   let content = data.choices?.[0]?.message?.content?.trim() ?? null;
   if (!content) return null;
 
-  content = content
-  // remove DeepSeek-R1 markers if present
-  // This is stupid. like wtf ??
-  .replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+  if (model.includes("deepseek")) {
+    // remove DeepSeek-R1 markers if present
+    content = content.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+  }
 
   // todo : add validation of content structure before parsing like zod or smth
   return JSON.parse(content) as AIAnalysisResult;

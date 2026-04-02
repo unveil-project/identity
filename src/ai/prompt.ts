@@ -122,20 +122,32 @@ export function buildUserPrompt(input: AIAnalysisInput): string {
     }),
   );
 
-  return [
+  const userPrompt = [
     'User information:',
     `- Username: ${input.username}`,
     `- Account Created At: ${input.accountCreatedAt}`,
-    `- Public Repos: ${input.publicRepos}`,
-    `- Heuristic Score: ${input.analysis.score}`,
-    `- Heuristic Classification: ${input.analysis.classification}`,
-    `- Heuristic Flags: ${input.analysis.flags.join(", ")}`,
+    `- Public Repos: ${input.publicRepos}`, 
+  ] 
+
+  if(input.analysis) {
+    userPrompt.push(
+      "",
+      "Heuristic analysis results (for reference, but do not rely on exclusively):",
+        `- Overall Score: ${input.analysis.score}`,
+        `- Classification: ${input.analysis.classification}`,
+        `- Flags: ${input.analysis.flags.join(", ") || "None"}`,
+    )
+  }
+
+  userPrompt.push(...[
     "",
     'Here is the GitHub user events to analyze:',
     compactedData,
     "",
     "Based on this data, provide your classification and reasoning according to the system prompt guidelines.",
-  ].join('\n');
+  ])
+  
+  return userPrompt.join("\n")
 }
 
 
