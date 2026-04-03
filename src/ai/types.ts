@@ -9,7 +9,7 @@ export type AIAnalysisInput = {
    * The AI model to use for analysis, e.g. "openai/gpt-4o" or "openai/gpt-4o-mini"
    * @default "openai/gpt-4o-mini"
    */
-  model: string;
+  model?: string;
   /**
    * The username of the account to analyze
    */
