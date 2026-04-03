@@ -1,5 +1,12 @@
+import { z } from "zod/mini";
 import { buildUserPrompt, SYSTEM_PROMPT } from "./prompt";
 import type { AIAnalysisInput, AIAnalysisResult } from "./types";
+
+const aiAnalysisResultSchema = z.object({
+  classification: z.enum(["organic", "mixed", "automation"]),
+  confidence: z.number(),
+  reasoning: z.string(),
+});
 
 export async function getAIAnalysis(input: AIAnalysisInput): Promise<AIAnalysisResult | null> {
   const { token, model = 'openai/gpt-4o-mini', username, analysis, accountCreatedAt, publicRepos, events } = input;
@@ -41,6 +48,5 @@ export async function getAIAnalysis(input: AIAnalysisInput): Promise<AIAnalysisR
     content = content.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
   }
 
-  // todo : add validation of content structure before parsing like zod or smth
-  return JSON.parse(content) as AIAnalysisResult;
+  return aiAnalysisResultSchema.parse(JSON.parse(content));
 }

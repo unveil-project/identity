@@ -11,6 +11,9 @@ importers:
       voight-kampff-compactor:
         specifier: ^1.0.0
         version: 1.0.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@faker-js/faker':
         specifier: ^10.3.0
@@ -840,6 +843,9 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+
 snapshots:
 
   '@babel/generator@7.29.1':
@@ -1495,3 +1501,5 @@ snapshots:
       stackback: 0.0.2
 
   yaml@2.8.3: {}
+
+  zod@4.3.6: {}
