@@ -34,15 +34,16 @@ async function run() {
         : []; 
     console.log(`Fetching events...`);
     const events = [];
-    for (let page = 1; page <= 2; page++) {
+    for (let page = 1; page <= 3; page++) {
         const res = await fetch(
-            `https://api.github.com/users/${username}/events?per_page=300&page=${page}`,
+            `https://api.github.com/users/${username}/events?per_page=100&page=${page}`,
             { headers: { Authorization: `Bearer ${token}` } },
         );
         if (!res.ok) throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
         const page_events = await res.json();
         if (page_events.length === 0) break;
         events.push(...page_events);
+        if (page_events.length < 100) break;
     }
 
     console.log(`Running heuristic analysis...`);
