@@ -18,6 +18,8 @@
   ],
   "exports": {
     ".": "./dist/index.mjs",
+    "./ai": "./dist/ai/index.mjs",
+    "./ai-interpret": "./dist/ai-interpret/index.mjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.mjs",
@@ -32,6 +34,7 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "add:fixture": "node scripts/fetch-github-events.js",
+    "ai:analyse": "npx jiti scripts/ai-analyser-user.ts",
     "prepublishOnly": "vitest --run && pnpm run build"
   },
   "devDependencies": {
@@ -44,5 +47,9 @@
     "tsdown": "^0.18.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
+  },
+  "dependencies": {
+    "voight-kampff-compactor": "^1.0.0",
+    "zod": "^4.3.6"
   }
 }

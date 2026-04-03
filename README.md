@@ -47,6 +47,42 @@ console.log(analysis);
 // }
 ```
 
+### AI-Enhanced Analysis
+
+For deeper analysis, you can use the `getAIAnalysis` function to run the heuristic results through an LLM via [GitHub Models](https://github.com/marketplace/models). This provides a confidence score and natural language reasoning on top of the rule-based classification.
+
+```js
+import { identify } from "@unveil/identity";
+import { getAIAnalysis } from "@unveil/identity/ai";
+
+const analysis = identify({
+  createdAt: user.created_at,
+  reposCount: user.public_repos,
+  accountName: user.login,
+  events,
+});
+
+const aiResult = await getAIAnalysis({
+  token: process.env.GITHUB_TOKEN,
+  model: "openai/gpt-4o",
+  username: user.login,
+  analysis,
+  accountCreatedAt: user.created_at,
+  publicRepos: user.public_repos,
+  events,
+});
+
+console.log(aiResult);
+```
+
+`getAIAnalysis` accepts any model available on GitHub Models (e.g. `openai/gpt-4o`, `deepseek/DeepSeek-R1`). It returns `null` if the model produces no usable response.
+
+**tested models**:
+- openai/gpt-4o-mini
+- deepseek/DeepSeek-R1
+- openai/gpt-4o **(unreliable)**
+
+
 ### Issues and feature requests
 
 Please drop an issue if you find something that doesn't work, or have an idea for something that works better.
