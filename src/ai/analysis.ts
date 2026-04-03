@@ -9,8 +9,8 @@ const aiAnalysisResultSchema = z.object({
 });
 
 export async function getAIAnalysis(input: AIAnalysisInput): Promise<AIAnalysisResult | null> {
-  const { token, model = 'openai/gpt-4o-mini', username, analysis, accountCreatedAt, publicRepos, events } = input;
-  const prompt = buildUserPrompt({ token, model, username, analysis, accountCreatedAt, publicRepos, events });
+  const { token, model = 'openai/gpt-4o-mini', username, analysis, accountCreatedAt, publicRepos, events, orgs } = input;
+  const prompt = buildUserPrompt({ token, model, username, analysis, accountCreatedAt, publicRepos, events, orgs });
 
   // todo: extract into separate module for calling different AI providers and handling their specific quirks
   const response = await fetch(
