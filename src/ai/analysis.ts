@@ -9,7 +9,12 @@ const aiAnalysisResultSchema = z.object({
 });
 
 export async function getAIAnalysis(input: AIAnalysisInput): Promise<AIAnalysisResult | null> {
-  const { token, model = 'openai/gpt-4o-mini', username, analysis, accountCreatedAt, publicRepos, events, orgs } = input;
+  const { token = process.env.GITHUB_TOKEN, model = 'openai/gpt-4o-mini', username, analysis, accountCreatedAt, publicRepos, events, orgs } = input;
+
+  if (!token) {
+    throw new Error("GitHub token is required for AI analysis. Please provide it in the input or set it as an environment variable GITHUB_TOKEN.");
+  }
+
   const prompt = buildUserPrompt({ token, model, username, analysis, accountCreatedAt, publicRepos, events, orgs });
 
   // todo: extract into separate module for calling different AI providers and handling their specific quirks

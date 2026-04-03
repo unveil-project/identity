@@ -3,8 +3,9 @@ import type { GitHubEvent, IdentifyResult } from "../types";
 export type AIAnalysisInput = {
     /**
      * Your github token
+     * @default process.env.GITHUB_TOKEN
      */
-  token: string;
+  token?: string;
   /**
    * The AI model to use for analysis, e.g. "openai/gpt-4o" or "openai/gpt-4o-mini"
    * @default "openai/gpt-4o-mini"
