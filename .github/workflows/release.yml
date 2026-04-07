@@ -38,5 +38,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
+      - name: Determine dist-tag
+        id: dist-tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          else
+            PRE=$(echo "$VERSION" | sed -E 's/^[0-9]+\.[0-9]+\.[0-9]+-([a-zA-Z]+).*/\1/')
+            echo "tag=$PRE" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish
-        run: pnpm publish --access public --provenance --tag latest
+        run: pnpm publish --access public --provenance --tag ${{ steps.dist-tag.outputs.tag }}
