@@ -14,7 +14,7 @@ jobs:
     concurrency:
       group: release
     permissions:
-      contents: write
+      contents: read
       id-token: write
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -23,14 +23,16 @@ jobs:
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          version: 10.17.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: current
+          node-version: lts/*
           registry-url: "https://registry.npmjs.org/"
           package-manager-cache: false
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Publish
-        run: pnpm publish --access public --no-git-checks --tag latest
+        run: pnpm publish --access public --provenance --tag latest
