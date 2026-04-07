@@ -39,6 +39,7 @@
     "@octokit/types": "^16.0.0",
     "@types/node": "^25.0.3",
     "bumpp": "^10.3.2",
+    "changelogithub": "^14.0.0",
     "dayjs": "^1.11.20",
     "publint": "^0.3.17",
     "tsdown": "^0.18.1",
