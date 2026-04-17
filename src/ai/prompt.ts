@@ -1,4 +1,4 @@
-import { compactor } from "voight-kampff-compactor";
+import { compactor } from "@unveil/compactor";
 import type { AIAnalysisInput } from "./types";
 import type { GitHubEvent } from "../types";
 
