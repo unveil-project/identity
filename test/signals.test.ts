@@ -556,16 +556,16 @@ describe("identify - Classification", () => {
     }
 
     const result = identify({
-      createdAt: "2025-01-01T00:00:00Z",
+      createdAt: "2026-04-15T00:00:00Z", // 14 days old (new account penalty: 20 points)
       reposCount: 100,
       accountName: "user",
       events,
     });
 
-    // Based on threshold configuration
-    if (result.score >= 50 && result.score < 70) {
-      expect(result.classification).toBe("mixed");
-    }
+    // Total penalty points: 26 (forks) + 20 (new account) = 46 → score = 100 - 46 = 54
+    expect(result.classification).toBe("mixed");
+    expect(result.score).toBeGreaterThanOrEqual(50);
+    expect(result.score).toBeLessThan(70);
   });
 
   it("should classify as automation when score < 50", () => {
@@ -580,15 +580,15 @@ describe("identify - Classification", () => {
     }
 
     const result = identify({
-      createdAt: "2026-03-08T00:00:00Z", // very new
+      createdAt: "2026-03-08T00:00:00Z", // 52 days old (young account penalty: 10 points)
       reposCount: 0,
       accountName: "bot",
       events,
     });
 
-    if (result.score < 50) {
-      expect(result.classification).toBe("automation");
-    }
+    // Total penalty points: 85 (forks) + 10 (young account) = 95 → score = 100 - 95 = 5
+    expect(result.classification).toBe("automation");
+    expect(result.score).toBeLessThan(50);
   });
 });
 
