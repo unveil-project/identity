@@ -620,7 +620,9 @@ export function identify({
       const branchCreateEvents = events.filter(
         (e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
       );
-      const allPREvents = events.filter((e) => e.type === "PullRequestEvent");
+      const allPREvents = events.filter(
+        (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+      );
 
       if (
         branchCreateEvents.length >= CONFIG.FORK_COMBINED_BRANCHES &&
@@ -700,7 +702,9 @@ export function identify({
     }
 
     // PRs (flag more aggressively)
-    const prEvents = events.filter((e) => e.type === "PullRequestEvent");
+    const prEvents = events.filter(
+      (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+    );
 
     if (prEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
       const timestamps = prEvents.map((e) => dayjs(e.created_at));
@@ -931,7 +935,9 @@ export function identify({
   // Extreme PR spam detection - TIME-WINDOWED (applies to all accounts)
   // Spam is about intensity/velocity, not total count
   if (events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-    const allPREvents = events.filter((e) => e.type === "PullRequestEvent");
+    const allPREvents = events.filter(
+      (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+    );
     const now = dayjs();
     const oneDayAgo = now.subtract(1, "day");
     const oneWeekAgo = now.subtract(1, "week");
