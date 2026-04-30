@@ -490,24 +490,8 @@ export function identify({
     // This avoids redundant overlapping alerts
     let forkSpikeFlag: IdentifyFlag | null = null;
 
-    // Check 72-hour window first (largest)
-    if (maxForksIn72h >= CONFIG.FORKS_SURGE_72H) {
-      forkSpikeFlag = {
-        label: "Severe multi-day fork surge",
-        points: CONFIG.POINTS_FORK_SURGE_72H,
-        detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
-      };
-    }
-    // Fall back to 48-hour if it's high but 72h isn't extreme
-    else if (maxForksIn48h >= CONFIG.FORKS_SURGE_48H) {
-      forkSpikeFlag = {
-        label: "Multi-day fork surge",
-        points: CONFIG.POINTS_FORK_SURGE_48H,
-        detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
-      };
-    }
-    // Finally check 24-hour window
-    else if (maxForksIn24h >= CONFIG.FORKS_SURGE_EXTREME_HIGH) {
+    // Check 24-hour window first (most specific, densest activity)
+    if (maxForksIn24h >= CONFIG.FORKS_SURGE_EXTREME_HIGH) {
       forkSpikeFlag = {
         label: "Extreme fork automation",
         points: CONFIG.POINTS_FORK_SURGE_EXTREME_HIGH,
@@ -530,6 +514,22 @@ export function identify({
         label: "Multiple forks",
         points: CONFIG.POINTS_MULTIPLE_FORKS,
         detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    }
+    // Fall back to 48-hour if 24h thresholds not met
+    else if (maxForksIn48h >= CONFIG.FORKS_SURGE_48H) {
+      forkSpikeFlag = {
+        label: "Multi-day fork surge",
+        points: CONFIG.POINTS_FORK_SURGE_48H,
+        detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
+      };
+    }
+    // Finally check 72-hour window
+    else if (maxForksIn72h >= CONFIG.FORKS_SURGE_72H) {
+      forkSpikeFlag = {
+        label: "Severe multi-day fork surge",
+        points: CONFIG.POINTS_FORK_SURGE_72H,
+        detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
       };
     }
 
