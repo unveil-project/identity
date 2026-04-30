@@ -857,40 +857,6 @@ export function identify({
       }
     }
 
-    // Consecutive days activity
-    // working non-stop
-    const daySet = new Set<string>();
-    events.forEach((e) => {
-      daySet.add(dayjs.utc(e.created_at).format("YYYY-MM-DD"));
-    });
-
-    const sortedDays = Array.from(daySet)
-      .map((d) => dayjs(d, "YYYY-MM-DD"))
-      .sort((a, b) => a.valueOf() - b.valueOf());
-
-    let maxStreak = 1;
-    let currentStreak = 1;
-
-    for (let i = 1; i < sortedDays.length; i++) {
-      const prev = sortedDays[i - 1];
-      const curr = sortedDays[i];
-
-      if (curr && prev && curr.diff(prev, "day") === 1) {
-        currentStreak++;
-        maxStreak = Math.max(maxStreak, currentStreak);
-      } else {
-        currentStreak = 1;
-      }
-    }
-
-    if (maxStreak >= CONFIG.CONSECUTIVE_DAYS_STREAK) {
-      flags.push({
-        label: "Long activity streak",
-        points: CONFIG.POINTS_CONTINUOUS_ACTIVITY,
-        detail: `${maxStreak} days in a row with activity`,
-      });
-    }
-
     // External repo spread
     // Only count repos the user doesn't own
     // Only flag for young accounts - established OSS devs often contribute widely

@@ -65,10 +65,6 @@ export const CONFIG = {
   POINTS_NONSTOP_ACTIVITY: 40,
   POINTS_FREQUENT_MARATHON: 25,
 
-  // Consecutive days streak
-  CONSECUTIVE_DAYS_STREAK: 21, // >= this = suspicious
-  POINTS_CONTINUOUS_ACTIVITY: 25,
-
   // Repo spread thresholds (external repos only, young accounts only)
   REPO_SPREAD_EXTREME: 30, // >= this = extreme spread
   REPO_SPREAD_HIGH: 20, // >= this = wide spread
