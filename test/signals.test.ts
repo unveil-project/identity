@@ -483,7 +483,8 @@ describe("identify - Score Calculation", () => {
 
     // Should have some fork-related flags
     const totalPoints = result.flags.reduce((sum, flag) => sum + flag.points, 0);
-    expect(result.score).toBe(100 - totalPoints);
+    const expectedScore = Math.max(0, 100 - totalPoints);
+    expect(result.score).toBe(expectedScore);
     expect(result.score).toBeLessThanOrEqual(100);
     expect(result.score).toBeGreaterThanOrEqual(0);
   });
