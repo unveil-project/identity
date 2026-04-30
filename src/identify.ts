@@ -986,11 +986,39 @@ export function identify({
         );
 
         if (prTargetRepos.size >= CONFIG.REPOS_SPAM_SPREAD) {
-          flags.push({
-            label: "Distributed PR spam pattern",
-            points: CONFIG.POINTS_PR_SPAM_COMBINED,
-            detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories`,
-          });
+          // Guard against flagging long-term contributors:
+          // Calculate time density and rolling window
+          const prTimestamps = allPREvents
+            .map((e) => dayjs(e.created_at))
+            .sort((a, b) => a.valueOf() - b.valueOf());
+          
+          const earliestPR = prTimestamps[0];
+          const latestPR = prTimestamps[prTimestamps.length - 1];
+          const timeSpanDays = latestPR ? latestPR.diff(earliestPR, "days", true) : 0;
+          const timeSpanWeeks = timeSpanDays / 7;
+          
+          // Calculate density: PRs per week
+          const prsPerWeek = timeSpanWeeks > 0 ? allPREvents.length / timeSpanWeeks : Infinity;
+          
+          // Check rolling 30-day window
+          const thirtyDaysAgo = dayjs().subtract(30, "days");
+          const prsInLast30Days = allPREvents.filter(
+            (e) => dayjs(e.created_at).isAfter(thirtyDaysAgo)
+          ).length;
+          
+          // Flag if either:
+          // 1. High density (PRs per week exceeds threshold), OR
+          // 2. Rolling 30-day window has excessive volume
+          const isHighDensity = prsPerWeek >= CONFIG.PRS_SPAM_DENSITY_PER_WEEK;
+          const isRolling30DaySpam = prsInLast30Days >= CONFIG.PRS_SPAM_ROLLING_30DAYS;
+          
+          if (isHighDensity || isRolling30DaySpam) {
+            flags.push({
+              label: "Distributed PR spam pattern",
+              points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
+              detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}`,
+            });
+          }
         }
       }
     }

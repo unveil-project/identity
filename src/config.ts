@@ -93,6 +93,11 @@ export const CONFIG = {
   PRS_SPAM_VOLUME: 50, // PR count threshold for combined check
   REPOS_SPAM_SPREAD: 15, // repos threshold for combined check
   POINTS_PR_SPAM_COMBINED: 45, // for combined high PR + repo spread
+  
+  // Distributed PR spam density guards (prevent flagging long-term contributors)
+  PRS_SPAM_DENSITY_PER_WEEK: 15, // >= this PRs/week = suspicious density (distributed spam)
+  PRS_SPAM_ROLLING_30DAYS: 60, // >= this PRs in last 30 days + meets repo spread = flag
+  POINTS_PR_SPAM_DISTRIBUTED: 45, // points for distributed spam pattern
 
   // PR-only contributor
   EXTERNAL_PRS_MIN: 15, // external PRs threshold
