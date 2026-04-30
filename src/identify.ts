@@ -319,10 +319,19 @@ export function identify({
             .slice(windowStartIdx, windowEndIdx + 1)
             .map((item) => {
               const repoName = item.event.repo?.name;
-              // PR number should ideally come from payload, but we can use repo as approximation
+              // Extract PR number from payload (PullRequestReviewCommentEvent)
+              const prNumber =
+                (item.event.payload as any)?.pull_request?.number ||
+                (item.event.payload as any)?.number ||
+                (item.event as any)?.issue?.number;
+              
+              // Return repo#prNumber if available, otherwise just repo name
+              if (repoName && prNumber) {
+                return `${repoName}#${prNumber}`;
+              }
               return repoName;
             })
-            .filter((name): name is string => name !== undefined),
+            .filter((key): key is string => key !== undefined),
         );
 
         if (prsInWindow.size > maxDistinctPRsInWindow) {
