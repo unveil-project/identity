@@ -470,51 +470,179 @@ export function identify({
       .map((e) => dayjs(e.created_at))
       .sort((a, b) => a.valueOf() - b.valueOf());
 
-    let maxForksInWindow = 0;
-    let windowStartIdx = 0;
+    // Helper to find max forks in any window of given hours
+    const findMaxForksInWindow = (hours: number): number => {
+      let maxForks = 0;
+      let windowStartIdx = 0;
 
-    // Find the densest fork cluster within 24 hours
-    for (let windowEndIdx = 0; windowEndIdx < forkTimestamps.length; windowEndIdx++) {
-      const windowEnd = forkTimestamps[windowEndIdx];
+      for (let windowEndIdx = 0; windowEndIdx < forkTimestamps.length; windowEndIdx++) {
+        const windowEnd = forkTimestamps[windowEndIdx];
 
-      // Slide window start forward until within 24 hours
-      while (
-        windowEnd &&
-        windowEnd.diff(forkTimestamps[windowStartIdx], "hour", true) >
-          CONFIG.FORK_SURGE_WINDOW_HOURS
-      ) {
-        windowStartIdx++;
+        while (
+          windowEnd &&
+          windowEnd.diff(forkTimestamps[windowStartIdx], "hour", true) > hours
+        ) {
+          windowStartIdx++;
+        }
+
+        const forksInWindow = windowEndIdx - windowStartIdx + 1;
+        maxForks = Math.max(maxForks, forksInWindow);
       }
 
-      const forksInWindow = windowEndIdx - windowStartIdx + 1;
-      maxForksInWindow = Math.max(maxForksInWindow, forksInWindow);
-    }
+      return maxForks;
+    };
 
-    // Flag based on fork spike severity, same criteria for all accounts
-    if (maxForksInWindow >= CONFIG.FORKS_SURGE_EXTREME_HIGH) {
-      flags.push({
+    // Calculate all time windows at once
+    const maxForksIn24h = findMaxForksInWindow(24);
+    const maxForksIn48h = findMaxForksInWindow(48);
+    const maxForksIn72h = findMaxForksInWindow(72);
+
+    // Determine which time window to flag (only flag the MOST SEVERE, not all)
+    // This avoids redundant overlapping alerts
+    let forkSpikeFlag: IdentifyFlag | null = null;
+
+    // Check 72-hour window first (largest)
+    if (maxForksIn72h >= CONFIG.FORKS_SURGE_72H) {
+      forkSpikeFlag = {
+        label: "Severe multi-day fork surge",
+        points: CONFIG.POINTS_FORK_SURGE_72H,
+        detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
+      };
+    }
+    // Fall back to 48-hour if it's high but 72h isn't extreme
+    else if (maxForksIn48h >= CONFIG.FORKS_SURGE_48H) {
+      forkSpikeFlag = {
+        label: "Multi-day fork surge",
+        points: CONFIG.POINTS_FORK_SURGE_48H,
+        detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
+      };
+    }
+    // Finally check 24-hour window
+    else if (maxForksIn24h >= CONFIG.FORKS_SURGE_EXTREME_HIGH) {
+      forkSpikeFlag = {
         label: "Extreme fork automation",
         points: CONFIG.POINTS_FORK_SURGE_EXTREME_HIGH,
-        detail: `${maxForksInWindow} repos forked within 24 hours`,
-      });
-    } else if (maxForksInWindow >= CONFIG.FORKS_SURGE_SEVERE) {
-      flags.push({
+        detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    } else if (maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE) {
+      forkSpikeFlag = {
         label: "Severe fork surge",
         points: CONFIG.POINTS_FORK_SURGE_SEVERE,
-        detail: `${maxForksInWindow} repos forked within 24 hours`,
-      });
-    } else if (maxForksInWindow >= CONFIG.FORKS_EXTREME) {
-      flags.push({
+        detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    } else if (maxForksIn24h >= CONFIG.FORKS_EXTREME) {
+      forkSpikeFlag = {
         label: "Many recent forks",
         points: CONFIG.POINTS_FORK_SURGE,
-        detail: `${maxForksInWindow} repos forked within 24 hours`,
-      });
-    } else if (maxForksInWindow >= CONFIG.FORKS_HIGH) {
-      flags.push({
+        detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    } else if (maxForksIn24h >= CONFIG.FORKS_HIGH) {
+      forkSpikeFlag = {
         label: "Multiple forks",
         points: CONFIG.POINTS_MULTIPLE_FORKS,
-        detail: `${maxForksInWindow} repos forked within 24 hours`,
+        detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    }
+
+    // Add the single most severe spike flag
+    if (forkSpikeFlag) {
+      flags.push(forkSpikeFlag);
+    }
+
+    // Fork rate metric (forks per day over activity period)
+    // Only applies if we haven't already detected a severe concentrated burst
+    const hasSevereBurst = maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE || maxForksIn48h >= CONFIG.FORKS_SURGE_48H;
+
+    if (forkTimestamps.length > 0 && !hasSevereBurst) {
+      const oldestFork = forkTimestamps[0];
+      const newestFork = forkTimestamps[forkTimestamps.length - 1];
+
+      if (oldestFork && newestFork) {
+        const forkSpanDays = Math.max(1, newestFork.diff(oldestFork, "day"));
+        const forksPerDay = forkEvents.length / forkSpanDays;
+
+        if (forksPerDay >= CONFIG.FORKS_PER_DAY_HIGH) {
+          flags.push({
+            label: "High sustained fork rate",
+            points: CONFIG.POINTS_FORKS_PER_DAY_HIGH,
+            detail: `${forkEvents.length} repositories forked over ${forkSpanDays} day${forkSpanDays > 1 ? "s" : ""} (sustained high activity)`,
+          });
+        }
+      }
+    }
+
+    // Consecutive days of forking - only flag if it's a distributed pattern
+    // Not a single concentrated burst (which is already flagged above)
+    const forkDays = new Set<string>();
+    forkEvents.forEach((e) => {
+      forkDays.add(dayjs.utc(e.created_at).format("YYYY-MM-DD"));
+    });
+
+    if (forkDays.size >= CONFIG.CONSECUTIVE_FORK_DAYS && !hasSevereBurst) {
+      const sortedForkDays = Array.from(forkDays)
+        .map((d) => dayjs(d, "YYYY-MM-DD"))
+        .sort((a, b) => a.valueOf() - b.valueOf());
+
+      let maxConsecutiveForkDays = 1;
+      let currentStreak = 1;
+
+      for (let i = 1; i < sortedForkDays.length; i++) {
+        const prev = sortedForkDays[i - 1];
+        const curr = sortedForkDays[i];
+
+        if (curr && prev && curr.diff(prev, "day") === 1) {
+          currentStreak++;
+          maxConsecutiveForkDays = Math.max(maxConsecutiveForkDays, currentStreak);
+        } else {
+          currentStreak = 1;
+        }
+      }
+
+      if (maxConsecutiveForkDays >= CONFIG.CONSECUTIVE_FORK_DAYS) {
+        const totalDays = forkDays.size;
+        flags.push({
+          label: "Extended forking pattern",
+          points: CONFIG.POINTS_CONSECUTIVE_FORK_DAYS,
+          detail: `Forking activity on ${totalDays} days (${maxConsecutiveForkDays} consecutive), ${forkEvents.length} repositories total`,
+        });
+      }
+    }
+
+    // Fork repository diversity (spreading across many different repos)
+    const forkedRepos = new Set<string>(
+      forkEvents
+        .map((e) => e.repo?.name)
+        .filter((name): name is string => name !== undefined),
+    );
+
+    if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH) {
+      flags.push({
+        label: "Widespread fork targets",
+        points: CONFIG.POINTS_FORK_DIVERSITY,
+        detail: `Targeting many different repositories: ${forkEvents.length} forks across ${forkedRepos.size} different repos`,
       });
+    }
+
+    // Fork + coordinated activity combo (forks + branches + PRs = coordinated automation)
+    if (
+      forkEvents.length >= CONFIG.FORK_COMBINED_ACTIVITY_MIN &&
+      events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS
+    ) {
+      const branchCreateEvents = events.filter(
+        (e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
+      );
+      const allPREvents = events.filter((e) => e.type === "PullRequestEvent");
+
+      if (
+        branchCreateEvents.length >= CONFIG.FORK_COMBINED_BRANCHES &&
+        allPREvents.length >= CONFIG.FORK_COMBINED_PRS
+      ) {
+        flags.push({
+          label: "Coordinated fork/branch/PR automation",
+          points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
+          detail: `Combination of fork, branch, and PR activities: ${forkEvents.length} forks + ${branchCreateEvents.length} branches + ${allPREvents.length} PRs`,
+        });
+      }
     }
   }
 

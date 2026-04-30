@@ -34,6 +34,30 @@ export const CONFIG = {
   POINTS_FORK_SURGE_EXTREME_HIGH: 85, // points for 35+ forks in 24 hours
   POINTS_MULTIPLE_FORKS: 26, // points for 5-7 forks in 24 hours
 
+  // Multi-day fork surge (catches forks spread across multiple days)
+  FORKS_SURGE_48H: 18, // >= this forks within 48 hours = multi-day surge
+  FORKS_SURGE_72H: 25, // >= this forks within 72 hours = severe multi-day surge
+  POINTS_FORK_SURGE_48H: 65,
+  POINTS_FORK_SURGE_72H: 75,
+
+  // Fork rate metrics (average forks per day)
+  FORKS_PER_DAY_HIGH: 8, // >= this forks/day average = sustained high fork rate
+  POINTS_FORKS_PER_DAY_HIGH: 55,
+
+  // Consecutive days of forking
+  CONSECUTIVE_FORK_DAYS: 6, // >= this days with fork activity = pattern
+  POINTS_CONSECUTIVE_FORK_DAYS: 40,
+
+  // Fork + coordinated activity combo
+  FORK_COMBINED_ACTIVITY_MIN: 12, // >= this forks
+  FORK_COMBINED_BRANCHES: 6, // + >= this branch creations
+  FORK_COMBINED_PRS: 8, // + >= this PRs = coordinated automation
+  POINTS_FORK_COMBINED_ACTIVITY: 60,
+
+  // Fork repository diversity
+  FORK_REPO_DIVERSITY_HIGH: 15, // >= this different repos forked = spread behavior
+  POINTS_FORK_DIVERSITY: 45,
+
   // Inhuman daily activity
   HOURS_PER_DAY_INHUMAN: 16, // >= this unique hours in a day = inhuman
   CONSECUTIVE_INHUMAN_DAYS_EXTREME: 3, // consecutive days with 16+ hours

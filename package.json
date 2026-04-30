@@ -13,9 +13,6 @@
     "type": "git",
     "url": "git+https://github.com/unveil-project/identity.git"
   },
-  "workspaces": [
-    "."
-  ],
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
@@ -32,6 +29,7 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "add:fixture": "node scripts/fetch-github-events.js",
+    "playground": "pnpm -F @unveil/identity-playground dev",
     "prepublishOnly": "vitest --run && pnpm run build"
   },
   "devDependencies": {
