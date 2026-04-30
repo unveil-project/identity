@@ -245,7 +245,7 @@ export function identify({
           commentTimestamps
             .slice(windowStartIdx, windowEndIdx + 1)
             .map((item) => item.event.repo?.name)
-            .filter((name): name is string => name !== undefined),
+            .filter((name) => name !== undefined),
         );
 
         if (reposInWindow.size > maxDistinctReposInWindow) {
@@ -331,7 +331,7 @@ export function identify({
               }
               return repoName;
             })
-            .filter((key): key is string => key !== undefined),
+            .filter((key) => key !== undefined),
         );
 
         if (prsInWindow.size > maxDistinctPRsInWindow) {
@@ -601,38 +601,87 @@ export function identify({
     const forkedRepos = new Set<string>(
       forkEvents
         .map((e) => e.repo?.name)
-        .filter((name): name is string => name !== undefined),
+        .filter((name) => name !== undefined),
     );
 
     if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH) {
+      // Calculate time span for context
+      let timeSpanDetail = "";
+      if (forkTimestamps.length > 1) {
+        const earliestFork = forkTimestamps[0];
+        const latestFork = forkTimestamps[forkTimestamps.length - 1];
+        const spanDays = latestFork.diff(earliestFork, "day");
+        timeSpanDetail = spanDays > 0 ? ` over ${spanDays} days` : " in a short timeframe";
+      }
+
       flags.push({
-        label: "Widespread fork targets",
+        label: "Widespread fork targeting",
         points: CONFIG.POINTS_FORK_DIVERSITY,
-        detail: `Targeting many different repositories: ${forkEvents.length} forks across ${forkedRepos.size} different repos`,
+        detail: `Forking activity across ${forkedRepos.size} different repositories${timeSpanDetail}`,
       });
     }
 
-    // Fork + coordinated activity combo (forks + branches + PRs = coordinated automation)
+    // Fork + coordinated activity combo (forks + branches + PRs = chained automation)
+    // Verify actual chaining: branches in forked repos, PRs targeting forked repos, temporal order
     if (
       forkEvents.length >= CONFIG.FORK_COMBINED_ACTIVITY_MIN &&
       events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS
     ) {
+      // Get repos that were forked
+      const forkedRepoNames = new Set(
+        forkEvents
+          .map((e) => e.repo?.name)
+          .filter((name) => name !== undefined),
+      );
+
+      // Find branches created in forked repos
       const branchCreateEvents = events.filter(
         (e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
       );
+      const branchesInForkedRepos = branchCreateEvents.filter((e) =>
+        forkedRepoNames.has(e.repo?.name || ""),
+      );
+
+      // Find PRs targeting forked repos
       const allPREvents = events.filter(
         (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
       );
+      const prsInForkedRepos = allPREvents.filter((e) =>
+        forkedRepoNames.has(e.repo?.name || ""),
+      );
 
+      // Verify temporal chaining: forks → branches → PRs
       if (
-        branchCreateEvents.length >= CONFIG.FORK_COMBINED_BRANCHES &&
-        allPREvents.length >= CONFIG.FORK_COMBINED_PRS
+        branchesInForkedRepos.length >= CONFIG.FORK_COMBINED_BRANCHES &&
+        prsInForkedRepos.length >= CONFIG.FORK_COMBINED_PRS
       ) {
-        flags.push({
-          label: "Coordinated fork/branch/PR automation",
-          points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
-          detail: `Combination of fork, branch, and PR activities: ${forkEvents.length} forks + ${branchCreateEvents.length} branches + ${allPREvents.length} PRs`,
-        });
+        const forkTimestamps = forkEvents.map((e) => dayjs(e.created_at));
+        const branchTimestamps = branchesInForkedRepos.map((e) => dayjs(e.created_at));
+        const prTimestamps = prsInForkedRepos.map((e) => dayjs(e.created_at));
+
+        const latestFork = dayjs.max(forkTimestamps);
+        const earliestBranch = dayjs.min(branchTimestamps);
+        const earliestPR = dayjs.min(prTimestamps);
+
+        // Check if there's a temporal sequence: forks before branches before PRs
+        // Relaxed ratio check (2.0x tolerance) to account for potential incomplete event history
+        const isChainingEvident =
+          latestFork &&
+          earliestBranch &&
+          earliestPR &&
+          latestFork.isBefore(earliestBranch) &&
+          earliestBranch.isBefore(earliestPR) &&
+          prsInForkedRepos.length <= branchesInForkedRepos.length * 2.0;
+
+        if (isChainingEvident) {
+          const totalOps =
+            forkEvents.length + branchesInForkedRepos.length + prsInForkedRepos.length;
+          flags.push({
+            label: "Suspicious chained automations",
+            points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
+            detail: `${totalOps} chained repository operations: ${forkEvents.length} forks followed by ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests (based on available event history)`,
+          });
+        }
       }
     }
   }
@@ -849,7 +898,7 @@ export function identify({
       const externalRepos = new Set(
         events
           .map((e) => e.repo?.name)
-          .filter((name): name is string => {
+          .filter((name) => {
             if (!name) return false;
             const repoOwner = name.split("/")[0]?.toLowerCase();
             return repoOwner !== userLogin;
@@ -988,7 +1037,7 @@ export function identify({
         const prTargetRepos = new Set(
           allPREvents
             .map((e) => e.repo?.name)
-            .filter((name): name is string => name !== undefined),
+            .filter((name) => name !== undefined),
         );
 
         if (prTargetRepos.size >= CONFIG.REPOS_SPAM_SPREAD) {
