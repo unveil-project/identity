@@ -172,7 +172,7 @@ export function identify({
         flags.push({
           label: "24/7 activity pattern",
           points,
-          detail: `${pattern.day}: ${pattern.hoursActive}h active, ${minRestWindowFound}h sleep gap, ${(pattern.eventCount / pattern.hoursActive).toFixed(1)} events/hour`,
+          detail: `${pattern.day}: active across ${pattern.hoursActive} hours with only ${minRestWindowFound} hour${minRestWindowFound === 1 ? "" : "s"} rest`,
         });
       }
     }
@@ -245,7 +245,7 @@ export function identify({
           commentTimestamps
             .slice(windowStartIdx, windowEndIdx + 1)
             .map((item) => item.event.repo?.name)
-            .filter((name): name is string => name !== undefined),
+            .filter((name) => name !== undefined),
         );
 
         if (reposInWindow.size > maxDistinctReposInWindow) {
@@ -262,17 +262,12 @@ export function identify({
         const commentsInWindow = maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
         const timeSpanMinutes =
           windowEnd && windowStart
-            ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
+            ? Math.round(windowEnd.diff(windowStart, "minute", true))
             : 0;
-        const commentsPerMinute =
-          timeSpanMinutes > 0
-            ? Math.round((commentsInWindow / timeSpanMinutes) * 10) / 10
-            : commentsInWindow;
-
         flags.push({
           label: "Issue comment spam",
           points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_EXTREME,
-          detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minutes (${commentsPerMinute} comments/min)`,
+          detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
         });
       } else if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_HIGH) {
         const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
@@ -280,17 +275,98 @@ export function identify({
         const commentsInWindow = maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
         const timeSpanMinutes =
           windowEnd && windowStart
-            ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
+            ? Math.round(windowEnd.diff(windowStart, "minute", true))
             : 0;
-        const commentsPerMinute =
-          timeSpanMinutes > 0
-            ? Math.round((commentsInWindow / timeSpanMinutes) * 10) / 10
-            : commentsInWindow;
-
         flags.push({
           label: "High comment frequency across repos",
           points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH,
-          detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minutes (${commentsPerMinute} comments/min)`,
+          detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+        });
+      }
+    }
+
+    // PR comment spam detection (multiple review comments across different PRs/repos in short time)
+    const prCommentEvents = events.filter((e) => e.type === "PullRequestReviewCommentEvent");
+
+    if (prCommentEvents.length >= CONFIG.PR_COMMENT_MIN_FOR_SPRAY) {
+      // Sort by timestamp
+      const prCommentTimestamps = prCommentEvents
+        .map((e) => ({ event: e, time: dayjs(e.created_at) }))
+        .sort((a, b) => a.time.valueOf() - b.time.valueOf());
+
+      // Find the densest window of PR comment activity
+      let maxDistinctPRsInWindow = 0;
+      let maxPRsWindowStartIdx = 0;
+      let maxPRsWindowEndIdx = 0;
+      let windowStartIdx = 0;
+      const windowMinutes = CONFIG.PR_COMMENT_SPAM_WINDOW_MINUTES;
+
+      for (let windowEndIdx = 0; windowEndIdx < prCommentTimestamps.length; windowEndIdx++) {
+        const windowEnd = prCommentTimestamps[windowEndIdx]?.time;
+
+        // Slide window start forward until within the time window
+        while (
+          prCommentTimestamps[windowStartIdx] &&
+          windowEnd &&
+          windowEnd.diff(prCommentTimestamps[windowStartIdx]!.time, "minute", true) > windowMinutes
+        ) {
+          windowStartIdx++;
+        }
+
+        // Count distinct PRs (identified by repo + pull request number combination)
+        const prsInWindow = new Set(
+          prCommentTimestamps
+            .slice(windowStartIdx, windowEndIdx + 1)
+            .map((item) => {
+              const repoName = item.event.repo?.name;
+              // Extract PR number from payload (PullRequestReviewCommentEvent)
+              const prNumber =
+                (item.event.payload as any)?.pull_request?.number ||
+                (item.event.payload as any)?.number ||
+                (item.event as any)?.issue?.number;
+              
+              // Return repo#prNumber if available, otherwise just repo name
+              if (repoName && prNumber) {
+                return `${repoName}#${prNumber}`;
+              }
+              return repoName;
+            })
+            .filter((key) => key !== undefined),
+        );
+
+        if (prsInWindow.size > maxDistinctPRsInWindow) {
+          maxDistinctPRsInWindow = prsInWindow.size;
+          maxPRsWindowStartIdx = windowStartIdx;
+          maxPRsWindowEndIdx = windowEndIdx;
+        }
+      }
+
+      // Flag if comments are being sprayed across many PRs
+      if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_EXTREME) {
+        const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
+        const windowEnd = prCommentTimestamps[maxPRsWindowEndIdx]?.time;
+        const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
+        const timeSpanMinutes =
+          windowEnd && windowStart
+            ? Math.round(windowEnd.diff(windowStart, "minute", true))
+            : 0;
+        flags.push({
+          label: "PR comment spam",
+          points: CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME,
+          detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+        });
+      } else if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_HIGH) {
+        const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
+        const windowEnd = prCommentTimestamps[maxPRsWindowEndIdx]?.time;
+        const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
+        const timeSpanMinutes =
+          windowEnd && windowStart
+            ? Math.round(windowEnd.diff(windowStart, "minute", true))
+            : 0;
+        flags.push({
+          label: "High PR comment frequency",
+          points: CONFIG.POINTS_PR_COMMENT_SPRAY_HIGH,
+          detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
         });
       }
     }
@@ -383,51 +459,230 @@ export function identify({
       .map((e) => dayjs(e.created_at))
       .sort((a, b) => a.valueOf() - b.valueOf());
 
-    let maxForksInWindow = 0;
-    let windowStartIdx = 0;
+    // Helper to find max forks in any window of given hours
+    const findMaxForksInWindow = (hours: number): number => {
+      let maxForks = 0;
+      let windowStartIdx = 0;
 
-    // Find the densest fork cluster within 24 hours
-    for (let windowEndIdx = 0; windowEndIdx < forkTimestamps.length; windowEndIdx++) {
-      const windowEnd = forkTimestamps[windowEndIdx];
+      for (let windowEndIdx = 0; windowEndIdx < forkTimestamps.length; windowEndIdx++) {
+        const windowEnd = forkTimestamps[windowEndIdx];
 
-      // Slide window start forward until within 24 hours
-      while (
-        windowEnd &&
-        windowEnd.diff(forkTimestamps[windowStartIdx], "hour", true) >
-          CONFIG.FORK_SURGE_WINDOW_HOURS
-      ) {
-        windowStartIdx++;
+        while (
+          windowEnd &&
+          windowEnd.diff(forkTimestamps[windowStartIdx], "hour", true) > hours
+        ) {
+          windowStartIdx++;
+        }
+
+        const forksInWindow = windowEndIdx - windowStartIdx + 1;
+        maxForks = Math.max(maxForks, forksInWindow);
       }
 
-      const forksInWindow = windowEndIdx - windowStartIdx + 1;
-      maxForksInWindow = Math.max(maxForksInWindow, forksInWindow);
-    }
+      return maxForks;
+    };
 
-    // Flag based on fork spike severity, same criteria for all accounts
-    if (maxForksInWindow >= CONFIG.FORKS_SURGE_EXTREME_HIGH) {
-      flags.push({
+    // Calculate all time windows at once
+    const maxForksIn24h = findMaxForksInWindow(24);
+    const maxForksIn48h = findMaxForksInWindow(48);
+    const maxForksIn72h = findMaxForksInWindow(72);
+
+    // Determine which time window to flag (only flag the MOST SEVERE, not all)
+    // This avoids redundant overlapping alerts
+    let forkSpikeFlag: IdentifyFlag | null = null;
+
+    // Check 24-hour window first (most specific, densest activity)
+    if (maxForksIn24h >= CONFIG.FORKS_SURGE_EXTREME_HIGH) {
+      forkSpikeFlag = {
         label: "Extreme fork automation",
         points: CONFIG.POINTS_FORK_SURGE_EXTREME_HIGH,
-        detail: `${maxForksInWindow} repos forked within 24 hours`,
-      });
-    } else if (maxForksInWindow >= CONFIG.FORKS_SURGE_SEVERE) {
-      flags.push({
+        detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    } else if (maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE) {
+      forkSpikeFlag = {
         label: "Severe fork surge",
         points: CONFIG.POINTS_FORK_SURGE_SEVERE,
-        detail: `${maxForksInWindow} repos forked within 24 hours`,
-      });
-    } else if (maxForksInWindow >= CONFIG.FORKS_EXTREME) {
-      flags.push({
+        detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    } else if (maxForksIn24h >= CONFIG.FORKS_EXTREME) {
+      forkSpikeFlag = {
         label: "Many recent forks",
         points: CONFIG.POINTS_FORK_SURGE,
-        detail: `${maxForksInWindow} repos forked within 24 hours`,
-      });
-    } else if (maxForksInWindow >= CONFIG.FORKS_HIGH) {
-      flags.push({
+        detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    } else if (maxForksIn24h >= CONFIG.FORKS_HIGH) {
+      forkSpikeFlag = {
         label: "Multiple forks",
         points: CONFIG.POINTS_MULTIPLE_FORKS,
-        detail: `${maxForksInWindow} repos forked within 24 hours`,
+        detail: `${maxForksIn24h} repositories forked in a single day`,
+      };
+    }
+    // Fall back to 48-hour if 24h thresholds not met
+    else if (maxForksIn48h >= CONFIG.FORKS_SURGE_48H) {
+      forkSpikeFlag = {
+        label: "Multi-day fork surge",
+        points: CONFIG.POINTS_FORK_SURGE_48H,
+        detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
+      };
+    }
+    // Finally check 72-hour window
+    else if (maxForksIn72h >= CONFIG.FORKS_SURGE_72H) {
+      forkSpikeFlag = {
+        label: "Severe multi-day fork surge",
+        points: CONFIG.POINTS_FORK_SURGE_72H,
+        detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
+      };
+    }
+
+    // Add the single most severe spike flag
+    if (forkSpikeFlag) {
+      flags.push(forkSpikeFlag);
+    }
+
+    // Fork rate metric (forks per day over activity period)
+    // Only applies if we haven't already detected a severe concentrated burst
+    const hasSevereBurst = maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE || maxForksIn48h >= CONFIG.FORKS_SURGE_48H;
+
+    if (forkTimestamps.length > 0 && !hasSevereBurst) {
+      const oldestFork = forkTimestamps[0];
+      const newestFork = forkTimestamps[forkTimestamps.length - 1];
+
+      if (oldestFork && newestFork) {
+        const forkSpanDays = Math.max(1, newestFork.diff(oldestFork, "day"));
+        const forksPerDay = forkEvents.length / forkSpanDays;
+
+        if (forksPerDay >= CONFIG.FORKS_PER_DAY_HIGH) {
+          flags.push({
+            label: "High sustained fork rate",
+            points: CONFIG.POINTS_FORKS_PER_DAY_HIGH,
+            detail: `${forkEvents.length} repositories forked over ${forkSpanDays} day${forkSpanDays > 1 ? "s" : ""} (sustained high activity)`,
+          });
+        }
+      }
+    }
+
+    // Consecutive days of forking - only flag if it's a distributed pattern
+    // Not a single concentrated burst (which is already flagged above)
+    const forkDays = new Set<string>();
+    forkEvents.forEach((e) => {
+      forkDays.add(dayjs.utc(e.created_at).format("YYYY-MM-DD"));
+    });
+
+    if (forkDays.size >= CONFIG.CONSECUTIVE_FORK_DAYS && !hasSevereBurst) {
+      const sortedForkDays = Array.from(forkDays)
+        .map((d) => dayjs(d, "YYYY-MM-DD"))
+        .sort((a, b) => a.valueOf() - b.valueOf());
+
+      let maxConsecutiveForkDays = 1;
+      let currentStreak = 1;
+
+      for (let i = 1; i < sortedForkDays.length; i++) {
+        const prev = sortedForkDays[i - 1];
+        const curr = sortedForkDays[i];
+
+        if (curr && prev && curr.diff(prev, "day") === 1) {
+          currentStreak++;
+          maxConsecutiveForkDays = Math.max(maxConsecutiveForkDays, currentStreak);
+        } else {
+          currentStreak = 1;
+        }
+      }
+
+      if (maxConsecutiveForkDays >= CONFIG.CONSECUTIVE_FORK_DAYS) {
+        const totalDays = forkDays.size;
+        flags.push({
+          label: "Extended forking pattern",
+          points: CONFIG.POINTS_CONSECUTIVE_FORK_DAYS,
+          detail: `Forking activity on ${totalDays} days (${maxConsecutiveForkDays} consecutive), ${forkEvents.length} repositories total`,
+        });
+      }
+    }
+
+    // Fork repository diversity (spreading across many different repos)
+    const forkedRepos = new Set<string>(
+      forkEvents
+        .map((e) => e.repo?.name)
+        .filter((name) => name !== undefined),
+    );
+
+    if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH) {
+      // Calculate time span for context
+      let timeSpanDetail = "";
+      if (forkTimestamps.length > 1) {
+        const earliestFork = forkTimestamps[0];
+        const latestFork = forkTimestamps[forkTimestamps.length - 1];
+        const spanDays = latestFork.diff(earliestFork, "day");
+        timeSpanDetail = spanDays > 0 ? ` over ${spanDays} days` : " in a short timeframe";
+      }
+
+      flags.push({
+        label: "Widespread fork targeting",
+        points: CONFIG.POINTS_FORK_DIVERSITY,
+        detail: `Forking activity across ${forkedRepos.size} different repositories${timeSpanDetail}`,
       });
+    }
+
+    // Fork + coordinated activity combo (forks + branches + PRs = chained automation)
+    // Verify actual chaining: branches in forked repos, PRs targeting forked repos, temporal order
+    if (
+      forkEvents.length >= CONFIG.FORK_COMBINED_ACTIVITY_MIN &&
+      events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS
+    ) {
+      // Get repos that were forked
+      const forkedRepoNames = new Set(
+        forkEvents
+          .map((e) => e.repo?.name)
+          .filter((name) => name !== undefined),
+      );
+
+      // Find branches created in forked repos
+      const branchCreateEvents = events.filter(
+        (e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
+      );
+      const branchesInForkedRepos = branchCreateEvents.filter((e) =>
+        forkedRepoNames.has(e.repo?.name || ""),
+      );
+
+      // Find PRs targeting forked repos
+      const allPREvents = events.filter(
+        (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+      );
+      const prsInForkedRepos = allPREvents.filter((e) =>
+        forkedRepoNames.has(e.repo?.name || ""),
+      );
+
+      // Verify temporal chaining: forks → branches → PRs
+      if (
+        branchesInForkedRepos.length >= CONFIG.FORK_COMBINED_BRANCHES &&
+        prsInForkedRepos.length >= CONFIG.FORK_COMBINED_PRS
+      ) {
+        const forkTimestamps = forkEvents.map((e) => dayjs(e.created_at));
+        const branchTimestamps = branchesInForkedRepos.map((e) => dayjs(e.created_at));
+        const prTimestamps = prsInForkedRepos.map((e) => dayjs(e.created_at));
+
+        const latestFork = dayjs.max(forkTimestamps);
+        const earliestBranch = dayjs.min(branchTimestamps);
+        const earliestPR = dayjs.min(prTimestamps);
+
+        // Check if there's a temporal sequence: forks before branches before PRs
+        // Relaxed ratio check (2.0x tolerance) to account for potential incomplete event history
+        const isChainingEvident =
+          latestFork &&
+          earliestBranch &&
+          earliestPR &&
+          latestFork.isBefore(earliestBranch) &&
+          earliestBranch.isBefore(earliestPR) &&
+          prsInForkedRepos.length <= branchesInForkedRepos.length * 2.0;
+
+        if (isChainingEvident) {
+          const totalOps =
+            forkEvents.length + branchesInForkedRepos.length + prsInForkedRepos.length;
+          flags.push({
+            label: "Suspicious chained automations",
+            points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
+            detail: `${totalOps} chained repository operations: ${forkEvents.length} forks followed by ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests (based on available event history)`,
+          });
+        }
+      }
     }
   }
 
@@ -496,7 +751,9 @@ export function identify({
     }
 
     // PRs (flag more aggressively)
-    const prEvents = events.filter((e) => e.type === "PullRequestEvent");
+    const prEvents = events.filter(
+      (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+    );
 
     if (prEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
       const timestamps = prEvents.map((e) => dayjs(e.created_at));
@@ -641,7 +898,7 @@ export function identify({
       const externalRepos = new Set(
         events
           .map((e) => e.repo?.name)
-          .filter((name): name is string => {
+          .filter((name) => {
             if (!name) return false;
             const repoOwner = name.split("/")[0]?.toLowerCase();
             return repoOwner !== userLogin;
@@ -721,6 +978,104 @@ export function identify({
         points: CONFIG.POINTS_EXTERNAL_FOCUS,
         detail: `${Math.round(foreignRatio * 100)}% of activity on other people's repos`,
       });
+    }
+  }
+
+  // Extreme PR spam detection - TIME-WINDOWED (applies to all accounts)
+  // Spam is about intensity/velocity, not total count
+  if (events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+    const allPREvents = events.filter(
+      (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+    );
+    const now = dayjs();
+    const oneDayAgo = now.subtract(1, "day");
+    const oneWeekAgo = now.subtract(1, "week");
+
+    // Count PRs in different time windows
+    const prsInLastDay = allPREvents.filter((e) => dayjs(e.created_at).isAfter(oneDayAgo));
+    const prsInLastWeek = allPREvents.filter((e) => dayjs(e.created_at).isAfter(oneWeekAgo));
+
+    // Extreme daily spam: 30+ PRs in 24 hours
+    if (prsInLastDay.length >= CONFIG.PRS_DAY_EXTREME) {
+      flags.push({
+        label: "Extreme PR spam (daily)",
+        points: CONFIG.POINTS_PRS_DAY_EXTREME,
+        detail: `${prsInLastDay.length} PRs in the last 24 hours`,
+      });
+    }
+
+    // Extreme weekly spam: 100+ PRs in 7 days
+    if (prsInLastWeek.length >= CONFIG.PRS_WEEK_EXTREME) {
+      flags.push({
+        label: "Extreme PR spam (weekly)",
+        points: CONFIG.POINTS_PRS_WEEK_EXTREME,
+        detail: `${prsInLastWeek.length} PRs in the last 7 days`,
+      });
+    }
+    // Very high weekly spam: 50+ PRs in 7 days (only if not already extreme)
+    else if (prsInLastWeek.length >= CONFIG.PRS_WEEK_VERY_HIGH) {
+      flags.push({
+        label: "Very high PR spam frequency",
+        points: CONFIG.POINTS_PRS_WEEK_VERY_HIGH,
+        detail: `${prsInLastWeek.length} PRs in the last 7 days`,
+      });
+    }
+
+
+    // Distributed PR spam: high PR count across many repos
+    // Only check if not already flagged by time-based detection
+    if (allPREvents.length >= CONFIG.PRS_SPAM_VOLUME) {
+      const hasTimeBasedFlag = flags.some(
+        (f) =>
+          f.label === "Extreme PR spam (daily)" ||
+          f.label === "Extreme PR spam (weekly)" ||
+          f.label === "Very high PR spam frequency"
+      );
+
+      if (!hasTimeBasedFlag) {
+        // Count distinct repos targeted by PRs
+        const prTargetRepos = new Set(
+          allPREvents
+            .map((e) => e.repo?.name)
+            .filter((name) => name !== undefined),
+        );
+
+        if (prTargetRepos.size >= CONFIG.REPOS_SPAM_SPREAD) {
+          // Guard against flagging long-term contributors:
+          // Calculate time density and rolling window
+          const prTimestamps = allPREvents
+            .map((e) => dayjs(e.created_at))
+            .sort((a, b) => a.valueOf() - b.valueOf());
+          
+          const earliestPR = prTimestamps[0];
+          const latestPR = prTimestamps[prTimestamps.length - 1];
+          const timeSpanDays = latestPR ? latestPR.diff(earliestPR, "days", true) : 0;
+          const timeSpanWeeks = timeSpanDays / 7;
+          
+          // Calculate density: PRs per week
+          const prsPerWeek = timeSpanWeeks > 0 ? allPREvents.length / timeSpanWeeks : Infinity;
+          
+          // Check rolling 30-day window
+          const thirtyDaysAgo = dayjs().subtract(30, "days");
+          const prsInLast30Days = allPREvents.filter(
+            (e) => dayjs(e.created_at).isAfter(thirtyDaysAgo)
+          ).length;
+          
+          // Flag if either:
+          // 1. High density (PRs per week exceeds threshold), OR
+          // 2. Rolling 30-day window has excessive volume
+          const isHighDensity = prsPerWeek >= CONFIG.PRS_SPAM_DENSITY_PER_WEEK;
+          const isRolling30DaySpam = prsInLast30Days >= CONFIG.PRS_SPAM_ROLLING_30DAYS;
+          
+          if (isHighDensity || isRolling30DaySpam) {
+            flags.push({
+              label: "Distributed PR spam pattern",
+              points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
+              detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}`,
+            });
+          }
+        }
+      }
     }
   }
 

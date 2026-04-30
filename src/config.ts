@@ -34,6 +34,30 @@ export const CONFIG = {
   POINTS_FORK_SURGE_EXTREME_HIGH: 85, // points for 35+ forks in 24 hours
   POINTS_MULTIPLE_FORKS: 26, // points for 5-7 forks in 24 hours
 
+  // Multi-day fork surge (catches forks spread across multiple days)
+  FORKS_SURGE_48H: 18, // >= this forks within 48 hours = multi-day surge
+  FORKS_SURGE_72H: 25, // >= this forks within 72 hours = severe multi-day surge
+  POINTS_FORK_SURGE_48H: 65,
+  POINTS_FORK_SURGE_72H: 75,
+
+  // Fork rate metrics (average forks per day)
+  FORKS_PER_DAY_HIGH: 8, // >= this forks/day average = sustained high fork rate
+  POINTS_FORKS_PER_DAY_HIGH: 55,
+
+  // Consecutive days of forking
+  CONSECUTIVE_FORK_DAYS: 6, // >= this days with fork activity = pattern
+  POINTS_CONSECUTIVE_FORK_DAYS: 40,
+
+  // Fork + coordinated activity combo
+  FORK_COMBINED_ACTIVITY_MIN: 12, // >= this forks
+  FORK_COMBINED_BRANCHES: 6, // + >= this branch creations
+  FORK_COMBINED_PRS: 8, // + >= this PRs = coordinated automation
+  POINTS_FORK_COMBINED_ACTIVITY: 60,
+
+  // Fork repository diversity
+  FORK_REPO_DIVERSITY_HIGH: 15, // >= this different repos forked = spread behavior
+  POINTS_FORK_DIVERSITY: 45,
+
   // Inhuman daily activity
   HOURS_PER_DAY_INHUMAN: 16, // >= this unique hours in a day = inhuman
   CONSECUTIVE_INHUMAN_DAYS_EXTREME: 3, // consecutive days with 16+ hours
@@ -51,11 +75,29 @@ export const CONFIG = {
   POINTS_EXTREME_REPO_SPREAD_YOUNG: 30,
   POINTS_WIDE_REPO_SPREAD_YOUNG: 15,
 
-  // External PR thresholds
+  // External PR thresholds (time-based to catch rapid spam)
   PRS_TODAY_EXTREME: 15, // >= this in 24h = PR burst
   PRS_WEEK_HIGH: 20, // >= this in 7 days = high frequency
   POINTS_PR_BURST: 20,
   POINTS_HIGH_PR_FREQUENCY: 15,
+
+  // Extreme PR spam detection (ALL accounts, time-windowed)
+  PRS_DAY_EXTREME: 30, // >= this PRs in 24h = extreme daily spam
+  POINTS_PRS_DAY_EXTREME: 45,
+  PRS_WEEK_EXTREME: 100, // >= this PRs in 7 days = extreme weekly spam
+  POINTS_PRS_WEEK_EXTREME: 50,
+  PRS_WEEK_VERY_HIGH: 50, // >= this PRs in 7 days = very high weekly spam
+  POINTS_PRS_WEEK_VERY_HIGH: 40,
+  
+  // Distributed PR spam (high PR count + many repos)
+  PRS_SPAM_VOLUME: 50, // PR count threshold for combined check
+  REPOS_SPAM_SPREAD: 15, // repos threshold for combined check
+  POINTS_PR_SPAM_COMBINED: 45, // for combined high PR + repo spread
+  
+  // Distributed PR spam density guards (prevent flagging long-term contributors)
+  PRS_SPAM_DENSITY_PER_WEEK: 15, // >= this PRs/week = suspicious density (distributed spam)
+  PRS_SPAM_ROLLING_30DAYS: 60, // >= this PRs in last 30 days + meets repo spread = flag
+  POINTS_PR_SPAM_DISTRIBUTED: 45, // points for distributed spam pattern
 
   // PR-only contributor
   EXTERNAL_PRS_MIN: 15, // external PRs threshold
@@ -111,6 +153,14 @@ export const CONFIG = {
   ISSUE_COMMENT_MIN_FOR_SPRAY: 10, // need at least this many comments to analyze
   POINTS_ISSUE_COMMENT_SPRAY_EXTREME: 40,
   POINTS_ISSUE_COMMENT_SPRAY_HIGH: 30,
+
+  // PR comment spam (multiple review comments on different PRs/repos in short timeframe)
+  PR_COMMENT_SPAM_WINDOW_MINUTES: 2, // time window to group PR comments
+  PR_COMMENT_SPRAY_EXTREME: 12, // >= this different PRs = PR comment spam bot
+  PR_COMMENT_SPRAY_HIGH: 8, // >= this different PRs in short window = suspicious
+  PR_COMMENT_MIN_FOR_SPRAY: 8, // need at least this many PR comments to analyze
+  POINTS_PR_COMMENT_SPRAY_EXTREME: 38,
+  POINTS_PR_COMMENT_SPRAY_HIGH: 28,
 
   // Branch→PR temporal correlation (automated CI/CD workflow pattern)
   BRANCH_PR_TIME_WINDOW_SECONDS: 90, // PR must follow branch within this window
