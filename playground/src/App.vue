@@ -1,10 +1,5 @@
 <template>
   <div>
-    <header>
-      <h1>🔍 GitHub Identity Analyzer</h1>
-      <p>Analyze GitHub accounts for automation patterns</p>
-    </header>
-
     <main>
       <div class="search-form">
         <input
@@ -55,7 +50,7 @@
           </div>
           <div class="info-row" style="margin-top: 20px">
             <span class="info-label">Account Age:</span>
-            <span class="info-value">{{ result.profile.age }} days</span>
+            <span class="info-value">{{ formatAccountAge(result.profile.age) }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Public Repos:</span>
@@ -229,6 +224,22 @@ function formatDate(dateString?: string): string {
     month: "short",
     day: "numeric",
   });
+}
+
+function formatAccountAge(days: number): string {
+  const years = Math.floor(days / 365);
+  const months = Math.floor((days % 365) / 30);
+  const remainingDays = days % 30;
+
+  if (years > 0) {
+    return months > 0
+      ? `${years} year${years > 1 ? "s" : ""} and ${months} month${months > 1 ? "s" : ""}`
+      : `${years} year${years > 1 ? "s" : ""}`;
+  }
+  if (months > 0) {
+    return `${months} month${months > 1 ? "s" : ""}`;
+  }
+  return `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
 }
 </script>
 

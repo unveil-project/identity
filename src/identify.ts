@@ -172,7 +172,7 @@ export function identify({
         flags.push({
           label: "24/7 activity pattern",
           points,
-          detail: `${pattern.day}: ${pattern.hoursActive}h active, ${minRestWindowFound}h sleep gap, ${(pattern.eventCount / pattern.hoursActive).toFixed(1)} events/hour`,
+          detail: `${pattern.day}: active across ${pattern.hoursActive} hours with only ${minRestWindowFound} hour${minRestWindowFound === 1 ? "" : "s"} rest`,
         });
       }
     }
@@ -262,17 +262,12 @@ export function identify({
         const commentsInWindow = maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
         const timeSpanMinutes =
           windowEnd && windowStart
-            ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
+            ? Math.round(windowEnd.diff(windowStart, "minute", true))
             : 0;
-        const commentsPerMinute =
-          timeSpanMinutes > 0
-            ? Math.round((commentsInWindow / timeSpanMinutes) * 10) / 10
-            : commentsInWindow;
-
         flags.push({
           label: "Issue comment spam",
           points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_EXTREME,
-          detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minutes (${commentsPerMinute} comments/min)`,
+          detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
         });
       } else if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_HIGH) {
         const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
@@ -280,17 +275,12 @@ export function identify({
         const commentsInWindow = maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
         const timeSpanMinutes =
           windowEnd && windowStart
-            ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
+            ? Math.round(windowEnd.diff(windowStart, "minute", true))
             : 0;
-        const commentsPerMinute =
-          timeSpanMinutes > 0
-            ? Math.round((commentsInWindow / timeSpanMinutes) * 10) / 10
-            : commentsInWindow;
-
         flags.push({
           label: "High comment frequency across repos",
           points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH,
-          detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minutes (${commentsPerMinute} comments/min)`,
+          detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
         });
       }
     }
@@ -349,17 +339,12 @@ export function identify({
         const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
         const timeSpanMinutes =
           windowEnd && windowStart
-            ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
+            ? Math.round(windowEnd.diff(windowStart, "minute", true))
             : 0;
-        const commentsPerMinute =
-          timeSpanMinutes > 0
-            ? Math.round((commentsInWindow / timeSpanMinutes) * 10) / 10
-            : commentsInWindow;
-
         flags.push({
           label: "PR comment spam",
           points: CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME,
-          detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minutes (${commentsPerMinute} comments/min)`,
+          detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
         });
       } else if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_HIGH) {
         const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
@@ -367,17 +352,12 @@ export function identify({
         const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
         const timeSpanMinutes =
           windowEnd && windowStart
-            ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
+            ? Math.round(windowEnd.diff(windowStart, "minute", true))
             : 0;
-        const commentsPerMinute =
-          timeSpanMinutes > 0
-            ? Math.round((commentsInWindow / timeSpanMinutes) * 10) / 10
-            : commentsInWindow;
-
         flags.push({
           label: "High PR comment frequency",
           points: CONFIG.POINTS_PR_COMMENT_SPRAY_HIGH,
-          detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minutes (${commentsPerMinute} comments/min)`,
+          detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
         });
       }
     }
@@ -997,11 +977,10 @@ export function identify({
         );
 
         if (prTargetRepos.size >= CONFIG.REPOS_SPAM_SPREAD) {
-          const prsPerRepo = Math.round((allPREvents.length / prTargetRepos.size) * 10) / 10;
           flags.push({
             label: "Distributed PR spam pattern",
             points: CONFIG.POINTS_PR_SPAM_COMBINED,
-            detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} repositories (${prsPerRepo} PRs/repo average)`,
+            detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories`,
           });
         }
       }

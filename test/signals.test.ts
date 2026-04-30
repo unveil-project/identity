@@ -812,8 +812,8 @@ describe("identify - Issue Comment Spam Detection", () => {
     );
     expect(issueCommentFlag).toBeDefined();
     if (issueCommentFlag) {
-      // Should show comments/min metric
-      expect(issueCommentFlag.detail).toMatch(/comments\/min/);
+      // Should show comments, repos, and time window (but not decimal metrics)
+      expect(issueCommentFlag.detail).toMatch(/comments to.*repos in.*minutes/);
     }
   });
 
@@ -1124,8 +1124,8 @@ describe("identify - PR Comment Spam Detection", () => {
     );
     expect(prCommentFlag).toBeDefined();
     if (prCommentFlag) {
-      // Should show comments/min metric
-      expect(prCommentFlag.detail).toMatch(/comments\/min/);
+      // Should show comments, PRs, and time window (but not decimal metrics)
+      expect(prCommentFlag.detail).toMatch(/comments on.*PRs in.*minutes/);
     }
   });
 
@@ -1334,7 +1334,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
     expect(spamFlag).toBeDefined();
     expect(spamFlag?.points).toBe(45);
     expect(spamFlag?.detail).toContain("100 PRs");
-    expect(spamFlag?.detail).toContain("20 repositories");
+    expect(spamFlag?.detail).toContain("different repositories");
     expect(result.classification).toBe("automation");
   });
 
