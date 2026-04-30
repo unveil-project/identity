@@ -5,5 +5,5 @@ export default defineConfig({
   noExternal: ["dayjs", "dayjs/plugin/minMax", "dayjs/plugin/utc"],
   minify: true,
   publint: true,
-  dts: true,
+  dts: { entry: ["src/index.ts"] },
 });
