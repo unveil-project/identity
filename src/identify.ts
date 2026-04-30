@@ -294,6 +294,93 @@ export function identify({
         });
       }
     }
+
+    // PR comment spam detection (multiple review comments across different PRs/repos in short time)
+    const prCommentEvents = events.filter((e) => e.type === "PullRequestReviewCommentEvent");
+
+    if (prCommentEvents.length >= CONFIG.PR_COMMENT_MIN_FOR_SPRAY) {
+      // Sort by timestamp
+      const prCommentTimestamps = prCommentEvents
+        .map((e) => ({ event: e, time: dayjs(e.created_at) }))
+        .sort((a, b) => a.time.valueOf() - b.time.valueOf());
+
+      // Find the densest window of PR comment activity
+      let maxDistinctPRsInWindow = 0;
+      let maxPRsWindowStartIdx = 0;
+      let maxPRsWindowEndIdx = 0;
+      let windowStartIdx = 0;
+      const windowMinutes = CONFIG.PR_COMMENT_SPAM_WINDOW_MINUTES;
+
+      for (let windowEndIdx = 0; windowEndIdx < prCommentTimestamps.length; windowEndIdx++) {
+        const windowEnd = prCommentTimestamps[windowEndIdx]?.time;
+
+        // Slide window start forward until within the time window
+        while (
+          prCommentTimestamps[windowStartIdx] &&
+          windowEnd &&
+          windowEnd.diff(prCommentTimestamps[windowStartIdx]!.time, "minute", true) > windowMinutes
+        ) {
+          windowStartIdx++;
+        }
+
+        // Count distinct PRs (identified by repo + pull request number combination)
+        const prsInWindow = new Set(
+          prCommentTimestamps
+            .slice(windowStartIdx, windowEndIdx + 1)
+            .map((item) => {
+              const repoName = item.event.repo?.name;
+              // PR number should ideally come from payload, but we can use repo as approximation
+              return repoName;
+            })
+            .filter((name): name is string => name !== undefined),
+        );
+
+        if (prsInWindow.size > maxDistinctPRsInWindow) {
+          maxDistinctPRsInWindow = prsInWindow.size;
+          maxPRsWindowStartIdx = windowStartIdx;
+          maxPRsWindowEndIdx = windowEndIdx;
+        }
+      }
+
+      // Flag if comments are being sprayed across many PRs
+      if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_EXTREME) {
+        const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
+        const windowEnd = prCommentTimestamps[maxPRsWindowEndIdx]?.time;
+        const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
+        const timeSpanMinutes =
+          windowEnd && windowStart
+            ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
+            : 0;
+        const commentsPerMinute =
+          timeSpanMinutes > 0
+            ? Math.round((commentsInWindow / timeSpanMinutes) * 10) / 10
+            : commentsInWindow;
+
+        flags.push({
+          label: "PR comment spam",
+          points: CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME,
+          detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minutes (${commentsPerMinute} comments/min)`,
+        });
+      } else if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_HIGH) {
+        const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
+        const windowEnd = prCommentTimestamps[maxPRsWindowEndIdx]?.time;
+        const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
+        const timeSpanMinutes =
+          windowEnd && windowStart
+            ? Math.round(windowEnd.diff(windowStart, "minute", true) * 10) / 10
+            : 0;
+        const commentsPerMinute =
+          timeSpanMinutes > 0
+            ? Math.round((commentsInWindow / timeSpanMinutes) * 10) / 10
+            : commentsInWindow;
+
+        flags.push({
+          label: "High PR comment frequency",
+          points: CONFIG.POINTS_PR_COMMENT_SPRAY_HIGH,
+          detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minutes (${commentsPerMinute} comments/min)`,
+        });
+      }
+    }
   }
 
   // Temporal branch→PR correlation (automated CI/CD workflow detection)
@@ -721,6 +808,75 @@ export function identify({
         points: CONFIG.POINTS_EXTERNAL_FOCUS,
         detail: `${Math.round(foreignRatio * 100)}% of activity on other people's repos`,
       });
+    }
+  }
+
+  // Extreme PR spam detection - TIME-WINDOWED (applies to all accounts)
+  // Spam is about intensity/velocity, not total count
+  if (events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+    const allPREvents = events.filter((e) => e.type === "PullRequestEvent");
+    const now = dayjs();
+    const oneDayAgo = now.subtract(1, "day");
+    const oneWeekAgo = now.subtract(1, "week");
+
+    // Count PRs in different time windows
+    const prsInLastDay = allPREvents.filter((e) => dayjs(e.created_at).isAfter(oneDayAgo));
+    const prsInLastWeek = allPREvents.filter((e) => dayjs(e.created_at).isAfter(oneWeekAgo));
+
+    // Extreme daily spam: 30+ PRs in 24 hours
+    if (prsInLastDay.length >= CONFIG.PRS_DAY_EXTREME) {
+      flags.push({
+        label: "Extreme PR spam (daily)",
+        points: CONFIG.POINTS_PRS_DAY_EXTREME,
+        detail: `${prsInLastDay.length} PRs in the last 24 hours`,
+      });
+    }
+
+    // Extreme weekly spam: 100+ PRs in 7 days
+    if (prsInLastWeek.length >= CONFIG.PRS_WEEK_EXTREME) {
+      flags.push({
+        label: "Extreme PR spam (weekly)",
+        points: CONFIG.POINTS_PRS_WEEK_EXTREME,
+        detail: `${prsInLastWeek.length} PRs in the last 7 days`,
+      });
+    }
+    // Very high weekly spam: 50+ PRs in 7 days (only if not already extreme)
+    else if (prsInLastWeek.length >= CONFIG.PRS_WEEK_VERY_HIGH) {
+      flags.push({
+        label: "Very high PR spam frequency",
+        points: CONFIG.POINTS_PRS_WEEK_VERY_HIGH,
+        detail: `${prsInLastWeek.length} PRs in the last 7 days`,
+      });
+    }
+
+
+    // Distributed PR spam: high PR count across many repos
+    // Only check if not already flagged by time-based detection
+    if (allPREvents.length >= CONFIG.PRS_SPAM_VOLUME) {
+      const hasTimeBasedFlag = flags.some(
+        (f) =>
+          f.label === "Extreme PR spam (daily)" ||
+          f.label === "Extreme PR spam (weekly)" ||
+          f.label === "Very high PR spam frequency"
+      );
+
+      if (!hasTimeBasedFlag) {
+        // Count distinct repos targeted by PRs
+        const prTargetRepos = new Set(
+          allPREvents
+            .map((e) => e.repo?.name)
+            .filter((name): name is string => name !== undefined),
+        );
+
+        if (prTargetRepos.size >= CONFIG.REPOS_SPAM_SPREAD) {
+          const prsPerRepo = Math.round((allPREvents.length / prTargetRepos.size) * 10) / 10;
+          flags.push({
+            label: "Distributed PR spam pattern",
+            points: CONFIG.POINTS_PR_SPAM_COMBINED,
+            detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} repositories (${prsPerRepo} PRs/repo average)`,
+          });
+        }
+      }
     }
   }
 
