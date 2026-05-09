@@ -495,25 +495,25 @@ export function identify({
       forkSpikeFlag = {
         label: "Extreme fork automation",
         points: CONFIG.POINTS_FORK_SURGE_EXTREME_HIGH,
-        detail: `${maxForksIn24h} repositories forked in a single day`,
+        detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
       };
     } else if (maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE) {
       forkSpikeFlag = {
         label: "Severe fork surge",
         points: CONFIG.POINTS_FORK_SURGE_SEVERE,
-        detail: `${maxForksIn24h} repositories forked in a single day`,
+        detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
       };
     } else if (maxForksIn24h >= CONFIG.FORKS_EXTREME) {
       forkSpikeFlag = {
-        label: "Many recent forks",
+        label: "Fork spike detected",
         points: CONFIG.POINTS_FORK_SURGE,
-        detail: `${maxForksIn24h} repositories forked in a single day`,
+        detail: `Burst of ${maxForksIn24h} fork events in a single 24-hour window`,
       };
     } else if (maxForksIn24h >= CONFIG.FORKS_HIGH) {
       forkSpikeFlag = {
         label: "Multiple forks",
         points: CONFIG.POINTS_MULTIPLE_FORKS,
-        detail: `${maxForksIn24h} repositories forked in a single day`,
+        detail: `${maxForksIn24h} repositories forked in a single 24-hour window`,
       };
     }
     // Fall back to 48-hour if 24h thresholds not met
@@ -539,10 +539,9 @@ export function identify({
     }
 
     // Fork rate metric (forks per day over activity period)
-    // Only applies if we haven't already detected a severe concentrated burst
-    const hasSevereBurst = maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE || maxForksIn48h >= CONFIG.FORKS_SURGE_48H;
-
-    if (forkTimestamps.length > 0 && !hasSevereBurst) {
+    // Only applies if we haven't already flagged a 24h spike
+    // AND activity is genuinely sustained (3+ days, not single-day spikes)
+    if (forkTimestamps.length > 0 && !forkSpikeFlag) {
       const oldestFork = forkTimestamps[0];
       const newestFork = forkTimestamps[forkTimestamps.length - 1];
 
@@ -550,11 +549,12 @@ export function identify({
         const forkSpanDays = Math.max(1, newestFork.diff(oldestFork, "day"));
         const forksPerDay = forkEvents.length / forkSpanDays;
 
-        if (forksPerDay >= CONFIG.FORKS_PER_DAY_HIGH) {
+        // Only flag as "sustained" if activity spans 3+ days (not single-day bursts)
+        if (forksPerDay >= CONFIG.FORKS_PER_DAY_HIGH && forkSpanDays >= 3) {
           flags.push({
-            label: "High sustained fork rate",
+            label: "Sustained fork rate",
             points: CONFIG.POINTS_FORKS_PER_DAY_HIGH,
-            detail: `${forkEvents.length} repositories forked over ${forkSpanDays} day${forkSpanDays > 1 ? "s" : ""} (sustained high activity)`,
+            detail: `Average of ${forksPerDay.toFixed(1)} forks per day over ${forkSpanDays} days (${forkEvents.length} total)`,
           });
         }
       }
@@ -567,7 +567,7 @@ export function identify({
       forkDays.add(dayjs.utc(e.created_at).format("YYYY-MM-DD"));
     });
 
-    if (forkDays.size >= CONFIG.CONSECUTIVE_FORK_DAYS && !hasSevereBurst) {
+    if (forkDays.size >= CONFIG.CONSECUTIVE_FORK_DAYS && !forkSpikeFlag) {
       const sortedForkDays = Array.from(forkDays)
         .map((d) => dayjs(d, "YYYY-MM-DD"))
         .sort((a, b) => a.valueOf() - b.valueOf());
@@ -598,13 +598,14 @@ export function identify({
     }
 
     // Fork repository diversity (spreading across many different repos)
+    // Skip if we already flagged a spike (spike detection is more severe and already covers the attack)
     const forkedRepos = new Set<string>(
       forkEvents
         .map((e) => e.repo?.name)
         .filter((name) => name !== undefined),
     );
 
-    if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH) {
+    if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH && !forkSpikeFlag) {
       // Calculate time span for context
       let timeSpanDetail = "";
       if (forkTimestamps.length > 1) {
@@ -615,9 +616,9 @@ export function identify({
       }
 
       flags.push({
-        label: "Widespread fork targeting",
+        label: "Fork scatter pattern",
         points: CONFIG.POINTS_FORK_DIVERSITY,
-        detail: `Forking activity across ${forkedRepos.size} different repositories${timeSpanDetail}`,
+        detail: `Targeting ${forkedRepos.size} different repositories${timeSpanDetail}`,
       });
     }
 
