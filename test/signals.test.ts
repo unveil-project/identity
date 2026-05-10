@@ -165,7 +165,7 @@ describe("identify - Fork Surge Detection", () => {
     expect(result.flags.some((f) => f.label === "Multiple forks")).toBe(true);
   });
 
-  it("should flag many recent forks (8-19 in 24 hours)", () => {
+  it("should flag fork spike (8-19 in 24 hours)", () => {
     const events: GitHubEvent[] = [];
     for (let i = 0; i < 10; i++) {
       events.push({
@@ -182,7 +182,7 @@ describe("identify - Fork Surge Detection", () => {
       events,
     });
 
-    expect(result.flags.some((f) => f.label === "Many recent forks")).toBe(true);
+    expect(result.flags.some((f) => f.label === "Fork spike detected")).toBe(true);
   });
 
   it("should not flag forks spread over more than 24 hours", () => {
@@ -207,6 +207,97 @@ describe("identify - Fork Surge Detection", () => {
         f.label.includes("fork") || f.label.includes("Fork")
       )
     ).toBe(false);
+  });
+
+  it("should not show sustained fork rate on single-day spikes", () => {
+    const events: GitHubEvent[] = [];
+    // Create 17 forks in 24 hours (spike detected)
+    for (let i = 0; i < 17; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, Math.floor(i * 1.4), 0, 0).toISOString(),
+        repo: { name: `repo${i}` } as any,
+      } as any);
+    }
+
+    const result = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 10,
+      accountName: "user",
+      events,
+    });
+
+    // Should have spike detected
+    expect(
+      result.flags.some((f) => f.label === "Fork spike detected")
+    ).toBe(true);
+
+    // Should NOT have sustained fork rate (spike only spans 1 day)
+    expect(
+      result.flags.some((f) => f.label === "Sustained fork rate")
+    ).toBe(false);
+  });
+
+  it("should not show fork scatter pattern when spike is detected", () => {
+    const events: GitHubEvent[] = [];
+    // Create 20 forks in 24 hours across 20 different repos (spike + diversity)
+    for (let i = 0; i < 20; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, Math.floor(i * 1.2), 0, 0).toISOString(),
+        repo: { name: `repo${i}` } as any,
+      } as any);
+    }
+
+    const result = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 10,
+      accountName: "user",
+      events,
+    });
+
+    // Should have spike detected (20 in 24h)
+    expect(
+      result.flags.some((f) =>
+        f.label.includes("Severe fork surge") || f.label.includes("Extreme")
+      )
+    ).toBe(true);
+
+    // Should NOT have scatter pattern (spike already indicates the threat)
+    expect(
+      result.flags.some((f) => f.label === "Fork scatter pattern")
+    ).toBe(false);
+  });
+
+  it("should show fork scatter pattern for slow, distributed targeting", () => {
+    const events: GitHubEvent[] = [];
+    // Create 20 forks over 10 days across 20 different repos (no spike, but wide spread)
+    for (let i = 0; i < 20; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10 + Math.floor(i / 2), i * 4, 0).toISOString(),
+        repo: { name: `repo${i}` } as any,
+      } as any);
+    }
+
+    const result = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 10,
+      accountName: "user",
+      events,
+    });
+
+    // Should NOT have spike (only 2 per day, spread over 10 days)
+    expect(
+      result.flags.some((f) =>
+        f.label.includes("spike") || f.label.includes("Spike")
+      )
+    ).toBe(false);
+
+    // Should have scatter pattern (diversity of targets)
+    expect(
+      result.flags.some((f) => f.label === "Fork scatter pattern")
+    ).toBe(true);
   });
 });
 
