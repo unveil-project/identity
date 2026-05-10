@@ -1,6 +1,6 @@
 {
   "name": "@unveil/identity",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "type": "module",
   "description": "Identify automation patterns in GitHub accounts through behavioral analysis",
   "homepage": "https://github.com/unveil-project/identity#readme",
