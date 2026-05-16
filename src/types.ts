@@ -21,6 +21,7 @@ export type IdentifyOptions = {
   reposCount: number;
   accountName: string;
   events: GitHubEvent[];
+  excludeRepos?: string[];
 };
 
 export type IdentityClassification = "organic" | "mixed" | "automation";

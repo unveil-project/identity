@@ -18,8 +18,16 @@ export function identify({
   reposCount,
   accountName,
   events,
+  excludeRepos = [],
 }: IdentifyOptions): IdentifyResult {
   const flags: IdentifyFlag[] = [];
+
+  // Filter out excluded repositories
+  const excludeReposLower = excludeRepos.map((r) => r.toLowerCase());
+  const filteredEvents = events.filter((e) => {
+    const repoName = e.repo?.name?.toLowerCase();
+    return repoName && !excludeReposLower.includes(repoName);
+  });
 
   const accountAge = dayjs().diff(createdAt, "days");
 
@@ -37,27 +45,27 @@ export function identify({
     });
   }
 
-  const foreignEvents = events.filter((e) => {
+  const foreignEvents = filteredEvents.filter((e) => {
     const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
     return repoOwner && repoOwner !== accountName.toLowerCase();
   });
 
-  const hasAllExternal = reposCount === 0 && foreignEvents.length === events.length;
+  const hasAllExternal = reposCount === 0 && foreignEvents.length === filteredEvents.length;
 
-  if (hasAllExternal && events.length >= CONFIG.ZERO_REPOS_MIN_EVENTS) {
+  if (hasAllExternal && filteredEvents.length >= CONFIG.ZERO_REPOS_MIN_EVENTS) {
     flags.push({
       label: "Only active on other people's repos",
       points: CONFIG.POINTS_ZERO_REPOS_ACTIVE + CONFIG.POINTS_NO_PERSONAL_ACTIVITY,
-      detail: `No personal repos, all ${events.length} events are on repos they don't own`,
+      detail: `No personal repos, all ${filteredEvents.length} events are on repos they don't own`,
     });
   }
 
   const isNewOrYoungAccount = accountAge < CONFIG.AGE_YOUNG_ACCOUNT;
 
   // Behavioral pattern checks (apply to all accounts regardless of age)
-  if (events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+  if (filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
     // Filter CreateEvent to only actual repository creations (not branch/tag creation)
-    const createEvents = events.filter((e) => {
+    const createEvents = filteredEvents.filter((e) => {
       return e.type === "CreateEvent" && e.payload?.ref_type === "repository";
     });
 
@@ -102,7 +110,7 @@ export function identify({
     // Global hours across multiple days is meaningless - someone codes at different times on different days
     // Only flag if a SINGLE DAY shows no realistic sleep window (< 3 hours gap)
     const eventsByDay = new Map<string, Set<number>>();
-    events.forEach((e) => {
+    filteredEvents.forEach((e) => {
       const day = dayjs.utc(e.created_at).format("YYYY-MM-DD");
       const hour = dayjs.utc(e.created_at).hour();
       if (!eventsByDay.has(day)) {
@@ -123,7 +131,7 @@ export function identify({
 
     eventsByDay.forEach((hoursInDay, day) => {
       const hoursActive = hoursInDay.size;
-      const eventsOnDay = events.filter(
+      const eventsOnDay = filteredEvents.filter(
         (e) => dayjs.utc(e.created_at).format("YYYY-MM-DD") === day,
       ).length;
 
@@ -180,7 +188,7 @@ export function identify({
     // Bots typically have narrow event type profiles (low entropy)
     // Humans engage in varied activities (high entropy)
     const eventTypeMap = new Map<string, number>();
-    events.forEach((e) => {
+    filteredEvents.forEach((e) => {
       if (e.type) {
         eventTypeMap.set(e.type, (eventTypeMap.get(e.type) || 0) + 1);
       }
@@ -190,7 +198,7 @@ export function identify({
     const eventTypeEntropy = calculateNormalizedShannonsEntropy(eventTypeCount);
 
     const eventTypes = new Set(
-      events.map((e) => e.type).filter((t): t is string => t !== null && t !== undefined),
+      filteredEvents.map((e) => e.type).filter((t): t is string => t !== null && t !== undefined),
     );
     const hasInteraction =
       eventTypes.has("IssueCommentEvent") ||
@@ -213,7 +221,7 @@ export function identify({
     }
 
     // Issue comment spam detection (multiple comments across different repos in short time)
-    const issueCommentEvents = events.filter((e) => e.type === "IssueCommentEvent");
+    const issueCommentEvents = filteredEvents.filter((e) => e.type === "IssueCommentEvent");
 
     if (issueCommentEvents.length >= CONFIG.ISSUE_COMMENT_MIN_FOR_SPRAY) {
       // Sort by timestamp
@@ -286,7 +294,7 @@ export function identify({
     }
 
     // PR comment spam detection (multiple review comments across different PRs/repos in short time)
-    const prCommentEvents = events.filter((e) => e.type === "PullRequestReviewCommentEvent");
+    const prCommentEvents = filteredEvents.filter((e) => e.type === "PullRequestReviewCommentEvent");
 
     if (prCommentEvents.length >= CONFIG.PR_COMMENT_MIN_FOR_SPRAY) {
       // Sort by timestamp
@@ -384,11 +392,11 @@ export function identify({
     ? CONFIG.BRANCH_PR_PATTERN_RATIO_MIN_ESTABLISHED
     : CONFIG.BRANCH_PR_PATTERN_RATIO_MIN;
 
-  const branchCreates = events.filter(
+  const branchCreates = filteredEvents.filter(
     (e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
   );
   // Only include explicitly opened PR submission events
-  const prEvents = events.filter(
+  const prEvents = filteredEvents.filter(
     (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
   );
 
@@ -451,7 +459,7 @@ export function identify({
 
   // Fork surge - applies uniformly to all accounts (detects time-based spike in forking)
   // Spam is spam: 8+ forks in 24 hours is bot behavior regardless of account age
-  const forkEvents = events.filter((e) => e.type === "ForkEvent");
+  const forkEvents = filteredEvents.filter((e) => e.type === "ForkEvent");
 
   if (forkEvents.length >= CONFIG.FORKS_HIGH) {
     // Detect if forks are clustered in time (spike) vs spread over time
@@ -626,7 +634,7 @@ export function identify({
     // Verify actual chaining: branches in forked repos, PRs targeting forked repos, temporal order
     if (
       forkEvents.length >= CONFIG.FORK_COMBINED_ACTIVITY_MIN &&
-      events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS
+      filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS
     ) {
       // Get repos that were forked
       const forkedRepoNames = new Set(
@@ -636,7 +644,7 @@ export function identify({
       );
 
       // Find branches created in forked repos
-      const branchCreateEvents = events.filter(
+      const branchCreateEvents = filteredEvents.filter(
         (e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
       );
       const branchesInForkedRepos = branchCreateEvents.filter((e) =>
@@ -644,7 +652,7 @@ export function identify({
       );
 
       // Find PRs targeting forked repos
-      const allPREvents = events.filter(
+      const allPREvents = filteredEvents.filter(
         (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
       );
       const prsInForkedRepos = allPREvents.filter((e) =>
@@ -688,10 +696,10 @@ export function identify({
   }
 
   // Additional checks for young accounts (more strict thresholds)
-  if (isNewOrYoungAccount && events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+  if (isNewOrYoungAccount && filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
     const userLogin = accountName.toLowerCase();
 
-    const commitEvents = events.filter((e) => e.type === "PushEvent");
+    const commitEvents = filteredEvents.filter((e) => e.type === "PushEvent");
 
     if (commitEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
       const timestamps = commitEvents
@@ -752,7 +760,7 @@ export function identify({
     }
 
     // PRs (flag more aggressively)
-    const prEvents = events.filter(
+    const prEvents = filteredEvents.filter(
       (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
     );
 
@@ -783,7 +791,7 @@ export function identify({
     }
 
     const codingEventTypes = new Set(["PushEvent", "PullRequestEvent"]);
-    const codingEventsWithReviews = events.filter(
+    const codingEventsWithReviews = filteredEvents.filter(
       (e) =>
         (e.type && codingEventTypes.has(e.type)) ||
         e.type === "PullRequestReviewEvent" ||
@@ -934,7 +942,7 @@ export function identify({
     }
 
     // Mostly external activity (not 100%)
-    const foreignRatio = foreignEvents.length / events.length;
+    const foreignRatio = foreignEvents.length / filteredEvents.length;
     if (
       !hasAllExternal &&
       foreignRatio >= CONFIG.FOREIGN_RATIO_HIGH &&
@@ -950,8 +958,8 @@ export function identify({
 
   // Extreme PR spam detection - TIME-WINDOWED (applies to all accounts)
   // Spam is about intensity/velocity, not total count
-  if (events.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-    const allPREvents = events.filter(
+  if (filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+    const allPREvents = filteredEvents.filter(
       (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
     );
     const now = dayjs();
