@@ -1515,3 +1515,274 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
   });
 });
 
+describe("identify - Repository Exclusion Filter", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(date);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("should exclude events from filtered repositories and not flag them", () => {
+    const events: GitHubEvent[] = [];
+    // Create 10 fork events on excluded repo and 2 on other repos
+    // FORKS_EXTREME: 8 (triggers at 8+), FORKS_HIGH: 5 (triggers at 5+)
+    // Without filter: 12 forks total >= 8 → flags. With filter: 2 forks < 5 → no flag
+    for (let i = 0; i < 10; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
+        repo: { name: "excluded-owner/excluded-repo" } as any,
+      } as any);
+    }
+    for (let i = 0; i < 2; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, 10 + i, 0, 0).toISOString(),
+        repo: { name: `other-owner/repo${i}` } as any,
+      } as any);
+    }
+
+    // Without filter - should flag because 12 forks within 24h triggers fork spike (>= FORKS_EXTREME: 8)
+    const resultWithoutFilter = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+    });
+
+    // With filter excluding the problematic repo - should not flag because only 2 forks remain (< FORKS_HIGH: 5)
+    const resultWithFilter = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+      excludeRepos: ["excluded-owner/excluded-repo"],
+    });
+
+    // Verify that fork spike flags are different
+    const withoutFilterHasForkFlag = resultWithoutFilter.flags.some((f) =>
+      f.label.includes("fork") || f.label.includes("Fork")
+    );
+    const withFilterHasForkFlag = resultWithFilter.flags.some((f) =>
+      f.label.includes("fork") || f.label.includes("Fork")
+    );
+
+    expect(withoutFilterHasForkFlag).toBe(true);
+    expect(withFilterHasForkFlag).toBe(false);
+    expect(resultWithFilter.score).toBeGreaterThan(resultWithoutFilter.score);
+  });
+
+  it("should handle case-insensitive repository name matching", () => {
+    const events: GitHubEvent[] = [];
+    // Create fork events with mixed case in repo names
+    for (let i = 0; i < 10; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
+        repo: { name: "Owner/MyRepo" } as any, // Mixed case
+      } as any);
+    }
+
+    // Filter with different case - should still exclude them
+    const result = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+      excludeRepos: ["owner/myrepo"], // Lowercase
+    });
+
+    // Should not flag because all forks are excluded
+    const hasForkFlag = result.flags.some((f) =>
+      f.label.includes("fork") || f.label.includes("Fork")
+    );
+    expect(hasForkFlag).toBe(false);
+    expect(result.score).toBe(100);
+  });
+
+  it("should filter multiple excluded repositories", () => {
+    const events: GitHubEvent[] = [];
+    // Create fork events across 3 repos
+    for (let i = 0; i < 4; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
+        repo: { name: "owner/repo-a" } as any,
+      } as any);
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, i + 4, 0, 0).toISOString(),
+        repo: { name: "owner/repo-b" } as any,
+      } as any);
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, i + 8, 0, 0).toISOString(),
+        repo: { name: "owner/repo-c" } as any,
+      } as any);
+    }
+
+    // Exclude first two repos - should only see 4 forks from repo-c
+    const result = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+      excludeRepos: ["owner/repo-a", "owner/repo-b"],
+    });
+
+    // Should not flag because only 4 forks remain
+    const hasForkFlag = result.flags.some((f) =>
+      f.label.includes("fork") || f.label.includes("Fork")
+    );
+    expect(hasForkFlag).toBe(false);
+  });
+
+  it("should work correctly when excludeRepos is empty array", () => {
+    const events: GitHubEvent[] = [];
+    for (let i = 0; i < 10; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
+        repo: { name: `repo${i}` } as any,
+      } as any);
+    }
+
+    const result = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+      excludeRepos: [], // Empty array
+    });
+
+    // Should behave same as if excludeRepos was not provided
+    const hasForkFlag = result.flags.some((f) =>
+      f.label.includes("fork") || f.label.includes("Fork")
+    );
+    expect(hasForkFlag).toBe(true);
+  });
+
+  it("should work correctly when excludeRepos is not provided (undefined)", () => {
+    const events: GitHubEvent[] = [];
+    for (let i = 0; i < 10; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
+        repo: { name: `repo${i}` } as any,
+      } as any);
+    }
+
+    const result = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+      // excludeRepos not provided
+    });
+
+    // Should flag fork activity normally
+    const hasForkFlag = result.flags.some((f) =>
+      f.label.includes("fork") || f.label.includes("Fork")
+    );
+    expect(hasForkFlag).toBe(true);
+  });
+
+  it("should exclude repos from all types of analysis (comment spam, bursts, etc)", () => {
+    const events: GitHubEvent[] = [];
+    
+    // Add issue comment spam events to 12 different repos
+    for (let i = 0; i < 12; i++) {
+      events.push({
+        type: "IssueCommentEvent",
+        created_at: new Date(2026, 2, 10, 12, 0, i * 10).toISOString(),
+        repo: { name: `spam-owner/spam-repo${i}` } as any,
+      } as any);
+    }
+
+    const resultWithoutFilter = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+    });
+
+    const resultWithFilter = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+      excludeRepos: ["spam-owner/spam-repo0", "spam-owner/spam-repo1", "spam-owner/spam-repo2", "spam-owner/spam-repo3", "spam-owner/spam-repo4", "spam-owner/spam-repo5", "spam-owner/spam-repo6", "spam-owner/spam-repo7", "spam-owner/spam-repo8", "spam-owner/spam-repo9", "spam-owner/spam-repo10", "spam-owner/spam-repo11"],
+    });
+
+    // Without filter should flag comment spam
+    expect(
+      resultWithoutFilter.flags.some(
+        (f) =>
+          f.label === "Issue comment spam" ||
+          f.label === "High comment frequency across repos"
+      )
+    ).toBe(true);
+
+    // With filter should not flag
+    expect(
+      resultWithFilter.flags.some(
+        (f) =>
+          f.label === "Issue comment spam" ||
+          f.label === "High comment frequency across repos"
+      )
+    ).toBe(false);
+
+    expect(resultWithFilter.score).toBeGreaterThan(resultWithoutFilter.score);
+  });
+
+  it("should partially filter when only some events match exclude list", () => {
+    const events: GitHubEvent[] = [];
+    
+    // Add 8 forks to excluded repo (would trigger flag)
+    for (let i = 0; i < 8; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
+        repo: { name: "excluded-owner/excluded-repo" } as any,
+      } as any);
+    }
+    
+    // Add 2 forks to non-excluded repo (not enough to flag alone)
+    for (let i = 0; i < 2; i++) {
+      events.push({
+        type: "ForkEvent",
+        created_at: new Date(2026, 2, 10, 10 + i, 0, 0).toISOString(),
+        repo: { name: "other/repo" } as any,
+      } as any);
+    }
+
+    const result = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+      excludeRepos: ["excluded-owner/excluded-repo"],
+    });
+
+    // Should only see 2 forks (not enough to flag)
+    expect(
+      result.flags.some((f) => f.label.includes("fork") || f.label.includes("Fork"))
+    ).toBe(false);
+    
+    // Now test without filter - should flag
+    const resultNoFilter = identify({
+      createdAt: "2025-01-01T00:00:00Z",
+      reposCount: 20,
+      accountName: "user",
+      events,
+    });
+    
+    expect(
+      resultNoFilter.flags.some((f) => f.label.includes("fork") || f.label.includes("Fork"))
+    ).toBe(true);
+  });
+});
+
