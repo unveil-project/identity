@@ -71,41 +71,25 @@ export const CONFIG = {
   POINTS_EXTREME_REPO_SPREAD_YOUNG: 30,
   POINTS_WIDE_REPO_SPREAD_YOUNG: 15,
 
-  // External PR thresholds (time-based to catch rapid spam)
-  PRS_TODAY_EXTREME: 15, // >= this in 24h = PR burst
-  PRS_WEEK_HIGH: 20, // >= this in 7 days = high frequency
-  POINTS_PR_BURST: 20,
-  POINTS_HIGH_PR_FREQUENCY: 15,
-
-  // Extreme PR spam detection (ALL accounts, time-windowed)
+  // Extreme PR spam detection (ALL accounts, time-windowed) - simplified two-tier detection
   PRS_DAY_EXTREME: 30, // >= this PRs in 24h = extreme daily spam
-  POINTS_PRS_DAY_EXTREME: 45,
+  POINTS_PRS_DAY_EXTREME: 65, // 30-99 PRs in 24h
+  PRS_DAY_INSANE: 100, // >= this PRs in 24h = insane spam (maximum penalty)
+  POINTS_PRS_DAY_INSANE: 85,
   PRS_WEEK_EXTREME: 100, // >= this PRs in 7 days = extreme weekly spam
-  POINTS_PRS_WEEK_EXTREME: 50,
-  PRS_WEEK_VERY_HIGH: 50, // >= this PRs in 7 days = very high weekly spam
-  POINTS_PRS_WEEK_VERY_HIGH: 40,
-  
-  // Distributed PR spam (high PR count + many repos)
-  PRS_SPAM_VOLUME: 50, // PR count threshold for combined check
-  REPOS_SPAM_SPREAD: 15, // repos threshold for combined check
-  POINTS_PR_SPAM_COMBINED: 45, // for combined high PR + repo spread
-  
-  // Distributed PR spam density guards (prevent flagging long-term contributors)
-  PRS_SPAM_DENSITY_PER_WEEK: 15, // >= this PRs/week = suspicious density (distributed spam)
-  PRS_SPAM_ROLLING_30DAYS: 60, // >= this PRs in last 30 days + meets repo spread = flag
-  POINTS_PR_SPAM_DISTRIBUTED: 45, // points for distributed spam pattern
+  POINTS_PRS_WEEK_EXTREME: 60,
 
-  // PR-only contributor
+  // External PR patterns (applies to all accounts uniformly)
   EXTERNAL_PRS_MIN: 15, // external PRs threshold
   PERSONAL_REPOS_LOW: 5, // < this personal repos with many external PRs
   POINTS_PR_ONLY_CONTRIBUTOR: 20,
+  POINTS_EXTERNAL_FOCUS: 20,
 
   // External activity ratio
   FOREIGN_RATIO_FULL: 1, // 100% external
   FOREIGN_RATIO_HIGH: 0.95, // 95%+ external
   PERSONAL_REPOS_NONE: 3, // < this with 100% external = suspicious
   POINTS_NO_PERSONAL_ACTIVITY: 30,
-  POINTS_EXTERNAL_FOCUS: 20,
 
   // Zero repos with activity
   ZERO_REPOS_MIN_EVENTS: 20, // 0 repos but this many events = suspicious

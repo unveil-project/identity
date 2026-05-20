@@ -1384,50 +1384,12 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 
     const spamFlag = result.flags.find((f) => f.label === "Extreme PR spam (daily)");
     expect(spamFlag).toBeDefined();
-    expect(spamFlag?.points).toBe(45);
+    expect(spamFlag?.points).toBe(65); // 30-99 PRs in 24h = 65 points (simplified two-tier system)
     expect(spamFlag?.detail).toContain("35 PRs");
     expect(result.classification).toBe("automation");
   });
 
 
-
-  it("should flag distributed PR spam pattern (50+ PRs across 15+ repos)", () => {
-    const events: GitHubEvent[] = [];
-    
-    // Create 100 PR events across 20 repos (distributed over time to avoid daily/weekly flags)
-    for (let i = 0; i < 100; i++) {
-      const repoIndex = i % 20;
-      const daysAgo = 14 + Math.floor(i / 5); // Spread over 34 days
-      events.push({
-        type: "PullRequestEvent",
-        payload: { action: "opened" },
-        created_at: new Date(2026, 2, 10 - daysAgo, 12, i % 60).toISOString(),
-        repo: { name: `spamtarget/repo${repoIndex}` } as any,
-      } as any);
-    }
-    // Add some push events to meet MIN_EVENTS_FOR_ANALYSIS
-    for (let i = 100; i < 110; i++) {
-      events.push({
-        type: "PushEvent",
-        created_at: new Date(2026, 1, 1, 12, 0, i).toISOString(),
-        repo: { name: "user/personal" } as any,
-      } as any);
-    }
-
-    const result = identify({
-      createdAt: "2025-01-01T00:00:00Z",
-      reposCount: 5,
-      accountName: "user",
-      events,
-    });
-
-    const spamFlag = result.flags.find((f) => f.label === "Distributed PR spam pattern");
-    expect(spamFlag).toBeDefined();
-    expect(spamFlag?.points).toBe(45);
-    expect(spamFlag?.detail).toContain("100 PRs");
-    expect(spamFlag?.detail).toContain("different repositories");
-    expect(result.classification).toBe("automation");
-  });
 
   it("should not flag moderate PR volume in a week", () => {
     const events: GitHubEvent[] = [];

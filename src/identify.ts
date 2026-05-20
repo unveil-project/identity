@@ -695,6 +695,133 @@ export function identify({
     }
   }
 
+  // Single PR events filter - used by both extreme spam detection and young account checks
+  // Include all PR actions (opened, closed, merged) to catch automation patterns
+  const allPREvents = filteredEvents.filter(
+    (e) => e.type === "PullRequestEvent" && (e.payload?.action === "opened" || e.payload?.action === "closed" || e.payload?.action === "merged"),
+  );
+
+  // Extreme PR spam detection - TIME-WINDOWED (applies to all accounts uniformly)
+  // Spam is about intensity/velocity, not total count
+  // Find the densest time windows in the actual event data (not relative to "now")
+  // Uses allPREvents defined earlier, which includes opened, closed, and merged PR actions
+  if (filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS && allPREvents.length >= CONFIG.PRS_DAY_EXTREME) {
+    // Helper to find max PRs in any window of given hours
+    const findMaxPRsInWindow = (hours: number): number => {
+      let maxPRs = 0;
+      let windowStartIdx = 0;
+      const prTimestamps = allPREvents
+        .map((e) => dayjs(e.created_at))
+        .sort((a, b) => a.valueOf() - b.valueOf());
+
+      for (let windowEndIdx = 0; windowEndIdx < prTimestamps.length; windowEndIdx++) {
+        const windowEnd = prTimestamps[windowEndIdx];
+
+        while (
+          windowEnd &&
+          windowEnd.diff(prTimestamps[windowStartIdx], "hour", true) > hours
+        ) {
+          windowStartIdx++;
+        }
+
+        const prsInWindow = windowEndIdx - windowStartIdx + 1;
+        maxPRs = Math.max(maxPRs, prsInWindow);
+      }
+
+      return maxPRs;
+    };
+
+    const maxPRsIn24h = findMaxPRsInWindow(24);
+    const maxPRsIn7d = findMaxPRsInWindow(24 * 7);
+
+    // Simplified two-tier detection: 30-99 = extreme, 100+ = insane
+    if (maxPRsIn24h >= CONFIG.PRS_DAY_INSANE) {
+      // 100+ PRs in 24h = insane spam (maximum penalty)
+      flags.push({
+        label: "Extreme PR spam (daily)",
+        points: CONFIG.POINTS_PRS_DAY_INSANE,
+        detail: `${maxPRsIn24h} PRs created within a 24-hour period`,
+      });
+    } else if (maxPRsIn24h >= CONFIG.PRS_DAY_EXTREME) {
+      // 30-99 PRs in 24h = extreme spam (regardless of where in range)
+      flags.push({
+        label: "Extreme PR spam (daily)",
+        points: CONFIG.POINTS_PRS_DAY_EXTREME,
+        detail: `${maxPRsIn24h} PRs created within a 24-hour period`,
+      });
+    } else if (maxPRsIn7d >= CONFIG.PRS_WEEK_EXTREME) {
+      // 100+ PRs in 7 days = extreme weekly spam (only if not already flagged for daily)
+      flags.push({
+        label: "Extreme PR spam (weekly)",
+        points: CONFIG.POINTS_PRS_WEEK_EXTREME,
+        detail: `${maxPRsIn7d} PRs created within a 7-day period`,
+      });
+    }
+  }
+
+  // Additional checks for young accounts (more strict thresholds)
+  if (isNewOrYoungAccount && filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+    const commitEvents = filteredEvents.filter((e) => e.type === "PushEvent");
+
+    if (commitEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+      const timestamps = commitEvents
+        .map((e) => dayjs(e.created_at))
+        .sort((a, b) => a.valueOf() - b.valueOf());
+
+      // Analyze event temporal distribution - detect burst patterns
+      let maxCommitsInHour = 0;
+      let windowStartIndex = 0;
+
+      for (let windowEndIndex = 0; windowEndIndex < timestamps.length; windowEndIndex++) {
+        const windowEnd = timestamps[windowEndIndex];
+
+        // Slide window start forward until within 1 hour
+        while (windowEnd && windowEnd.diff(timestamps[windowStartIndex], "hour", true) > 1) {
+          windowStartIndex++;
+        }
+
+        const commitsInWindow = windowEndIndex - windowStartIndex + 1;
+        maxCommitsInHour = Math.max(maxCommitsInHour, commitsInWindow);
+      }
+
+      // Extreme burst (regardless of distribution)
+      if (maxCommitsInHour >= CONFIG.HOURLY_ACTIVITY_EXTREME) {
+        flags.push({
+          label: "Extreme commit burst",
+          points: CONFIG.POINTS_EXTREME_ACTIVITY_DENSITY,
+          detail: `${maxCommitsInHour} commits within 1 hour`,
+        });
+      } else if (maxCommitsInHour >= CONFIG.HOURLY_ACTIVITY_HIGH) {
+        flags.push({
+          label: "High commit burst",
+          points: CONFIG.POINTS_HIGH_ACTIVITY_DENSITY,
+          detail: `${maxCommitsInHour} commits within 1 hour`,
+        });
+      }
+
+      // Detect ultra-tight bursts (e.g., 3+ commits within 10 seconds)
+      let tightBurstCount = 0;
+
+      for (let i = 1; i < timestamps.length; i++) {
+        if (timestamps[i] !== undefined && timestamps[i - 1] !== undefined) {
+          const diffSeconds = timestamps[i]!.diff(timestamps[i - 1]!, "second");
+
+          if (diffSeconds <= CONFIG.TIGHT_COMMIT_SECONDS) {
+            tightBurstCount++;
+          }
+        }
+      }
+
+      if (tightBurstCount >= CONFIG.TIGHT_COMMIT_THRESHOLD) {
+        flags.push({
+          label: "High commit frequency",
+          points: CONFIG.POINTS_TIGHT_BURST,
+          detail: `${tightBurstCount + 1} commits within very short intervals`,
+        });
+      }
+    }
+  }
+
   // Additional checks for young accounts (more strict thresholds)
   if (isNewOrYoungAccount && filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
     const userLogin = accountName.toLowerCase();
@@ -759,32 +886,30 @@ export function identify({
       }
     }
 
-    // PRs (flag more aggressively)
-    const prEvents = filteredEvents.filter(
-      (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
-    );
-
-    if (prEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-      const timestamps = prEvents.map((e) => dayjs(e.created_at));
+    // PRs (flag more aggressively) - use combined allPREvents filter
+    // Skip generic volume flags if we've already detected extreme daily spam (more specific/severe)
+    const hasExtremeDailySpam = flags.some((f) => f.label === "Extreme PR spam (daily)");
+    if (allPREvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS && !hasExtremeDailySpam) {
+      const timestamps = allPREvents.map((e) => dayjs(e.created_at));
       const oldestEvent = dayjs.min(timestamps);
       const newestEvent = dayjs.max(timestamps);
 
       if (newestEvent) {
         const eventSpanDays = Math.max(1, newestEvent.diff(oldestEvent, "day"));
-        const prsPerDay = prEvents.length / eventSpanDays;
+        const prsPerDay = allPREvents.length / eventSpanDays;
 
         if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_EXTREME / 2) {
           // PRs are much rarer
           flags.push({
             label: "Very high PR volume",
             points: CONFIG.POINTS_EXTREME_ACTIVITY_DENSITY + 10,
-            detail: `${prEvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
+            detail: `${allPREvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
           });
         } else if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_HIGH / 2) {
           flags.push({
             label: "High PR volume",
             points: CONFIG.POINTS_HIGH_ACTIVITY_DENSITY + 5,
-            detail: `${prEvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
+            detail: `${allPREvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
           });
         }
       }
@@ -895,39 +1020,20 @@ export function identify({
       }
     }
 
-    // External PRs
-    // check frequency, not just total
-    const externalPRs = prEvents.filter((e) => {
+  }
+
+
+
+  // External PR patterns - applies to all accounts uniformly
+  // Flag accounts with high external PR activity but no personal repos
+  if (filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+    const userLogin = accountName.toLowerCase();
+    const externalPRs = allPREvents.filter((e) => {
       const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
       return repoOwner && repoOwner !== userLogin;
     });
 
-    // Group PRs by day and week
-    const now = dayjs();
-    const oneWeekAgo = now.subtract(1, "week");
-    const oneDayAgo = now.subtract(1, "day");
-
-    const prsThisWeek = externalPRs.filter((e) => dayjs(e.created_at).isAfter(oneWeekAgo));
-    const prsToday = externalPRs.filter((e) => dayjs(e.created_at).isAfter(oneDayAgo));
-
-    // Many PRs in a single day
-    // only flag extreme cases
-    if (prsToday.length >= CONFIG.PRS_TODAY_EXTREME) {
-      flags.push({
-        label: "High PR volume in the past 24 hours",
-        points: CONFIG.POINTS_PR_BURST,
-        detail: `${prsToday.length} PRs to other repos in the last 24 hours`,
-      });
-    } else if (prsThisWeek.length >= CONFIG.PRS_WEEK_HIGH) {
-      // Many PRs in a week
-      flags.push({
-        label: "High PR volume during last week",
-        points: CONFIG.POINTS_HIGH_PR_FREQUENCY,
-        detail: `${prsThisWeek.length} PRs to other repos this week`,
-      });
-    }
-
-    // Also flag if lots of PRs AND few personal repos (regardless of time)
+    // Flag if lots of PRs AND few personal repos (regardless of account age)
     if (externalPRs.length >= CONFIG.EXTERNAL_PRS_MIN && reposCount < CONFIG.PERSONAL_REPOS_LOW) {
       let detail = `${externalPRs.length} PRs to other repos, but only ${reposCount} of their own`;
       if (reposCount === 0) {
@@ -941,7 +1047,7 @@ export function identify({
       });
     }
 
-    // Mostly external activity (not 100%)
+    // Flag if mostly external activity (not 100%)
     const foreignRatio = foreignEvents.length / filteredEvents.length;
     if (
       !hasAllExternal &&
@@ -953,104 +1059,6 @@ export function identify({
         points: CONFIG.POINTS_EXTERNAL_FOCUS,
         detail: `${Math.round(foreignRatio * 100)}% of activity on other people's repos`,
       });
-    }
-  }
-
-  // Extreme PR spam detection - TIME-WINDOWED (applies to all accounts)
-  // Spam is about intensity/velocity, not total count
-  if (filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-    const allPREvents = filteredEvents.filter(
-      (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
-    );
-    const now = dayjs();
-    const oneDayAgo = now.subtract(1, "day");
-    const oneWeekAgo = now.subtract(1, "week");
-
-    // Count PRs in different time windows
-    const prsInLastDay = allPREvents.filter((e) => dayjs(e.created_at).isAfter(oneDayAgo));
-    const prsInLastWeek = allPREvents.filter((e) => dayjs(e.created_at).isAfter(oneWeekAgo));
-
-    // Extreme daily spam: 30+ PRs in 24 hours
-    if (prsInLastDay.length >= CONFIG.PRS_DAY_EXTREME) {
-      flags.push({
-        label: "Extreme PR spam (daily)",
-        points: CONFIG.POINTS_PRS_DAY_EXTREME,
-        detail: `${prsInLastDay.length} PRs in the last 24 hours`,
-      });
-    }
-
-    // Extreme weekly spam: 100+ PRs in 7 days
-    if (prsInLastWeek.length >= CONFIG.PRS_WEEK_EXTREME) {
-      flags.push({
-        label: "Extreme PR spam (weekly)",
-        points: CONFIG.POINTS_PRS_WEEK_EXTREME,
-        detail: `${prsInLastWeek.length} PRs in the last 7 days`,
-      });
-    }
-    // Very high weekly spam: 50+ PRs in 7 days (only if not already extreme)
-    else if (prsInLastWeek.length >= CONFIG.PRS_WEEK_VERY_HIGH) {
-      flags.push({
-        label: "Very high PR spam frequency",
-        points: CONFIG.POINTS_PRS_WEEK_VERY_HIGH,
-        detail: `${prsInLastWeek.length} PRs in the last 7 days`,
-      });
-    }
-
-
-    // Distributed PR spam: high PR count across many repos
-    // Only check if not already flagged by time-based detection
-    if (allPREvents.length >= CONFIG.PRS_SPAM_VOLUME) {
-      const hasTimeBasedFlag = flags.some(
-        (f) =>
-          f.label === "Extreme PR spam (daily)" ||
-          f.label === "Extreme PR spam (weekly)" ||
-          f.label === "Very high PR spam frequency"
-      );
-
-      if (!hasTimeBasedFlag) {
-        // Count distinct repos targeted by PRs
-        const prTargetRepos = new Set(
-          allPREvents
-            .map((e) => e.repo?.name)
-            .filter((name) => name !== undefined),
-        );
-
-        if (prTargetRepos.size >= CONFIG.REPOS_SPAM_SPREAD) {
-          // Guard against flagging long-term contributors:
-          // Calculate time density and rolling window
-          const prTimestamps = allPREvents
-            .map((e) => dayjs(e.created_at))
-            .sort((a, b) => a.valueOf() - b.valueOf());
-          
-          const earliestPR = prTimestamps[0];
-          const latestPR = prTimestamps[prTimestamps.length - 1];
-          const timeSpanDays = latestPR ? latestPR.diff(earliestPR, "days", true) : 0;
-          const timeSpanWeeks = timeSpanDays / 7;
-          
-          // Calculate density: PRs per week
-          const prsPerWeek = timeSpanWeeks > 0 ? allPREvents.length / timeSpanWeeks : Infinity;
-          
-          // Check rolling 30-day window
-          const thirtyDaysAgo = dayjs().subtract(30, "days");
-          const prsInLast30Days = allPREvents.filter(
-            (e) => dayjs(e.created_at).isAfter(thirtyDaysAgo)
-          ).length;
-          
-          // Flag if either:
-          // 1. High density (PRs per week exceeds threshold), OR
-          // 2. Rolling 30-day window has excessive volume
-          const isHighDensity = prsPerWeek >= CONFIG.PRS_SPAM_DENSITY_PER_WEEK;
-          const isRolling30DaySpam = prsInLast30Days >= CONFIG.PRS_SPAM_ROLLING_30DAYS;
-          
-          if (isHighDensity || isRolling30DaySpam) {
-            flags.push({
-              label: "Distributed PR spam pattern",
-              points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
-              detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}`,
-            });
-          }
-        }
-      }
     }
   }
 
