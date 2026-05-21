@@ -695,22 +695,49 @@ export function identify({
     }
   }
 
-  // Single PR events filter - used by both extreme spam detection and young account checks
-  // Include all PR actions (opened, closed, merged) to catch automation patterns
-  const allPREvents = filteredEvents.filter(
+  // Build unique PR map, keyed by repo+PR number to deduplicate lifecycle events
+  // (same PR might have opened, closed, merged events in the history)
+  // Maps: `${repoFullName}:${prNumber}` -> first event of that PR
+  // Falls back to using repo+timestamp if PR number is not available
+  const uniquePRMap = new Map<string, typeof filteredEvents[0]>();
+  const prEventsRaw = filteredEvents.filter(
     (e) => e.type === "PullRequestEvent" && (e.payload?.action === "opened" || e.payload?.action === "closed" || e.payload?.action === "merged"),
   );
+
+  for (const event of prEventsRaw) {
+    const prNumber = (event.payload?.pull_request as any)?.number;
+    const repoFullName = event.repo?.name;
+    let prKey: string;
+
+    if (prNumber !== undefined && repoFullName) {
+      prKey = `${repoFullName}:${prNumber}`;
+    } else if (repoFullName) {
+      // Fallback: use repo + created_at timestamp as key when PR number is missing
+      // This groups events by repo and creation time, treating each unique timestamp as a separate PR
+      prKey = `${repoFullName}:${event.created_at}`;
+    } else {
+      // Skip events without repo info
+      continue;
+    }
+
+    // Store the first occurrence of each PR (for consistent timestamp)
+    if (!uniquePRMap.has(prKey)) {
+      uniquePRMap.set(prKey, event);
+    }
+  }
+
+  const uniquePREvents = Array.from(uniquePRMap.values());
 
   // Extreme PR spam detection - TIME-WINDOWED (applies to all accounts uniformly)
   // Spam is about intensity/velocity, not total count
   // Find the densest time windows in the actual event data (not relative to "now")
-  // Uses allPREvents defined earlier, which includes opened, closed, and merged PR actions
-  if (filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS && allPREvents.length >= CONFIG.PRS_DAY_EXTREME) {
-    // Helper to find max PRs in any window of given hours
+  // Uses unique PRs (deduplicated by repo + PR number) to avoid counting the same PR multiple times
+  if (filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS && uniquePREvents.length >= CONFIG.PRS_DAY_EXTREME) {
+    // Helper to find max unique PRs in any window of given hours
     const findMaxPRsInWindow = (hours: number): number => {
       let maxPRs = 0;
       let windowStartIdx = 0;
-      const prTimestamps = allPREvents
+      const prTimestamps = uniquePREvents
         .map((e) => dayjs(e.created_at))
         .sort((a, b) => a.valueOf() - b.valueOf());
 
@@ -886,30 +913,30 @@ export function identify({
       }
     }
 
-    // PRs (flag more aggressively) - use combined allPREvents filter
+    // PRs (flag more aggressively) - use unique PR deduplication
     // Skip generic volume flags if we've already detected extreme daily spam (more specific/severe)
     const hasExtremeDailySpam = flags.some((f) => f.label === "Extreme PR spam (daily)");
-    if (allPREvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS && !hasExtremeDailySpam) {
-      const timestamps = allPREvents.map((e) => dayjs(e.created_at));
+    if (uniquePREvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS && !hasExtremeDailySpam) {
+      const timestamps = uniquePREvents.map((e) => dayjs(e.created_at));
       const oldestEvent = dayjs.min(timestamps);
       const newestEvent = dayjs.max(timestamps);
 
       if (newestEvent) {
         const eventSpanDays = Math.max(1, newestEvent.diff(oldestEvent, "day"));
-        const prsPerDay = allPREvents.length / eventSpanDays;
+        const prsPerDay = uniquePREvents.length / eventSpanDays;
 
         if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_EXTREME / 2) {
           // PRs are much rarer
           flags.push({
             label: "Very high PR volume",
             points: CONFIG.POINTS_EXTREME_ACTIVITY_DENSITY + 10,
-            detail: `${allPREvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
+            detail: `${uniquePREvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
           });
         } else if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_HIGH / 2) {
           flags.push({
             label: "High PR volume",
             points: CONFIG.POINTS_HIGH_ACTIVITY_DENSITY + 5,
-            detail: `${allPREvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
+            detail: `${uniquePREvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
           });
         }
       }
@@ -1026,9 +1053,10 @@ export function identify({
 
   // External PR patterns - applies to all accounts uniformly
   // Flag accounts with high external PR activity but no personal repos
+  // Uses unique PRs (deduplicated by repo + PR number)
   if (filteredEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
     const userLogin = accountName.toLowerCase();
-    const externalPRs = allPREvents.filter((e) => {
+    const externalPRs = uniquePREvents.filter((e) => {
       const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
       return repoOwner && repoOwner !== userLogin;
     });
