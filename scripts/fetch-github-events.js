@@ -124,7 +124,7 @@ async function fetchUserCommits(username, sinceDate) {
 }
 
 async function fetchGitHubEvents(username, type = "automation", { skipCommitsMsfg = false } = {}) {
-  console.log(username)
+
   if (!username) {
     console.error("Usage: node fetch-github-events.js <github-username> [type] [--no-commits-analysis]");
     console.error("Example: node fetch-github-events.js crabby-rathbun user");
