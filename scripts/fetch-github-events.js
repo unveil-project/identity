@@ -141,4 +141,8 @@ async function fetchGitHubEvents(username, type = "automation", { dryRun = false
   }
 }
 
-await fetchGitHubEvents(process.argv[2], process.argv[3], { dryRun: process.argv.includes("--dry-run") });
+const cliArgs = process.argv.slice(2);
+const dryRun = cliArgs.includes("--dry-run");
+const positionalArgs = cliArgs.filter((arg) => arg !== "--dry-run");
+
+await fetchGitHubEvents(positionalArgs[0], positionalArgs[1], { dryRun });
