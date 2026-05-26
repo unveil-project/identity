@@ -43,7 +43,7 @@ function anonymizeData(user, events) {
   return { anonymousUser, anonymousEvents };
 }
 
-async function fetchGitHubEvents(username, type = "automation") {
+async function fetchGitHubEvents(username, type = "automation", { dryRun = false } = {}) {
   if (!username) {
     console.error("Usage: node fetch-github-events.js <github-username>");
     console.error("Example: node fetch-github-events.js crabby-rathbun");
@@ -125,9 +125,14 @@ async function fetchGitHubEvents(username, type = "automation") {
       events: anonymousEvents,
     };
 
-    fs.writeFileSync(outputFile, JSON.stringify(data, null, 2));
+    if (!dryRun) {
+      fs.writeFileSync(outputFile, JSON.stringify(data, null, 2));
+      console.log(`✓ Successfully saved to: ${outputFile}`);
+    } else {
+      console.log(`✓ Dry run: Data not saved to file`);
+      console.log(outputFile, JSON.stringify(data, null, 2));
+    }
 
-    console.log(`✓ Successfully saved to: ${outputFile}`);
     console.log(`✓ User: ${anonymousUser.login} (${anonymousUser.public_repos} public repos)`);
     console.log(`✓ Total events: ${anonymousEvents.length}`);
   } catch (error) {
@@ -136,4 +141,8 @@ async function fetchGitHubEvents(username, type = "automation") {
   }
 }
 
-await fetchGitHubEvents(process.argv[2], process.argv[3]);
+const cliArgs = process.argv.slice(2);
+const dryRun = cliArgs.includes("--dry-run");
+const positionalArgs = cliArgs.filter((arg) => arg !== "--dry-run");
+
+await fetchGitHubEvents(positionalArgs[0], positionalArgs[1], { dryRun });
