@@ -84,12 +84,12 @@ export const CONFIG = {
   POINTS_PRS_WEEK_EXTREME: 50,
   PRS_WEEK_VERY_HIGH: 50, // >= this PRs in 7 days = very high weekly spam
   POINTS_PRS_WEEK_VERY_HIGH: 40,
-  
+
   // Distributed PR spam (high PR count + many repos)
   PRS_SPAM_VOLUME: 50, // PR count threshold for combined check
   REPOS_SPAM_SPREAD: 15, // repos threshold for combined check
   POINTS_PR_SPAM_COMBINED: 45, // for combined high PR + repo spread
-  
+
   // Distributed PR spam density guards (prevent flagging long-term contributors)
   PRS_SPAM_DENSITY_PER_WEEK: 15, // >= this PRs/week = suspicious density (distributed spam)
   PRS_SPAM_ROLLING_30DAYS: 60, // >= this PRs in last 30 days + meets repo spread = flag

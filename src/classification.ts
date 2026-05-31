@@ -1,6 +1,8 @@
 import type { IdentityClassification } from "./types";
 
-export function getClassificationDetails(classification: IdentityClassification | undefined) {
+export function getClassificationDetails(
+  classification: IdentityClassification | undefined,
+) {
   if (!classification) {
     return {
       label: "Analysis unavailable",
@@ -18,7 +20,8 @@ export function getClassificationDetails(classification: IdentityClassification 
   if (classification === "mixed") {
     return {
       label: "Mixed activity",
-      description: "Activity patterns show a mix of organic and automated signals.",
+      description:
+        "Activity patterns show a mix of organic and automated signals.",
     };
   }
 
