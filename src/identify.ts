@@ -17,6 +17,7 @@ import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
 import { detectNarrowActivityFocus } from "./detectors/event-diversity";
 import { detectCommentSpam } from "./detectors/comment-spam";
 import { detectBranchPRAutomation } from "./detectors/branch-pr-automation";
+import { detectRapidPRSpam } from "./detectors/rapid-pr-spam";
 import {
   detectForkActivity,
   detectForkCombinedActivity,
@@ -63,6 +64,7 @@ export function identify({
   flags.push(...detectNarrowActivityFocus(filteredEvents));
   flags.push(...detectCommentSpam(filteredEvents));
   flags.push(...detectBranchPRAutomation(filteredEvents, accountAge));
+  flags.push(...detectRapidPRSpam(filteredEvents, accountAge));
   flags.push(...detectForkActivity(filteredEvents));
   flags.push(...detectForkCombinedActivity(filteredEvents));
   flags.push(

@@ -8,10 +8,9 @@ export function detectBranchPRAutomation(
 ): IdentifyFlag[] {
   const flags: IdentifyFlag[] = [];
 
-  // Temporal branch→PR correlation (automated CI/CD workflow detection)
-  // Detects pattern: branch created, PR submitted within short window, repeatedly
+  // Pattern: Temporal branch→PR correlation (automated CI/CD workflow detection)
+  // Detects: branch created, PR submitted within short window, repeatedly (repo-scoped)
   // This is a strong automation indicator: real developers don't mechanically repeat this pattern
-  // Use stricter thresholds for established accounts to avoid false positives while still catching bot bursts
   const isEstablished = accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT;
   const branchPRMinPairs = isEstablished
     ? CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS_ESTABLISHED
@@ -23,7 +22,6 @@ export function detectBranchPRAutomation(
   const branchCreates = filteredEvents.filter(
     (e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
   );
-  // Only include explicitly opened PR submission events
   const prEvents = filteredEvents.filter(
     (e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
   );
@@ -32,12 +30,9 @@ export function detectBranchPRAutomation(
     branchCreates.length >= branchPRMinPairs &&
     prEvents.length >= branchPRMinPairs
   ) {
-    // branch/PR ratio must be near 1:1
     const branchPRRatio = branchCreates.length / prEvents.length;
 
     if (branchPRRatio >= CONFIG.BRANCH_PR_COUNT_RATIO_MIN) {
-      // are branches followed by PRs within the window?
-      // Create timestamped sorted lists
       const branchTimes = branchCreates
         .map((e) => ({ event: e, time: dayjs(e.created_at) }))
         .sort((a, b) => a.time.valueOf() - b.time.valueOf());
@@ -46,23 +41,43 @@ export function detectBranchPRAutomation(
         .map((e) => ({ event: e, time: dayjs(e.created_at) }))
         .sort((a, b) => a.time.valueOf() - b.time.valueOf());
 
-      // Count how many branch creates are followed by a PR within the time window
+      // Group PRs by repository for repo-scoped matching
+      const prTimesByRepo = new Map<string, typeof prTimes>();
+      for (const prEntry of prTimes) {
+        const repoName = prEntry.event.repo?.name;
+        if (repoName) {
+          if (!prTimesByRepo.has(repoName)) {
+            prTimesByRepo.set(repoName, []);
+          }
+          prTimesByRepo.get(repoName)!.push(prEntry);
+        }
+      }
+
       let matchedPairs = 0;
       let maxObservedTimeDiff = 0;
-      let prIdx = 0;
+      const prIdxByRepo = new Map<string, number>();
 
       for (const branchEntry of branchTimes) {
-        // Find the first PR that comes after this branch creation
+        const repoName = branchEntry.event.repo?.name;
+        if (!repoName) continue;
+
+        const repoPrTimes = prTimesByRepo.get(repoName);
+        if (!repoPrTimes || repoPrTimes.length === 0) continue;
+
+        if (!prIdxByRepo.has(repoName)) {
+          prIdxByRepo.set(repoName, 0);
+        }
+        let prIdx = prIdxByRepo.get(repoName)!;
+
         while (
-          prIdx < prTimes.length &&
-          prTimes[prIdx]!.time.valueOf() < branchEntry.time.valueOf()
+          prIdx < repoPrTimes.length &&
+          repoPrTimes[prIdx]!.time.valueOf() < branchEntry.time.valueOf()
         ) {
           prIdx++;
         }
 
-        // Check if there's a PR within the time window after this branch
-        if (prIdx < prTimes.length) {
-          const timeDiffSeconds = prTimes[prIdx]!.time.diff(
+        if (prIdx < repoPrTimes.length) {
+          const timeDiffSeconds = repoPrTimes[prIdx]!.time.diff(
             branchEntry.time,
             "second",
           );
@@ -76,16 +91,16 @@ export function detectBranchPRAutomation(
               maxObservedTimeDiff,
               timeDiffSeconds,
             );
-            prIdx++; // Consume this PR so it matches at most one branch (1:1 pairing)
+            prIdx++;
           }
         }
+
+        prIdxByRepo.set(repoName, prIdx);
       }
 
-      // Flag if enough branch→PR pairs follow the automated pattern
       if (matchedPairs >= branchPRMinPairs) {
         const automationRatio = matchedPairs / branchCreates.length;
 
-        // Only flag if most branches have matching PRs (strong automation indicator)
         if (automationRatio >= branchPRMinRatio) {
           flags.push({
             label: "Automated branch/PR workflow",
