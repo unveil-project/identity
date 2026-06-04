@@ -30,7 +30,10 @@
     "typecheck": "tsc --noEmit",
     "add:fixture": "node scripts/fetch-github-events.js",
     "playground": "pnpm -F @unveil/identity-playground dev",
-    "prepublishOnly": "vitest --run && pnpm run build"
+    "regression-test": "tsx scripts/regression-test.ts",
+    "regression-analyze": "tsx benchmark/analyze-reports.ts",
+    "regression-analyze:full": "tsx benchmark/analyze-reports.ts --full",
+    "prepublishOnly": "vitest --run && tsx scripts/regression-test.ts && pnpm run build"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
@@ -41,6 +44,7 @@
     "dayjs": "^1.11.20",
     "publint": "^0.3.17",
     "tsdown": "^0.18.1",
+    "tsx": "^4.7.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
   }
