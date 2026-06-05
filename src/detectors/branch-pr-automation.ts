@@ -108,6 +108,75 @@ export function detectBranchPRAutomation(
             detail: `${matchedPairs}/${branchCreates.length} branch creations followed by PRs within ${maxObservedTimeDiff}s`,
           });
         }
+      } else {
+        // Fallback: Check for fork-based workflow (branch in fork → PR to upstream with same project name)
+        // Pattern: user creates branches in their fork (user/projectname), opens PRs to upstream (different-owner/projectname)
+        // This is a legitimate automation pattern (fork → upstream contribution)
+        let forkWorkflowMatches = 0;
+        let forkMaxTimeDiff = 0;
+
+        const projectNames = new Set<string>();
+        for (const branch of branchTimes) {
+          const repo = branch.event.repo?.name;
+          if (repo) {
+            const projectName = repo.split("/")[1];
+            if (projectName) {
+              projectNames.add(projectName);
+            }
+          }
+        }
+
+        for (const projectName of projectNames) {
+          const branchesForProject = branchTimes.filter((b) => {
+            const repoName = b.event.repo?.name;
+            return repoName && repoName.split("/")[1] === projectName;
+          });
+
+          const prsForProject = prTimes.filter((p) => {
+            const repoName = p.event.repo?.name;
+            return repoName && repoName.split("/")[1] === projectName;
+          });
+
+          if (branchesForProject.length > 0 && prsForProject.length > 0) {
+            let prIdx = 0;
+            for (const branchEntry of branchesForProject) {
+              while (
+                prIdx < prsForProject.length &&
+                prsForProject[prIdx]!.time.valueOf() < branchEntry.time.valueOf()
+              ) {
+                prIdx++;
+              }
+
+              if (prIdx < prsForProject.length) {
+                const timeDiffSeconds = prsForProject[prIdx]!.time.diff(
+                  branchEntry.time,
+                  "second",
+                );
+
+                if (
+                  timeDiffSeconds >= 0 &&
+                  timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS
+                ) {
+                  forkWorkflowMatches++;
+                  forkMaxTimeDiff = Math.max(forkMaxTimeDiff, timeDiffSeconds);
+                  prIdx++;
+                }
+              }
+            }
+          }
+        }
+
+        if (forkWorkflowMatches >= branchPRMinPairs) {
+          const automationRatio = forkWorkflowMatches / branchCreates.length;
+
+          if (automationRatio >= branchPRMinRatio) {
+            flags.push({
+              label: "Automated fork/PR workflow",
+              points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
+              detail: `${forkWorkflowMatches}/${branchCreates.length} fork branches followed by upstream PRs within ${forkMaxTimeDiff}s`,
+            });
+          }
+        }
       }
     }
   }

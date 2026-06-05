@@ -1,0 +1,205 @@
+{
+  "timestamp": "2026-06-05T22:51:16.604Z",
+  "version": "1.4.0",
+  "results": [
+    {
+      "fixture": "danielroe",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "matteogabriele",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "patak-cat",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "graphieros",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "huang-julien",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "gameroman",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "sheremet-va",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "ematipico",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "trueberryless",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "ghostdevv",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "43081j",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "alexdln",
+      "expected": "organic",
+      "actual": "organic",
+      "score": 100,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "TIR44",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 0,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "Nexory",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 49,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "Sean-Kenneth-Doherty",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 40,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "testuzerz123",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 0,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "truffle-dev",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 40,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "mzl2233",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 0,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "nanookclaw",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 14,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "orbisai0security",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 0,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "fallintoplace",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 14,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "LeSingh1",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 14,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "atom00blue",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 0,
+      "passed": true,
+      "regression": false
+    },
+    {
+      "fixture": "ssdwgg",
+      "expected": "automation",
+      "actual": "automation",
+      "score": 4,
+      "passed": true,
+      "regression": false
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "regressions": 0
+  },
+  "status": "success"
+}
