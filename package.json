@@ -29,6 +29,7 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "add:fixture": "node scripts/fetch-github-events.js",
+    "update-fixtures": "tsx scripts/fetch-regression-fixtures.ts",
     "playground": "pnpm -F @unveil/identity-playground dev",
     "regression-test": "tsx scripts/regression-test.ts",
     "regression-analyze": "tsx benchmark/analyze-reports.ts",
