@@ -9,7 +9,6 @@ import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
 
-// Import all detector functions
 import { detectAccountAge } from "./detectors/account-age";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
 import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
@@ -38,7 +37,6 @@ export function identify({
 }: IdentifyOptions): IdentifyResult {
   const flags: IdentifyFlag[] = [];
 
-  // Filter out excluded repositories
   const excludeReposLower = excludeRepos.map((r) => r.toLowerCase());
   const filteredEvents = events.filter((e) => {
     const repoName = e.repo?.name?.toLowerCase();
@@ -47,7 +45,6 @@ export function identify({
 
   const accountAge = dayjs().diff(createdAt, "days");
 
-  // Helper: calculate foreign events for multiple detectors
   const foreignEvents = filteredEvents.filter((e) => {
     const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
     return repoOwner && repoOwner !== accountName.toLowerCase();
@@ -55,7 +52,6 @@ export function identify({
 
   const isNewOrYoungAccount = accountAge < CONFIG.AGE_YOUNG_ACCOUNT;
 
-  // Run all detectors in sequence
   flags.push(...detectAccountAge(accountAge));
   flags.push(
     ...detectZeroReposActivity(reposCount, foreignEvents, filteredEvents),
@@ -79,11 +75,9 @@ export function identify({
   );
   flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
 
-  // Invert score: 100 = human, 0 = bot
   const score = flags.reduce((total, flag) => (total += flag.points), 0);
   const humanScore = Math.max(0, 100 - score);
 
-  // Classification based on inverted score
   let classification: IdentityClassification = "automation";
   if (humanScore >= CONFIG.THRESHOLD_HUMAN) {
     classification = "organic";
