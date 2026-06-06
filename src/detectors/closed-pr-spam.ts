@@ -19,7 +19,10 @@ export function detectClosedPRSpam(
     : CONFIG.CLOSED_PR_SPAM_MIN;
 
   const closedPREvents = events.filter(
-    (e) => e.type === "PullRequestEvent" && e.payload?.action === "closed",
+    (e) =>
+      e.type === "PullRequestEvent" &&
+      e.payload?.action === "closed" &&
+      e.payload?.pull_request?.merged === false,
   );
 
   if (closedPREvents.length < minClosedPRs) {
@@ -49,9 +52,10 @@ export function detectClosedPRSpam(
       : `${Math.ceil(timeSpanMinutes / 60)}h`;
 
   // Find burst days (group by day and count PRs, then identify significant spikes)
+  // Use UTC normalization to ensure timezone-independent day boundaries
   const prsByDay = new Map<string, number>();
   closedPREvents.forEach((e) => {
-    const day = dayjs(e.created_at).format("YYYY-MM-DD");
+    const day = dayjs.utc(e.created_at).format("YYYY-MM-DD");
     prsByDay.set(day, (prsByDay.get(day) || 0) + 1);
   });
 
