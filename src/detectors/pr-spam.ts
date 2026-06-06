@@ -40,6 +40,7 @@ export function detectExtremeAndDistributedPRSpam(
 		flags.push({
 			label: "Extreme PR spam (daily)",
 			points: CONFIG.POINTS_PRS_DAY_EXTREME,
+			amplifiable: true,
 			detail: `${prsInLastDay.length} PRs in the last 24 hours`,
 		});
 	}
@@ -49,6 +50,7 @@ export function detectExtremeAndDistributedPRSpam(
 		flags.push({
 			label: "Extreme PR spam (weekly)",
 			points: CONFIG.POINTS_PRS_WEEK_EXTREME,
+			amplifiable: true,
 			detail: `${prsInLastWeek.length} PRs in the last 7 days`,
 		});
 	}
@@ -57,6 +59,7 @@ export function detectExtremeAndDistributedPRSpam(
 		flags.push({
 			label: "Very high PR spam frequency",
 			points: CONFIG.POINTS_PRS_WEEK_VERY_HIGH,
+			amplifiable: true,
 			detail: `${prsInLastWeek.length} PRs in the last 7 days`,
 		});
 	}
@@ -114,6 +117,7 @@ export function detectExtremeAndDistributedPRSpam(
 					flags.push({
 						label: "Distributed PR spam pattern",
 						points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
+						amplifiable: true,
 						detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}`,
 					});
 				}

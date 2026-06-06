@@ -106,6 +106,7 @@ export function detectBranchPRAutomation(
 					flags.push({
 						label: "Automated branch/PR workflow",
 						points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
+						amplifiable: true,
 						detail: `${matchedPairs}/${branchCreates.length} branch creations followed by PRs within ${maxObservedTimeDiff}s`,
 					});
 				}
@@ -174,6 +175,7 @@ export function detectBranchPRAutomation(
 						flags.push({
 							label: "Automated fork/PR workflow",
 							points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
+							amplifiable: true,
 							detail: `${forkWorkflowMatches}/${branchCreates.length} fork branches followed by upstream PRs within ${forkMaxTimeDiff}s`,
 						});
 					}

@@ -45,12 +45,14 @@ export function detectRepositoryCreationBurst(
 			flags.push({
 				label: "Concentrated repository creation",
 				points: CONFIG.POINTS_CREATE_BURST_EXTREME,
+				amplifiable: true,
 				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
 			});
 		} else if (maxCreatesInWindow >= CONFIG.CREATE_BURST_HIGH) {
 			flags.push({
 				label: "Frequent repository creation",
 				points: CONFIG.POINTS_CREATE_BURST_HIGH,
+				amplifiable: true,
 				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
 			});
 		}

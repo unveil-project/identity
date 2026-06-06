@@ -89,6 +89,7 @@ export function detectInhumanActivityPattern(
 			flags.push({
 				label: "24/7 activity pattern",
 				points,
+				amplifiable: true,
 				detail: `${pattern.day}: active across ${pattern.hoursActive} hours with only ${minRestWindowFound} hour${minRestWindowFound === 1 ? "" : "s"} rest`,
 			});
 		}

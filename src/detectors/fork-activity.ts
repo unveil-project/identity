@@ -63,24 +63,28 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		forkSpikeFlag = {
 			label: "Extreme fork automation",
 			points: CONFIG.POINTS_FORK_SURGE_EXTREME_HIGH,
+			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
 		};
 	} else if (maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE) {
 		forkSpikeFlag = {
 			label: "Severe fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_SEVERE,
+			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
 		};
 	} else if (maxForksIn24h >= CONFIG.FORKS_EXTREME) {
 		forkSpikeFlag = {
 			label: "Fork spike detected",
 			points: CONFIG.POINTS_FORK_SURGE,
+			amplifiable: true,
 			detail: `Burst of ${maxForksIn24h} fork events in a single 24-hour window`,
 		};
 	} else if (maxForksIn24h >= CONFIG.FORKS_HIGH) {
 		forkSpikeFlag = {
 			label: "Multiple forks",
 			points: CONFIG.POINTS_MULTIPLE_FORKS,
+			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in a single 24-hour window`,
 		};
 	}
@@ -89,6 +93,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		forkSpikeFlag = {
 			label: "Multi-day fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_48H,
+			amplifiable: true,
 			detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
 		};
 	}
@@ -97,6 +102,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		forkSpikeFlag = {
 			label: "Severe multi-day fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_72H,
+			amplifiable: true,
 			detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
 		};
 	}
@@ -122,6 +128,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				flags.push({
 					label: "Sustained fork rate",
 					points: CONFIG.POINTS_FORKS_PER_DAY_HIGH,
+					amplifiable: true,
 					detail: `Average of ${forksPerDay.toFixed(1)} forks per day over ${forkSpanDays} days (${forkEvents.length} total)`,
 				});
 			}
@@ -163,6 +170,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			flags.push({
 				label: "Extended forking pattern",
 				points: CONFIG.POINTS_CONSECUTIVE_FORK_DAYS,
+				amplifiable: true,
 				detail: `Forking activity on ${totalDays} days (${maxConsecutiveForkDays} consecutive), ${forkEvents.length} repositories total`,
 			});
 		}
@@ -188,6 +196,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		flags.push({
 			label: "Fork scatter pattern",
 			points: CONFIG.POINTS_FORK_DIVERSITY,
+			amplifiable: true,
 			detail: `Targeting ${forkedRepos.size} different repositories${timeSpanDetail}`,
 		});
 	}
@@ -265,6 +274,7 @@ export function detectForkCombinedActivity(
 			flags.push({
 				label: "Suspicious chained automations",
 				points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
+				amplifiable: true,
 				detail: `${totalOps} chained repository operations: ${forkEvents.length} forks followed by ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests (based on available event history)`,
 			});
 		}

@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import {
   hasAICommitMetadata,
   analyzeCommitMetadata,
-} from "../src/commit-metadata";
+} from "../src/analyze-commit-metadata";
 import { identify } from "../src/identify";
 import type { GitHubCommit, GitHubEvent } from "../src/types";
 

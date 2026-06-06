@@ -72,6 +72,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			flags.push({
 				label: "Issue comment spam",
 				points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_EXTREME,
+				amplifiable: true,
 				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 			});
 		} else if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_HIGH) {
@@ -86,6 +87,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			flags.push({
 				label: "High comment frequency across repos",
 				points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH,
+				amplifiable: true,
 				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 			});
 		}
@@ -164,6 +166,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			flags.push({
 				label: "PR comment spam",
 				points: CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME,
+				amplifiable: true,
 				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 			});
 		} else if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_HIGH) {
@@ -177,6 +180,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			flags.push({
 				label: "High PR comment frequency",
 				points: CONFIG.POINTS_PR_COMMENT_SPRAY_HIGH,
+				amplifiable: true,
 				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 			});
 		}

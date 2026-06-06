@@ -181,4 +181,14 @@ export const CONFIG = {
 	POINTS_CLOSED_PR_SPAM_HIGH: 55, // 25-99 closed PRs = high volume rejected submissions
 	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // 100+ closed PRs = extreme volume ecosystem-wide spam
 	POINTS_CLOSED_PR_SPAM_BURST_EXTREME: 80, // 100+ closed PRs in burst = coordinated attack
+
+	// AI commit metadata — amplifier, not a standalone signal
+	// Multiplier applies only to flags marked `amplifiable: true` (automation/spam signals).
+	// Tiers are evaluated highest-first; the first matching ratio wins.
+	AI_COMMIT_MIN_COMMITS: 5,
+	AI_COMMIT_TIERS: [
+		{ ratio: 0.9, multiplier: 1.5 },
+		{ ratio: 0.85, multiplier: 1.3 },
+		{ ratio: 0.75, multiplier: 1.15 },
+	],
 } as const;

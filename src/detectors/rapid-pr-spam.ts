@@ -73,6 +73,7 @@ export function detectRapidPRSpam(
 		flags.push({
 			label: "Rapid PR spam to repository",
 			points: CONFIG.POINTS_RAPID_PR_SPAM,
+			amplifiable: true,
 			detail: `${maxConsecutivePairs + 1} PRs opened to ${spammyRepo} within ${maxConsecutiveTimeDiff}s intervals`,
 		});
 	}

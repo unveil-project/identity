@@ -14,10 +14,17 @@ export type GitHubEvent =
 		};
 	};
 
+export type GitHubCommit = {
+	sha?: string;
+	message?: string;
+	repo?: string;
+};
+
 export type IdentifyFlag = {
 	label: string;
 	points: number;
 	detail: string;
+	amplifiable?: boolean;
 };
 
 export type IdentifyOptions = {
@@ -26,6 +33,7 @@ export type IdentifyOptions = {
 	accountName: string;
 	events: GitHubEvent[];
 	excludeRepos?: string[];
+	commits?: GitHubCommit[];
 };
 
 export type IdentityClassification = "organic" | "mixed" | "automation";

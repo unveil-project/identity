@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
+import { analyzeCommitMetadata } from "./analyze-commit-metadata";
 import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
@@ -33,6 +34,7 @@ export function identify({
 	accountName,
 	events,
 	excludeRepos = [],
+	commits = [],
 }: IdentifyOptions): IdentifyResult {
 	const flags: IdentifyFlag[] = [];
 
@@ -74,7 +76,44 @@ export function identify({
 	);
 	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
 
-	const score = flags.reduce((total, flag) => (total += flag.points), 0);
+	const filteredCommits = commits.filter(
+		(commit) =>
+			!commit.repo || !excludeReposLower.includes(commit.repo.toLowerCase()),
+	);
+
+	const commitMetadata = analyzeCommitMetadata(filteredCommits);
+	const aiTier =
+		commitMetadata.totalCommits >= CONFIG.AI_COMMIT_MIN_COMMITS
+			? CONFIG.AI_COMMIT_TIERS.find(
+					(tier) => commitMetadata.ratio >= tier.ratio,
+				)
+			: undefined;
+
+	const hasAmplifiable = flags.some((f) => f.amplifiable && f.points > 0);
+
+	if (aiTier) {
+		const { ratio, aiCommits, totalCommits } = commitMetadata;
+		const pct = Math.round(ratio * 100);
+		const detail = hasAmplifiable
+			? `${aiCommits}/${totalCommits} commits (${pct}%) AI-attributed — ${aiTier.multiplier}x multiplier applied to automation signals`
+			: `${aiCommits}/${totalCommits} commits (${pct}%) AI-attributed — no automation signals to amplify`;
+
+		flags.push({
+			label: "Predominantly AI-attributed commits",
+			points: 0,
+			detail,
+		});
+	}
+
+	// Invert score: 100 = human, 0 = bot
+	const multiplier = aiTier?.multiplier ?? 1;
+	const score = flags.reduce((total, flag) => {
+		const effective = flag.amplifiable
+			? Math.round(flag.points * multiplier)
+			: flag.points;
+		return total + effective;
+	}, 0);
+
 	const humanScore = Math.max(0, 100 - score);
 
 	let classification: IdentityClassification = "automation";
