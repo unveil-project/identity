@@ -43,6 +43,7 @@ export function detectClosedPRSpam(
 	);
 	const timeSpanMinutes = latestClosed.diff(earliestClosed, "minute");
 	const timeSpanDays = latestClosed.diff(earliestClosed, "day");
+	const fractionalDays = latestClosed.diff(earliestClosed, "day", true);
 	const timeRangeStr =
 		timeSpanDays > 0
 			? `${timeSpanDays}d`
@@ -87,8 +88,8 @@ export function detectClosedPRSpam(
 	// Only flag if there's a clear cluster of rejections, not just spread activity
 	// Calculate PR density to ensure this is an actual spam burst, not just normal scattered contributions
 	const prDensity =
-		timeSpanDays > 0
-			? closedPREvents.length / timeSpanDays
+		fractionalDays > 0
+			? closedPREvents.length / fractionalDays
 			: closedPREvents.length;
 	const hasSignificantBurst = burstDays.length > 0; // at least one day with 10+ rejections
 	const enoughPRsForSpread = closedPREvents.length >= 25; // if 25+ PRs, even if scattered, it's suspicious
