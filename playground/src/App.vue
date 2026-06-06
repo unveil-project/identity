@@ -111,9 +111,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import type { GitHubEvent, GitHubUser, IdentifyResult } from "@unveil/identity";
 import { identify } from "@unveil/identity";
-import type { GitHubUser, GitHubEvent, IdentifyResult } from "@unveil/identity";
+import { ref } from "vue";
 
 const username = ref("");
 const loading = ref(false);
@@ -126,120 +126,120 @@ const events = ref<GitHubEvent[]>([]);
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
 const baseHeaders: Record<string, string> = {
-  Accept: "application/vnd.github.v3+json",
+	Accept: "application/vnd.github.v3+json",
 };
 
 if (githubToken) {
-  baseHeaders["Authorization"] = `token ${githubToken}`;
+	baseHeaders["Authorization"] = `token ${githubToken}`;
 }
 
 async function fetchUserData(name: string): Promise<GitHubUser | null> {
-  loadingMessage.value = "Fetching user data...";
-  const response = await fetch(`https://api.github.com/users/${name}`, {
-    headers: baseHeaders,
-  });
+	loadingMessage.value = "Fetching user data...";
+	const response = await fetch(`https://api.github.com/users/${name}`, {
+		headers: baseHeaders,
+	});
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch user: ${response.statusText}`);
-  }
+	if (!response.ok) {
+		throw new Error(`Failed to fetch user: ${response.statusText}`);
+	}
 
-  return response.json();
+	return response.json();
 }
 
 async function fetchEvents(name: string): Promise<GitHubEvent[]> {
-  loadingMessage.value = "Fetching user events (page 1/2)...";
-  const allEvents: GitHubEvent[] = [];
+	loadingMessage.value = "Fetching user events (page 1/2)...";
+	const allEvents: GitHubEvent[] = [];
 
-  // Fetch 2 pages with 100 items per page = 200 events total
-  for (let page = 1; page <= 2; page++) {
-    loadingMessage.value = `Fetching user events (page ${page}/2)...`;
+	// Fetch 2 pages with 100 items per page = 200 events total
+	for (let page = 1; page <= 2; page++) {
+		loadingMessage.value = `Fetching user events (page ${page}/2)...`;
 
-    const response = await fetch(
-      `https://api.github.com/users/${name}/events/public?per_page=100&page=${page}`,
-      {
-        headers: baseHeaders,
-      }
-    );
+		const response = await fetch(
+			`https://api.github.com/users/${name}/events/public?per_page=100&page=${page}`,
+			{
+				headers: baseHeaders,
+			},
+		);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch events: ${response.statusText}`);
-    }
+		if (!response.ok) {
+			throw new Error(`Failed to fetch events: ${response.statusText}`);
+		}
 
-    const data = await response.json();
-    if (Array.isArray(data)) {
-      allEvents.push(...data);
-    }
-  }
+		const data = await response.json();
+		if (Array.isArray(data)) {
+			allEvents.push(...data);
+		}
+	}
 
-  return allEvents;
+	return allEvents;
 }
 
 async function analyzeUser() {
-  if (!username.value.trim()) {
-    error.value = "Please enter a username";
-    return;
-  }
+	if (!username.value.trim()) {
+		error.value = "Please enter a username";
+		return;
+	}
 
-  loading.value = true;
-  error.value = "";
-  result.value = null;
+	loading.value = true;
+	error.value = "";
+	result.value = null;
 
-  try {
-    // Fetch user data and events in parallel
-    loadingMessage.value = "Fetching data...";
-    const [userData, userEvents] = await Promise.all([
-      fetchUserData(username.value),
-      fetchEvents(username.value),
-    ]);
+	try {
+		// Fetch user data and events in parallel
+		loadingMessage.value = "Fetching data...";
+		const [userData, userEvents] = await Promise.all([
+			fetchUserData(username.value),
+			fetchEvents(username.value),
+		]);
 
-    if (!userData) {
-      throw new Error("User not found");
-    }
+		if (!userData) {
+			throw new Error("User not found");
+		}
 
-    user.value = userData;
-    events.value = userEvents;
+		user.value = userData;
+		events.value = userEvents;
 
-    // Run analysis
-    loadingMessage.value = "Analyzing...";
-    const analysisResult = identify({
-      createdAt: userData.created_at,
-      reposCount: userData.public_repos,
-      accountName: userData.login,
-      events: userEvents,
-    });
+		// Run analysis
+		loadingMessage.value = "Analyzing...";
+		const analysisResult = identify({
+			createdAt: userData.created_at,
+			reposCount: userData.public_repos,
+			accountName: userData.login,
+			events: userEvents,
+		});
 
-    result.value = analysisResult;
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "An error occurred";
-    result.value = null;
-  } finally {
-    loading.value = false;
-  }
+		result.value = analysisResult;
+	} catch (err) {
+		error.value = err instanceof Error ? err.message : "An error occurred";
+		result.value = null;
+	} finally {
+		loading.value = false;
+	}
 }
 
 function formatDate(dateString?: string): string {
-  if (!dateString) return "—";
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+	if (!dateString) return "—";
+	return new Date(dateString).toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	});
 }
 
 function formatAccountAge(days: number): string {
-  const years = Math.floor(days / 365);
-  const months = Math.floor((days % 365) / 30);
-  const remainingDays = days % 30;
+	const years = Math.floor(days / 365);
+	const months = Math.floor((days % 365) / 30);
+	const remainingDays = days % 30;
 
-  if (years > 0) {
-    return months > 0
-      ? `${years} year${years > 1 ? "s" : ""} and ${months} month${months > 1 ? "s" : ""}`
-      : `${years} year${years > 1 ? "s" : ""}`;
-  }
-  if (months > 0) {
-    return `${months} month${months > 1 ? "s" : ""}`;
-  }
-  return `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
+	if (years > 0) {
+		return months > 0
+			? `${years} year${years > 1 ? "s" : ""} and ${months} month${months > 1 ? "s" : ""}`
+			: `${years} year${years > 1 ? "s" : ""}`;
+	}
+	if (months > 0) {
+		return `${months} month${months > 1 ? "s" : ""}`;
+	}
+	return `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
 }
 </script>
 
