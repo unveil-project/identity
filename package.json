@@ -32,6 +32,7 @@
     "update-fixtures": "tsx scripts/fetch-regression-fixtures.ts",
     "playground": "pnpm -F @unveil/identity-playground dev",
     "regression-test": "tsx scripts/regression-test.ts",
+    "regression-test:dry": "tsx scripts/regression-test.ts --dry-run",
     "regression-analyze": "tsx benchmark/analyze-reports.ts",
     "regression-analyze:full": "tsx benchmark/analyze-reports.ts --full",
     "prepublishOnly": "vitest --run && tsx scripts/regression-test.ts && pnpm run build"

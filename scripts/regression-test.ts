@@ -1,5 +1,17 @@
 #!/usr/bin/env tsx
 
+/**
+ * Regression Test Runner
+ * 
+ * Usage:
+ *   tsx scripts/regression-test.ts           # Run and save report
+ *   tsx scripts/regression-test.ts --dry-run # Run without saving report
+ * 
+ * Via npm:
+ *   npm run regression-test                  # Run and save
+ *   npm run regression-test:dry              # Dry run (no report)
+ */
+
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -144,7 +156,7 @@ function saveReport(report: RegressionReport): string {
 }
 
 function printReport(report: RegressionReport): void {
-  console.log("\n📊 Regression Test Report");
+  console.log("\n Regression Test Report");
   console.log("═".repeat(60));
   console.log(`Version: ${report.version}`);
   console.log(`Timestamp: ${report.timestamp}`);
@@ -167,7 +179,7 @@ function printReport(report: RegressionReport): void {
     );
   }
 
-  console.log("\n📈 Summary:");
+  console.log("\n Summary:");
   console.log(`Total: ${report.summary.total}`);
   console.log(`Passed: ${report.summary.passed}`);
   console.log(`Failed: ${report.summary.failed}`);
@@ -186,17 +198,23 @@ function printReport(report: RegressionReport): void {
 
 async function main(): Promise<void> {
   try {
+    const dryRun = process.argv.includes("--dry-run");
     const report = await runRegressionTests();
-    const reportPath = saveReport(report);
-
-    printReport(report);
-    console.log(`📁 Report saved: ${reportPath}\n`);
+    
+    if (dryRun) {
+      printReport(report);
+      console.log(`[DRY RUN] Report not saved\n`);
+    } else {
+      const reportPath = saveReport(report);
+      printReport(report);
+      console.log(`Report saved: ${reportPath}\n`);
+    }
 
     if (report.status !== "success") {
       process.exit(1);
     }
   } catch (error) {
-    console.error("❌ Error running regression tests:", error);
+    console.error("Error running regression tests:", error);
     process.exit(1);
   }
 }
