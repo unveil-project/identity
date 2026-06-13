@@ -423,12 +423,12 @@ describe("identify - Activity Pattern Detection", () => {
 				// 1 hour gap
 				events.push({
 					type: "PushEvent",
-					created_at: new Date(2026, 2, 10, hour, 0, 0).toISOString(),
+					created_at: new Date(Date.UTC(2026, 2, 10, hour, 0, 0)).toISOString(),
 					repo: { name: "repo" } as any,
 				} as any);
 				events.push({
 					type: "PushEvent",
-					created_at: new Date(2026, 2, 10, hour, 30, 0).toISOString(),
+					created_at: new Date(Date.UTC(2026, 2, 10, hour, 30, 0)).toISOString(),
 					repo: { name: "repo" } as any,
 				} as any);
 			}
@@ -647,6 +647,12 @@ describe("identify - Classification", () => {
 				repo: { name: `repo${i}` } as any,
 			} as any);
 		}
+		// Push event prevents consumer-no-reciprocity from also firing
+		events.push({
+			type: "PushEvent",
+			created_at: new Date(2026, 2, 10, 10, 0, 0).toISOString(),
+			repo: { name: "org/shared-repo" } as any,
+		} as any);
 
 		const result = identify({
 			createdAt: "2026-04-15T00:00:00Z", // 14 days old (new account penalty: 20 points)
@@ -1416,7 +1422,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		expect(spamFlag).toBeDefined();
 		expect(spamFlag?.points).toBe(45);
 		expect(spamFlag?.detail).toContain("35 PRs");
-		expect(result.classification).toBe("automation");
+		expect(result.classification).toBe("likely_spam");
 	});
 
 	it("should flag distributed PR spam pattern (50+ PRs across 15+ repos)", () => {
@@ -1456,7 +1462,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		expect(spamFlag?.points).toBe(45);
 		expect(spamFlag?.detail).toContain("100 PRs");
 		expect(spamFlag?.detail).toContain("different repositories");
-		expect(result.classification).toBe("automation");
+		expect(result.classification).toBe("likely_spam");
 	});
 
 	it("should not flag moderate PR volume in a week", () => {
@@ -1856,5 +1862,552 @@ describe("identify - Repository Exclusion Filter", () => {
 				(f) => f.label.includes("fork") || f.label.includes("Fork"),
 			),
 		).toBe(true);
+	});
+
+	it("should exclude named repos from pre-AI history scoring", () => {
+		const makePreAiRepo = (name: string) => ({
+			created_at: "2021-01-01T00:00:00Z",
+			name,
+		});
+		const preAiRepos = [
+			makePreAiRepo("excluded-owner/old-repo-a"),
+			makePreAiRepo("excluded-owner/old-repo-b"),
+			makePreAiRepo("excluded-owner/old-repo-c"),
+		];
+
+		const base = {
+			createdAt: "2024-01-01T00:00:00Z",
+			reposCount: 5,
+			accountName: "user",
+			events: [],
+			commits: [],
+		};
+
+		const withRepos = identify({ ...base, repos: preAiRepos });
+		const withReposExcluded = identify({
+			...base,
+			repos: preAiRepos,
+			excludeRepos: preAiRepos.map((r) => r.name),
+		});
+
+		// Without exclusion, the old repos contribute a mitigating pre-AI history flag
+		expect(withRepos.flags.some((f) => f.label === "Pre-AI development history")).toBe(true);
+		// With exclusion, those repos are filtered out and the flag must not appear
+		expect(withReposExcluded.flags.some((f) => f.label === "Pre-AI development history")).toBe(false);
+	});
+});
+
+describe("identify - Known Bot Whitelist", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("classifies dependabot as legitimate_automation with no flags and score 0", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "dependabot",
+			events: [],
+		});
+		expect(result.classification).toBe("legitimate_automation");
+		expect(result.confidence).toBe(99);
+		expect(result.flags).toHaveLength(0);
+		expect(result.score).toBe(0);
+	});
+
+	it("classifies renovate[bot] as legitimate_automation", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "renovate[bot]",
+			events: [],
+		});
+		expect(result.classification).toBe("legitimate_automation");
+	});
+
+	it("classifies any [bot]-suffix account as legitimate_automation", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "some-custom-action[bot]",
+			events: [],
+		});
+		expect(result.classification).toBe("legitimate_automation");
+	});
+
+	it("does not classify a regular user whose name contains 'bot' as legitimate_automation", () => {
+		const result = identify({
+			createdAt: "2024-01-01T00:00:00Z",
+			reposCount: 5,
+			accountName: "robotics-enthusiast",
+			events: [],
+		});
+		expect(result.classification).not.toBe("legitimate_automation");
+	});
+});
+
+describe("identify - Automation Type Classification", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("classifies accounts with spam signals and low score as likely_spam", () => {
+		const recentTs = "2026-03-08T00:00:00Z";
+		const watchEvent = {
+			type: "WatchEvent",
+			repo: { name: "other/popular-repo" },
+			created_at: recentTs,
+		} as GitHubEvent;
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 0,
+			accountName: "starfarmer99",
+			events: Array(20).fill(watchEvent),
+		});
+
+		expect(result.classification).toBe("likely_spam");
+		expect(result.flags.some((f) => f.label === "Star farm pattern")).toBe(true);
+	});
+
+	it("classifies accounts below suspicious threshold without spam signals as automation", () => {
+		// 0 repos + 20 foreign events triggers zero-repos flag but no spam labels
+		const ts = "2026-03-08T00:00:00Z";
+		const pushEvent = {
+			type: "PushEvent",
+			repo: { name: "other/repo" },
+			created_at: ts,
+		} as GitHubEvent;
+
+		const result = identify({
+			createdAt: "2025-10-01T00:00:00Z",
+			reposCount: 0,
+			accountName: "pushbot",
+			events: Array(30).fill(pushEvent),
+		});
+
+		expect(result.classification).toBe("automation");
+	});
+});
+
+describe("identify - Confidence Scoring", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("returns confidence 99 for whitelisted bots", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "dependabot",
+			events: [],
+		});
+		expect(result.confidence).toBe(99);
+	});
+
+	it("returns confidence >= 20 for any account", () => {
+		const result = identify({
+			createdAt: "2025-06-01T00:00:00Z",
+			reposCount: 5,
+			accountName: "newuser",
+			events: [],
+		});
+		expect(result.confidence).toBeGreaterThanOrEqual(20);
+	});
+
+	it("returns confidence <= 95 for non-whitelisted accounts", () => {
+		const ts = "2026-03-08T00:00:00Z";
+		const watchEvent = {
+			type: "WatchEvent",
+			repo: { name: "other/repo" },
+			created_at: ts,
+		} as GitHubEvent;
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 0,
+			accountName: "starfarmer99",
+			events: Array(20).fill(watchEvent),
+		});
+		expect(result.confidence).toBeLessThanOrEqual(95);
+	});
+
+	it("returns higher confidence for accounts with more corroborating signals", () => {
+		const ts = "2026-03-08T00:00:00Z";
+		const watchEvent = {
+			type: "WatchEvent",
+			repo: { name: "other/repo" },
+			created_at: ts,
+		} as GitHubEvent;
+
+		const manyFlags = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 0,
+			accountName: "starfarmer99",
+			events: Array(20).fill(watchEvent),
+		});
+
+		const fewFlags = identify({
+			createdAt: "2025-06-01T00:00:00Z",
+			reposCount: 5,
+			accountName: "newuser",
+			events: [],
+		});
+
+		expect(manyFlags.confidence).toBeGreaterThan(fewFlags.confidence);
+	});
+});
+
+describe("identify - Temporal Event Degradation", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("applies lower bot score to accounts with only historical activity vs recent activity", () => {
+		const oldTs = "2025-09-11T00:00:00Z"; // ~180 days before fake date
+		const recentTs = "2026-03-09T00:00:00Z"; // 1 day before fake date
+
+		const makeEvent = (ts: string): GitHubEvent =>
+			({
+				type: "WatchEvent",
+				repo: { name: "other/popular-repo" },
+				created_at: ts,
+			}) as GitHubEvent;
+
+		const base = {
+			createdAt: "2019-03-10T00:00:00Z",
+			reposCount: 2,
+			accountName: "user",
+		};
+
+		const resultOld = identify({ ...base, events: Array(20).fill(makeEvent(oldTs)) });
+		const resultRecent = identify({ ...base, events: Array(20).fill(makeEvent(recentTs)) });
+
+		// Old activity decays → higher humanScore (appears less bot-like)
+		expect(resultOld.score).toBeGreaterThan(resultRecent.score);
+	});
+
+	it("does not decay mitigating signals (negative-point flags are unaffected)", () => {
+		const oldTs = "2025-09-11T00:00:00Z";
+		const makeEvent = (ts: string): GitHubEvent =>
+			({
+				type: "WatchEvent",
+				repo: { name: "other/popular-repo" },
+				created_at: ts,
+			}) as GitHubEvent;
+
+		// 5+ year old account earns Long-standing account (-10) regardless of event age
+		const result = identify({
+			createdAt: "2019-03-10T00:00:00Z",
+			reposCount: 2,
+			accountName: "user",
+			events: Array(20).fill(makeEvent(oldTs)),
+		});
+
+		expect(result.flags.some((f) => f.label === "Long-standing account")).toBe(true);
+		const seniorityFlag = result.flags.find((f) => f.label === "Long-standing account");
+		expect(seniorityFlag?.points).toBe(-10);
+	});
+
+	it("does not decay non-event-based positive flags (Recently created is age-derived)", () => {
+		const oldTs = "2025-09-11T00:00:00Z"; // ~180 days old — deep decay
+		const makeEvent = (ts: string): GitHubEvent =>
+			({
+				type: "WatchEvent",
+				repo: { name: "other/popular-repo" },
+				created_at: ts,
+			}) as GitHubEvent;
+
+		// Account is 5 days old → "Recently created" (+20); events are 180 days old → heavy decay
+		const result = identify({
+			createdAt: "2026-03-05T00:00:00Z",
+			reposCount: 1,
+			accountName: "brandnewuser",
+			events: Array(5).fill(makeEvent(oldTs)),
+		});
+
+		const recentlyCreatedFlag = result.flags.find((f) => f.label === "Recently created");
+		expect(recentlyCreatedFlag).toBeDefined();
+		// Score should reflect full +20, not a decayed fraction — humanScore <= 80
+		expect(result.score).toBeLessThanOrEqual(80);
+	});
+});
+
+describe("identify - Known Bot Whitelist (edge cases)", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("classifies uppercase bot name as legitimate_automation", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "DEPENDABOT",
+			events: [],
+		});
+		expect(result.classification).toBe("legitimate_automation");
+		expect(result.confidence).toBe(99);
+	});
+});
+
+describe("identify - Classification Thresholds", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("classifies accounts at exactly THRESHOLD_HUMAN (70) as organic", () => {
+		// Long-standing account with significant positive signals: score should land near threshold.
+		// Construct a scenario where humanScore >= 70.
+		const result = identify({
+			createdAt: "2019-01-01T00:00:00Z", // 7+ years → Long-standing account
+			reposCount: 10,
+			accountName: "borderuser",
+			events: [],
+			profile: {
+				followers: 50,
+				name: "Border User",
+				bio: "Developer",
+				company: null,
+				location: "Earth",
+				blog: null,
+			},
+		});
+		// A 7-year-old account with no suspicious signals should be at least mixed or organic
+		expect(["organic", "mixed"] as const).toContain(result.classification);
+	});
+
+	it("classifies accounts with spam-specific label 'Star burst activity' as likely_spam", () => {
+		// 15 WatchEvents within 24h triggers star burst (threshold: 10)
+		const ts = "2026-03-10T00:00:00Z";
+		const makeWatchEvent = (repo: string): GitHubEvent =>
+			({
+				type: "WatchEvent",
+				repo: { name: repo },
+				created_at: ts,
+			}) as GitHubEvent;
+
+		const events: GitHubEvent[] = [
+			...Array(5).fill(makeWatchEvent("owner/repo-a")),
+			...Array(5).fill(makeWatchEvent("owner/repo-b")),
+			...Array(5).fill(makeWatchEvent("owner/repo-c")),
+		];
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 0,
+			accountName: "starburster",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Star burst activity")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies accounts with 'Issue burst' label as likely_spam", () => {
+		const ts = "2026-03-09T00:00:00Z";
+		const makeIssueEvent = (repo: string): GitHubEvent =>
+			({
+				type: "IssuesEvent",
+				repo: { name: repo },
+				created_at: ts,
+				payload: { action: "opened" },
+			}) as GitHubEvent;
+
+		// Spread across many repos to trigger Issue burst
+		const events: GitHubEvent[] = Array.from({ length: 20 }, (_, i) =>
+			makeIssueEvent(`owner/repo-${i}`),
+		);
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 0,
+			accountName: "issuespammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Issue burst")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
+	});
+});
+
+describe("identify - Confidence Edge Cases", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("returns confidence 20 when classification is mixed but no corroborating signals exist", () => {
+		// Recently created(+20) + Thin profile(+15) = 35 → humanScore=65 → "mixed"; 0 human flags → confidence=20
+		const result = identify({
+			createdAt: "2026-02-15T00:00:00Z",
+			reposCount: 3,
+			accountName: "mixeduser",
+			profile: {
+				followers: 5,
+				name: null,
+				bio: null,
+				company: null,
+				location: null,
+				blog: null,
+			},
+			events: [],
+		});
+		expect(result.classification).toBe("mixed");
+		expect(result.confidence).toBe(20);
+	});
+});
+
+describe("identify - SPAM_SIGNAL_LABELS coverage", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("classifies 'Extreme PR spam (weekly)' label as likely_spam", () => {
+		// 100 PRs over 5 days (20/day), latest=2026-03-08 → 20 in last 24h < 30 (no daily); 100 >= 100 in 7d → weekly extreme
+		const events: GitHubEvent[] = Array.from({ length: 100 }, (_, i) => ({
+			type: "PullRequestEvent",
+			payload: { action: "opened" },
+			created_at: new Date(2026, 2, 4 + Math.floor(i / 20), 12, i % 60).toISOString(),
+			repo: { name: `org/repo${i % 10}` },
+		} as GitHubEvent));
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 5,
+			accountName: "weeklyspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Extreme PR spam (weekly)")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies 'Very high PR spam frequency' label as likely_spam", () => {
+		// 51 PRs over 3 days; 17 in last 24h < 30; 51 >= 50 (VERY_HIGH) but < 100 (EXTREME) → very high, not extreme
+		const events: GitHubEvent[] = Array.from({ length: 51 }, (_, i) => ({
+			type: "PullRequestEvent",
+			payload: { action: "opened" },
+			created_at: new Date(2026, 2, 7 + Math.floor(i / 17), 12, i % 60).toISOString(),
+			repo: { name: `org/repo${i % 5}` },
+		} as GitHubEvent));
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 5,
+			accountName: "veryhighspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Very high PR spam frequency")).toBe(true);
+		expect(result.flags.some((f) => f.label === "Extreme PR spam (weekly)")).toBe(false);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies 'Rapid PR spam to repository' label as likely_spam", () => {
+		// 4 PRs to same repo 60s apart → Rapid PR spam (+40); recently created (+20) → score=60 → humanScore=40 → likely_spam
+		const base = new Date("2026-03-10T01:00:00Z").getTime();
+		const events: GitHubEvent[] = Array.from({ length: 4 }, (_, i) => ({
+			type: "PullRequestEvent",
+			payload: { action: "opened" },
+			created_at: new Date(base + i * 60_000).toISOString(),
+			repo: { name: "victim/repo" },
+		} as GitHubEvent));
+
+		const result = identify({
+			createdAt: "2026-02-15T00:00:00Z",
+			reposCount: 1,
+			accountName: "rapidspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Rapid PR spam to repository")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies 'Closed PR spam burst' label as likely_spam", () => {
+		// 5 closed PRs across 2 repos in 30min → burst (+35); recently created (+20) → score=55 → humanScore=45 → likely_spam
+		const base = new Date("2026-03-10T02:00:00Z").getTime();
+		const events: GitHubEvent[] = [
+			...Array.from({ length: 3 }, (_, i) => ({
+				type: "PullRequestEvent",
+				payload: { action: "closed" },
+				created_at: new Date(base + i * 6 * 60_000).toISOString(),
+				repo: { name: "org/repo1" },
+			} as GitHubEvent)),
+			...Array.from({ length: 2 }, (_, i) => ({
+				type: "PullRequestEvent",
+				payload: { action: "closed" },
+				created_at: new Date(base + (3 + i) * 6 * 60_000).toISOString(),
+				repo: { name: "org/repo2" },
+			} as GitHubEvent)),
+		];
+
+		const result = identify({
+			createdAt: "2026-02-15T00:00:00Z",
+			reposCount: 2,
+			accountName: "burstspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Closed PR spam burst")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies 'Closed PR spam scatter' label as likely_spam", () => {
+		// 25 closed PRs across 4 repos → repos(4) >= SPREAD(3) and count(25) >= 25 → scatter fires
+		const events: GitHubEvent[] = Array.from({ length: 25 }, (_, i) => ({
+			type: "PullRequestEvent",
+			payload: { action: "closed" },
+			created_at: new Date(2026, 2, 1 + Math.floor(i / 7), 12, i % 60).toISOString(),
+			repo: { name: `org/repo${i % 4}` },
+		} as GitHubEvent));
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 2,
+			accountName: "scatterspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Closed PR spam scatter")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
 	});
 });

@@ -25,6 +25,16 @@ export type IdentifyFlag = {
 	points: number;
 	detail: string;
 	amplifiable?: boolean;
+	eventBased?: boolean;
+};
+
+export type IdentifyProfile = {
+	followers: number;
+	name: string | null;
+	bio: string | null;
+	company: string | null;
+	location: string | null;
+	blog: string | null;
 };
 
 export type IdentifyOptions = {
@@ -34,12 +44,20 @@ export type IdentifyOptions = {
 	events: GitHubEvent[];
 	excludeRepos?: string[];
 	commits?: GitHubCommit[];
+	repos?: Array<{ created_at: string; name?: string }>;
+	profile?: IdentifyProfile;
 };
 
-export type IdentityClassification = "organic" | "mixed" | "automation";
+export type IdentityClassification =
+	| "organic"
+	| "mixed"
+	| "automation"
+	| "legitimate_automation"
+	| "likely_spam";
 
 export type IdentifyResult = {
 	score: number;
+	confidence: number;
 	classification: IdentityClassification;
 	flags: IdentifyFlag[];
 	profile: {
