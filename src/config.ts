@@ -317,7 +317,7 @@ export const KNOWN_BOT_ACCOUNTS = new Set([
 	"restyled-io",
 ]);
 
-// Flag labels that indicate spam-specific patterns; triggers "likely_spam" over generic "automation".
+// Flag labels that trigger "likely_spam" over "automation". These strings MUST exactly match the label field produced by their respective detectors — if a detector label changes, update this Set in lockstep, otherwise likely_spam will silently stop firing.
 export const SPAM_SIGNAL_LABELS = new Set([
 	"Star farm pattern",
 	"Star burst activity",

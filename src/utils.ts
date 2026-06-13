@@ -43,12 +43,12 @@ export function computeActivityRecencyMultiplier(
 	const now = Date.now();
 	let total = 0;
 	for (const e of events) {
-		if (!e.created_at) {
+		const t = e.created_at ? new Date(e.created_at).getTime() : NaN;
+		if (!e.created_at || Number.isNaN(t)) {
 			total += 1;
 			continue;
 		}
-		const ageDays =
-			(now - new Date(e.created_at).getTime()) / (1000 * 60 * 60 * 24);
+		const ageDays = (now - t) / (1000 * 60 * 60 * 24);
 		total += Math.exp((-Math.LN2 * ageDays) / halfLifeDays);
 	}
 	return total / events.length;

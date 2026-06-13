@@ -135,12 +135,14 @@ export function detectFollowerCount(
 			label: "Established following",
 			points: CONFIG.POINTS_FOLLOWERS_HIGH,
 			detail: `${profile.followers} followers`,
+			eventBased: false,
 		});
 	} else if (profile.followers >= CONFIG.FOLLOWERS_BASE) {
 		flags.push({
 			label: "Has followers",
 			points: CONFIG.POINTS_FOLLOWERS_BASE,
 			detail: `${profile.followers} followers`,
+			eventBased: false,
 		});
 	}
 
@@ -166,12 +168,14 @@ export function detectIdentityCompleteness(
 			label: "Complete profile",
 			points: CONFIG.POINTS_IDENTITY_HIGH,
 			detail: `${fieldCount} profile fields filled`,
+			eventBased: false,
 		});
 	} else if (fieldCount >= CONFIG.IDENTITY_FIELDS_BASE) {
 		flags.push({
 			label: "Partial profile",
 			points: CONFIG.POINTS_IDENTITY_BASE,
 			detail: `${fieldCount} profile fields filled`,
+			eventBased: false,
 		});
 	}
 
