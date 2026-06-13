@@ -27,6 +27,15 @@ export type IdentifyFlag = {
 	amplifiable?: boolean;
 };
 
+export type IdentifyProfile = {
+	followers: number;
+	name: string | null;
+	bio: string | null;
+	company: string | null;
+	location: string | null;
+	blog: string | null;
+};
+
 export type IdentifyOptions = {
 	createdAt: string;
 	reposCount: number;
@@ -34,6 +43,8 @@ export type IdentifyOptions = {
 	events: GitHubEvent[];
 	excludeRepos?: string[];
 	commits?: GitHubCommit[];
+	repos?: Array<{ created_at: string }>;
+	profile?: IdentifyProfile;
 };
 
 export type IdentityClassification = "organic" | "mixed" | "automation";

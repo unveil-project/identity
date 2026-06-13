@@ -145,7 +145,7 @@ export const CONFIG = {
 	// Issue comment spam (multiple comments to different repos in short timeframe)
 	ISSUE_COMMENT_SPAM_WINDOW_MINUTES: 2, // time window to group comments
 	ISSUE_COMMENT_SPRAY_EXTREME: 15, // >= this different repos = comment spray bot
-	ISSUE_COMMENT_SPRAY_HIGH: 10, // >= this different repos in short window = suspicious
+	ISSUE_COMMENT_SPRAY_HIGH: 6, // >= this different repos in short window = suspicious
 	ISSUE_COMMENT_MIN_FOR_SPRAY: 10, // need at least this many comments to analyze
 	POINTS_ISSUE_COMMENT_SPRAY_EXTREME: 40,
 	POINTS_ISSUE_COMMENT_SPRAY_HIGH: 30,
@@ -181,6 +181,109 @@ export const CONFIG = {
 	POINTS_CLOSED_PR_SPAM_HIGH: 55, // 25-99 closed PRs = high volume rejected submissions
 	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // 100+ closed PRs = extreme volume ecosystem-wide spam
 	POINTS_CLOSED_PR_SPAM_BURST_EXTREME: 80, // 100+ closed PRs in burst = coordinated attack
+
+	// ── Mitigating signals (negative points reduce bot score) ────────────────
+
+	// Account seniority
+	AGE_SENIOR_ACCOUNT: 1095, // 3+ years
+	AGE_VETERAN_ACCOUNT: 1825, // 5+ years
+	POINTS_SENIOR_ACCOUNT_MITIGATION: -10,
+	POINTS_VETERAN_ACCOUNT_MITIGATION: -10,
+
+	// Merged PR contributions on external repos
+	MERGED_PR_REPOS_MIN: 3,
+	MERGED_PR_REPOS_HIGH: 8,
+	POINTS_ESTABLISHED_CONTRIBUTOR: -5,
+	POINTS_ESTABLISHED_CONTRIBUTOR_HIGH: -10,
+
+	// Pre-AI development history (repos created before cutoff year)
+	PRE_AI_REPOS_YEAR: 2025,
+	PRE_AI_REPOS_MIN: 3,
+	PRE_AI_REPOS_HIGH: 8,
+	POINTS_PRE_AI_REPOS: -10,
+	POINTS_PRE_AI_REPOS_HIGH: -20,
+
+	// Review activity (PullRequestReviewEvent on external repos)
+	REVIEW_EVENTS_BASE: 5,
+	REVIEW_EVENTS_HIGH: 15,
+	POINTS_REVIEW_ACTIVITY: -5,
+	POINTS_REVIEW_ACTIVITY_HIGH: -10,
+
+	// Inline review comments (PullRequestReviewCommentEvent)
+	REVIEW_COMMENT_EVENTS_BASE: 3,
+	REVIEW_COMMENT_EVENTS_HIGH: 10,
+	POINTS_REVIEW_COMMENTS: -5,
+	POINTS_REVIEW_COMMENTS_HIGH: -10,
+
+	// Follower count
+	FOLLOWERS_BASE: 50,
+	FOLLOWERS_HIGH: 200,
+	POINTS_FOLLOWERS_BASE: -5,
+	POINTS_FOLLOWERS_HIGH: -10,
+
+	// Profile completeness
+	IDENTITY_FIELDS_BASE: 3,
+	IDENTITY_FIELDS_ALL: 5,
+	IDENTITY_BIO_MIN_LENGTH: 20,
+	POINTS_IDENTITY_BASE: -5,
+	POINTS_IDENTITY_HIGH: -10,
+
+	// Dormancy gap (max gap between consecutive events)
+	DORMANCY_GAP_DAYS: 30,
+	DORMANCY_GAP_LONG_DAYS: 60,
+	POINTS_DORMANCY_GAP: -5,
+	POINTS_DORMANCY_GAP_LONG: -10,
+
+	// Gist activity
+	POINTS_GIST_ACTIVITY: -5,
+
+	// PR iteration cycles (synchronize events on external repos)
+	PR_SYNC_REPOS_BASE: 2,
+	PR_SYNC_REPOS_HIGH: 5,
+	POINTS_PR_SYNC_BASE: -5,
+	POINTS_PR_SYNC_HIGH: -10,
+
+	// Long-span repo engagement
+	REPO_SPAN_MIN_DAYS: 120,
+	REPO_SPAN_BASE_COUNT: 2,
+	REPO_SPAN_HIGH_COUNT: 4,
+	POINTS_REPO_SPAN_BASE: -5,
+	POINTS_REPO_SPAN_HIGH: -10,
+
+	// Day-of-week activity variance (coefficient of variation)
+	DOW_EVENTS_MIN: 20,
+	DOW_VARIANCE_CV_MIN: 0.3,
+	POINTS_DOW_VARIANCE: -3,
+
+	// ── New automation detection signals ─────────────────────────────────────
+
+	// Star campaign / fake-star concentration
+	WATCH_CONCENTRATION_RATIO: 0.8,
+	WATCH_CONCENTRATION_PUSH_PR_MAX: 2,
+	WATCH_CONCENTRATION_BURST_MIN: 10,
+	POINTS_STAR_CONCENTRATION: 30,
+	POINTS_STAR_CONCENTRATION_BURST: 15,
+
+	// Event-type monoculture (one type dominates ≥90% of activity)
+	MONOCULTURE_MIN_EVENTS: 30,
+	MONOCULTURE_MAX_ENTROPY: 0.25,
+	POINTS_MONOCULTURE: 20,
+
+	// Thin profile + bot-pattern username
+	THIN_PROFILE_INDICATORS_MIN: 4,
+	THIN_PROFILE_FOLLOWERS_MAX: 1,
+	THIN_PROFILE_REPOS_MAX: 1,
+	POINTS_THIN_PROFILE_BOT: 15,
+
+	// Issue burst across repos (drive-by slop, no own pushes)
+	ISSUE_BURST_COUNT_MIN: 8,
+	ISSUE_BURST_REPOS_MIN: 5,
+	ISSUE_BURST_WINDOW_HOURS: 72,
+	POINTS_ISSUE_BURST: 20,
+
+	// Consumer-only with no reciprocity
+	CONSUMER_ONLY_EXTERNAL_MIN: 5,
+	POINTS_CONSUMER_NO_RECIPROCITY: 10,
 
 	// AI commit metadata — amplifier, not a standalone signal
 	// Multiplier applies only to flags marked `amplifiable: true` (automation/spam signals).

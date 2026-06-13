@@ -191,12 +191,20 @@ describe("identify - AI commit metadata flag", () => {
   }
 
   // Builds 6 forks within 24h → triggers "Multiple forks" (26 points, amplifiable).
+  // Push event prevents consumer-no-reciprocity from also firing.
   function makeForkBurstEvents(): GitHubEvent[] {
-    return Array.from({ length: 6 }, (_, i) => ({
-      type: "ForkEvent",
-      created_at: new Date(date.getTime() - i * 3600_000).toISOString(),
-      repo: { name: `target/repo${i}` } as any,
-    } as any));
+    return [
+      ...Array.from({ length: 6 }, (_, i) => ({
+        type: "ForkEvent",
+        created_at: new Date(date.getTime() - i * 3600_000).toISOString(),
+        repo: { name: `target/repo${i}` } as any,
+      } as any)),
+      {
+        type: "PushEvent",
+        created_at: new Date(date.getTime()).toISOString(),
+        repo: { name: "target/shared-repo" } as any,
+      } as any,
+    ];
   }
 
   it("pushes a 0-point visibility flag at >= 90% AI ratio", () => {
