@@ -7,13 +7,13 @@ export function detectAccountSeniority(accountAge: number): IdentifyFlag[] {
 	if (accountAge >= CONFIG.AGE_VETERAN_ACCOUNT) {
 		flags.push({
 			label: "Long-standing account",
-			points: CONFIG.POINTS_VETERAN_ACCOUNT_MITIGATION,
+			points: CONFIG.POINTS_VETERAN_ACCOUNT,
 			detail: `Account is ${accountAge} days old (5+ years)`,
 		});
 	} else if (accountAge >= CONFIG.AGE_SENIOR_ACCOUNT) {
 		flags.push({
 			label: "Established account",
-			points: CONFIG.POINTS_SENIOR_ACCOUNT_MITIGATION,
+			points: CONFIG.POINTS_SENIOR_ACCOUNT,
 			detail: `Account is ${accountAge} days old (3+ years)`,
 		});
 	}

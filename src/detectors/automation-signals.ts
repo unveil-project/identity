@@ -157,6 +157,9 @@ export function detectIssueBurst(
 			ts: dayjs.utc(e.created_at ?? "").valueOf(),
 			repo: e.repo?.name ?? "",
 		}))
+		.filter(
+			(item): item is { ts: number; repo: string } => !Number.isNaN(item.ts),
+		)
 		.sort((a, b) => a.ts - b.ts);
 
 	let left = 0;
