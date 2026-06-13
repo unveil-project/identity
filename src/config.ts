@@ -294,4 +294,34 @@ export const CONFIG = {
 		{ ratio: 0.85, multiplier: 1.3 },
 		{ ratio: 0.75, multiplier: 1.15 },
 	],
+
+	// Temporal event degradation: bot-signal scores decay with exponential half-life (days).
+	TEMPORAL_DECAY_HALF_LIFE_DAYS: 90,
 } as const;
+
+// Known legitimate automation tools — bypass bot detection and classify as "legitimate_automation".
+export const KNOWN_BOT_ACCOUNTS = new Set([
+	"dependabot",
+	"renovate",
+	"renovatebot",
+	"github-actions",
+	"codecov",
+	"snyk-bot",
+	"allcontributors",
+	"imgbot",
+	"semantic-release-bot",
+	"stale",
+	"greenkeeper",
+	"socket-security",
+	"whitesource-bolt-for-github",
+	"restyled-io",
+]);
+
+// Flag labels that indicate spam-specific patterns; triggers "likely_spam" over generic "automation".
+export const SPAM_SIGNAL_LABELS = new Set([
+	"Star farm pattern",
+	"Star burst activity",
+	"Issue burst",
+	"Issue comment spam",
+	"PR comment spam",
+]);

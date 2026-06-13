@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
 import { analyzeCommitMetadata } from "./analyze-commit-metadata";
-import { CONFIG } from "./config";
+import { CONFIG, KNOWN_BOT_ACCOUNTS, SPAM_SIGNAL_LABELS } from "./config";
 import {
 	detectAccountAge,
 	detectAccountSeniority,
@@ -47,9 +47,28 @@ import type {
 	IdentifyResult,
 	IdentityClassification,
 } from "./types";
+import { computeActivityRecencyMultiplier } from "./utils";
 
 dayjs.extend(minMax);
 dayjs.extend(utc);
+
+function calculateConfidence(
+	flags: IdentifyFlag[],
+	classification: IdentityClassification,
+): number {
+	let corroborating: number;
+	if (classification === "organic") {
+		corroborating = flags.filter((f) => f.points < 0).length;
+	} else if (classification === "mixed") {
+		const botFlags = flags.filter((f) => f.points > 0).length;
+		const humanFlags = flags.filter((f) => f.points < 0).length;
+		corroborating = Math.min(botFlags, humanFlags);
+	} else {
+		corroborating = flags.filter((f) => f.points > 0).length;
+	}
+	if (corroborating === 0) return 20;
+	return Math.min(95, 40 + (corroborating - 1) * 23);
+}
 
 export function identify({
 	createdAt,
@@ -70,6 +89,21 @@ export function identify({
 	});
 
 	const accountAge = dayjs().diff(createdAt, "days");
+
+	const nameLower = accountName.toLowerCase();
+	if (
+		KNOWN_BOT_ACCOUNTS.has(nameLower) ||
+		KNOWN_BOT_ACCOUNTS.has(nameLower.replace(/\[bot\]$/, "")) ||
+		nameLower.endsWith("[bot]")
+	) {
+		return {
+			score: 0,
+			confidence: 99,
+			classification: "legitimate_automation",
+			flags: [],
+			profile: { age: accountAge, repos: reposCount },
+		};
+	}
 
 	const foreignEvents = filteredEvents.filter((e) => {
 		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
@@ -155,10 +189,15 @@ export function identify({
 
 	// Invert score: 100 = human, 0 = bot
 	const multiplier = aiTier?.multiplier ?? 1;
+	const recencyMultiplier = computeActivityRecencyMultiplier(
+		filteredEvents,
+		CONFIG.TEMPORAL_DECAY_HALF_LIFE_DAYS,
+	);
 	const score = flags.reduce((total, flag) => {
-		const effective = flag.amplifiable
+		let effective = flag.amplifiable
 			? Math.round(flag.points * multiplier)
 			: flag.points;
+		if (effective > 0) effective = Math.round(effective * recencyMultiplier);
 		return total + effective;
 	}, 0);
 
@@ -169,10 +208,15 @@ export function identify({
 		classification = "organic";
 	} else if (humanScore >= CONFIG.THRESHOLD_SUSPICIOUS) {
 		classification = "mixed";
+	} else if (flags.some((f) => SPAM_SIGNAL_LABELS.has(f.label))) {
+		classification = "likely_spam";
 	}
+
+	const confidence = calculateConfidence(flags, classification);
 
 	return {
 		score: humanScore,
+		confidence,
 		classification,
 		flags,
 		profile: {

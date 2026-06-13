@@ -47,10 +47,16 @@ export type IdentifyOptions = {
 	profile?: IdentifyProfile;
 };
 
-export type IdentityClassification = "organic" | "mixed" | "automation";
+export type IdentityClassification =
+	| "organic"
+	| "mixed"
+	| "automation"
+	| "legitimate_automation"
+	| "likely_spam";
 
 export type IdentifyResult = {
 	score: number;
+	confidence: number;
 	classification: IdentityClassification;
 	flags: IdentifyFlag[];
 	profile: {

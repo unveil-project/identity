@@ -1896,3 +1896,235 @@ describe("identify - Repository Exclusion Filter", () => {
 		expect(withReposExcluded.flags.some((f) => f.label === "Pre-AI development history")).toBe(false);
 	});
 });
+
+describe("identify - Known Bot Whitelist", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("classifies dependabot as legitimate_automation with no flags and score 0", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "dependabot",
+			events: [],
+		});
+		expect(result.classification).toBe("legitimate_automation");
+		expect(result.confidence).toBe(99);
+		expect(result.flags).toHaveLength(0);
+		expect(result.score).toBe(0);
+	});
+
+	it("classifies renovate[bot] as legitimate_automation", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "renovate[bot]",
+			events: [],
+		});
+		expect(result.classification).toBe("legitimate_automation");
+	});
+
+	it("classifies any [bot]-suffix account as legitimate_automation", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "some-custom-action[bot]",
+			events: [],
+		});
+		expect(result.classification).toBe("legitimate_automation");
+	});
+
+	it("does not classify a regular user whose name contains 'bot' as legitimate_automation", () => {
+		const result = identify({
+			createdAt: "2024-01-01T00:00:00Z",
+			reposCount: 5,
+			accountName: "robotics-enthusiast",
+			events: [],
+		});
+		expect(result.classification).not.toBe("legitimate_automation");
+	});
+});
+
+describe("identify - Automation Type Classification", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("classifies accounts with spam signals and low score as likely_spam", () => {
+		const recentTs = "2026-03-08T00:00:00Z";
+		const watchEvent = {
+			type: "WatchEvent",
+			repo: { name: "other/popular-repo" },
+			created_at: recentTs,
+		} as GitHubEvent;
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 0,
+			accountName: "starfarmer99",
+			events: Array(20).fill(watchEvent),
+		});
+
+		expect(result.classification).toBe("likely_spam");
+		expect(result.flags.some((f) => f.label === "Star farm pattern")).toBe(true);
+	});
+
+	it("classifies accounts below suspicious threshold without spam signals as automation", () => {
+		// 0 repos + 20 foreign events triggers zero-repos flag but no spam labels
+		const ts = "2026-03-08T00:00:00Z";
+		const pushEvent = {
+			type: "PushEvent",
+			repo: { name: "other/repo" },
+			created_at: ts,
+		} as GitHubEvent;
+
+		const result = identify({
+			createdAt: "2025-10-01T00:00:00Z",
+			reposCount: 0,
+			accountName: "pushbot",
+			events: Array(30).fill(pushEvent),
+		});
+
+		expect(result.classification).toBe("automation");
+	});
+});
+
+describe("identify - Confidence Scoring", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("returns confidence 99 for whitelisted bots", () => {
+		const result = identify({
+			createdAt: "2020-01-01T00:00:00Z",
+			reposCount: 1,
+			accountName: "dependabot",
+			events: [],
+		});
+		expect(result.confidence).toBe(99);
+	});
+
+	it("returns confidence >= 20 for any account", () => {
+		const result = identify({
+			createdAt: "2025-06-01T00:00:00Z",
+			reposCount: 5,
+			accountName: "newuser",
+			events: [],
+		});
+		expect(result.confidence).toBeGreaterThanOrEqual(20);
+	});
+
+	it("returns confidence <= 95 for non-whitelisted accounts", () => {
+		const ts = "2026-03-08T00:00:00Z";
+		const watchEvent = {
+			type: "WatchEvent",
+			repo: { name: "other/repo" },
+			created_at: ts,
+		} as GitHubEvent;
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 0,
+			accountName: "starfarmer99",
+			events: Array(20).fill(watchEvent),
+		});
+		expect(result.confidence).toBeLessThanOrEqual(95);
+	});
+
+	it("returns higher confidence for accounts with more corroborating signals", () => {
+		const ts = "2026-03-08T00:00:00Z";
+		const watchEvent = {
+			type: "WatchEvent",
+			repo: { name: "other/repo" },
+			created_at: ts,
+		} as GitHubEvent;
+
+		const manyFlags = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 0,
+			accountName: "starfarmer99",
+			events: Array(20).fill(watchEvent),
+		});
+
+		const fewFlags = identify({
+			createdAt: "2025-06-01T00:00:00Z",
+			reposCount: 5,
+			accountName: "newuser",
+			events: [],
+		});
+
+		expect(manyFlags.confidence).toBeGreaterThan(fewFlags.confidence);
+	});
+});
+
+describe("identify - Temporal Event Degradation", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("applies lower bot score to accounts with only historical activity vs recent activity", () => {
+		const oldTs = "2025-09-11T00:00:00Z"; // ~180 days before fake date
+		const recentTs = "2026-03-09T00:00:00Z"; // 1 day before fake date
+
+		const makeEvent = (ts: string): GitHubEvent =>
+			({
+				type: "WatchEvent",
+				repo: { name: "other/popular-repo" },
+				created_at: ts,
+			}) as GitHubEvent;
+
+		const base = {
+			createdAt: "2019-03-10T00:00:00Z",
+			reposCount: 2,
+			accountName: "user",
+		};
+
+		const resultOld = identify({ ...base, events: Array(20).fill(makeEvent(oldTs)) });
+		const resultRecent = identify({ ...base, events: Array(20).fill(makeEvent(recentTs)) });
+
+		// Old activity decays → higher humanScore (appears less bot-like)
+		expect(resultOld.score).toBeGreaterThan(resultRecent.score);
+	});
+
+	it("does not decay mitigating signals (negative-point flags are unaffected)", () => {
+		const oldTs = "2025-09-11T00:00:00Z";
+		const makeEvent = (ts: string): GitHubEvent =>
+			({
+				type: "WatchEvent",
+				repo: { name: "other/popular-repo" },
+				created_at: ts,
+			}) as GitHubEvent;
+
+		// 5+ year old account earns Long-standing account (-10) regardless of event age
+		const result = identify({
+			createdAt: "2019-03-10T00:00:00Z",
+			reposCount: 2,
+			accountName: "user",
+			events: Array(20).fill(makeEvent(oldTs)),
+		});
+
+		expect(result.flags.some((f) => f.label === "Long-standing account")).toBe(true);
+		const seniorityFlag = result.flags.find((f) => f.label === "Long-standing account");
+		expect(seniorityFlag?.points).toBe(-10);
+	});
+});
