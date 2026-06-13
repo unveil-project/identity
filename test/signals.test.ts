@@ -1863,4 +1863,36 @@ describe("identify - Repository Exclusion Filter", () => {
 			),
 		).toBe(true);
 	});
+
+	it("should exclude named repos from pre-AI history scoring", () => {
+		const makePreAiRepo = (name: string) => ({
+			created_at: "2021-01-01T00:00:00Z",
+			name,
+		});
+		const preAiRepos = [
+			makePreAiRepo("excluded-owner/old-repo-a"),
+			makePreAiRepo("excluded-owner/old-repo-b"),
+			makePreAiRepo("excluded-owner/old-repo-c"),
+		];
+
+		const base = {
+			createdAt: "2024-01-01T00:00:00Z",
+			reposCount: 5,
+			accountName: "user",
+			events: [],
+			commits: [],
+		};
+
+		const withRepos = identify({ ...base, repos: preAiRepos });
+		const withReposExcluded = identify({
+			...base,
+			repos: preAiRepos,
+			excludeRepos: preAiRepos.map((r) => r.name),
+		});
+
+		// Without exclusion, the old repos contribute a mitigating pre-AI history flag
+		expect(withRepos.flags.some((f) => f.label === "Pre-AI development history")).toBe(true);
+		// With exclusion, those repos are filtered out and the flag must not appear
+		expect(withReposExcluded.flags.some((f) => f.label === "Pre-AI development history")).toBe(false);
+	});
 });

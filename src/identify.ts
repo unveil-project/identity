@@ -110,7 +110,10 @@ export function identify({
 	// Mitigating signals
 	flags.push(...detectAccountSeniority(accountAge));
 	flags.push(...detectMergedContributions(filteredEvents, accountName));
-	flags.push(...detectPreAiHistory(repos));
+	const filteredRepos = repos.filter(
+		(r) => !r.name || !excludeReposLower.includes(r.name.toLowerCase()),
+	);
+	flags.push(...detectPreAiHistory(filteredRepos));
 	flags.push(...detectReviewActivity(filteredEvents, accountName));
 	flags.push(...detectReviewCommentActivity(filteredEvents, accountName));
 	flags.push(...detectFollowerCount(profile));
