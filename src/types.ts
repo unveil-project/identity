@@ -25,6 +25,7 @@ export type IdentifyFlag = {
 	points: number;
 	detail: string;
 	amplifiable?: boolean;
+	eventBased?: boolean;
 };
 
 export type IdentifyProfile = {

@@ -197,7 +197,7 @@ export function identify({
 		let effective = flag.amplifiable
 			? Math.round(flag.points * multiplier)
 			: flag.points;
-		if (effective > 0) effective = Math.round(effective * recencyMultiplier);
+		if (effective > 0 && flag.eventBased !== false) effective = Math.round(effective * recencyMultiplier);
 		return total + effective;
 	}, 0);
 

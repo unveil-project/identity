@@ -120,6 +120,7 @@ export function detectThinProfileBot(
 			label: "Thin profile",
 			points: CONFIG.POINTS_THIN_PROFILE_BOT,
 			detail: `${indicators}/7 thin profile indicators`,
+			eventBased: false,
 		});
 	}
 

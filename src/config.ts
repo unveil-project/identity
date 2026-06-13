@@ -324,4 +324,11 @@ export const SPAM_SIGNAL_LABELS = new Set([
 	"Issue burst",
 	"Issue comment spam",
 	"PR comment spam",
+	"Rapid PR spam to repository",
+	"Distributed PR spam pattern",
+	"Extreme PR spam (daily)",
+	"Extreme PR spam (weekly)",
+	"Very high PR spam frequency",
+	"Closed PR spam burst",
+	"Closed PR spam scatter",
 ]);
