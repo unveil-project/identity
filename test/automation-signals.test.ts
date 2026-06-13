@@ -115,11 +115,23 @@ describe("detectEventMonoculture", () => {
 		expect(flags[0].amplifiable).toBe(true);
 	});
 
-	it("returns no flag when only one event type exists (handled by diversity check)", () => {
+	it("returns no flag when only one non-interaction event type exists (handled by diversity check)", () => {
 		const events = Array.from({ length: 30 }, () =>
 			makeEvent("PushEvent", "org/repo", "2024-01-01T00:00:00Z"),
 		);
 		expect(detectEventMonoculture(events)).toHaveLength(0);
+	});
+
+	it("flags single-type interaction monoculture (IssueCommentEvent-only bot)", () => {
+		// detectNarrowActivityFocus exempts interaction-heavy streams, so single-type
+		// interaction accounts must be caught here instead.
+		const events = Array.from({ length: 30 }, () =>
+			makeEvent("IssueCommentEvent", "org/repo", "2024-01-01T00:00:00Z"),
+		);
+		const flags = detectEventMonoculture(events);
+		expect(flags).toHaveLength(1);
+		expect(flags[0].label).toBe("Event type monoculture");
+		expect(flags[0].amplifiable).toBe(true);
 	});
 });
 
@@ -314,5 +326,25 @@ describe("detectConsumerNoReciprocity", () => {
 		];
 		const flags = detectConsumerNoReciprocity(events, ACCOUNT);
 		expect(flags).toHaveLength(1); // own-repo push doesn't count as reciprocity
+	});
+
+	it("does not flag maintainers who contribute via review events", () => {
+		const events = [
+			...Array.from({ length: 5 }, () =>
+				makeEvent("WatchEvent", "org/repo", "2024-01-01T00:00:00Z"),
+			),
+			makeEvent("PullRequestReviewEvent", "org/other-repo", "2024-01-03T00:00:00Z"),
+		];
+		expect(detectConsumerNoReciprocity(events, ACCOUNT)).toHaveLength(0);
+	});
+
+	it("does not flag maintainers who contribute via review comment events", () => {
+		const events = [
+			...Array.from({ length: 5 }, () =>
+				makeEvent("WatchEvent", "org/repo", "2024-01-01T00:00:00Z"),
+			),
+			makeEvent("PullRequestReviewCommentEvent", "org/other-repo", "2024-01-03T00:00:00Z"),
+		];
+		expect(detectConsumerNoReciprocity(events, ACCOUNT)).toHaveLength(0);
 	});
 });

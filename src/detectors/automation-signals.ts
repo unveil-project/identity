@@ -65,7 +65,17 @@ export function detectEventMonoculture(events: GitHubEvent[]): IdentifyFlag[] {
 		if (e.type) typeCounts.set(e.type, (typeCounts.get(e.type) ?? 0) + 1);
 	}
 
-	if (typeCounts.size <= 1) return flags;
+	// Single-type interaction accounts (IssueCommentEvent-only bots, etc.) must not be
+	// skipped here: detectNarrowActivityFocus exempts interaction-heavy streams, so they
+	// would go entirely undetected. Non-interaction single-type accounts are caught by
+	// detectNarrowActivityFocus and are correctly excluded to avoid double-flagging.
+	const INTERACTION_TYPES = new Set([
+		"IssueCommentEvent",
+		"PullRequestReviewEvent",
+		"PullRequestReviewCommentEvent",
+	]);
+	if (typeCounts.size <= 1 && !INTERACTION_TYPES.has([...typeCounts.keys()][0] ?? ""))
+		return flags;
 
 	const counts = Array.from(typeCounts.values());
 	const entropy = calculateNormalizedShannonsEntropy(counts);
@@ -180,8 +190,14 @@ export function detectConsumerNoReciprocity(
 
 	if (consumerCount < CONFIG.CONSUMER_ONLY_EXTERNAL_MIN) return flags;
 
+	const CONTRIBUTION_TYPES = new Set([
+		"PushEvent",
+		"PullRequestEvent",
+		"PullRequestReviewEvent",
+		"PullRequestReviewCommentEvent",
+	]);
 	const hasExternalContribution = events.some((e) => {
-		if (e.type !== "PushEvent" && e.type !== "PullRequestEvent") return false;
+		if (!CONTRIBUTION_TYPES.has(e.type ?? "")) return false;
 		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
 		return repoOwner && repoOwner !== accountName.toLowerCase();
 	});

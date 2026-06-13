@@ -507,7 +507,9 @@ describe("detectDayOfWeekVariance", () => {
 			makeEvent("PushEvent", "org/repo", "2024-01-06T10:00:00Z"),
 		];
 		const flags = detectDayOfWeekVariance(events);
-		expect(flags.length).toBeGreaterThanOrEqual(0); // result depends on CV calculation
+		expect(flags).toHaveLength(1);
+		expect(flags[0].label).toBe("Natural activity rhythm");
+		expect(flags[0].points).toBeLessThan(0);
 	});
 
 	it("does not flag perfectly uniform activity", () => {
