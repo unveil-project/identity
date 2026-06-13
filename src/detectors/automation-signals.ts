@@ -74,7 +74,10 @@ export function detectEventMonoculture(events: GitHubEvent[]): IdentifyFlag[] {
 		"PullRequestReviewEvent",
 		"PullRequestReviewCommentEvent",
 	]);
-	if (typeCounts.size <= 1 && !INTERACTION_TYPES.has([...typeCounts.keys()][0] ?? ""))
+	if (
+		typeCounts.size <= 1 &&
+		!INTERACTION_TYPES.has([...typeCounts.keys()][0] ?? "")
+	)
 		return flags;
 
 	const counts = Array.from(typeCounts.values());
