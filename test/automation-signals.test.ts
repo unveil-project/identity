@@ -161,7 +161,7 @@ describe("detectThinProfileBot", () => {
 			location: null, // missing → indicator
 			blog: null,
 		};
-		// indicators: followers(1) + reposCount≤1(1) + name(1) + bio(1) + company(1) = 5
+		// indicators: followers(1) + reposCount≤1(1) + name(1) + bio(1) + company(1) + location(1) + blog(1) = 7
 		const flags = detectThinProfileBot(profile, 1);
 		expect(flags).toHaveLength(1);
 		expect(flags[0].label).toBe("Thin profile");

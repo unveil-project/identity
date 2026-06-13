@@ -227,6 +227,13 @@ describe("detectReviewCommentActivity", () => {
 		expect(flags).toHaveLength(1);
 		expect(flags[0].points).toBeLessThanOrEqual(-10);
 	});
+
+	it("excludes review comments on own repos", () => {
+		const events = Array.from({ length: 10 }, () =>
+			makeEvent("PullRequestReviewCommentEvent", OWN_REPO, "2024-01-01T00:00:00Z"),
+		);
+		expect(detectReviewCommentActivity(events, ACCOUNT)).toHaveLength(0);
+	});
 });
 
 describe("detectFollowerCount", () => {
