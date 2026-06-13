@@ -423,12 +423,12 @@ describe("identify - Activity Pattern Detection", () => {
 				// 1 hour gap
 				events.push({
 					type: "PushEvent",
-					created_at: new Date(2026, 2, 10, hour, 0, 0).toISOString(),
+					created_at: new Date(Date.UTC(2026, 2, 10, hour, 0, 0)).toISOString(),
 					repo: { name: "repo" } as any,
 				} as any);
 				events.push({
 					type: "PushEvent",
-					created_at: new Date(2026, 2, 10, hour, 30, 0).toISOString(),
+					created_at: new Date(Date.UTC(2026, 2, 10, hour, 30, 0)).toISOString(),
 					repo: { name: "repo" } as any,
 				} as any);
 			}
@@ -647,6 +647,12 @@ describe("identify - Classification", () => {
 				repo: { name: `repo${i}` } as any,
 			} as any);
 		}
+		// Push event prevents consumer-no-reciprocity from also firing
+		events.push({
+			type: "PushEvent",
+			created_at: new Date(2026, 2, 10, 10, 0, 0).toISOString(),
+			repo: { name: "org/shared-repo" } as any,
+		} as any);
 
 		const result = identify({
 			createdAt: "2026-04-15T00:00:00Z", // 14 days old (new account penalty: 20 points)
