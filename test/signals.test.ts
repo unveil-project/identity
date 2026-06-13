@@ -2206,8 +2206,8 @@ describe("identify - Classification Thresholds", () => {
 	});
 
 	it("classifies accounts with spam-specific label 'Star burst activity' as likely_spam", () => {
-		// Star burst activity requires >=5 WatchEvents to 3+ distinct repos in a short window
-		const ts = "2026-03-09T00:00:00Z";
+		// 15 WatchEvents within 24h triggers star burst (threshold: 10)
+		const ts = "2026-03-10T00:00:00Z";
 		const makeWatchEvent = (repo: string): GitHubEvent =>
 			({
 				type: "WatchEvent",
@@ -2228,9 +2228,8 @@ describe("identify - Classification Thresholds", () => {
 			events,
 		});
 
-		if (result.flags.some((f) => f.label === "Star burst activity")) {
-			expect(result.classification).toBe("likely_spam");
-		}
+		expect(result.flags.some((f) => f.label === "Star burst activity")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
 	});
 
 	it("classifies accounts with 'Issue burst' label as likely_spam", () => {
@@ -2255,9 +2254,8 @@ describe("identify - Classification Thresholds", () => {
 			events,
 		});
 
-		if (result.flags.some((f) => f.label === "Issue burst")) {
-			expect(result.classification).toBe("likely_spam");
-		}
+		expect(result.flags.some((f) => f.label === "Issue burst")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
 	});
 });
 
@@ -2272,20 +2270,144 @@ describe("identify - Confidence Edge Cases", () => {
 	});
 
 	it("returns confidence 20 when classification is mixed but no corroborating signals exist", () => {
-		// A mixed account needs both bot and human flags, but if human flags are 0 the
-		// corroborating count for mixed = min(botFlags, humanFlags) = 0 → confidence 20.
-		// Very new account (bot signal), but no human signals at all.
+		// Recently created(+20) + Thin profile(+15) = 35 → humanScore=65 → "mixed"; 0 human flags → confidence=20
 		const result = identify({
-			createdAt: "2026-03-05T00:00:00Z", // 5 days old → Recently created
+			createdAt: "2026-02-15T00:00:00Z",
 			reposCount: 3,
-			accountName: "quietnewuser",
+			accountName: "mixeduser",
+			profile: {
+				followers: 5,
+				name: null,
+				bio: null,
+				company: null,
+				location: null,
+				blog: null,
+			},
 			events: [],
 		});
-		// If this lands as mixed with zero corroborating, confidence must be 20
-		if (result.classification === "mixed") {
-			expect(result.confidence).toBe(20);
-		}
-		// Otherwise just assert baseline
-		expect(result.confidence).toBeGreaterThanOrEqual(20);
+		expect(result.classification).toBe("mixed");
+		expect(result.confidence).toBe(20);
+	});
+});
+
+describe("identify - SPAM_SIGNAL_LABELS coverage", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("classifies 'Extreme PR spam (weekly)' label as likely_spam", () => {
+		// 100 PRs over 5 days (20/day), latest=2026-03-08 → 20 in last 24h < 30 (no daily); 100 >= 100 in 7d → weekly extreme
+		const events: GitHubEvent[] = Array.from({ length: 100 }, (_, i) => ({
+			type: "PullRequestEvent",
+			payload: { action: "opened" },
+			created_at: new Date(2026, 2, 4 + Math.floor(i / 20), 12, i % 60).toISOString(),
+			repo: { name: `org/repo${i % 10}` },
+		} as GitHubEvent));
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 5,
+			accountName: "weeklyspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Extreme PR spam (weekly)")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies 'Very high PR spam frequency' label as likely_spam", () => {
+		// 51 PRs over 3 days; 17 in last 24h < 30; 51 >= 50 (VERY_HIGH) but < 100 (EXTREME) → very high, not extreme
+		const events: GitHubEvent[] = Array.from({ length: 51 }, (_, i) => ({
+			type: "PullRequestEvent",
+			payload: { action: "opened" },
+			created_at: new Date(2026, 2, 7 + Math.floor(i / 17), 12, i % 60).toISOString(),
+			repo: { name: `org/repo${i % 5}` },
+		} as GitHubEvent));
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 5,
+			accountName: "veryhighspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Very high PR spam frequency")).toBe(true);
+		expect(result.flags.some((f) => f.label === "Extreme PR spam (weekly)")).toBe(false);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies 'Rapid PR spam to repository' label as likely_spam", () => {
+		// 4 PRs to same repo 60s apart → Rapid PR spam (+40); recently created (+20) → score=60 → humanScore=40 → likely_spam
+		const base = new Date("2026-03-10T01:00:00Z").getTime();
+		const events: GitHubEvent[] = Array.from({ length: 4 }, (_, i) => ({
+			type: "PullRequestEvent",
+			payload: { action: "opened" },
+			created_at: new Date(base + i * 60_000).toISOString(),
+			repo: { name: "victim/repo" },
+		} as GitHubEvent));
+
+		const result = identify({
+			createdAt: "2026-02-15T00:00:00Z",
+			reposCount: 1,
+			accountName: "rapidspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Rapid PR spam to repository")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies 'Closed PR spam burst' label as likely_spam", () => {
+		// 5 closed PRs across 2 repos in 30min → burst (+35); recently created (+20) → score=55 → humanScore=45 → likely_spam
+		const base = new Date("2026-03-10T02:00:00Z").getTime();
+		const events: GitHubEvent[] = [
+			...Array.from({ length: 3 }, (_, i) => ({
+				type: "PullRequestEvent",
+				payload: { action: "closed" },
+				created_at: new Date(base + i * 6 * 60_000).toISOString(),
+				repo: { name: "org/repo1" },
+			} as GitHubEvent)),
+			...Array.from({ length: 2 }, (_, i) => ({
+				type: "PullRequestEvent",
+				payload: { action: "closed" },
+				created_at: new Date(base + (3 + i) * 6 * 60_000).toISOString(),
+				repo: { name: "org/repo2" },
+			} as GitHubEvent)),
+		];
+
+		const result = identify({
+			createdAt: "2026-02-15T00:00:00Z",
+			reposCount: 2,
+			accountName: "burstspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Closed PR spam burst")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
+	});
+
+	it("classifies 'Closed PR spam scatter' label as likely_spam", () => {
+		// 25 closed PRs across 4 repos → repos(4) >= SPREAD(3) and count(25) >= 25 → scatter fires
+		const events: GitHubEvent[] = Array.from({ length: 25 }, (_, i) => ({
+			type: "PullRequestEvent",
+			payload: { action: "closed" },
+			created_at: new Date(2026, 2, 1 + Math.floor(i / 7), 12, i % 60).toISOString(),
+			repo: { name: `org/repo${i % 4}` },
+		} as GitHubEvent));
+
+		const result = identify({
+			createdAt: "2025-03-10T00:00:00Z",
+			reposCount: 2,
+			accountName: "scatterspammer",
+			events,
+		});
+
+		expect(result.flags.some((f) => f.label === "Closed PR spam scatter")).toBe(true);
+		expect(result.classification).toBe("likely_spam");
 	});
 });
