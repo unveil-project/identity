@@ -44,6 +44,8 @@ export type IdentifyOptions = {
 	events: GitHubEvent[];
 	excludeRepos?: string[];
 	commits?: GitHubCommit[];
+	repos?: Array<{ name: string; created_at: string }>;
+	profile?: IdentifyProfile;
 };
 
 export type IdentityClassification =

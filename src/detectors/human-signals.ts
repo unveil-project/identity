@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { GitHubEvent, IdentifyFlag, IdentifyProfile } from "../types";
 
 dayjs.extend(utc);
 
@@ -248,6 +248,88 @@ export function detectDayOfWeekVariance(events: GitHubEvent[]): IdentifyFlag[] {
 			label: "Natural activity rhythm",
 			points: CONFIG.POINTS_DOW_VARIANCE,
 			detail: `Day-of-week variance CV ${cv.toFixed(2)} (≥${CONFIG.DOW_VARIANCE_CV_MIN} signals human rest pattern)`,
+		});
+	}
+
+	return flags;
+}
+
+export function detectPreAiHistory(
+	repos: Array<{ created_at: string }>,
+): IdentifyFlag[] {
+	const flags: IdentifyFlag[] = [];
+	const cutoff = `${CONFIG.PRE_AI_REPOS_YEAR}-01-01`;
+	const preAiRepos = repos.filter((r) => r.created_at < cutoff);
+
+	if (preAiRepos.length >= CONFIG.PRE_AI_REPOS_HIGH) {
+		flags.push({
+			label: "Pre-AI development history",
+			points: CONFIG.POINTS_PRE_AI_REPOS_HIGH,
+			detail: `${preAiRepos.length} repositories created before ${CONFIG.PRE_AI_REPOS_YEAR}`,
+		});
+	} else if (preAiRepos.length >= CONFIG.PRE_AI_REPOS_MIN) {
+		flags.push({
+			label: "Pre-AI development history",
+			points: CONFIG.POINTS_PRE_AI_REPOS,
+			detail: `${preAiRepos.length} repositories created before ${CONFIG.PRE_AI_REPOS_YEAR}`,
+		});
+	}
+
+	return flags;
+}
+
+export function detectFollowerCount(
+	profile: IdentifyProfile | undefined,
+): IdentifyFlag[] {
+	const flags: IdentifyFlag[] = [];
+	if (!profile) return flags;
+
+	if (profile.followers >= CONFIG.FOLLOWERS_HIGH) {
+		flags.push({
+			label: "Established following",
+			points: CONFIG.POINTS_FOLLOWERS_HIGH,
+			detail: `${profile.followers} followers`,
+			eventBased: false,
+		});
+	} else if (profile.followers >= CONFIG.FOLLOWERS_BASE) {
+		flags.push({
+			label: "Has followers",
+			points: CONFIG.POINTS_FOLLOWERS_BASE,
+			detail: `${profile.followers} followers`,
+			eventBased: false,
+		});
+	}
+
+	return flags;
+}
+
+export function detectIdentityCompleteness(
+	profile: IdentifyProfile | undefined,
+): IdentifyFlag[] {
+	const flags: IdentifyFlag[] = [];
+	if (!profile) return flags;
+
+	let fieldCount = 0;
+	if (profile.name) fieldCount++;
+	if (profile.company) fieldCount++;
+	if (profile.location) fieldCount++;
+	if (profile.blog) fieldCount++;
+	if (profile.bio && profile.bio.length >= CONFIG.IDENTITY_BIO_MIN_LENGTH)
+		fieldCount++;
+
+	if (fieldCount >= CONFIG.IDENTITY_FIELDS_ALL) {
+		flags.push({
+			label: "Complete profile",
+			points: CONFIG.POINTS_IDENTITY_HIGH,
+			detail: `${fieldCount} profile fields filled`,
+			eventBased: false,
+		});
+	} else if (fieldCount >= CONFIG.IDENTITY_FIELDS_BASE) {
+		flags.push({
+			label: "Partial profile",
+			points: CONFIG.POINTS_IDENTITY_BASE,
+			detail: `${fieldCount} profile fields filled`,
+			eventBased: false,
 		});
 	}
 

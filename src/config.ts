@@ -182,6 +182,26 @@ export const CONFIG = {
 	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // 100+ closed PRs = extreme volume ecosystem-wide spam
 	POINTS_CLOSED_PR_SPAM_BURST_EXTREME: 80, // 100+ closed PRs in burst = coordinated attack
 
+	// Follower count
+	FOLLOWERS_BASE: 50,
+	FOLLOWERS_HIGH: 200,
+	POINTS_FOLLOWERS_BASE: -5,
+	POINTS_FOLLOWERS_HIGH: -10,
+
+	// Profile completeness
+	IDENTITY_FIELDS_BASE: 3,
+	IDENTITY_FIELDS_ALL: 5,
+	IDENTITY_BIO_MIN_LENGTH: 20,
+	POINTS_IDENTITY_BASE: -5,
+	POINTS_IDENTITY_HIGH: -10,
+
+	// Pre-AI development history (repos created before cutoff year)
+	PRE_AI_REPOS_YEAR: 2025,
+	PRE_AI_REPOS_MIN: 3,
+	PRE_AI_REPOS_HIGH: 8,
+	POINTS_PRE_AI_REPOS: -10,
+	POINTS_PRE_AI_REPOS_HIGH: -20,
+
 	// ── Account seniority (mitigating signal) ────────────────────────────────
 	AGE_SENIOR_ACCOUNT: 1095, // 3+ years
 	AGE_VETERAN_ACCOUNT: 1825, // 5+ years

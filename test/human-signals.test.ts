@@ -2,14 +2,17 @@ import { describe, expect, it } from "vitest";
 import {
 	detectDayOfWeekVariance,
 	detectDormancyGap,
+	detectFollowerCount,
 	detectGistActivity,
+	detectIdentityCompleteness,
 	detectLongSpanEngagement,
 	detectMergedContributions,
 	detectPRIterationCycles,
+	detectPreAiHistory,
 	detectReviewActivity,
 	detectReviewCommentActivity,
 } from "../src/detectors/human-signals";
-import type { GitHubEvent } from "../src/types";
+import type { GitHubEvent, IdentifyProfile } from "../src/types";
 
 function makeEvent(
 	type: string,
@@ -378,3 +381,160 @@ describe("detectDayOfWeekVariance", () => {
 		expect(flags).toHaveLength(0);
 	});
 });
+describe("detectPreAiHistory", () => {
+	it("returns no flag with fewer than 3 pre-AI repos", () => {
+		const repos = [
+			{ created_at: "2024-06-01T00:00:00Z" },
+			{ created_at: "2023-03-15T00:00:00Z" },
+		];
+		expect(detectPreAiHistory(repos)).toHaveLength(0);
+	});
+
+	it("flags base tier with 3+ repos created before 2025", () => {
+		const repos = Array.from({ length: 3 }, () => ({
+			created_at: "2023-01-01T00:00:00Z",
+		}));
+		const flags = detectPreAiHistory(repos);
+		expect(flags).toHaveLength(1);
+		expect(flags[0].label).toBe("Pre-AI development history");
+		expect(flags[0].points).toBeLessThan(0);
+	});
+
+	it("flags high tier with 8+ repos created before 2025", () => {
+		const repos = Array.from({ length: 8 }, () => ({
+			created_at: "2022-06-01T00:00:00Z",
+		}));
+		const flags = detectPreAiHistory(repos);
+		expect(flags).toHaveLength(1);
+		expect(flags[0].points).toBeLessThanOrEqual(-20);
+	});
+
+	it("does not count repos created on or after 2025-01-01", () => {
+		const repos = Array.from({ length: 5 }, () => ({
+			created_at: "2025-03-01T00:00:00Z",
+		}));
+		expect(detectPreAiHistory(repos)).toHaveLength(0);
+	});
+
+	it("correctly partitions repos across the cutoff date", () => {
+		const repos = [
+			{ created_at: "2024-12-31T23:59:59Z" }, // pre-AI
+			{ created_at: "2025-01-01T00:00:00Z" }, // on cutoff — not counted
+			{ created_at: "2023-06-01T00:00:00Z" }, // pre-AI
+			{ created_at: "2022-01-01T00:00:00Z" }, // pre-AI
+		];
+		const flags = detectPreAiHistory(repos);
+		expect(flags).toHaveLength(1);
+		expect(flags[0].detail).toContain("3 repositories");
+	});
+});
+
+describe("detectFollowerCount", () => {
+	it("returns no flag when profile is undefined", () => {
+		expect(detectFollowerCount(undefined)).toHaveLength(0);
+	});
+
+	it("returns no flag below 50 followers", () => {
+		const profile: IdentifyProfile = {
+			followers: 49,
+			name: null,
+			bio: null,
+			company: null,
+			location: null,
+			blog: null,
+		};
+		expect(detectFollowerCount(profile)).toHaveLength(0);
+	});
+
+	it("flags base tier at 50+ followers", () => {
+		const profile: IdentifyProfile = {
+			followers: 50,
+			name: null,
+			bio: null,
+			company: null,
+			location: null,
+			blog: null,
+		};
+		const flags = detectFollowerCount(profile);
+		expect(flags).toHaveLength(1);
+		expect(flags[0].label).toBe("Has followers");
+		expect(flags[0].points).toBeLessThan(0);
+	});
+
+	it("flags high tier at 200+ followers", () => {
+		const profile: IdentifyProfile = {
+			followers: 200,
+			name: null,
+			bio: null,
+			company: null,
+			location: null,
+			blog: null,
+		};
+		const flags = detectFollowerCount(profile);
+		expect(flags).toHaveLength(1);
+		expect(flags[0].label).toBe("Established following");
+		expect(flags[0].points).toBeLessThanOrEqual(-10);
+	});
+});
+
+describe("detectIdentityCompleteness", () => {
+	it("returns no flag when profile is undefined", () => {
+		expect(detectIdentityCompleteness(undefined)).toHaveLength(0);
+	});
+
+	it("returns no flag with fewer than 3 fields", () => {
+		const profile: IdentifyProfile = {
+			followers: 0,
+			name: "Alice",
+			bio: null,
+			company: null,
+			location: null,
+			blog: null,
+		};
+		expect(detectIdentityCompleteness(profile)).toHaveLength(0);
+	});
+
+	it("does not count a bio shorter than 20 characters", () => {
+		const profile: IdentifyProfile = {
+			followers: 0,
+			name: "Alice",
+			bio: "Short",
+			company: "Acme",
+			location: null,
+			blog: null,
+		};
+		// name + company = 2, bio too short = not counted → below threshold
+		expect(detectIdentityCompleteness(profile)).toHaveLength(0);
+	});
+
+	it("flags base tier with 3 valid fields", () => {
+		const profile: IdentifyProfile = {
+			followers: 0,
+			name: "Alice",
+			company: "Acme Corp",
+			location: "Berlin",
+			bio: null,
+			blog: null,
+		};
+		const flags = detectIdentityCompleteness(profile);
+		expect(flags).toHaveLength(1);
+		expect(flags[0].label).toBe("Partial profile");
+		expect(flags[0].points).toBeLessThan(0);
+	});
+
+	it("flags high tier with all 5 fields including long bio", () => {
+		const profile: IdentifyProfile = {
+			followers: 0,
+			name: "Alice",
+			company: "Acme Corp",
+			location: "Berlin",
+			blog: "https://example.com",
+			bio: "I write software and love open source contributions.",
+		};
+		const flags = detectIdentityCompleteness(profile);
+		expect(flags).toHaveLength(1);
+		expect(flags[0].label).toBe("Complete profile");
+		expect(flags[0].points).toBeLessThanOrEqual(-10);
+	});
+});
+
