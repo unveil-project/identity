@@ -29,4 +29,16 @@ describe("computeActivityRecencyMultiplier", () => {
 		const result = computeActivityRecencyMultiplier([{ created_at: recent }], 90);
 		expect(result).toBeCloseTo(1, 3);
 	});
+
+	it("returns 1 when halfLifeDays is non-positive", () => {
+		const now = new Date().toISOString();
+		expect(computeActivityRecencyMultiplier([{ created_at: now }], 0)).toBe(1);
+		expect(computeActivityRecencyMultiplier([{ created_at: now }], -5)).toBe(1);
+	});
+
+	it("returns exactly 1 for future timestamps (age clamped to zero)", () => {
+		const future = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+		const result = computeActivityRecencyMultiplier([{ created_at: future }], 90);
+		expect(result).toBe(1);
+	});
 });

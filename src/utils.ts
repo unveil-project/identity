@@ -40,6 +40,7 @@ export function computeActivityRecencyMultiplier(
 	halfLifeDays: number,
 ): number {
 	if (events.length === 0) return 1;
+	if (!Number.isFinite(halfLifeDays) || halfLifeDays <= 0) return 1;
 	const now = Date.now();
 	let total = 0;
 	for (const e of events) {
@@ -48,7 +49,7 @@ export function computeActivityRecencyMultiplier(
 			total += 1;
 			continue;
 		}
-		const ageDays = (now - t) / (1000 * 60 * 60 * 24);
+		const ageDays = Math.max(0, (now - t) / (1000 * 60 * 60 * 24));
 		total += Math.exp((-Math.LN2 * ageDays) / halfLifeDays);
 	}
 	return total / events.length;

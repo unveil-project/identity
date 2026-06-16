@@ -31,20 +31,25 @@ describe("detectAccountSeniority", () => {
 
 	it("flags long-standing account at exactly the veteran threshold (5+ years)", () => {
 		const flags = detectAccountSeniority(CONFIG.AGE_VETERAN_ACCOUNT);
-		expect(flags).toHaveLength(1);
-		expect(flags[0].label).toBe("Long-standing account");
-		expect(flags[0].points).toBe(CONFIG.POINTS_VETERAN_ACCOUNT);
-		expect(flags[0].points).toBeLessThan(0);
+		expect(flags).toHaveLength(2);
+		const veteran = flags.find((f) => f.label === "Long-standing account");
+		expect(veteran).toBeDefined();
+		expect(veteran?.points).toBe(CONFIG.POINTS_VETERAN_ACCOUNT);
+		expect(veteran?.points).toBeLessThan(0);
 	});
 
 	it("flags long-standing account well above the veteran threshold", () => {
 		const flags = detectAccountSeniority(CONFIG.AGE_VETERAN_ACCOUNT + 500);
-		expect(flags).toHaveLength(1);
-		expect(flags[0].label).toBe("Long-standing account");
+		expect(flags).toHaveLength(2);
+		expect(flags.map((f) => f.label)).toContain("Established account");
+		expect(flags.map((f) => f.label)).toContain("Long-standing account");
 	});
 
-	it("does not return both flags at once", () => {
-		expect(detectAccountSeniority(CONFIG.AGE_VETERAN_ACCOUNT)).toHaveLength(1);
+	it("veteran accounts receive both the established and long-standing flags", () => {
+		const flags = detectAccountSeniority(CONFIG.AGE_VETERAN_ACCOUNT);
+		expect(flags).toHaveLength(2);
+		expect(flags.map((f) => f.label)).toContain("Established account");
+		expect(flags.map((f) => f.label)).toContain("Long-standing account");
 	});
 });
 

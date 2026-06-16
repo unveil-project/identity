@@ -1898,14 +1898,14 @@ describe("identify - Known Bot Whitelist", () => {
 		expect(result.classification).toBe("legitimate_automation");
 	});
 
-	it("classifies any [bot]-suffix account as legitimate_automation", () => {
+	it("does not short-circuit non-allowlisted [bot]-suffix accounts", () => {
 		const result = identify({
 			createdAt: "2020-01-01T00:00:00Z",
 			reposCount: 1,
 			accountName: "some-custom-action[bot]",
 			events: [],
 		});
-		expect(result.classification).toBe("legitimate_automation");
+		expect(result.classification).not.toBe("legitimate_automation");
 	});
 
 	it("does not classify a regular user whose name contains 'bot' as legitimate_automation", () => {
@@ -2086,10 +2086,10 @@ describe("identify - Classification Thresholds", () => {
 	});
 
 	it("classifies accounts at exactly THRESHOLD_HUMAN (70) as organic", () => {
-		// Long-standing account with significant positive signals: score should land near threshold.
-		// Construct a scenario where humanScore >= 70.
+		// Score: Established account (-10) + Long-standing account (-10) + Has followers (-5) = -25 total.
+		// humanScore = 100 - (-25) = 125, capped at 100 → "organic".
 		const result = identify({
-			createdAt: "2019-01-01T00:00:00Z", // 7+ years → Long-standing account
+			createdAt: "2019-01-01T00:00:00Z", // 7+ years → both seniority flags fire
 			reposCount: 10,
 			accountName: "borderuser",
 			events: [],
@@ -2102,8 +2102,7 @@ describe("identify - Classification Thresholds", () => {
 				blog: null,
 			},
 		});
-		// A 7-year-old account with no suspicious signals should be at least mixed or organic
-		expect(["organic", "mixed"] as const).toContain(result.classification);
+		expect(result.classification).toBe("organic");
 	});
 
 });

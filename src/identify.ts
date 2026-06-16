@@ -71,8 +71,7 @@ export function identify({
 	const nameLower = accountName.toLowerCase();
 	if (
 		KNOWN_BOT_ACCOUNTS.has(nameLower) ||
-		KNOWN_BOT_ACCOUNTS.has(nameLower.replace(/\[bot\]$/, "")) ||
-		nameLower.endsWith("[bot]")
+		KNOWN_BOT_ACCOUNTS.has(nameLower.replace(/\[bot\]$/, ""))
 	) {
 		return {
 			score: 0,
