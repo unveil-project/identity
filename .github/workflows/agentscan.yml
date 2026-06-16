@@ -1,0 +1,24 @@
+name: AgentScan
+
+on:
+  pull_request_target:
+    types: [opened, reopened]
+  issues:
+    types: [opened]
+
+jobs:
+  agentscan:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+    steps:
+      - name: AgentScan
+        uses: MatteoGabriele/agentscan-action@2b7e598bd821bc0f4651e985688951930c2f60d0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-close: true
+          auto-close-classifications: '["automation", "mixed"]'
+          message-automation: "Your account has been detected as possibly AI-generated and this PR has been automatically closed.\nThis is an automation-free zone — no droids allowed.\n\n![](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhoOHVidmo4cmxlNmp6enY3Y2NkZWduNHZzYXM1bmpxbTFtOWhheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9DPr4VjeCgeiLoMo/giphy.gif)"
+          message-mixed: "Your account has been detected as possibly AI-generated and this PR has been automatically closed.\nThis is an automation-free zone — no droids allowed.\n\n![](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhoOHVidmo4cmxlNmp6enY3Y2NkZWduNHZzYXM1bmpxbTFtOWhheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9DPr4VjeCgeiLoMo/giphy.gif)"
