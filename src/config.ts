@@ -145,7 +145,7 @@ export const CONFIG = {
 	// Issue comment spam (multiple comments to different repos in short timeframe)
 	ISSUE_COMMENT_SPAM_WINDOW_MINUTES: 2, // time window to group comments
 	ISSUE_COMMENT_SPRAY_EXTREME: 15, // >= this different repos = comment spray bot
-	ISSUE_COMMENT_SPRAY_HIGH: 10, // >= this different repos in short window = suspicious
+	ISSUE_COMMENT_SPRAY_HIGH: 6, // >= this different repos in short window = suspicious
 	ISSUE_COMMENT_MIN_FOR_SPRAY: 10, // need at least this many comments to analyze
 	POINTS_ISSUE_COMMENT_SPRAY_EXTREME: 40,
 	POINTS_ISSUE_COMMENT_SPRAY_HIGH: 30,
@@ -182,6 +182,12 @@ export const CONFIG = {
 	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // 100+ closed PRs = extreme volume ecosystem-wide spam
 	POINTS_CLOSED_PR_SPAM_BURST_EXTREME: 80, // 100+ closed PRs in burst = coordinated attack
 
+	// ── Account seniority (mitigating signal) ────────────────────────────────
+	AGE_SENIOR_ACCOUNT: 1095, // 3+ years
+	AGE_VETERAN_ACCOUNT: 1825, // 5+ years
+	POINTS_SENIOR_ACCOUNT: -10,
+	POINTS_VETERAN_ACCOUNT: -10,
+
 	// AI commit metadata — amplifier, not a standalone signal
 	// Multiplier applies only to flags marked `amplifiable: true` (automation/spam signals).
 	// Tiers are evaluated highest-first; the first matching ratio wins.
@@ -191,4 +197,41 @@ export const CONFIG = {
 		{ ratio: 0.85, multiplier: 1.3 },
 		{ ratio: 0.75, multiplier: 1.15 },
 	],
+
+	// Temporal event degradation: bot-signal scores decay with exponential half-life (days).
+	TEMPORAL_DECAY_HALF_LIFE_DAYS: 90,
 } as const;
+
+// Known legitimate automation tools — bypass bot detection and classify as "legitimate_automation".
+export const KNOWN_BOT_ACCOUNTS = new Set([
+	"dependabot",
+	"renovate",
+	"renovatebot",
+	"github-actions",
+	"codecov",
+	"snyk-bot",
+	"allcontributors",
+	"imgbot",
+	"semantic-release-bot",
+	"stale",
+	"greenkeeper",
+	"socket-security",
+	"whitesource-bolt-for-github",
+	"restyled-io",
+]);
+
+// Flag labels that trigger "likely_spam" over "automation". These strings MUST exactly match the label field produced by their respective detectors — if a detector label changes, update this Set in lockstep, otherwise likely_spam will silently stop firing.
+export const SPAM_SIGNAL_LABELS = new Set([
+	"Star farm pattern",
+	"Star burst activity",
+	"Issue burst",
+	"Issue comment spam",
+	"PR comment spam",
+	"Rapid PR spam to repository",
+	"Distributed PR spam pattern",
+	"Extreme PR spam (daily)",
+	"Extreme PR spam (weekly)",
+	"Very high PR spam frequency",
+	"Closed PR spam burst",
+	"Closed PR spam scatter",
+]);

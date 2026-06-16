@@ -9,12 +9,36 @@ export function detectAccountAge(accountAge: number): IdentifyFlag[] {
 			label: "Recently created",
 			points: CONFIG.POINTS_NEW_ACCOUNT,
 			detail: `Account is ${accountAge} days old`,
+			eventBased: false,
 		});
 	} else if (accountAge < CONFIG.AGE_YOUNG_ACCOUNT) {
 		flags.push({
 			label: "Young account",
 			points: CONFIG.POINTS_YOUNG_ACCOUNT,
 			detail: `Account is ${accountAge} days old`,
+			eventBased: false,
+		});
+	}
+
+	return flags;
+}
+
+export function detectAccountSeniority(accountAge: number): IdentifyFlag[] {
+	const flags: IdentifyFlag[] = [];
+
+	if (accountAge >= CONFIG.AGE_VETERAN_ACCOUNT) {
+		flags.push({
+			label: "Long-standing account",
+			points: CONFIG.POINTS_VETERAN_ACCOUNT,
+			detail: `Account is ${accountAge} days old (5+ years)`,
+			eventBased: false,
+		});
+	} else if (accountAge >= CONFIG.AGE_SENIOR_ACCOUNT) {
+		flags.push({
+			label: "Established account",
+			points: CONFIG.POINTS_SENIOR_ACCOUNT,
+			detail: `Account is ${accountAge} days old (3+ years)`,
+			eventBased: false,
 		});
 	}
 

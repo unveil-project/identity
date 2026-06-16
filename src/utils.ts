@@ -33,3 +33,23 @@ export function calculateNormalizedShannonsEntropy(counts: number[]): number {
 
 	return entropy / maxEntropy;
 }
+
+// Returns the mean exponential decay weight for a set of events; lower = activity is mostly old.
+export function computeActivityRecencyMultiplier(
+	events: Array<{ created_at?: string | null }>,
+	halfLifeDays: number,
+): number {
+	if (events.length === 0) return 1;
+	const now = Date.now();
+	let total = 0;
+	for (const e of events) {
+		const t = e.created_at ? new Date(e.created_at).getTime() : NaN;
+		if (!e.created_at || Number.isNaN(t)) {
+			total += 1;
+			continue;
+		}
+		const ageDays = (now - t) / (1000 * 60 * 60 * 24);
+		total += Math.exp((-Math.LN2 * ageDays) / halfLifeDays);
+	}
+	return total / events.length;
+}
