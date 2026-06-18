@@ -3,7 +3,7 @@
   "version": "1.6.0",
   "results": [
     {
-      "fixture": "danielroe",
+      "fixture": "organic_1",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -11,7 +11,7 @@
       "regression": false
     },
     {
-      "fixture": "matteogabriele",
+      "fixture": "organic_2",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -19,7 +19,7 @@
       "regression": false
     },
     {
-      "fixture": "patak-cat",
+      "fixture": "organic_7",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -27,7 +27,7 @@
       "regression": false
     },
     {
-      "fixture": "graphieros",
+      "fixture": "organic_10",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -35,7 +35,7 @@
       "regression": false
     },
     {
-      "fixture": "huang-julien",
+      "fixture": "organic_6",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -43,7 +43,7 @@
       "regression": false
     },
     {
-      "fixture": "gameroman",
+      "fixture": "organic_12",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -51,7 +51,7 @@
       "regression": false
     },
     {
-      "fixture": "sheremet-va",
+      "fixture": "organic_8",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -59,7 +59,7 @@
       "regression": false
     },
     {
-      "fixture": "ematipico",
+      "fixture": "organic_5",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -67,7 +67,7 @@
       "regression": false
     },
     {
-      "fixture": "trueberryless",
+      "fixture": "organic_9",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -75,7 +75,7 @@
       "regression": false
     },
     {
-      "fixture": "ghostdevv",
+      "fixture": "organic_11",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -83,7 +83,7 @@
       "regression": false
     },
     {
-      "fixture": "43081j",
+      "fixture": "organic_3",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -91,7 +91,7 @@
       "regression": false
     },
     {
-      "fixture": "alexdln",
+      "fixture": "organic_4",
       "expected": "organic",
       "actual": "organic",
       "score": 100,
@@ -99,7 +99,7 @@
       "regression": false
     },
     {
-      "fixture": "TIR44",
+      "fixture": "automation_3",
       "expected": "automation",
       "actual": "automation",
       "score": 0,
@@ -107,7 +107,7 @@
       "regression": false
     },
     {
-      "fixture": "Nexory",
+      "fixture": "automation_8",
       "expected": "automation",
       "actual": "automation",
       "score": 49,
@@ -115,7 +115,7 @@
       "regression": false
     },
     {
-      "fixture": "Sean-Kenneth-Doherty",
+      "fixture": "automation_5",
       "expected": "automation",
       "actual": "automation",
       "score": 40,
@@ -123,7 +123,7 @@
       "regression": false
     },
     {
-      "fixture": "testuzerz123",
+      "fixture": "automation_6",
       "expected": "automation",
       "actual": "automation",
       "score": 0,
@@ -131,7 +131,7 @@
       "regression": false
     },
     {
-      "fixture": "truffle-dev",
+      "fixture": "automation_4",
       "expected": "automation",
       "actual": "automation",
       "score": 40,
@@ -139,7 +139,7 @@
       "regression": false
     },
     {
-      "fixture": "mzl2233",
+      "fixture": "automation_10",
       "expected": "automation",
       "actual": "automation",
       "score": 0,
@@ -147,7 +147,7 @@
       "regression": false
     },
     {
-      "fixture": "nanookclaw",
+      "fixture": "automation_9",
       "expected": "automation",
       "actual": "automation",
       "score": 14,
@@ -155,7 +155,7 @@
       "regression": false
     },
     {
-      "fixture": "orbisai0security",
+      "fixture": "automation_7",
       "expected": "automation",
       "actual": "automation",
       "score": 0,
@@ -163,7 +163,7 @@
       "regression": false
     },
     {
-      "fixture": "fallintoplace",
+      "fixture": "automation_11",
       "expected": "automation",
       "actual": "automation",
       "score": 14,
@@ -171,7 +171,7 @@
       "regression": false
     },
     {
-      "fixture": "LeSingh1",
+      "fixture": "automation_1",
       "expected": "automation",
       "actual": "automation",
       "score": 14,
@@ -179,7 +179,7 @@
       "regression": false
     },
     {
-      "fixture": "atom00blue",
+      "fixture": "automation_12",
       "expected": "automation",
       "actual": "automation",
       "score": 0,
@@ -187,7 +187,7 @@
       "regression": false
     },
     {
-      "fixture": "ssdwgg",
+      "fixture": "automation_2",
       "expected": "automation",
       "actual": "automation",
       "score": 4,
