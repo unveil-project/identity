@@ -30,11 +30,8 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		while (
 			watchTimestamps[windowStartIdx] &&
 			windowEnd &&
-			windowEnd.diff(
-				watchTimestamps[windowStartIdx].time,
-				"hour",
-				true,
-			) > CONFIG.WATCH_SPAM_WINDOW_HOURS
+			windowEnd.diff(watchTimestamps[windowStartIdx].time, "hour", true) >
+				CONFIG.WATCH_SPAM_WINDOW_HOURS
 		) {
 			windowStartIdx++;
 		}

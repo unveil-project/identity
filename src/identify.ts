@@ -13,13 +13,13 @@ import {
 	detectForkCombinedActivity,
 } from "./detectors/fork-activity";
 import { detectExtremeAndDistributedPRSpam } from "./detectors/pr-spam";
-import { analyzeCommitMetadata } from "./modifiers/analyze-commit-metadata";
-import { detectOrganicSignals } from "./modifiers/organic-signals";
 import { detectRapidPRSpam } from "./detectors/rapid-pr-spam";
 import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
 import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
+import { analyzeCommitMetadata } from "./modifiers/analyze-commit-metadata";
+import { detectOrganicSignals } from "./modifiers/organic-signals";
 import type {
 	IdentifyFlag,
 	IdentifyOptions,
