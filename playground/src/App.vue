@@ -70,7 +70,7 @@
               <div class="flag-detail">{{ flag.detail }}</div>
             </div>
           </div>
-          <div v-else class="no-flags">✓ No suspicious patterns detected</div>
+          <div v-else class="no-flags">✓ No automation signals detected</div>
         </div>
 
         <!-- Raw Data -->

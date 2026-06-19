@@ -11,7 +11,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
 	// Fork surge - applies uniformly to all accounts (detects time-based spike in forking)
-	// Spam is spam: 8+ forks in 24 hours is bot behavior regardless of account age
+	// Elevated fork frequency applies uniformly regardless of account age
 	const forkEvents = events.filter((e) => e.type === "ForkEvent");
 
 	if (forkEvents.length < CONFIG.FORKS_HIGH) {
@@ -197,7 +197,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			label: "Fork scatter pattern",
 			points: CONFIG.POINTS_FORK_DIVERSITY,
 			amplifiable: true,
-			detail: `Targeting ${forkedRepos.size} different repositories${timeSpanDetail}`,
+			detail: `Forks spread across ${forkedRepos.size} different repositories${timeSpanDetail}`,
 		});
 	}
 
@@ -272,7 +272,7 @@ export function detectForkCombinedActivity(
 				branchesInForkedRepos.length +
 				prsInForkedRepos.length;
 			flags.push({
-				label: "Suspicious chained automations",
+				label: "Chained automation pattern",
 				points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
 				amplifiable: true,
 				detail: `${totalOps} chained repository operations: ${forkEvents.length} forks followed by ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests (based on available event history)`,

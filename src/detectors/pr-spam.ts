@@ -10,8 +10,8 @@ export function detectExtremeAndDistributedPRSpam(
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
-	// Extreme PR spam detection - TIME-WINDOWED (applies to all accounts)
-	// Spam is about intensity/velocity, not total count
+	// High-volume PR detection - TIME-WINDOWED (applies to all accounts)
+	// Intensity/velocity is the signal, not total count
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
 	}
@@ -35,43 +35,43 @@ export function detectExtremeAndDistributedPRSpam(
 		dayjs(e.created_at).isAfter(oneWeekAgo),
 	);
 
-	// Extreme daily spam: 30+ PRs in 24 hours
+	// Very high daily PR volume: 30+ PRs in 24 hours
 	if (prsInLastDay.length >= CONFIG.PRS_DAY_EXTREME) {
 		flags.push({
-			label: "Extreme PR spam (daily)",
+			label: "Very high PR volume (daily)",
 			points: CONFIG.POINTS_PRS_DAY_EXTREME,
 			amplifiable: true,
 			detail: `${prsInLastDay.length} PRs in the last 24 hours`,
 		});
 	}
 
-	// Extreme weekly spam: 100+ PRs in 7 days
+	// Very high weekly PR volume: 100+ PRs in 7 days
 	if (prsInLastWeek.length >= CONFIG.PRS_WEEK_EXTREME) {
 		flags.push({
-			label: "Extreme PR spam (weekly)",
+			label: "Very high PR volume (weekly)",
 			points: CONFIG.POINTS_PRS_WEEK_EXTREME,
 			amplifiable: true,
 			detail: `${prsInLastWeek.length} PRs in the last 7 days`,
 		});
 	}
-	// Very high weekly spam: 50+ PRs in 7 days (only if not already extreme)
+	// High weekly PR volume: 50+ PRs in 7 days (only if not already extreme)
 	else if (prsInLastWeek.length >= CONFIG.PRS_WEEK_VERY_HIGH) {
 		flags.push({
-			label: "Very high PR spam frequency",
+			label: "High PR volume (weekly)",
 			points: CONFIG.POINTS_PRS_WEEK_VERY_HIGH,
 			amplifiable: true,
 			detail: `${prsInLastWeek.length} PRs in the last 7 days`,
 		});
 	}
 
-	// Distributed PR spam: high PR count across many repos
+	// Distributed PR pattern: high PR count across many repos
 	// Only check if not already flagged by time-based detection
 	if (allPREvents.length >= CONFIG.PRS_SPAM_VOLUME) {
 		const hasTimeBasedFlag = flags.some(
 			(f) =>
-				f.label === "Extreme PR spam (daily)" ||
-				f.label === "Extreme PR spam (weekly)" ||
-				f.label === "Very high PR spam frequency",
+				f.label === "Very high PR volume (daily)" ||
+				f.label === "Very high PR volume (weekly)" ||
+				f.label === "High PR volume (weekly)",
 		);
 
 		if (!hasTimeBasedFlag) {
@@ -115,7 +115,7 @@ export function detectExtremeAndDistributedPRSpam(
 
 				if (isHighDensity || isRolling30DaySpam) {
 					flags.push({
-						label: "Distributed PR spam pattern",
+						label: "Distributed PR pattern",
 						points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
 						amplifiable: true,
 						detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}`,

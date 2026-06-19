@@ -119,9 +119,9 @@ export function detectYoungAccountActivity(
 		}
 	}
 
-	// Inhuman daily coding activity detection using Shannon's entropy
-	// Bots: uniform hour distribution (high entropy) across many hours = suspicious
-	// Humans: concentrated in certain hours (low entropy/predictable patterns)
+	// Unusual daily coding activity detection using Shannon's entropy
+	// Automated accounts: uniform hour distribution (high entropy) across many hours
+	// Organic accounts: concentrated in certain hours (low entropy/predictable patterns)
 	const codingEventTypes = new Set(["PushEvent", "PullRequestEvent"]);
 	const codingEventsWithReviews = events.filter(
 		(e) =>
@@ -143,7 +143,7 @@ export function detectYoungAccountActivity(
 	});
 
 	// For each day, analyze hour distribution using entropy
-	// Very high entropy (uniform spread) across many hours = suspicious bot behavior
+	// Very high entropy (uniform spread) across many hours = unusual activity pattern
 	const daysWithUniformDistribution: string[] = [];
 	codingEventsByDay.forEach((dayTimestamps, day) => {
 		const hourMap = new Map<number, number>();
@@ -157,7 +157,7 @@ export function detectYoungAccountActivity(
 			Array.from(hourMap.values()),
 		);
 
-		// Only flag days with many hours AND uniform distribution (bot-like)
+		// Only flag days with many hours AND uniform distribution (automation-like)
 		if (uniqueHours >= CONFIG.HOURS_PER_DAY_INHUMAN && hourEntropy > 0.8) {
 			daysWithUniformDistribution.push(day);
 		}
@@ -184,7 +184,7 @@ export function detectYoungAccountActivity(
 			}
 		}
 
-		// Consecutive marathon days = definitely not human or really needs to touch grass
+		// Consecutive marathon days = sustained uniform activity across many hours
 		if (maxConsecutive >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
 			flags.push({
 				label: "Extended daily coding",

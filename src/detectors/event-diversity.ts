@@ -12,8 +12,8 @@ export function detectNarrowActivityFocus(
 	}
 
 	// Event type diversity check using Shannon's entropy
-	// Bots typically have narrow event type profiles (low entropy)
-	// Humans engage in varied activities (high entropy)
+	// Automated accounts typically have narrow event type profiles (low entropy)
+	// Organic accounts engage in varied activities (high entropy)
 	const eventTypeMap = new Map<string, number>();
 	events.forEach((e) => {
 		if (e.type) {
@@ -35,8 +35,8 @@ export function detectNarrowActivityFocus(
 		eventTypes.has("PullRequestReviewCommentEvent");
 	const hasWatches = eventTypes.has("WatchEvent");
 
-	// Pure automation indicator:
-	// Very narrow type profile (few types + low variety) + no human interactions
+	// Automation indicator:
+	// Very narrow type profile (few types + low variety) + no interpersonal interactions
 	// OR: HIGH event type entropy (many types with equal distribution - automated cycling)
 	const narrowTypeProfile = eventTypes.size <= 3 && eventTypeEntropy < 0.8;
 	const automatedCycling = eventTypeEntropy > 0.85 && eventTypes.size >= 5;

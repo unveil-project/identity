@@ -8,9 +8,9 @@ export function detectRapidPRSpam(
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
-	// Rapid PR spam to repository (fork attack pattern)
+	// Rapid PRs to repository (fork contribution pattern)
 	// Detects: multiple PRs opened in rapid succession to same repo
-	// Catches spam that doesn't correlate with branch creation
+	// Catches rapid patterns that don't correlate with branch creation
 	const isEstablished = accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT;
 	const minRapidPRs = isEstablished
 		? CONFIG.RAPID_PR_SPAM_MIN_PRS_ESTABLISHED
@@ -41,7 +41,7 @@ export function detectRapidPRSpam(
 
 	let maxConsecutivePairs = 0;
 	let maxConsecutiveTimeDiff = 0;
-	let spammyRepo = "";
+	let targetRepo = "";
 
 	for (const [repoName, repoPRs] of prsByRepo.entries()) {
 		if (repoPRs.length < minRapidPRs) continue;
@@ -64,17 +64,17 @@ export function detectRapidPRSpam(
 		if (consecutivePairs > maxConsecutivePairs) {
 			maxConsecutivePairs = consecutivePairs;
 			maxConsecutiveTimeDiff = maxTimeDiff;
-			spammyRepo = repoName;
+			targetRepo = repoName;
 		}
 	}
 
 	// Compare pairs to PR count - 1 (minRapidPRs represents number of PRs, which is pairs + 1)
 	if (maxConsecutivePairs >= minRapidPRs - 1) {
 		flags.push({
-			label: "Rapid PR spam to repository",
+			label: "Rapid PRs to repository",
 			points: CONFIG.POINTS_RAPID_PR_SPAM,
 			amplifiable: true,
-			detail: `${maxConsecutivePairs + 1} PRs opened to ${spammyRepo} within ${maxConsecutiveTimeDiff}s intervals`,
+			detail: `${maxConsecutivePairs + 1} PRs opened to ${targetRepo} within ${maxConsecutiveTimeDiff}s intervals`,
 		});
 	}
 

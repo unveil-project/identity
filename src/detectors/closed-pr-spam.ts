@@ -8,11 +8,11 @@ export function detectClosedPRSpam(
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
-	// Closed PR spam detection (unwanted/rejected contributions across many repos)
+	// Closed PR detection (closed contributions across many repos)
 	// Pattern 1: Spray scatter - account closes PRs across many different repos
-	//           Indicates: low-quality or rejected code being submitted and abandoned
+	//           Indicates: contributions being closed across a wide range of repositories
 	// Pattern 2: Concentrated closing - many closed PRs to varied repos in short time
-	//           Indicates: automated spam attack or rejection surge
+	//           Indicates: automated contribution pattern or concentrated closing activity
 	const isEstablished = accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT;
 	const minClosedPRs = isEstablished
 		? CONFIG.CLOSED_PR_SPAM_MIN_ESTABLISHED
@@ -67,21 +67,21 @@ export function detectClosedPRSpam(
 	let burstStr = "";
 	if (burstDays.length > 0) {
 		if (burstDays.length === 1) {
-			burstStr = `, with a spike of ${burstDays[0]} rejections on one day`;
+			burstStr = `, with a spike of ${burstDays[0]} closures on one day`;
 		} else {
 			const burstList =
 				burstDays.slice(0, -1).join(", ") +
 				` and ${burstDays[burstDays.length - 1]}`;
-			burstStr = `, with spike days of ${burstList} rejections each`;
+			burstStr = `, with spike days of ${burstList} closures each`;
 		}
 	}
 
 	// Determine severity based on volume of closed PRs
 	let points: number = CONFIG.POINTS_CLOSED_PR_SPAM; // base: 5-24 PRs
 	if (closedPREvents.length >= 100) {
-		points = CONFIG.POINTS_CLOSED_PR_SPAM_EXTREME; // 100+ PRs = extreme spam
+		points = CONFIG.POINTS_CLOSED_PR_SPAM_EXTREME; // 100+ PRs = extreme volume
 	} else if (closedPREvents.length >= 25) {
-		points = CONFIG.POINTS_CLOSED_PR_SPAM_HIGH; // 25-99 PRs = high volume spam
+		points = CONFIG.POINTS_CLOSED_PR_SPAM_HIGH; // 25-99 PRs = high volume
 	}
 
 	// Pattern 1: Spray scatter - closed PRs across many repos IN A BURST/CLUSTER
@@ -92,7 +92,7 @@ export function detectClosedPRSpam(
 			? closedPREvents.length / fractionalDays
 			: closedPREvents.length;
 	const hasSignificantBurst = burstDays.length > 0; // at least one day with 10+ rejections
-	const enoughPRsForSpread = closedPREvents.length >= 25; // if 25+ PRs, even if scattered, it's suspicious
+	const enoughPRsForSpread = closedPREvents.length >= 25; // if 25+ PRs, even if scattered, worth flagging
 	const highDensity = prDensity >= 0.5; // at least 1 PR every 2 days or more frequent
 
 	if (
@@ -100,10 +100,10 @@ export function detectClosedPRSpam(
 		(hasSignificantBurst || enoughPRsForSpread || highDensity)
 	) {
 		flags.push({
-			label: "Closed PR spam scatter",
+			label: "Closed PRs across many repositories",
 			points,
 			amplifiable: true,
-			detail: `${closedPREvents.length} PRs were rejected across ${closedPRRepos.size} repositories in ${timeRangeStr}${burstStr}.`,
+			detail: `${closedPREvents.length} PRs were closed across ${closedPRRepos.size} repositories in ${timeRangeStr}${burstStr}.`,
 		});
 		return flags;
 	}
@@ -119,10 +119,10 @@ export function detectClosedPRSpam(
 					: points;
 
 			flags.push({
-				label: "Closed PR spam burst",
+				label: "Concentrated PR closures",
 				points: burstPoints,
 				amplifiable: true,
-				detail: `${closedPREvents.length} PRs closed across ${closedPRRepos.size} repos in ${timeSpanMinutes}m (concentrated rejection/spam activity)`,
+				detail: `${closedPREvents.length} PRs closed across ${closedPRRepos.size} repos in ${timeSpanMinutes}m (concentrated closing activity)`,
 			});
 		}
 	}

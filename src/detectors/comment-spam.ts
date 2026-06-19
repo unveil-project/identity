@@ -9,7 +9,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 		return flags;
 	}
 
-	// Issue comment spam detection (multiple comments across different repos in short time)
+	// Issue comment frequency detection (multiple comments across different repos in short time)
 	const issueCommentEvents = events.filter(
 		(e) => e.type === "IssueCommentEvent",
 	);
@@ -70,10 +70,10 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 					? Math.round(windowEnd.diff(windowStart, "minute", true))
 					: 0;
 			flags.push({
-				label: "Issue comment spam",
+				label: "Rapid comments across repositories",
 				points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_EXTREME,
 				amplifiable: true,
-				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 			});
 		} else if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_HIGH) {
 			const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
@@ -88,12 +88,12 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				label: "High comment frequency across repos",
 				points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH,
 				amplifiable: true,
-				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 			});
 		}
 	}
 
-	// PR comment spam detection (multiple review comments across different PRs/repos in short time)
+	// PR comment frequency detection (multiple review comments across different PRs/repos in short time)
 	const prCommentEvents = events.filter(
 		(e) => e.type === "PullRequestReviewCommentEvent",
 	);
@@ -164,10 +164,10 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 					? Math.round(windowEnd.diff(windowStart, "minute", true))
 					: 0;
 			flags.push({
-				label: "PR comment spam",
+				label: "Rapid PR review comments",
 				points: CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME,
 				amplifiable: true,
-				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 			});
 		} else if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_HIGH) {
 			const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
@@ -181,7 +181,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				label: "High PR comment frequency",
 				points: CONFIG.POINTS_PR_COMMENT_SPRAY_HIGH,
 				amplifiable: true,
-				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in just ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 			});
 		}
 	}

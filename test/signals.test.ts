@@ -763,7 +763,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			events,
 		});
 
-		expect(result.flags.some((f) => f.label === "Issue comment spam")).toBe(
+		expect(result.flags.some((f) => f.label === "Rapid comments across repositories")).toBe(
 			true,
 		);
 	});
@@ -820,7 +820,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		expect(
 			result.flags.some(
 				(f) =>
-					f.label === "Issue comment spam" ||
+					f.label === "Rapid comments across repositories" ||
 					f.label === "High comment frequency across repos",
 			),
 		).toBe(false);
@@ -855,7 +855,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		expect(
 			result.flags.some(
 				(f) =>
-					f.label === "Issue comment spam" ||
+					f.label === "Rapid comments across repositories" ||
 					f.label === "High comment frequency across repos",
 			),
 		).toBe(false);
@@ -910,7 +910,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 
 		const issueCommentFlag = result.flags.find(
 			(f) =>
-				f.label === "Issue comment spam" ||
+				f.label === "Rapid comments across repositories" ||
 				f.label === "High comment frequency across repos",
 		);
 		expect(issueCommentFlag).toBeDefined();
@@ -939,7 +939,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		});
 
 		const issueSpamFlag = result.flags.find(
-			(f) => f.label === "Issue comment spam",
+			(f) => f.label === "Rapid comments across repositories",
 		);
 		expect(issueSpamFlag).toBeDefined();
 		expect(issueSpamFlag?.points).toBeGreaterThanOrEqual(35);
@@ -1064,7 +1064,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			events,
 		});
 
-		expect(result.flags.some((f) => f.label === "PR comment spam")).toBe(true);
+		expect(result.flags.some((f) => f.label === "Rapid PR review comments")).toBe(true);
 	});
 
 	it("should flag high PR comment frequency (8-11 PRs in short timeframe)", () => {
@@ -1125,7 +1125,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		expect(
 			result.flags.some(
 				(f) =>
-					f.label === "PR comment spam" ||
+					f.label === "Rapid PR review comments" ||
 					f.label === "High PR comment frequency",
 			),
 		).toBe(false);
@@ -1160,7 +1160,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		expect(
 			result.flags.some(
 				(f) =>
-					f.label === "PR comment spam" ||
+					f.label === "Rapid PR review comments" ||
 					f.label === "High PR comment frequency",
 			),
 		).toBe(false);
@@ -1231,7 +1231,7 @@ describe("identify - PR Comment Spam Detection", () => {
 
 		const prCommentFlag = result.flags.find(
 			(f) =>
-				f.label === "PR comment spam" ||
+				f.label === "Rapid PR review comments" ||
 				f.label === "High PR comment frequency",
 		);
 		expect(prCommentFlag).toBeDefined();
@@ -1270,12 +1270,12 @@ describe("identify - PR Comment Spam Detection", () => {
 		// Should flag both issue and PR comment spam independently
 		const hasIssueSpam = result.flags.some(
 			(f) =>
-				f.label === "Issue comment spam" ||
+				f.label === "Rapid comments across repositories" ||
 				f.label === "High comment frequency across repos",
 		);
 		const hasPRSpam = result.flags.some(
 			(f) =>
-				f.label === "PR comment spam" ||
+				f.label === "Rapid PR review comments" ||
 				f.label === "High PR comment frequency",
 		);
 
@@ -1301,7 +1301,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			events,
 		});
 
-		const prSpamFlag = result.flags.find((f) => f.label === "PR comment spam");
+		const prSpamFlag = result.flags.find((f) => f.label === "Rapid PR review comments");
 		expect(prSpamFlag).toBeDefined();
 		expect(prSpamFlag?.points).toBeGreaterThanOrEqual(35);
 	});
@@ -1411,7 +1411,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const spamFlag = result.flags.find(
-			(f) => f.label === "Extreme PR spam (daily)",
+			(f) => f.label === "Very high PR volume (daily)",
 		);
 		expect(spamFlag).toBeDefined();
 		expect(spamFlag?.points).toBe(45);
@@ -1450,7 +1450,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const spamFlag = result.flags.find(
-			(f) => f.label === "Distributed PR spam pattern",
+			(f) => f.label === "Distributed PR pattern",
 		);
 		expect(spamFlag).toBeDefined();
 		expect(spamFlag?.points).toBe(45);
@@ -1486,13 +1486,13 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const extremeDailyFlag = result.flags.find(
-			(f) => f.label === "Extreme PR spam (daily)",
+			(f) => f.label === "Very high PR volume (daily)",
 		);
 		const extremeWeeklyFlag = result.flags.find(
-			(f) => f.label === "Extreme PR spam (weekly)",
+			(f) => f.label === "Very high PR volume (weekly)",
 		);
 		const veryHighFlag = result.flags.find(
-			(f) => f.label === "Very high PR spam frequency",
+			(f) => f.label === "High PR volume (weekly)",
 		);
 
 		expect(extremeDailyFlag).toBeUndefined();
@@ -1529,13 +1529,13 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const extremeDailyFlag = result.flags.find(
-			(f) => f.label === "Extreme PR spam (daily)",
+			(f) => f.label === "Very high PR volume (daily)",
 		);
 		const extremeWeeklyFlag = result.flags.find(
-			(f) => f.label === "Extreme PR spam (weekly)",
+			(f) => f.label === "Very high PR volume (weekly)",
 		);
 		const veryHighFlag = result.flags.find(
-			(f) => f.label === "Very high PR spam frequency",
+			(f) => f.label === "High PR volume (weekly)",
 		);
 
 		expect(extremeDailyFlag).toBeUndefined();
@@ -1565,7 +1565,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const distributedSpamFlag = result.flags.find(
-			(f) => f.label === "Distributed PR spam pattern",
+			(f) => f.label === "Distributed PR pattern",
 		);
 		expect(distributedSpamFlag).toBeUndefined();
 	});
@@ -1790,7 +1790,7 @@ describe("identify - Repository Exclusion Filter", () => {
 		expect(
 			resultWithoutFilter.flags.some(
 				(f) =>
-					f.label === "Issue comment spam" ||
+					f.label === "Rapid comments across repositories" ||
 					f.label === "High comment frequency across repos",
 			),
 		).toBe(true);
@@ -1799,7 +1799,7 @@ describe("identify - Repository Exclusion Filter", () => {
 		expect(
 			resultWithFilter.flags.some(
 				(f) =>
-					f.label === "Issue comment spam" ||
+					f.label === "Rapid comments across repositories" ||
 					f.label === "High comment frequency across repos",
 			),
 		).toBe(false);
