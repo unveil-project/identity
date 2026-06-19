@@ -1,29 +1,4 @@
 #!/usr/bin/env tsx
-/**
- * Obfuscate personal data in GitHub event fixture files.
- *
- * Usage:
- *   tsx scripts/obfuscate-fixture.ts <input.json>
- *
- * The script:
- *   1. Looks up the fixture in regression-config.ts to get its classification
- *   2. Assigns the next available sequential name (e.g. organic_3, automation_2)
- *   3. Obfuscates all personal data in the fixture
- *   4. Writes the result under the new name, deletes the original
- *   5. Updates regression-config.ts and all benchmark reports to use the new name
- *
- * What gets obfuscated (deterministically via SHA-256):
- *   - login / display_login fields
- *   - all numeric id / *_id fields
- *   - node_id fields
- *   - repo names ("owner/repo" and short names in repo-like objects)
- *   - all GitHub URLs (api.github.com, github.com, avatars.githubusercontent.com)
- *
- * What is preserved:
- *   - event types, actions, timestamps, labels, issue/PR titles, body text,
- *     ref names, SHA hashes, counts — anything with semantic meaning that
- *     doesn't directly identify a person.
- */
 
 import { createHash } from "node:crypto";
 import {
@@ -35,7 +10,11 @@ import {
 } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { GitHubEvent, GitHubUser, IdentityClassification } from "../src/types";
+import type {
+	GitHubEvent,
+	GitHubUser,
+	IdentityClassification,
+} from "../src/types";
 import { REGRESSION_FIXTURES } from "../test/regression-config";
 
 interface FixtureFile {
@@ -45,7 +24,10 @@ interface FixtureFile {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = resolve(__dirname, "../test/fixtures");
-const REGRESSION_CONFIG_PATH = resolve(__dirname, "../test/regression-config.ts");
+const REGRESSION_CONFIG_PATH = resolve(
+	__dirname,
+	"../test/regression-config.ts",
+);
 const REPORTS_DIR = resolve(__dirname, "../benchmark/reports");
 
 const [, , inputPath] = process.argv;
@@ -69,8 +51,6 @@ function resolveInput(raw: string): string {
 const absInput = resolveInput(inputPath);
 const fixtureName = basename(absInput, ".json");
 
-// --- Look up classification ------------------------------------------------
-
 const classification = REGRESSION_FIXTURES[
 	fixtureName as keyof typeof REGRESSION_FIXTURES
 ] as IdentityClassification | undefined;
@@ -81,8 +61,6 @@ if (!classification) {
 	);
 	process.exit(1);
 }
-
-// --- Pick next sequential name ---------------------------------------------
 
 function nextFixtureName(kind: IdentityClassification): string {
 	const existing = readdirSync(FIXTURES_DIR)
@@ -97,48 +75,47 @@ function nextFixtureName(kind: IdentityClassification): string {
 const newName = nextFixtureName(classification);
 const absOutput = resolve(FIXTURES_DIR, `${newName}.json`);
 
-// --- Deterministic mappers -------------------------------------------------
-
 function sha256(s: string | number): string {
 	return createHash("sha256").update(String(s)).digest("hex");
 }
 
 const loginCache = new Map<string, string>();
 function fakeLogin(real: string): string {
-	if (!loginCache.has(real)) {
-		loginCache.set(real, `user-${sha256(`login:${real}`).slice(0, 8)}`);
+	let cached = loginCache.get(real);
+	if (cached === undefined) {
+		cached = `user-${sha256(`login:${real}`).slice(0, 8)}`;
+		loginCache.set(real, cached);
 	}
-	return loginCache.get(real)!;
+	return cached;
 }
 
 const repoCache = new Map<string, string>();
 function fakeRepo(fullName: string): string {
 	// fullName must be "owner/repo"
-	if (!repoCache.has(fullName)) {
+	let cached = repoCache.get(fullName);
+	if (cached === undefined) {
 		const slash = fullName.indexOf("/");
 		const owner = fullName.slice(0, slash);
 		const repo = fullName.slice(slash + 1);
-		repoCache.set(
-			fullName,
-			`${fakeLogin(owner)}/repo-${sha256(`repo:${repo}`).slice(0, 8)}`,
-		);
+		cached = `${fakeLogin(owner)}/repo-${sha256(`repo:${repo}`).slice(0, 8)}`;
+		repoCache.set(fullName, cached);
 	}
-	return repoCache.get(fullName)!;
+	return cached;
 }
 
 const numericIdCache = new Map<number, number>();
 function fakeNumericId(real: number): number {
-	if (!numericIdCache.has(real)) {
-		numericIdCache.set(real, parseInt(sha256(`numid:${real}`).slice(0, 8), 16));
+	let cached = numericIdCache.get(real);
+	if (cached === undefined) {
+		cached = parseInt(sha256(`numid:${real}`).slice(0, 8), 16);
+		numericIdCache.set(real, cached);
 	}
-	return numericIdCache.get(real)!;
+	return cached;
 }
 
 function fakeNodeId(real: string): string {
 	return sha256(`nodeid:${real}`).slice(0, 24);
 }
-
-// --- URL obfuscation -------------------------------------------------------
 
 function obfuscateUrl(url: string): string {
 	let s = url;
@@ -194,8 +171,6 @@ function obfuscateUrl(url: string): string {
 	return s;
 }
 
-// --- Deep transformer ------------------------------------------------------
-
 type JsonValue =
 	| string
 	| number
@@ -248,10 +223,10 @@ function transformValue(
 		// Short repo name — resolve via parent's full_name or URL
 		if (key === "name" && !val.includes("/")) {
 			if (typeof parent.full_name === "string") {
-				return fakeRepo(parent.full_name).split("/")[1]!;
+				return fakeRepo(parent.full_name).split("/")[1] ?? val;
 			}
 			const fullName = repoFullNameFromUrl(parent.url);
-			if (fullName) return fakeRepo(fullName).split("/")[1]!;
+			if (fullName) return fakeRepo(fullName).split("/")[1] ?? val;
 		}
 
 		if (
@@ -275,19 +250,14 @@ function transformValue(
 	return val;
 }
 
-// --- Update regression-config.ts -------------------------------------------
-
 function updateRegressionConfig(oldName: string, newName: string): void {
 	let src = readFileSync(REGRESSION_CONFIG_PATH, "utf-8");
-	// Match both quoted and unquoted key forms: danielroe: or "danielroe":
 	const pattern = new RegExp(
 		`(["']?)${oldName.replace(/[-]/g, "\\$&")}\\1(\\s*:)`,
 	);
 	src = src.replace(pattern, `"${newName}"$2`);
 	writeFileSync(REGRESSION_CONFIG_PATH, src, "utf-8");
 }
-
-// --- Update benchmark reports ----------------------------------------------
 
 function updateBenchmarkReports(oldName: string, newName: string): number {
 	if (!existsSync(REPORTS_DIR)) return 0;
@@ -296,7 +266,10 @@ function updateBenchmarkReports(oldName: string, newName: string): number {
 	for (const file of files) {
 		const path = resolve(REPORTS_DIR, file);
 		const content = readFileSync(path, "utf-8");
-		const next = content.replaceAll(`"fixture": "${oldName}"`, `"fixture": "${newName}"`);
+		const next = content.replaceAll(
+			`"fixture": "${oldName}"`,
+			`"fixture": "${newName}"`,
+		);
 		if (next !== content) {
 			writeFileSync(path, next, "utf-8");
 			updated++;
@@ -304,8 +277,6 @@ function updateBenchmarkReports(oldName: string, newName: string): number {
 	}
 	return updated;
 }
-
-// --- Run -------------------------------------------------------------------
 
 const data: FixtureFile = JSON.parse(readFileSync(absInput, "utf-8"));
 const obfuscated = transformObj(data as unknown as JsonObject);

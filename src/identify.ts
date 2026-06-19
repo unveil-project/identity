@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
-import { analyzeCommitMetadata } from "./analyze-commit-metadata";
 import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
@@ -16,8 +15,11 @@ import {
 import { detectExtremeAndDistributedPRSpam } from "./detectors/pr-spam";
 import { detectRapidPRSpam } from "./detectors/rapid-pr-spam";
 import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
+import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
+import { analyzeCommitMetadata } from "./modifiers/analyze-commit-metadata";
+import { detectOrganicSignals } from "./modifiers/organic-signals";
 import type {
 	IdentifyFlag,
 	IdentifyOptions,
@@ -61,6 +63,7 @@ export function identify({
 	flags.push(...detectInhumanActivityPattern(filteredEvents));
 	flags.push(...detectNarrowActivityFocus(filteredEvents));
 	flags.push(...detectCommentSpam(filteredEvents));
+	flags.push(...detectWatchActivity(filteredEvents));
 	flags.push(...detectBranchPRAutomation(filteredEvents, accountAge));
 	flags.push(...detectRapidPRSpam(filteredEvents, accountAge));
 	flags.push(...detectClosedPRSpam(filteredEvents, accountAge));
@@ -75,6 +78,8 @@ export function identify({
 		),
 	);
 	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
+
+	const organicBonus = detectOrganicSignals(filteredEvents);
 
 	const filteredCommits = commits.filter(
 		(commit) =>
@@ -114,7 +119,7 @@ export function identify({
 		return total + effective;
 	}, 0);
 
-	const humanScore = Math.max(0, 100 - score);
+	const humanScore = Math.min(100, Math.max(0, 100 - score + organicBonus));
 
 	let classification: IdentityClassification = "automation";
 	if (humanScore >= CONFIG.THRESHOLD_HUMAN) {

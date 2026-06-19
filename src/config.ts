@@ -182,6 +182,20 @@ export const CONFIG = {
 	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // 100+ closed PRs = extreme volume ecosystem-wide spam
 	POINTS_CLOSED_PR_SPAM_BURST_EXTREME: 80, // 100+ closed PRs in burst = coordinated attack
 
+	// Organic signals (reduce score — genuine engagement patterns bots rarely exhibit)
+	ORGANIC_ISSUE_MIN_COUNT: 3, // minimum issues filed to consider
+	ORGANIC_ISSUE_MIN_REPOS: 2, // must span at least this many different repos
+	ORGANIC_ISSUE_MIN_DAYS: 7, // must be spread over at least this many days
+	POINTS_ORGANIC_ISSUE_ENGAGEMENT: 15, // bonus applied as negative penalty
+
+	// Watch/star farming (bulk starring of repos in a short time window)
+	WATCH_SPAM_MIN_EVENTS: 10,
+	WATCH_SPAM_WINDOW_HOURS: 24,
+	WATCH_SPAM_REPOS_HIGH: 20, // >= 20 different repos starred in 24h = suspicious
+	WATCH_SPAM_REPOS_EXTREME: 50, // >= 50 different repos starred in 24h = farming
+	POINTS_WATCH_SPAM_HIGH: 20,
+	POINTS_WATCH_SPAM_EXTREME: 35,
+
 	// AI commit metadata — amplifier, not a standalone signal
 	// Multiplier applies only to flags marked `amplifiable: true` (automation/spam signals).
 	// Tiers are evaluated highest-first; the first matching ratio wins.

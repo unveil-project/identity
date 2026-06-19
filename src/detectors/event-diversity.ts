@@ -35,17 +35,10 @@ export function detectNarrowActivityFocus(
 		eventTypes.has("PullRequestReviewCommentEvent");
 	const hasWatches = eventTypes.has("WatchEvent");
 
-	// Automation indicator:
-	// Very narrow type profile (few types + low variety) + no interpersonal interactions
-	// OR: HIGH event type entropy (many types with equal distribution - automated cycling)
+	// Automation indicator: very narrow type profile (few types + low variety) + no interpersonal interactions
 	const narrowTypeProfile = eventTypes.size <= 3 && eventTypeEntropy < 0.8;
-	const automatedCycling = eventTypeEntropy > 0.85 && eventTypes.size >= 5;
 
-	if (
-		(narrowTypeProfile || automatedCycling) &&
-		!hasInteraction &&
-		!hasWatches
-	) {
+	if (narrowTypeProfile && !hasInteraction && !hasWatches) {
 		flags.push({
 			label: "Narrow activity focus",
 			points: CONFIG.POINTS_LOW_DIVERSITY,

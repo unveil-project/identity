@@ -19,7 +19,10 @@ export function detectClosedPRSpam(
 		: CONFIG.CLOSED_PR_SPAM_MIN;
 
 	const closedPREvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "closed",
+		(e) =>
+			e.type === "PullRequestEvent" &&
+			e.payload?.action === "closed" &&
+			e.payload?.pull_request?.merged !== true,
 	);
 
 	if (closedPREvents.length < minClosedPRs) {
