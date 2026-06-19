@@ -278,8 +278,7 @@ function transformValue(
 // --- Update regression-config.ts -------------------------------------------
 
 function updateRegressionConfig(oldName: string, newName: string): void {
-	let src = readFileSync(REGRESSION_CONFIG_PATH, "utf-8");
-	// Match both quoted and unquoted key forms: danielroe: or "danielroe":
+	let src = readFileSync(REGRESSION_CONFIG_PATH, "utf-8");:
 	const pattern = new RegExp(
 		`(["']?)${oldName.replace(/[-]/g, "\\$&")}\\1(\\s*:)`,
 	);
