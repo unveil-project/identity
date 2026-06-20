@@ -182,6 +182,9 @@ export const CONFIG = {
 	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // 100+ closed PRs = extreme volume ecosystem-wide spam
 	POINTS_CLOSED_PR_SPAM_BURST_EXTREME: 80, // 100+ closed PRs in burst = coordinated attack
 
+	// Limited community engagement (young accounts with zero engagement event types)
+	POINTS_LIMITED_ENGAGEMENT: 25,
+
 	// Organic signals (reduce score — genuine engagement patterns bots rarely exhibit)
 	ORGANIC_ISSUE_MIN_COUNT: 3, // minimum issues filed to consider
 	ORGANIC_ISSUE_MIN_REPOS: 2, // must span at least this many different repos

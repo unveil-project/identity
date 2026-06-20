@@ -94,4 +94,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - run: pnpm regression-test:dry
+      - run: pnpm regression-test
