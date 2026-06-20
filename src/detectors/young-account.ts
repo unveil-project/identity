@@ -300,5 +300,29 @@ export function detectYoungAccountActivity(
 		});
 	}
 
+	// Young accounts contributing externally but with no engagement events (issues, comments,
+	// reviews, watches) show a contribution-only pattern uncommon in organic participation
+	const ENGAGEMENT_TYPES = new Set([
+		"IssuesEvent",
+		"IssueCommentEvent",
+		"WatchEvent",
+		"PullRequestReviewEvent",
+		"PullRequestReviewCommentEvent",
+		"CommitCommentEvent",
+	]);
+
+	const hasAnyEngagement = events.some(
+		(e) => e.type && ENGAGEMENT_TYPES.has(e.type),
+	);
+
+	if (!hasAnyEngagement && externalPRs.length >= 1) {
+		flags.push({
+			label: "Limited community engagement",
+			points: CONFIG.POINTS_LIMITED_ENGAGEMENT,
+			amplifiable: true,
+			detail: `Code contributions to external repos with no observed issue, comment, review, or watch activity`,
+		});
+	}
+
 	return flags;
 }
