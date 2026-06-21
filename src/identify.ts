@@ -7,6 +7,7 @@ import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
 import {
 	detectBountyRepoIssueLabeling,
 	detectBountyRepoPRs,
+	hasBountyRepoEngagement,
 } from "./detectors/bounty-repo-activity";
 import { detectBranchPRAutomation } from "./detectors/branch-pr-automation";
 import { detectClosedPRSpam } from "./detectors/closed-pr-spam";
@@ -25,6 +26,7 @@ import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
 import { analyzeCommitMetadata } from "./modifiers/analyze-commit-metadata";
+import { getBountyAmplifier } from "./modifiers/bounty-amplifier";
 import { detectOrganicSignals } from "./modifiers/organic-signals";
 import type {
 	IdentifyFlag,
@@ -90,8 +92,7 @@ export function identify({
 	const bountyLabelFlags = detectBountyRepoIssueLabeling(filteredEvents);
 	flags.push(...bountyPRFlags);
 	flags.push(...bountyLabelFlags);
-	const isBountyHunter =
-		bountyPRFlags.length > 0 || bountyLabelFlags.length > 0;
+	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
 
 	const organicBonus = detectOrganicSignals(filteredEvents);
 
@@ -125,10 +126,11 @@ export function identify({
 	}
 
 	// Invert score: 100 = human, 0 = bot
-	const multiplier = aiTier?.multiplier ?? 1;
+	const aiMultiplier = aiTier?.multiplier ?? 1;
+	const bountyAmplifier = getBountyAmplifier(filteredEvents) ?? 1;
 	const score = flags.reduce((total, flag) => {
 		const effective = flag.amplifiable
-			? Math.round(flag.points * multiplier)
+			? Math.round(flag.points * aiMultiplier * bountyAmplifier)
 			: flag.points;
 		return total + effective;
 	}, 0);
