@@ -117,7 +117,6 @@ The system analyzes GitHub activity across **44 distinct heuristics** organized 
 
 #### Comment-to-PR Temporal Patterns
 43. **Comment-before-PR pattern** - Issue comment on a repo followed by a PR to the same repo within 5 minutes, repeated across 2+ repositories
-44. **Comment-before-PR pattern (wide)** - Same pattern across 4+ repositories
 
 ### Issues and feature requests
 
