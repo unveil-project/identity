@@ -41,6 +41,7 @@ export type IdentityClassification = "organic" | "mixed" | "automation";
 export type IdentifyResult = {
 	score: number;
 	classification: IdentityClassification;
+	isBountyHunter: boolean;
 	flags: IdentifyFlag[];
 	profile: {
 		age: number;

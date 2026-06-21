@@ -122,6 +122,7 @@ export const CONFIG = {
 
 	TIGHT_COMMIT_SECONDS: 60 * 10,
 	TIGHT_COMMIT_THRESHOLD: 3,
+	TIGHT_COMMIT_THRESHOLD_GLOBAL: 50,
 	POINTS_TIGHT_BURST: 25,
 
 	// Rapid repo creation (filters CreateEvent by ref_type === "repository" only)
@@ -198,6 +199,29 @@ export const CONFIG = {
 	WATCH_SPAM_REPOS_EXTREME: 50, // >= 50 different repos starred in 24h = farming
 	POINTS_WATCH_SPAM_HIGH: 20,
 	POINTS_WATCH_SPAM_EXTREME: 35,
+
+	// Comment-before-PR pattern
+	// Flags accounts that comment on an issue and open a PR to the same repo
+	// in an implausibly short time — not enough time to read, implement, and push.
+	COMMENT_BEFORE_PR_VERY_FAST_MINUTES: 5, // comment→PR gap must be under this
+	COMMENT_BEFORE_PR_VERY_FAST_MIN_REPOS: 2, // must occur across at least this many repos
+	POINTS_COMMENT_BEFORE_PR_VERY_FAST: 30,
+
+	// Bounty repository PR farming
+	// Detects accounts whose opened PRs predominantly target known bounty program repos.
+	// Matched against BOUNTY_REPO_PATHS (full owner/repo) and BOUNTY_REPO_NAMES (name-only,
+	// to catch forks of known fake campaign repos not yet in the list).
+	BOUNTY_REPO_MIN_PRS: 2, // need at least this many opened PRs to analyze
+	BOUNTY_REPO_RATIO_HIGH: 0.75, // >= 75% of PRs to bounty repos = strong signal
+	BOUNTY_REPO_RATIO_LOW: 0.4, // >= 40% of PRs to bounty repos = moderate signal
+	POINTS_BOUNTY_REPO_HIGH: 45,
+	POINTS_BOUNTY_REPO_LOW: 20,
+
+	// Bounty repo issue management (campaign operator pattern)
+	// Detects accounts labeling issues on known bounty repos — a sign of running the campaign,
+	// not just farming it. Legitimate contributors never label issues on these fake repos.
+	BOUNTY_REPO_LABEL_MIN: 3, // need at least this many labeled events on bounty repos
+	POINTS_BOUNTY_REPO_LABEL: 35,
 
 	// AI commit metadata — amplifier, not a standalone signal
 	// Multiplier applies only to flags marked `amplifiable: true` (automation/spam signals).
