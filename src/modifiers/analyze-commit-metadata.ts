@@ -1,4 +1,5 @@
-import type { GitHubCommit } from "./types";
+import { CONFIG } from "../config";
+import type { GitHubCommit } from "../types";
 
 const AI_COMMIT_PATTERNS: RegExp[] = [
 	/co-authored-by:.*<[^>]*@anthropic\.com>/i,
@@ -30,6 +31,14 @@ export type CommitMetadataStats = {
 	aiCommits: number;
 	ratio: number;
 };
+
+export function getAiMultiplier(
+	stats: CommitMetadataStats,
+): number | undefined {
+	if (stats.totalCommits < CONFIG.AI_COMMIT_MIN_COMMITS) return undefined;
+	return CONFIG.AI_COMMIT_TIERS.find((tier) => stats.ratio >= tier.ratio)
+		?.multiplier;
+}
 
 export function analyzeCommitMetadata(
 	commits: GitHubCommit[],

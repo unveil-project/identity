@@ -7,6 +7,7 @@ import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
 import {
 	detectBountyRepoIssueLabeling,
 	detectBountyRepoPRs,
+	hasBountyRepoEngagement,
 } from "./detectors/bounty-repo-activity";
 import { detectBranchPRAutomation } from "./detectors/branch-pr-automation";
 import { detectClosedPRSpam } from "./detectors/closed-pr-spam";
@@ -24,7 +25,11 @@ import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
 import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
-import { analyzeCommitMetadata } from "./modifiers/analyze-commit-metadata";
+import {
+	analyzeCommitMetadata,
+	getAiMultiplier,
+} from "./modifiers/analyze-commit-metadata";
+import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
 import { detectOrganicSignals } from "./modifiers/organic-signals";
 import type {
 	IdentifyFlag,
@@ -90,8 +95,7 @@ export function identify({
 	const bountyLabelFlags = detectBountyRepoIssueLabeling(filteredEvents);
 	flags.push(...bountyPRFlags);
 	flags.push(...bountyLabelFlags);
-	const isBountyHunter =
-		bountyPRFlags.length > 0 || bountyLabelFlags.length > 0;
+	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
 
 	const organicBonus = detectOrganicSignals(filteredEvents);
 
@@ -101,20 +105,15 @@ export function identify({
 	);
 
 	const commitMetadata = analyzeCommitMetadata(filteredCommits);
-	const aiTier =
-		commitMetadata.totalCommits >= CONFIG.AI_COMMIT_MIN_COMMITS
-			? CONFIG.AI_COMMIT_TIERS.find(
-					(tier) => commitMetadata.ratio >= tier.ratio,
-				)
-			: undefined;
+	const aiMultiplier = getAiMultiplier(commitMetadata) ?? 1;
 
 	const hasAmplifiable = flags.some((f) => f.amplifiable && f.points > 0);
 
-	if (aiTier) {
+	if (aiMultiplier > 1) {
 		const { ratio, aiCommits, totalCommits } = commitMetadata;
 		const pct = Math.round(ratio * 100);
 		const detail = hasAmplifiable
-			? `${aiCommits}/${totalCommits} commits (${pct}%) AI-attributed — ${aiTier.multiplier}x multiplier applied to automation signals`
+			? `${aiCommits}/${totalCommits} commits (${pct}%) AI-attributed — ${aiMultiplier}x multiplier applied to automation signals`
 			: `${aiCommits}/${totalCommits} commits (${pct}%) AI-attributed — no automation signals to amplify`;
 
 		flags.push({
@@ -125,10 +124,10 @@ export function identify({
 	}
 
 	// Invert score: 100 = human, 0 = bot
-	const multiplier = aiTier?.multiplier ?? 1;
+	const bountyMultiplier = getBountyMultiplier(filteredEvents) ?? 1;
 	const score = flags.reduce((total, flag) => {
 		const effective = flag.amplifiable
-			? Math.round(flag.points * multiplier)
+			? Math.round(flag.points * aiMultiplier * bountyMultiplier)
 			: flag.points;
 		return total + effective;
 	}, 0);

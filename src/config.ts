@@ -214,17 +214,14 @@ export const CONFIG = {
 	BOUNTY_REPO_MIN_PRS: 2, // need at least this many opened PRs to analyze
 	BOUNTY_REPO_RATIO_HIGH: 0.75, // >= 75% of PRs to bounty repos = strong signal
 	BOUNTY_REPO_RATIO_LOW: 0.4, // >= 40% of PRs to bounty repos = moderate signal
-	POINTS_BOUNTY_REPO_HIGH: 45,
-	POINTS_BOUNTY_REPO_LOW: 20,
-
-	// Bounty repo issue management (campaign operator pattern)
-	// Detects accounts labeling issues on known bounty repos — a sign of running the campaign,
-	// not just farming it. Legitimate contributors never label issues on these fake repos.
+	BOUNTY_REPO_MERGE_RATE_CLEAN: 0.5, // >= 50% of closed bounty PRs merged = skip multiplier (legitimate contributor)
 	BOUNTY_REPO_LABEL_MIN: 3, // need at least this many labeled events on bounty repos
-	POINTS_BOUNTY_REPO_LABEL: 35,
+	POINTS_BOUNTY_REPO_LABEL_NO_ENGAGEMENT: 35, // labeling bounty repos with zero PRs or comments on those repos = pure cataloging
+	BOUNTY_MULTIPLIER_HIGH: 1.3, // >= 75% bounty PR ratio — multiplies existing automation signals
+	BOUNTY_MULTIPLIER_LOW: 1.15, // >= 40% bounty PR ratio or labeling activity — mild multiplier
 
-	// AI commit metadata — amplifier, not a standalone signal
-	// Multiplier applies only to flags marked `amplifiable: true` (automation/spam signals).
+	// AI commit metadata — multiplier, not a standalone signal
+	// Applies only to flags marked `amplifiable: true` (automation/spam signals).
 	// Tiers are evaluated highest-first; the first matching ratio wins.
 	AI_COMMIT_MIN_COMMITS: 5,
 	AI_COMMIT_TIERS: [
