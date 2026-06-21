@@ -49,7 +49,7 @@ console.log(analysis);
 
 ### Detection Heuristics
 
-The system analyzes GitHub activity across **39 distinct heuristics** organized into 9 categories. Each heuristic assigns points that are subtracted from a baseline score of 100 (100 = human, 0 = automation).
+The system analyzes GitHub activity across **44 distinct heuristics** organized into 11 categories. Each heuristic assigns points that are subtracted from a baseline score of 100 (100 = human, 0 = automation).
 
 #### Account Characteristics
 1. **Recently created** - Account < 30 days old
@@ -68,10 +68,10 @@ The system analyzes GitHub activity across **39 distinct heuristics** organized 
    - ≤3 event types with low entropy (< 0.8) AND no human interactions, OR
    - ≥5 event types with very high entropy (> 0.85) AND no human interactions
 
-#### Comment Spam
-8. **Issue comment spam** - 15+ distinct repos in concentrated time window
-9. **High issue comment frequency** - 10-14 distinct repos in concentrated time window
-10. **PR comment spam** - 12+ distinct PRs in concentrated time window
+#### Rapid Comment Activity
+8. **Rapid comments across repositories** - 15+ distinct repos in concentrated time window
+9. **High comment frequency across repos** - 10-14 distinct repos in concentrated time window
+10. **Rapid PR review comments** - 12+ distinct PRs in concentrated time window
 11. **High PR comment frequency** - 8-11 distinct PRs in concentrated time window
 
 #### Branch/PR Automation
@@ -104,11 +104,20 @@ The system analyzes GitHub activity across **39 distinct heuristics** organized 
 34. **Primarily external contributions** - Many PRs but few/no personal repos
 35. **Mostly external activity** - High % of activity on others' repos
 
-#### PR Spam Patterns
-36. **Extreme PR spam (daily)** - 30+ PRs in 24 hours
-37. **Extreme PR spam (weekly)** - 100+ PRs in 7 days
-38. **Very high PR spam frequency** - 50+ PRs in 7 days
-39. **Distributed PR spam pattern** - High PR count across many repos with high density OR 30-day window spam
+#### High Volume PR Patterns
+36. **Very high PR volume (daily)** - 30+ PRs in 24 hours
+37. **Very high PR volume (weekly)** - 100+ PRs in 7 days
+38. **High PR volume (weekly)** - 50+ PRs in 7 days
+39. **Distributed PR pattern** - High PR count across many repos with high density OR 30-day window
+
+#### Bounty Repository Activity
+40. **High PR activity in bounty repositories** - 75%+ of opened PRs target known bounty program repositories
+41. **PR activity in bounty repositories** - 40-74% of opened PRs target known bounty program repositories
+42. **Issue activity in bounty repositories** - 3+ issue labeling events in known bounty program repositories
+
+#### Comment-to-PR Temporal Patterns
+43. **Comment-before-PR pattern** - Issue comment on a repo followed by a PR to the same repo within 5 minutes, repeated across 2+ repositories
+44. **Comment-before-PR pattern (wide)** - Same pattern across 4+ repositories
 
 ### Issues and feature requests
 

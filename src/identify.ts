@@ -4,8 +4,13 @@ import utc from "dayjs/plugin/utc";
 import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
+import {
+	detectBountyRepoIssueLabeling,
+	detectBountyRepoPRs,
+} from "./detectors/bounty-repo-activity";
 import { detectBranchPRAutomation } from "./detectors/branch-pr-automation";
 import { detectClosedPRSpam } from "./detectors/closed-pr-spam";
+import { detectCommentBeforePR } from "./detectors/comment-before-pr";
 import { detectCommentSpam } from "./detectors/comment-spam";
 import { detectNarrowActivityFocus } from "./detectors/event-diversity";
 import {
@@ -13,6 +18,7 @@ import {
 	detectForkCombinedActivity,
 } from "./detectors/fork-activity";
 import { detectExtremeAndDistributedPRSpam } from "./detectors/pr-spam";
+import { detectPushBurst } from "./detectors/push-burst";
 import { detectRapidPRSpam } from "./detectors/rapid-pr-spam";
 import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
 import { detectWatchActivity } from "./detectors/watch-activity";
@@ -77,7 +83,14 @@ export function identify({
 			accountName,
 		),
 	);
+	flags.push(...detectPushBurst(filteredEvents));
 	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
+	flags.push(...detectCommentBeforePR(filteredEvents));
+	const bountyPRFlags = detectBountyRepoPRs(filteredEvents);
+	const bountyLabelFlags = detectBountyRepoIssueLabeling(filteredEvents);
+	flags.push(...bountyPRFlags);
+	flags.push(...bountyLabelFlags);
+	const isBountyHunter = bountyPRFlags.length > 0 || bountyLabelFlags.length > 0;
 
 	const organicBonus = detectOrganicSignals(filteredEvents);
 
@@ -131,6 +144,7 @@ export function identify({
 	return {
 		score: humanScore,
 		classification,
+		isBountyHunter,
 		flags,
 		profile: {
 			age: accountAge,

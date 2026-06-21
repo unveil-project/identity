@@ -1,10 +1,27 @@
 import type { IdentityClassification } from "../src";
 
 /**
- * Regression Test Configuration
- * Defines known automations and organic accounts used for regression testing
- * Format: fixtureFileName (without .json) -> expected classification
+ * A fixture where the system's current output differs from the known ground truth.
+ * `expected` is what identify() produces (the test gate — fail if it changes).
+ * `knownAs` is what the account truly is — warns if the system hasn't caught up yet.
  */
+export interface KnownMisclassification {
+	expected: IdentityClassification;
+	knownAs: IdentityClassification;
+}
+
+export type FixtureEntry = IdentityClassification | KnownMisclassification;
+
+export function getExpected(entry: FixtureEntry): IdentityClassification {
+	return typeof entry === "string" ? entry : entry.expected;
+}
+
+export function getKnownAs(
+	entry: FixtureEntry,
+): IdentityClassification | undefined {
+	return typeof entry === "string" ? undefined : entry.knownAs;
+}
+
 export const REGRESSION_FIXTURES = {
 	"organic_1": "organic",
 	"organic_2": "organic",
@@ -31,7 +48,7 @@ export const REGRESSION_FIXTURES = {
 	"automation_1": "automation",
 	"automation_12": "automation",
 	"automation_2": "automation",
-} as const satisfies Record<string, IdentityClassification>;
+	"automation_13": "automation",
+} satisfies Record<string, FixtureEntry>;
 
 export type FixtureName = keyof typeof REGRESSION_FIXTURES;
-export type ExpectedClassification = (typeof REGRESSION_FIXTURES)[FixtureName];

@@ -30,7 +30,7 @@
 		"check": "biome check",
 		"check:fix": "biome check --fix",
 		"obfuscate:fixture": "tsx scripts/obfuscate-fixture.ts",
-		"add:fixture": "node scripts/fetch-github-events.js",
+		"add:fixture": "tsx scripts/add-fixture.ts",
 		"update-fixtures": "tsx scripts/fetch-regression-fixtures.ts",
 		"playground": "pnpm -F @unveil/identity-playground dev",
 		"regression-test": "tsx scripts/regression-test.ts",
