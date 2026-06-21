@@ -37,7 +37,10 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 		for (const commentTime of commentTimes) {
 			for (const prTime of prTimes) {
 				const diffMinutes = prTime.diff(commentTime, "minute", true);
-				if (diffMinutes > 0 && diffMinutes < CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES) {
+				if (
+					diffMinutes > 0 &&
+					diffMinutes < CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES
+				) {
 					veryFastRepos.add(repo);
 				}
 			}
@@ -45,7 +48,11 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 	}
 
 	if (veryFastRepos.size >= CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MIN_REPOS) {
-		const fastest = findFastestGapSeconds(veryFastRepos, commentsByRepo, prsByRepo);
+		const fastest = findFastestGapSeconds(
+			veryFastRepos,
+			commentsByRepo,
+			prsByRepo,
+		);
 		return [
 			{
 				label: "Issue comment and PR within minutes",

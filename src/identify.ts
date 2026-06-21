@@ -90,7 +90,8 @@ export function identify({
 	const bountyLabelFlags = detectBountyRepoIssueLabeling(filteredEvents);
 	flags.push(...bountyPRFlags);
 	flags.push(...bountyLabelFlags);
-	const isBountyHunter = bountyPRFlags.length > 0 || bountyLabelFlags.length > 0;
+	const isBountyHunter =
+		bountyPRFlags.length > 0 || bountyLabelFlags.length > 0;
 
 	const organicBonus = detectOrganicSignals(filteredEvents);
 

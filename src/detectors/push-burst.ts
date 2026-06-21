@@ -7,7 +7,9 @@ export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
 
 	const pushEvents = events
 		.filter((e) => e.type === "PushEvent")
-		.sort((a, b) => dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf());
+		.sort(
+			(a, b) => dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
+		);
 
 	if (pushEvents.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
@@ -23,7 +25,10 @@ export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
 		const prev = pushEvents[i - 1];
 		const curr = pushEvents[i];
 		if (!prev || !curr || prev.repo?.name !== curr.repo?.name) continue;
-		const diffSeconds = dayjs(curr.created_at).diff(dayjs(prev.created_at), "second");
+		const diffSeconds = dayjs(curr.created_at).diff(
+			dayjs(prev.created_at),
+			"second",
+		);
 		if (diffSeconds <= CONFIG.TIGHT_COMMIT_SECONDS) {
 			tightBurstCount++;
 		}
