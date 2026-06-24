@@ -5,6 +5,7 @@ import type { GitHubEvent, IdentifyFlag } from "../types";
 export function detectClosedPRSpam(
 	events: GitHubEvent[],
 	accountAge: number,
+	accountName: string,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -18,12 +19,17 @@ export function detectClosedPRSpam(
 		? CONFIG.CLOSED_PR_SPAM_MIN_ESTABLISHED
 		: CONFIG.CLOSED_PR_SPAM_MIN;
 
-	const closedPREvents = events.filter(
-		(e) =>
-			e.type === "PullRequestEvent" &&
-			e.payload?.action === "closed" &&
-			e.payload?.pull_request?.merged !== true,
-	);
+	const accountNameLower = accountName.toLowerCase();
+
+	const closedPREvents = events.filter((e) => {
+		if (e.type !== "PullRequestEvent" || e.payload?.action !== "closed")
+			return false;
+		// Only count PRs the user submitted (head branch from their fork).
+		// Excludes maintainer activity where the user closes other people's PRs.
+		const headUrl =
+			e.payload?.pull_request?.head?.repo?.url?.toLowerCase() ?? "";
+		return headUrl.includes(`/repos/${accountNameLower}/`);
+	});
 
 	if (closedPREvents.length < minClosedPRs) {
 		return flags;
@@ -87,21 +93,14 @@ export function detectClosedPRSpam(
 		points = CONFIG.POINTS_CLOSED_PR_SPAM_HIGH; // 25-99 PRs = high volume
 	}
 
-	// Pattern 1: Spray scatter - closed PRs across many repos IN A BURST/CLUSTER
-	// Only flag if there's a clear cluster of rejections, not just spread activity
-	// Calculate PR density to ensure this is an actual spam burst, not just normal scattered contributions
+	// Pattern 1: Spray scatter - closed PRs across many repos at significant density
 	const prDensity =
 		fractionalDays > 0
 			? closedPREvents.length / fractionalDays
 			: closedPREvents.length;
-	const hasSignificantBurst = burstDays.length > 0; // at least one day with 10+ rejections
-	const enoughPRsForSpread = closedPREvents.length >= 25; // if 25+ PRs, even if scattered, worth flagging
-	const highDensity = prDensity >= 0.5; // at least 1 PR every 2 days or more frequent
+	const highDensity = prDensity >= CONFIG.CLOSED_PR_MIN_DENSITY;
 
-	if (
-		closedPRRepos.size >= CONFIG.CLOSED_PR_REPO_SPREAD &&
-		(hasSignificantBurst || enoughPRsForSpread || highDensity)
-	) {
+	if (closedPRRepos.size >= CONFIG.CLOSED_PR_REPO_SPREAD && highDensity) {
 		flags.push({
 			label: "Closed PRs across many repositories",
 			points,

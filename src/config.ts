@@ -121,8 +121,7 @@ export const CONFIG = {
 	HOURLY_ACTIVITY_EXTREME: 100,
 
 	TIGHT_COMMIT_SECONDS: 60 * 10,
-	TIGHT_COMMIT_THRESHOLD: 3,
-	TIGHT_COMMIT_THRESHOLD_GLOBAL: 50,
+	TIGHT_COMMIT_THRESHOLD_GLOBAL: 70,
 	POINTS_TIGHT_BURST: 25,
 
 	// Rapid repo creation (filters CreateEvent by ref_type === "repository" only)
@@ -178,6 +177,7 @@ export const CONFIG = {
 	CLOSED_PR_SPAM_MIN_ESTABLISHED: 8, // stricter threshold for established accounts
 	CLOSED_PR_REPO_SPREAD: 3, // minimum different repos for spray detection
 	CLOSED_PR_TIME_WINDOW_MINUTES: 60, // PRs closed within this window = concentrated spray
+	CLOSED_PR_MIN_DENSITY: 1, // minimum PRs per day average to flag spray pattern
 	POINTS_CLOSED_PR_SPAM: 35, // base points for 5-24 closed PRs spread across repos
 	POINTS_CLOSED_PR_SPAM_HIGH: 55, // 25-99 closed PRs = high volume rejected submissions
 	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // 100+ closed PRs = extreme volume ecosystem-wide spam
@@ -191,6 +191,18 @@ export const CONFIG = {
 	ORGANIC_ISSUE_MIN_REPOS: 2, // must span at least this many different repos
 	ORGANIC_ISSUE_MIN_DAYS: 7, // must be spread over at least this many days
 	POINTS_ORGANIC_ISSUE_ENGAGEMENT: 15, // bonus applied as negative penalty
+
+	// Merged PR organic signal — getting code accepted by maintainers is a positive human indicator.
+	// Points are intentionally conservative: automation bots can and do get PRs merged,
+	// so this signal must not be able to rescue a heavily-flagged account on its own.
+	ORGANIC_MERGED_PR_MIN: 3, // minimum merged PRs in foreign repos to grant any bonus
+	ORGANIC_MERGED_PR_HIGH: 10, // threshold for elevated bonus
+	ORGANIC_MERGED_PR_EXTREME: 25, // threshold for maximum bonus
+	ORGANIC_MERGED_PR_MIN_RATE: 0.5, // merged / opened must be at least this to qualify
+	ORGANIC_MERGED_PR_MIN_OPENED: 3, // minimum opened PRs needed to evaluate the rate
+	POINTS_ORGANIC_MERGED_PR: 10, // 3–9 merged PRs
+	POINTS_ORGANIC_MERGED_PR_HIGH: 20, // 10–24 merged PRs
+	POINTS_ORGANIC_MERGED_PR_EXTREME: 30, // 25+ merged PRs
 
 	// Watch/star farming (bulk starring of repos in a short time window)
 	WATCH_SPAM_MIN_EVENTS: 10,
