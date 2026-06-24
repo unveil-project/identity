@@ -114,6 +114,8 @@ export const BOUNTY_REPOS: readonly string[] = [
 	"wulansari999/Kickama-Wulansari-Bounty",
 	"xevrion-v2/agent-playground",
 	"xxnjms1-code/kickama-prize-lab",
+	"UnsafeLabs/Bounty-Hunters", // known honeypot repository
+	"charles-openclaw/charles-microbounties",
 ] as const;
 
 export const BOUNTY_REPO_NAMES: ReadonlySet<string> = new Set(
