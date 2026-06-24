@@ -77,7 +77,7 @@ export function identify({
 	flags.push(...detectWatchActivity(filteredEvents));
 	flags.push(...detectBranchPRAutomation(filteredEvents, accountAge));
 	flags.push(...detectRapidPRSpam(filteredEvents, accountAge));
-	flags.push(...detectClosedPRSpam(filteredEvents, accountAge));
+	flags.push(...detectClosedPRSpam(filteredEvents, accountAge, accountName));
 	flags.push(...detectForkActivity(filteredEvents));
 	flags.push(...detectForkCombinedActivity(filteredEvents));
 	flags.push(
@@ -97,7 +97,7 @@ export function identify({
 	flags.push(...bountyLabelFlags);
 	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
 
-	const organicBonus = detectOrganicSignals(filteredEvents);
+	const organicBonus = detectOrganicSignals(filteredEvents, accountName);
 
 	const filteredCommits = commits.filter(
 		(commit) =>

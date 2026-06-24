@@ -40,7 +40,10 @@ export const REGRESSION_FIXTURES = {
 	"automation_8": "automation",
 	"automation_5": "automation",
 	"automation_6": "automation",
-	"automation_4": "automation",
+	"automation_4": {
+		"expected": "mixed",
+		"knownAs": "automation",
+	},
 	"automation_10": "automation",
 	"automation_9": "automation",
 	"automation_7": "automation",
@@ -49,6 +52,7 @@ export const REGRESSION_FIXTURES = {
 	"automation_12": "automation",
 	"automation_2": "automation",
 	"automation_13": "automation",
+	"organic_13": "organic",
 } satisfies Record<string, FixtureEntry>;
 
 export type FixtureName = keyof typeof REGRESSION_FIXTURES;

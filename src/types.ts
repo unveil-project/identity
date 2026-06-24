@@ -8,6 +8,11 @@ export type GitHubEvent =
 			ref_type?: string;
 			pull_request?: {
 				number?: number;
+				head?: {
+					repo?: {
+						url?: string;
+					};
+				};
 				[key: string]: unknown;
 			};
 			[key: string]: unknown;
