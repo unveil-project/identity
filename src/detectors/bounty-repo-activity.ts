@@ -10,10 +10,14 @@ function isBountyRepo(repoFullName: string): boolean {
 }
 
 export function hasBountyRepoEngagement(events: GitHubEvent[]): boolean {
-	return events.some((e) => {
-		const repo = e.repo?.name;
-		return repo ? isBountyRepo(repo) : false;
-	});
+	const openedPRsInBountyRepos = events.filter(
+		(e) =>
+			e.type === "PullRequestEvent" &&
+			e.payload?.action === "opened" &&
+			e.repo?.name &&
+			isBountyRepo(e.repo.name),
+	);
+	return openedPRsInBountyRepos.length >= CONFIG.BOUNTY_REPO_MIN_PRS;
 }
 
 export function getBountyPRSignal(
@@ -60,21 +64,6 @@ export function getBountyPRSignal(
 	return ratio >= CONFIG.BOUNTY_REPO_RATIO_HIGH ? "high" : "low";
 }
 
-export function hasBountyLabelSignal(events: GitHubEvent[]): boolean {
-	const labelEvents = events.filter(
-		(e) => e.type === "IssuesEvent" && e.payload?.action === "labeled",
-	);
-
-	if (labelEvents.length < CONFIG.BOUNTY_REPO_LABEL_MIN) return false;
-
-	const bountyLabelEvents = labelEvents.filter((e) => {
-		const repo = e.repo?.name;
-		return repo ? isBountyRepo(repo) : false;
-	});
-
-	return bountyLabelEvents.length >= CONFIG.BOUNTY_REPO_LABEL_MIN;
-}
-
 export function detectBountyRepoPRs(events: GitHubEvent[]): IdentifyFlag[] {
 	const signal = getBountyPRSignal(events);
 	if (!signal) return [];
@@ -118,51 +107,3 @@ export function detectBountyRepoPRs(events: GitHubEvent[]): IdentifyFlag[] {
 	return [{ label, points: 0, amplifiable: false, detail }];
 }
 
-export function detectBountyRepoIssueLabeling(
-	events: GitHubEvent[],
-): IdentifyFlag[] {
-	if (!hasBountyLabelSignal(events)) return [];
-
-	const labelEvents = events.filter(
-		(e) => e.type === "IssuesEvent" && e.payload?.action === "labeled",
-	);
-	const bountyLabelEvents = labelEvents.filter((e) => {
-		const repo = e.repo?.name;
-		return repo ? isBountyRepo(repo) : false;
-	});
-	const repos = new Set(
-		bountyLabelEvents.map((e) => e.repo?.name).filter(Boolean),
-	);
-	const detail = `${bountyLabelEvents.length} labeling events across ${repos.size} bounty program repositories`;
-
-	const hasEngagement = events.some((e) => {
-		const repo = e.repo?.name;
-		if (!repo || !repos.has(repo)) return false;
-		return (
-			(e.type === "PullRequestEvent" && e.payload?.action === "opened") ||
-			e.type === "IssueCommentEvent"
-		);
-	});
-
-	if (!hasEngagement) {
-		return [
-			{
-				label: "Bounty issue cataloging with no follow-up engagement",
-				points: CONFIG.POINTS_BOUNTY_REPO_LABEL_NO_ENGAGEMENT,
-				amplifiable: true,
-				detail,
-			},
-		];
-	}
-
-	// This flag is purely informational since bounty programs are not always bad
-	// we've see correlation between automation, spam and bounties, but cannot judget a book by its cover
-	return [
-		{
-			label: "Issue management in known bounty program repositories",
-			points: 0,
-			amplifiable: false,
-			detail,
-		},
-	];
-}
