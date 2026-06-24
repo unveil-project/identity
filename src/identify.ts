@@ -5,7 +5,6 @@ import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
 import {
-	detectBountyRepoIssueLabeling,
 	detectBountyRepoPRs,
 	hasBountyRepoEngagement,
 } from "./detectors/bounty-repo-activity";
@@ -91,10 +90,7 @@ export function identify({
 	flags.push(...detectPushBurst(filteredEvents));
 	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
 	flags.push(...detectCommentBeforePR(filteredEvents));
-	const bountyPRFlags = detectBountyRepoPRs(filteredEvents);
-	const bountyLabelFlags = detectBountyRepoIssueLabeling(filteredEvents);
-	flags.push(...bountyPRFlags);
-	flags.push(...bountyLabelFlags);
+	flags.push(...detectBountyRepoPRs(filteredEvents));
 	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
 
 	const organicBonus = detectOrganicSignals(filteredEvents);
