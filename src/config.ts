@@ -223,12 +223,10 @@ export const CONFIG = {
 	// Detects accounts whose opened PRs predominantly target known bounty program repos.
 	// Matched against BOUNTY_REPO_PATHS (full owner/repo) and BOUNTY_REPO_NAMES (name-only,
 	// to catch forks of known fake campaign repos not yet in the list).
-	BOUNTY_REPO_MIN_PRS: 2, // need at least this many opened PRs to analyze
+	BOUNTY_REPO_MIN_PRS: 3, // need at least this many opened PRs to analyze
 	BOUNTY_REPO_RATIO_HIGH: 0.75, // >= 75% of PRs to bounty repos = strong signal
 	BOUNTY_REPO_RATIO_LOW: 0.4, // >= 40% of PRs to bounty repos = moderate signal
 	BOUNTY_REPO_MERGE_RATE_CLEAN: 0.5, // >= 50% of closed bounty PRs merged = skip multiplier (legitimate contributor)
-	BOUNTY_REPO_LABEL_MIN: 3, // need at least this many labeled events on bounty repos
-	POINTS_BOUNTY_REPO_LABEL_NO_ENGAGEMENT: 35, // labeling bounty repos with zero PRs or comments on those repos = pure cataloging
 	BOUNTY_MULTIPLIER_HIGH: 1.3, // >= 75% bounty PR ratio — multiplies existing automation signals
 	BOUNTY_MULTIPLIER_LOW: 1.15, // >= 40% bounty PR ratio or labeling activity — mild multiplier
 
