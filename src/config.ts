@@ -121,8 +121,7 @@ export const CONFIG = {
 	HOURLY_ACTIVITY_EXTREME: 100,
 
 	TIGHT_COMMIT_SECONDS: 60 * 10,
-	TIGHT_COMMIT_THRESHOLD: 3,
-	TIGHT_COMMIT_THRESHOLD_GLOBAL: 50,
+	TIGHT_COMMIT_THRESHOLD_GLOBAL: 70,
 	POINTS_TIGHT_BURST: 25,
 
 	// Rapid repo creation (filters CreateEvent by ref_type === "repository" only)
