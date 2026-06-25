@@ -25,10 +25,18 @@ export type GitHubCommit = {
 	repo?: string;
 };
 
+export type FlagDataPoint = {
+	label: string;
+	value: number | string | boolean;
+	threshold?: number | string;
+};
+
 export type IdentifyFlag = {
 	label: string;
 	points: number;
 	detail: string;
+	data: FlagDataPoint[];
+	events: GitHubEvent[];
 	amplifiable?: boolean;
 };
 

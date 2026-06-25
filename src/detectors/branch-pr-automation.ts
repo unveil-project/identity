@@ -56,6 +56,8 @@ export function detectBranchPRAutomation(
 			let matchedPairs = 0;
 			let maxObservedTimeDiff = 0;
 			const prIdxByRepo = new Map<string, number>();
+			const matchedBranchEvents: GitHubEvent[] = [];
+			const matchedPREvents: GitHubEvent[] = [];
 
 			for (const branchEntry of branchTimes) {
 				const repoName = branchEntry.event.repo?.name;
@@ -88,10 +90,9 @@ export function detectBranchPRAutomation(
 						timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS
 					) {
 						matchedPairs++;
-						maxObservedTimeDiff = Math.max(
-							maxObservedTimeDiff,
-							timeDiffSeconds,
-						);
+						maxObservedTimeDiff = Math.max(maxObservedTimeDiff, timeDiffSeconds);
+						matchedBranchEvents.push(branchEntry.event);
+						matchedPREvents.push(repoPrTimes[prIdx].event);
 						prIdx++;
 					}
 				}
@@ -108,6 +109,13 @@ export function detectBranchPRAutomation(
 						points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
 						amplifiable: true,
 						detail: `${matchedPairs}/${branchCreates.length} branch creations followed by PRs within ${maxObservedTimeDiff}s`,
+						data: [
+							{ label: "Matched branch→PR pairs", value: matchedPairs, threshold: branchPRMinPairs },
+							{ label: "Total branches", value: branchCreates.length },
+							{ label: "Automation ratio", value: `${Math.round(automationRatio * 100)}%`, threshold: `${Math.round(branchPRMinRatio * 100)}%` },
+							{ label: "Max time branch→PR (s)", value: maxObservedTimeDiff, threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS },
+						],
+						events: [...matchedBranchEvents, ...matchedPREvents],
 					});
 				}
 			} else {
@@ -116,6 +124,8 @@ export function detectBranchPRAutomation(
 				// This is a legitimate automation pattern (fork → upstream contribution)
 				let forkWorkflowMatches = 0;
 				let forkMaxTimeDiff = 0;
+				const matchedForkBranchEvents: GitHubEvent[] = [];
+				const matchedForkPREvents: GitHubEvent[] = [];
 
 				const projectNames = new Set<string>();
 				for (const branch of branchTimes) {
@@ -161,6 +171,8 @@ export function detectBranchPRAutomation(
 								) {
 									forkWorkflowMatches++;
 									forkMaxTimeDiff = Math.max(forkMaxTimeDiff, timeDiffSeconds);
+									matchedForkBranchEvents.push(branchEntry.event);
+									matchedForkPREvents.push(prsForProject[prIdx].event);
 									prIdx++;
 								}
 							}
@@ -177,6 +189,13 @@ export function detectBranchPRAutomation(
 							points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
 							amplifiable: true,
 							detail: `${forkWorkflowMatches}/${branchCreates.length} fork branches followed by upstream PRs within ${forkMaxTimeDiff}s`,
+							data: [
+								{ label: "Matched fork branch→PR pairs", value: forkWorkflowMatches, threshold: branchPRMinPairs },
+								{ label: "Total branches", value: branchCreates.length },
+								{ label: "Automation ratio", value: `${Math.round(automationRatio * 100)}%`, threshold: `${Math.round(branchPRMinRatio * 100)}%` },
+								{ label: "Max time branch→PR (s)", value: forkMaxTimeDiff, threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS },
+							],
+							events: [...matchedForkBranchEvents, ...matchedForkPREvents],
 						});
 					}
 				}

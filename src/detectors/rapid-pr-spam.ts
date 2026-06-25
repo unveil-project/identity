@@ -70,11 +70,20 @@ export function detectRapidPRSpam(
 
 	// Compare pairs to PR count - 1 (minRapidPRs represents number of PRs, which is pairs + 1)
 	if (maxConsecutivePairs >= minRapidPRs - 1) {
+		const rapidRepoEvents = (prsByRepo.get(targetRepo) ?? []).map(
+			(entry) => entry.event,
+		);
 		flags.push({
 			label: "Rapid PRs to repository",
 			points: CONFIG.POINTS_RAPID_PR_SPAM,
 			amplifiable: true,
 			detail: `${maxConsecutivePairs + 1} PRs opened to ${targetRepo} within ${maxConsecutiveTimeDiff}s intervals`,
+			data: [
+				{ label: "Rapid PRs to same repo", value: maxConsecutivePairs + 1, threshold: minRapidPRs },
+				{ label: "Target repository", value: targetRepo },
+				{ label: "Max interval between PRs (s)", value: maxConsecutiveTimeDiff, threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS },
+			],
+			events: rapidRepoEvents,
 		});
 	}
 

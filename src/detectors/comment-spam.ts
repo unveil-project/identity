@@ -69,11 +69,20 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				windowEnd && windowStart
 					? Math.round(windowEnd.diff(windowStart, "minute", true))
 					: 0;
+			const windowEvents = commentTimestamps
+				.slice(maxReposWindowStartIdx, maxReposWindowEndIdx + 1)
+				.map((item) => item.event);
 			flags.push({
 				label: "Rapid comments across repositories",
 				points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_EXTREME,
 				amplifiable: true,
 				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+				data: [
+					{ label: "Comments in window", value: commentsInWindow, threshold: CONFIG.ISSUE_COMMENT_SPRAY_EXTREME },
+					{ label: "Distinct repos", value: maxDistinctReposInWindow },
+					{ label: "Window duration (min)", value: timeSpanMinutes },
+				],
+				events: windowEvents,
 			});
 		} else if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_HIGH) {
 			const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
@@ -84,11 +93,20 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				windowEnd && windowStart
 					? Math.round(windowEnd.diff(windowStart, "minute", true))
 					: 0;
+			const windowEvents = commentTimestamps
+				.slice(maxReposWindowStartIdx, maxReposWindowEndIdx + 1)
+				.map((item) => item.event);
 			flags.push({
 				label: "High comment frequency across repos",
 				points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH,
 				amplifiable: true,
 				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+				data: [
+					{ label: "Comments in window", value: commentsInWindow, threshold: CONFIG.ISSUE_COMMENT_SPRAY_HIGH },
+					{ label: "Distinct repos", value: maxDistinctReposInWindow },
+					{ label: "Window duration (min)", value: timeSpanMinutes },
+				],
+				events: windowEvents,
 			});
 		}
 	}
@@ -163,11 +181,20 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				windowEnd && windowStart
 					? Math.round(windowEnd.diff(windowStart, "minute", true))
 					: 0;
+			const windowEvents = prCommentTimestamps
+				.slice(maxPRsWindowStartIdx, maxPRsWindowEndIdx + 1)
+				.map((item) => item.event);
 			flags.push({
 				label: "Rapid PR review comments",
 				points: CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME,
 				amplifiable: true,
 				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+				data: [
+					{ label: "Comments in window", value: commentsInWindow, threshold: CONFIG.PR_COMMENT_SPRAY_EXTREME },
+					{ label: "Distinct PRs", value: maxDistinctPRsInWindow },
+					{ label: "Window duration (min)", value: timeSpanMinutes },
+				],
+				events: windowEvents,
 			});
 		} else if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_HIGH) {
 			const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
@@ -177,11 +204,20 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				windowEnd && windowStart
 					? Math.round(windowEnd.diff(windowStart, "minute", true))
 					: 0;
+			const windowEvents = prCommentTimestamps
+				.slice(maxPRsWindowStartIdx, maxPRsWindowEndIdx + 1)
+				.map((item) => item.event);
 			flags.push({
 				label: "High PR comment frequency",
 				points: CONFIG.POINTS_PR_COMMENT_SPRAY_HIGH,
 				amplifiable: true,
 				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
+				data: [
+					{ label: "Comments in window", value: commentsInWindow, threshold: CONFIG.PR_COMMENT_SPRAY_HIGH },
+					{ label: "Distinct PRs", value: maxDistinctPRsInWindow },
+					{ label: "Window duration (min)", value: timeSpanMinutes },
+				],
+				events: windowEvents,
 			});
 		}
 	}

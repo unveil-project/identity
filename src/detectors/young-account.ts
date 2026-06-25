@@ -40,12 +40,24 @@ export function detectYoungAccountActivity(
 					label: "Very high PR volume",
 					points: CONFIG.POINTS_EXTREME_ACTIVITY_DENSITY + 10,
 					detail: `${prEvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
+					data: [
+						{ label: "PRs opened", value: prEvents.length },
+						{ label: "Over (days)", value: eventSpanDays },
+						{ label: "PRs per day", value: parseFloat(prsPerDay.toFixed(1)), threshold: CONFIG.ACTIVITY_DENSITY_EXTREME / 2 },
+					],
+					events: prEvents,
 				});
 			} else if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_HIGH / 2) {
 				flags.push({
 					label: "High PR volume",
 					points: CONFIG.POINTS_HIGH_ACTIVITY_DENSITY + 5,
 					detail: `${prEvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
+					data: [
+						{ label: "PRs opened", value: prEvents.length },
+						{ label: "Over (days)", value: eventSpanDays },
+						{ label: "PRs per day", value: parseFloat(prsPerDay.toFixed(1)), threshold: CONFIG.ACTIVITY_DENSITY_HIGH / 2 },
+					],
+					events: prEvents,
 				});
 			}
 		}
@@ -118,18 +130,37 @@ export function detectYoungAccountActivity(
 
 		// Consecutive marathon days = sustained uniform activity across many hours
 		if (maxConsecutive >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
+			const uniformDayEvents = codingEventsWithReviews.filter((e) => {
+				const day = new Date(e.created_at ?? "").toISOString().slice(0, 10);
+				return daysWithUniformDistribution.includes(day);
+			});
 			flags.push({
 				label: "Extended daily coding",
 				points: CONFIG.POINTS_NONSTOP_ACTIVITY,
 				detail: `${maxConsecutive} days in a row with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding`,
+				data: [
+					{ label: "Consecutive inhuman days", value: maxConsecutive, threshold: CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME },
+					{ label: "Hours/day threshold", value: CONFIG.HOURS_PER_DAY_INHUMAN },
+					{ label: "Total uniform days", value: daysWithUniformDistribution.length },
+				],
+				events: uniformDayEvents,
 			});
 		} else if (
 			daysWithUniformDistribution.length >= CONFIG.FREQUENT_MARATHON_DAYS
 		) {
+			const uniformDayEvents = codingEventsWithReviews.filter((e) => {
+				const day = new Date(e.created_at ?? "").toISOString().slice(0, 10);
+				return daysWithUniformDistribution.includes(day);
+			});
 			flags.push({
 				label: "Frequent long coding days",
 				points: CONFIG.POINTS_FREQUENT_MARATHON,
 				detail: `${daysWithUniformDistribution.length} days with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding and uniform hourly distribution`,
+				data: [
+					{ label: "Uniform-distribution days", value: daysWithUniformDistribution.length, threshold: CONFIG.FREQUENT_MARATHON_DAYS },
+					{ label: "Hours/day threshold", value: CONFIG.HOURS_PER_DAY_INHUMAN },
+				],
+				events: uniformDayEvents,
 			});
 		}
 	}
@@ -147,17 +178,32 @@ export function detectYoungAccountActivity(
 			}),
 	);
 
+	const externalEvents = events.filter((e) => {
+		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
+		return repoOwner && repoOwner !== userLogin;
+	});
+
 	if (externalRepos.size >= CONFIG.REPO_SPREAD_EXTREME) {
 		flags.push({
 			label: "Highly distributed activity",
 			points: CONFIG.POINTS_EXTREME_REPO_SPREAD_YOUNG,
 			detail: `Activity spread across ${externalRepos.size} external repositories`,
+			data: [
+				{ label: "Distinct external repos", value: externalRepos.size, threshold: CONFIG.REPO_SPREAD_EXTREME },
+				{ label: "External events", value: externalEvents.length },
+			],
+			events: externalEvents,
 		});
 	} else if (externalRepos.size >= CONFIG.REPO_SPREAD_HIGH) {
 		flags.push({
 			label: "Distributed activity",
 			points: CONFIG.POINTS_WIDE_REPO_SPREAD_YOUNG,
 			detail: `Activity spread across ${externalRepos.size} external repositories`,
+			data: [
+				{ label: "Distinct external repos", value: externalRepos.size, threshold: CONFIG.REPO_SPREAD_HIGH },
+				{ label: "External events", value: externalEvents.length },
+			],
+			events: externalEvents,
 		});
 	}
 
@@ -187,6 +233,10 @@ export function detectYoungAccountActivity(
 			label: "High PR volume in the past 24 hours",
 			points: CONFIG.POINTS_PR_BURST,
 			detail: `${prsToday.length} PRs to other repos in the last 24 hours`,
+			data: [
+				{ label: "PRs in last 24h", value: prsToday.length, threshold: CONFIG.PRS_TODAY_EXTREME },
+			],
+			events: prsToday,
 		});
 	} else if (prsThisWeek.length >= CONFIG.PRS_WEEK_HIGH) {
 		// Many PRs in a week
@@ -194,6 +244,10 @@ export function detectYoungAccountActivity(
 			label: "High PR volume during last week",
 			points: CONFIG.POINTS_HIGH_PR_FREQUENCY,
 			detail: `${prsThisWeek.length} PRs to other repos this week`,
+			data: [
+				{ label: "PRs in last 7 days", value: prsThisWeek.length, threshold: CONFIG.PRS_WEEK_HIGH },
+			],
+			events: prsThisWeek,
 		});
 	}
 
@@ -211,6 +265,11 @@ export function detectYoungAccountActivity(
 			label: "Primarily external contributions",
 			points: CONFIG.POINTS_PR_ONLY_CONTRIBUTOR,
 			detail,
+			data: [
+				{ label: "PRs to external repos", value: externalPRs.length, threshold: CONFIG.EXTERNAL_PRS_MIN },
+				{ label: "Own repos", value: reposCount, threshold: CONFIG.PERSONAL_REPOS_LOW },
+			],
+			events: externalPRs,
 		});
 	}
 
@@ -229,6 +288,13 @@ export function detectYoungAccountActivity(
 			label: "Mostly external activity",
 			points: CONFIG.POINTS_EXTERNAL_FOCUS,
 			detail: `${Math.round(foreignRatio * 100)}% of activity on other people's repos`,
+			data: [
+				{ label: "External activity ratio", value: `${Math.round(foreignRatio * 100)}%`, threshold: `${Math.round(CONFIG.FOREIGN_RATIO_HIGH * 100)}%` },
+				{ label: "External events", value: foreignEvents.length },
+				{ label: "Total events", value: events.length },
+				{ label: "Own repos", value: reposCount },
+			],
+			events: foreignEvents,
 		});
 	}
 
@@ -253,6 +319,11 @@ export function detectYoungAccountActivity(
 			points: CONFIG.POINTS_LIMITED_ENGAGEMENT,
 			amplifiable: true,
 			detail: `Code contributions to external repos with no observed issue, comment, review, or watch activity`,
+			data: [
+				{ label: "External PRs", value: externalPRs.length },
+				{ label: "Has engagement events", value: false },
+			],
+			events: externalPRs,
 		});
 	}
 

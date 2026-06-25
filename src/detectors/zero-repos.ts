@@ -17,6 +17,12 @@ export function detectZeroReposActivity(
 			points:
 				CONFIG.POINTS_ZERO_REPOS_ACTIVE + CONFIG.POINTS_NO_PERSONAL_ACTIVITY,
 			detail: `No personal repos, all ${events.length} events are on repos they don't own`,
+			data: [
+				{ label: "Personal repos", value: 0 },
+				{ label: "External events", value: foreignEvents.length },
+				{ label: "Total events", value: events.length },
+			],
+			events: foreignEvents,
 		});
 	}
 

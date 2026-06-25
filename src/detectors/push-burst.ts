@@ -39,11 +39,18 @@ export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
 
 	if (tightBurstCount >= CONFIG.TIGHT_COMMIT_THRESHOLD_GLOBAL) {
 		const windowMinutes = Math.round(CONFIG.TIGHT_COMMIT_SECONDS / 60);
+		const burstPushEvents = pushEvents.filter((_, i) => tightPushIndices.has(i));
 		flags.push({
 			label: "High push frequency",
 			points: CONFIG.POINTS_TIGHT_BURST,
 			amplifiable: true,
 			detail: `${tightBurstCount} consecutive same-repo push pairs within ${windowMinutes} min of each other (${tightPushIndices.size} pushes involved)`,
+			data: [
+				{ label: "Rapid push pairs", value: tightBurstCount, threshold: CONFIG.TIGHT_COMMIT_THRESHOLD_GLOBAL },
+				{ label: "Pushes involved", value: tightPushIndices.size },
+				{ label: "Max interval (s)", value: CONFIG.TIGHT_COMMIT_SECONDS },
+			],
+			events: burstPushEvents,
 		});
 	}
 

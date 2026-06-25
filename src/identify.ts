@@ -116,6 +116,13 @@ export function identify({
 			label: "Predominantly AI-attributed commits",
 			points: 0,
 			detail,
+			data: [
+				{ label: "AI-attributed commits", value: commitMetadata.aiCommits },
+				{ label: "Total commits", value: commitMetadata.totalCommits },
+				{ label: "AI commit ratio", value: `${Math.round(commitMetadata.ratio * 100)}%` },
+				{ label: "Score multiplier", value: aiMultiplier },
+			],
+			events: [],
 		});
 	}
 

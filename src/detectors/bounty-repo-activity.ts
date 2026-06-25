@@ -104,5 +104,20 @@ export function detectBountyRepoPRs(events: GitHubEvent[]): IdentifyFlag[] {
 			? "PRs predominantly targeting known bounty program repositories"
 			: "PR activity in known bounty program repositories";
 
-	return [{ label, points: 0, amplifiable: false, detail }];
+	return [
+		{
+			label,
+			points: 0,
+			amplifiable: false,
+			detail,
+			data: [
+				{ label: "PRs to bounty repos", value: bountyPRs.length },
+				{ label: "Total PRs opened", value: openedPRs.length },
+				{ label: "Bounty PR ratio", value: `${pct}%` },
+				{ label: "Merged", value: mergedBountyPRs.length },
+				{ label: "Closed without merge", value: closedBountyPRs.length },
+			],
+			events: [...bountyPRs, ...mergedBountyPRs, ...closedBountyPRs],
+		},
+	];
 }
