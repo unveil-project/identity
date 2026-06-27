@@ -1,10 +1,12 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
+import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
 import type { GitHubEvent, IdentifyFlag } from "../types";
 import { calculateNormalizedShannonsEntropy } from "../utils";
 
 dayjs.extend(minMax);
+dayjs.extend(utc);
 
 export function detectYoungAccountActivity(
 	events: GitHubEvent[],
@@ -82,14 +84,14 @@ export function detectYoungAccountActivity(
 			e.type === "PullRequestReviewCommentEvent",
 	);
 
-	const codingEventsByDay = new Map<string, Date[]>();
+	const codingEventsByDay = new Map<string, dayjs.Dayjs[]>();
 	codingEventsWithReviews.forEach((e) => {
 		if (!e.created_at) {
 			return;
 		}
 
-		const t = new Date(e.created_at);
-		const day = t.toISOString().slice(0, 10);
+		const t = dayjs(e.created_at).utc();
+		const day = t.format("YYYY-MM-DD");
 		if (!codingEventsByDay.has(day)) codingEventsByDay.set(day, []);
 		codingEventsByDay.get(day)?.push(t);
 	});
@@ -100,7 +102,7 @@ export function detectYoungAccountActivity(
 	codingEventsByDay.forEach((dayTimestamps, day) => {
 		const hourMap = new Map<number, number>();
 		dayTimestamps.forEach((t) => {
-			const hour = t.getUTCHours();
+			const hour = t.hour();
 			hourMap.set(hour, (hourMap.get(hour) || 0) + 1);
 		});
 
@@ -139,7 +141,7 @@ export function detectYoungAccountActivity(
 		// Consecutive marathon days = sustained uniform activity across many hours
 		if (maxConsecutive >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
 			const uniformDayEvents = codingEventsWithReviews.filter((e) => {
-				const day = new Date(e.created_at ?? "").toISOString().slice(0, 10);
+				const day = dayjs(e.created_at ?? "").utc().format("YYYY-MM-DD");
 				return daysWithUniformDistribution.includes(day);
 			});
 			flags.push({
@@ -164,7 +166,7 @@ export function detectYoungAccountActivity(
 			daysWithUniformDistribution.length >= CONFIG.FREQUENT_MARATHON_DAYS
 		) {
 			const uniformDayEvents = codingEventsWithReviews.filter((e) => {
-				const day = new Date(e.created_at ?? "").toISOString().slice(0, 10);
+				const day = dayjs(e.created_at ?? "").utc().format("YYYY-MM-DD");
 				return daysWithUniformDistribution.includes(day);
 			});
 			flags.push({
