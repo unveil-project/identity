@@ -65,9 +65,9 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 	if (veryFastRepos.size >= CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MIN_REPOS) {
 		const fastest =
 			fastestSeconds === Infinity ? 0 : Math.round(fastestSeconds);
-		const fastRepoEvents = [...issueCommentEvents, ...prOpenEvents].filter(
-			(e) => e.repo?.name && veryFastRepos.has(e.repo.name),
-		);
+		const pairedEvents = [
+			...new Set(matchedPairs.flatMap((p) => [p.from, p.to])),
+		];
 		return [
 			{
 				label: "Issue comment and PR within minutes",
@@ -86,7 +86,7 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 						value: CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES,
 					},
 				],
-				events: fastRepoEvents,
+				events: pairedEvents,
 				connections: matchedPairs,
 			},
 		];
