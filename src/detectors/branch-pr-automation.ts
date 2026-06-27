@@ -190,9 +190,17 @@ export function detectBranchPRAutomation(
 							"second",
 						);
 
+						const branchOwner =
+							branchEntry.event.repo?.name?.split("/")[0];
+						const prOwner =
+							prsForProject[prIdx].event.repo?.name?.split("/")[0];
+
 						if (
 							timeDiffSeconds >= 0 &&
-							timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS
+							timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS &&
+							branchOwner !== undefined &&
+							prOwner !== undefined &&
+							branchOwner !== prOwner
 						) {
 							forkWorkflowMatches++;
 							forkMaxTimeDiff = Math.max(forkMaxTimeDiff, timeDiffSeconds);
