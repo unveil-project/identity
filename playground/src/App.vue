@@ -76,13 +76,13 @@
                   <span class="flag-points">+{{ flag.points }}</span>
                 </div>
                 <div class="flag-detail">{{ flag.detail }}</div>
-                <button v-if="flag.events.length > 0" class="evidence-toggle">
-                  {{ openFlags.has(index) ? "Hide evidence" : `Show evidence (${flag.events.length} event${flag.events.length !== 1 ? "s" : ""})` }}
+                <button v-if="flag.events?.length || flag.data?.length || flag.connections?.length" class="evidence-toggle">
+                  {{ openFlags.has(index) ? "Hide evidence" : `Show evidence${flag.events?.length ? ` (${flag.events.length} event${flag.events.length !== 1 ? "s" : ""})` : ""}` }}
                 </button>
               </div>
 
               <!-- Evidence section -->
-              <div v-if="openFlags.has(index) && flag.events.length > 0" class="flag-evidence">
+              <div v-if="openFlags.has(index) && (flag.events?.length || flag.data?.length || flag.connections?.length)" class="flag-evidence">
 
                 <!-- Rapid burst warning (computed once via template v-for trick) -->
                 <template v-for="burst in [getRapidBurst(flag.events)]" :key="'burst-' + index">
@@ -93,6 +93,18 @@
                     </span>
                   </div>
                 </template>
+
+                <!-- Structured metrics -->
+                <div v-if="flag.data?.length" class="metrics-section">
+                  <div class="evidence-section-label">Metrics</div>
+                  <div class="metrics-list">
+                    <div v-for="(item, i) in flag.data" :key="i" class="metric-row">
+                      <span class="metric-label">{{ item.label }}</span>
+                      <span class="metric-value">{{ item.value }}</span>
+                      <span v-if="item.threshold !== undefined" class="metric-threshold">(threshold: {{ item.threshold }})</span>
+                    </div>
+                  </div>
+                </div>
 
                 <!-- Pattern connections (branch→PR, fork→PR) -->
                 <div v-if="flag.connections?.length" class="connections-section">
@@ -120,7 +132,7 @@
                 </div>
 
                 <!-- Flat event timeline (no explicit connections) -->
-                <div v-else class="timeline-section">
+                <div v-else-if="flag.events?.length" class="timeline-section">
                   <div class="evidence-section-label">{{ flag.events.length }} event{{ flag.events.length !== 1 ? "s" : "" }}</div>
                   <template v-for="sorted in [sortedEvents(flag.events)]" :key="'timeline-' + index">
                     <div class="event-timeline">
