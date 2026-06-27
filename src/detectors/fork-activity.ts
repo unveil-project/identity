@@ -66,16 +66,17 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 	const maxForksIn48h = window48h.count;
 	const maxForksIn72h = window72h.count;
 
-	// Determine which time window to flag (only flag the MOST SEVERE, not all)
-	// This avoids redundant overlapping alerts
-	let forkSpikeFlag: IdentifyFlag | null = null;
+	// Evaluate all qualifying windows as candidates, then pick the most severe by points.
+	// Using independent if-blocks for 48h/72h prevents a weaker 24h match from hiding
+	// a stronger multi-day surge.
+	const forkSpikeCandidates: IdentifyFlag[] = [];
 
-	// Check 24-hour window first (most specific, densest activity)
+	// 24h window — descending severity, at most one candidate added
 	if (maxForksIn24h >= CONFIG.FORKS_SURGE_EXTREME_HIGH) {
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
-		forkSpikeFlag = {
+		forkSpikeCandidates.push({
 			label: "Extreme fork automation",
 			points: CONFIG.POINTS_FORK_SURGE_EXTREME_HIGH,
 			amplifiable: true,
@@ -89,12 +90,12 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
-		};
+		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE) {
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
-		forkSpikeFlag = {
+		forkSpikeCandidates.push({
 			label: "Severe fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_SEVERE,
 			amplifiable: true,
@@ -108,12 +109,12 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
-		};
+		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_EXTREME) {
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
-		forkSpikeFlag = {
+		forkSpikeCandidates.push({
 			label: "Fork spike detected",
 			points: CONFIG.POINTS_FORK_SURGE,
 			amplifiable: true,
@@ -127,12 +128,12 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
-		};
+		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_HIGH) {
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
-		forkSpikeFlag = {
+		forkSpikeCandidates.push({
 			label: "Multiple forks",
 			points: CONFIG.POINTS_MULTIPLE_FORKS,
 			amplifiable: true,
@@ -146,14 +147,15 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
-		};
+		});
 	}
-	// Fall back to 48-hour if 24h thresholds not met
-	else if (maxForksIn48h >= CONFIG.FORKS_SURGE_48H) {
+
+	// 48h window — evaluated independently so it can outrank a weaker 24h match
+	if (maxForksIn48h >= CONFIG.FORKS_SURGE_48H) {
 		const windowEvents = sortedForkEntries
 			.slice(window48h.startIdx, window48h.endIdx + 1)
 			.map((e) => e.event);
-		forkSpikeFlag = {
+		forkSpikeCandidates.push({
 			label: "Multi-day fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_48H,
 			amplifiable: true,
@@ -167,14 +169,15 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
-		};
+		});
 	}
-	// Finally check 72-hour window
-	else if (maxForksIn72h >= CONFIG.FORKS_SURGE_72H) {
+
+	// 72h window — evaluated independently so it can outrank a weaker 24h match
+	if (maxForksIn72h >= CONFIG.FORKS_SURGE_72H) {
 		const windowEvents = sortedForkEntries
 			.slice(window72h.startIdx, window72h.endIdx + 1)
 			.map((e) => e.event);
-		forkSpikeFlag = {
+		forkSpikeCandidates.push({
 			label: "Severe multi-day fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_72H,
 			amplifiable: true,
@@ -188,8 +191,13 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
-		};
+		});
 	}
+
+	const forkSpikeFlag = forkSpikeCandidates.reduce<IdentifyFlag | null>(
+		(best, c) => (!best || c.points > best.points ? c : best),
+		null,
+	);
 
 	// Add the single most severe spike flag
 	if (forkSpikeFlag) {
