@@ -40,14 +40,22 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 
 		for (const commentEntry of commentEntries) {
 			for (const prEntry of prEntries) {
-				const diffMinutes = prEntry.time.diff(commentEntry.time, "minute", true);
+				const diffMinutes = prEntry.time.diff(
+					commentEntry.time,
+					"minute",
+					true,
+				);
 				if (
 					diffMinutes > 0 &&
 					diffMinutes < CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES
 				) {
 					veryFastRepos.add(repo);
 					matchedPairs.push({ from: commentEntry.event, to: prEntry.event });
-					const diffSeconds = prEntry.time.diff(commentEntry.time, "second", true);
+					const diffSeconds = prEntry.time.diff(
+						commentEntry.time,
+						"second",
+						true,
+					);
 					if (diffSeconds < fastestSeconds) fastestSeconds = diffSeconds;
 				}
 			}
@@ -55,7 +63,8 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 	}
 
 	if (veryFastRepos.size >= CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MIN_REPOS) {
-		const fastest = fastestSeconds === Infinity ? 0 : Math.round(fastestSeconds);
+		const fastest =
+			fastestSeconds === Infinity ? 0 : Math.round(fastestSeconds);
 		const fastRepoEvents = [...issueCommentEvents, ...prOpenEvents].filter(
 			(e) => e.repo?.name && veryFastRepos.has(e.repo.name),
 		);
