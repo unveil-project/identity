@@ -49,6 +49,12 @@
             {{ result.classification.toUpperCase() }}
           </div>
           <div class="info-row" style="margin-top: 20px">
+            <span class="info-label">Bounty Hunter:</span>
+            <span class="info-value bounty-hunter" :class="result.isBountyHunter ? 'bounty-hunter--on' : 'bounty-hunter--off'">
+              {{ result.isBountyHunter ? "Yes" : "No" }}
+            </span>
+          </div>
+          <div class="info-row">
             <span class="info-label">Account Age:</span>
             <span class="info-value">{{ formatAccountAge(result.profile.age) }}</span>
           </div>
@@ -269,5 +275,22 @@ header p {
 
 main {
   padding-bottom: 40px;
+}
+
+.bounty-hunter {
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.bounty-hunter--on {
+  background: rgba(234, 179, 8, 0.15);
+  color: #ca8a04;
+}
+
+.bounty-hunter--off {
+  background: rgba(100, 100, 100, 0.1);
+  color: inherit;
+  opacity: 0.5;
 }
 </style>

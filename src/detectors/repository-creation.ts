@@ -60,7 +60,11 @@ export function detectRepositoryCreationBurst(
 				amplifiable: true,
 				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
 				data: [
-					{ label: "Repos created in 24h", value: maxCreatesInWindow, threshold: CONFIG.CREATE_BURST_EXTREME },
+					{
+						label: "Repos created in 24h",
+						value: maxCreatesInWindow,
+						threshold: CONFIG.CREATE_BURST_EXTREME,
+					},
 					{ label: "Total repo creations", value: createEvents.length },
 				],
 				events: burstEvents,
@@ -72,7 +76,11 @@ export function detectRepositoryCreationBurst(
 				amplifiable: true,
 				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
 				data: [
-					{ label: "Repos created in 24h", value: maxCreatesInWindow, threshold: CONFIG.CREATE_BURST_HIGH },
+					{
+						label: "Repos created in 24h",
+						value: maxCreatesInWindow,
+						threshold: CONFIG.CREATE_BURST_HIGH,
+					},
 					{ label: "Total repo creations", value: createEvents.length },
 				],
 				events: burstEvents,

@@ -79,9 +79,17 @@ export function detectRapidPRSpam(
 			amplifiable: true,
 			detail: `${maxConsecutivePairs + 1} PRs opened to ${targetRepo} within ${maxConsecutiveTimeDiff}s intervals`,
 			data: [
-				{ label: "Rapid PRs to same repo", value: maxConsecutivePairs + 1, threshold: minRapidPRs },
+				{
+					label: "Rapid PRs to same repo",
+					value: maxConsecutivePairs + 1,
+					threshold: minRapidPRs,
+				},
 				{ label: "Target repository", value: targetRepo },
-				{ label: "Max interval between PRs (s)", value: maxConsecutiveTimeDiff, threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS },
+				{
+					label: "Max interval between PRs (s)",
+					value: maxConsecutiveTimeDiff,
+					threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
+				},
 			],
 			events: rapidRepoEvents,
 		});

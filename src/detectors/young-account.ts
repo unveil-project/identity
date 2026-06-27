@@ -43,7 +43,11 @@ export function detectYoungAccountActivity(
 					data: [
 						{ label: "PRs opened", value: prEvents.length },
 						{ label: "Over (days)", value: eventSpanDays },
-						{ label: "PRs per day", value: parseFloat(prsPerDay.toFixed(1)), threshold: CONFIG.ACTIVITY_DENSITY_EXTREME / 2 },
+						{
+							label: "PRs per day",
+							value: parseFloat(prsPerDay.toFixed(1)),
+							threshold: CONFIG.ACTIVITY_DENSITY_EXTREME / 2,
+						},
 					],
 					events: prEvents,
 				});
@@ -55,7 +59,11 @@ export function detectYoungAccountActivity(
 					data: [
 						{ label: "PRs opened", value: prEvents.length },
 						{ label: "Over (days)", value: eventSpanDays },
-						{ label: "PRs per day", value: parseFloat(prsPerDay.toFixed(1)), threshold: CONFIG.ACTIVITY_DENSITY_HIGH / 2 },
+						{
+							label: "PRs per day",
+							value: parseFloat(prsPerDay.toFixed(1)),
+							threshold: CONFIG.ACTIVITY_DENSITY_HIGH / 2,
+						},
 					],
 					events: prEvents,
 				});
@@ -139,9 +147,16 @@ export function detectYoungAccountActivity(
 				points: CONFIG.POINTS_NONSTOP_ACTIVITY,
 				detail: `${maxConsecutive} days in a row with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding`,
 				data: [
-					{ label: "Consecutive inhuman days", value: maxConsecutive, threshold: CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME },
+					{
+						label: "Consecutive inhuman days",
+						value: maxConsecutive,
+						threshold: CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME,
+					},
 					{ label: "Hours/day threshold", value: CONFIG.HOURS_PER_DAY_INHUMAN },
-					{ label: "Total uniform days", value: daysWithUniformDistribution.length },
+					{
+						label: "Total uniform days",
+						value: daysWithUniformDistribution.length,
+					},
 				],
 				events: uniformDayEvents,
 			});
@@ -157,7 +172,11 @@ export function detectYoungAccountActivity(
 				points: CONFIG.POINTS_FREQUENT_MARATHON,
 				detail: `${daysWithUniformDistribution.length} days with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding and uniform hourly distribution`,
 				data: [
-					{ label: "Uniform-distribution days", value: daysWithUniformDistribution.length, threshold: CONFIG.FREQUENT_MARATHON_DAYS },
+					{
+						label: "Uniform-distribution days",
+						value: daysWithUniformDistribution.length,
+						threshold: CONFIG.FREQUENT_MARATHON_DAYS,
+					},
 					{ label: "Hours/day threshold", value: CONFIG.HOURS_PER_DAY_INHUMAN },
 				],
 				events: uniformDayEvents,
@@ -189,7 +208,11 @@ export function detectYoungAccountActivity(
 			points: CONFIG.POINTS_EXTREME_REPO_SPREAD_YOUNG,
 			detail: `Activity spread across ${externalRepos.size} external repositories`,
 			data: [
-				{ label: "Distinct external repos", value: externalRepos.size, threshold: CONFIG.REPO_SPREAD_EXTREME },
+				{
+					label: "Distinct external repos",
+					value: externalRepos.size,
+					threshold: CONFIG.REPO_SPREAD_EXTREME,
+				},
 				{ label: "External events", value: externalEvents.length },
 			],
 			events: externalEvents,
@@ -200,7 +223,11 @@ export function detectYoungAccountActivity(
 			points: CONFIG.POINTS_WIDE_REPO_SPREAD_YOUNG,
 			detail: `Activity spread across ${externalRepos.size} external repositories`,
 			data: [
-				{ label: "Distinct external repos", value: externalRepos.size, threshold: CONFIG.REPO_SPREAD_HIGH },
+				{
+					label: "Distinct external repos",
+					value: externalRepos.size,
+					threshold: CONFIG.REPO_SPREAD_HIGH,
+				},
 				{ label: "External events", value: externalEvents.length },
 			],
 			events: externalEvents,
@@ -234,7 +261,11 @@ export function detectYoungAccountActivity(
 			points: CONFIG.POINTS_PR_BURST,
 			detail: `${prsToday.length} PRs to other repos in the last 24 hours`,
 			data: [
-				{ label: "PRs in last 24h", value: prsToday.length, threshold: CONFIG.PRS_TODAY_EXTREME },
+				{
+					label: "PRs in last 24h",
+					value: prsToday.length,
+					threshold: CONFIG.PRS_TODAY_EXTREME,
+				},
 			],
 			events: prsToday,
 		});
@@ -245,7 +276,11 @@ export function detectYoungAccountActivity(
 			points: CONFIG.POINTS_HIGH_PR_FREQUENCY,
 			detail: `${prsThisWeek.length} PRs to other repos this week`,
 			data: [
-				{ label: "PRs in last 7 days", value: prsThisWeek.length, threshold: CONFIG.PRS_WEEK_HIGH },
+				{
+					label: "PRs in last 7 days",
+					value: prsThisWeek.length,
+					threshold: CONFIG.PRS_WEEK_HIGH,
+				},
 			],
 			events: prsThisWeek,
 		});
@@ -266,8 +301,16 @@ export function detectYoungAccountActivity(
 			points: CONFIG.POINTS_PR_ONLY_CONTRIBUTOR,
 			detail,
 			data: [
-				{ label: "PRs to external repos", value: externalPRs.length, threshold: CONFIG.EXTERNAL_PRS_MIN },
-				{ label: "Own repos", value: reposCount, threshold: CONFIG.PERSONAL_REPOS_LOW },
+				{
+					label: "PRs to external repos",
+					value: externalPRs.length,
+					threshold: CONFIG.EXTERNAL_PRS_MIN,
+				},
+				{
+					label: "Own repos",
+					value: reposCount,
+					threshold: CONFIG.PERSONAL_REPOS_LOW,
+				},
 			],
 			events: externalPRs,
 		});
@@ -289,7 +332,11 @@ export function detectYoungAccountActivity(
 			points: CONFIG.POINTS_EXTERNAL_FOCUS,
 			detail: `${Math.round(foreignRatio * 100)}% of activity on other people's repos`,
 			data: [
-				{ label: "External activity ratio", value: `${Math.round(foreignRatio * 100)}%`, threshold: `${Math.round(CONFIG.FOREIGN_RATIO_HIGH * 100)}%` },
+				{
+					label: "External activity ratio",
+					value: `${Math.round(foreignRatio * 100)}%`,
+					threshold: `${Math.round(CONFIG.FOREIGN_RATIO_HIGH * 100)}%`,
+				},
 				{ label: "External events", value: foreignEvents.length },
 				{ label: "Total events", value: events.length },
 				{ label: "Own repos", value: reposCount },

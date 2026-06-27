@@ -81,7 +81,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
 			data: [
-				{ label: "Forks in 24h window", value: maxForksIn24h, threshold: CONFIG.FORKS_SURGE_EXTREME_HIGH },
+				{
+					label: "Forks in 24h window",
+					value: maxForksIn24h,
+					threshold: CONFIG.FORKS_SURGE_EXTREME_HIGH,
+				},
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
@@ -96,7 +100,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
 			data: [
-				{ label: "Forks in 24h window", value: maxForksIn24h, threshold: CONFIG.FORKS_SURGE_SEVERE },
+				{
+					label: "Forks in 24h window",
+					value: maxForksIn24h,
+					threshold: CONFIG.FORKS_SURGE_SEVERE,
+				},
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
@@ -111,7 +119,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `Burst of ${maxForksIn24h} fork events in a single 24-hour window`,
 			data: [
-				{ label: "Forks in 24h window", value: maxForksIn24h, threshold: CONFIG.FORKS_EXTREME },
+				{
+					label: "Forks in 24h window",
+					value: maxForksIn24h,
+					threshold: CONFIG.FORKS_EXTREME,
+				},
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
@@ -126,7 +138,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in a single 24-hour window`,
 			data: [
-				{ label: "Forks in 24h window", value: maxForksIn24h, threshold: CONFIG.FORKS_HIGH },
+				{
+					label: "Forks in 24h window",
+					value: maxForksIn24h,
+					threshold: CONFIG.FORKS_HIGH,
+				},
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
@@ -143,7 +159,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
 			data: [
-				{ label: "Forks in 48h window", value: maxForksIn48h, threshold: CONFIG.FORKS_SURGE_48H },
+				{
+					label: "Forks in 48h window",
+					value: maxForksIn48h,
+					threshold: CONFIG.FORKS_SURGE_48H,
+				},
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
@@ -160,7 +180,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
 			data: [
-				{ label: "Forks in 72h window", value: maxForksIn72h, threshold: CONFIG.FORKS_SURGE_72H },
+				{
+					label: "Forks in 72h window",
+					value: maxForksIn72h,
+					threshold: CONFIG.FORKS_SURGE_72H,
+				},
 				{ label: "Total forks observed", value: forkEvents.length },
 			],
 			events: windowEvents,
@@ -191,7 +215,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 					amplifiable: true,
 					detail: `Average of ${forksPerDay.toFixed(1)} forks per day over ${forkSpanDays} days (${forkEvents.length} total)`,
 					data: [
-						{ label: "Forks per day", value: parseFloat(forksPerDay.toFixed(1)), threshold: CONFIG.FORKS_PER_DAY_HIGH },
+						{
+							label: "Forks per day",
+							value: parseFloat(forksPerDay.toFixed(1)),
+							threshold: CONFIG.FORKS_PER_DAY_HIGH,
+						},
 						{ label: "Activity span (days)", value: forkSpanDays },
 						{ label: "Total forks", value: forkEvents.length },
 					],
@@ -236,7 +264,8 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		}
 
 		if (maxConsecutiveForkDays >= CONFIG.CONSECUTIVE_FORK_DAYS) {
-			const streakStartDay = sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
+			const streakStartDay =
+				sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
 			const streakEndDay = sortedForkDays[maxStreakEnd];
 			const streakEvents = forkEvents.filter((e) => {
 				const day = dayjs.utc(e.created_at).format("YYYY-MM-DD");
@@ -254,7 +283,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				amplifiable: true,
 				detail: `Forking activity on ${totalDays} days (${maxConsecutiveForkDays} consecutive), ${forkEvents.length} repositories total`,
 				data: [
-					{ label: "Consecutive fork days", value: maxConsecutiveForkDays, threshold: CONFIG.CONSECUTIVE_FORK_DAYS },
+					{
+						label: "Consecutive fork days",
+						value: maxConsecutiveForkDays,
+						threshold: CONFIG.CONSECUTIVE_FORK_DAYS,
+					},
 					{ label: "Total active days", value: totalDays },
 					{ label: "Total forks", value: forkEvents.length },
 				],
@@ -277,7 +310,9 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			const latestFork = forkTimestamps[forkTimestamps.length - 1];
 			spanDaysValue = latestFork.diff(earliestFork, "day");
 			timeSpanDetail =
-				spanDaysValue > 0 ? ` over ${spanDaysValue} days` : " in a short timeframe";
+				spanDaysValue > 0
+					? ` over ${spanDaysValue} days`
+					: " in a short timeframe";
 		}
 
 		flags.push({
@@ -286,7 +321,11 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `Forks spread across ${forkedRepos.size} different repositories${timeSpanDetail}`,
 			data: [
-				{ label: "Distinct repos forked", value: forkedRepos.size, threshold: CONFIG.FORK_REPO_DIVERSITY_HIGH },
+				{
+					label: "Distinct repos forked",
+					value: forkedRepos.size,
+					threshold: CONFIG.FORK_REPO_DIVERSITY_HIGH,
+				},
 				{ label: "Total forks", value: forkEvents.length },
 				{ label: "Activity span (days)", value: spanDaysValue },
 			],
@@ -371,7 +410,10 @@ export function detectForkCombinedActivity(
 				detail: `${totalOps} chained repository operations: ${forkEvents.length} forks followed by ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests (based on available event history)`,
 				data: [
 					{ label: "Fork events", value: forkEvents.length },
-					{ label: "Branch creates in forked repos", value: branchesInForkedRepos.length },
+					{
+						label: "Branch creates in forked repos",
+						value: branchesInForkedRepos.length,
+					},
 					{ label: "PRs from forked repos", value: prsInForkedRepos.length },
 					{ label: "Total chained operations", value: totalOps },
 				],

@@ -10,7 +10,11 @@ export function detectAccountAge(accountAge: number): IdentifyFlag[] {
 			points: CONFIG.POINTS_NEW_ACCOUNT,
 			detail: `Account is ${accountAge} days old`,
 			data: [
-				{ label: "Account age (days)", value: accountAge, threshold: CONFIG.AGE_NEW_ACCOUNT },
+				{
+					label: "Account age (days)",
+					value: accountAge,
+					threshold: CONFIG.AGE_NEW_ACCOUNT,
+				},
 			],
 			events: [],
 		});
@@ -20,7 +24,11 @@ export function detectAccountAge(accountAge: number): IdentifyFlag[] {
 			points: CONFIG.POINTS_YOUNG_ACCOUNT,
 			detail: `Account is ${accountAge} days old`,
 			data: [
-				{ label: "Account age (days)", value: accountAge, threshold: CONFIG.AGE_YOUNG_ACCOUNT },
+				{
+					label: "Account age (days)",
+					value: accountAge,
+					threshold: CONFIG.AGE_YOUNG_ACCOUNT,
+				},
 			],
 			events: [],
 		});

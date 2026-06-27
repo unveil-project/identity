@@ -72,7 +72,11 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `${maxReposInWindow} repositories starred within ${hoursSpan} hour${hoursSpan === 1 ? "" : "s"}`,
 			data: [
-				{ label: "Repos starred in window", value: maxReposInWindow, threshold: CONFIG.WATCH_SPAM_REPOS_EXTREME },
+				{
+					label: "Repos starred in window",
+					value: maxReposInWindow,
+					threshold: CONFIG.WATCH_SPAM_REPOS_EXTREME,
+				},
 				{ label: "Window duration (hours)", value: hoursSpan },
 				{ label: "Total star events", value: watchEvents.length },
 			],
@@ -85,7 +89,11 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			amplifiable: true,
 			detail: `${maxReposInWindow} repositories starred within ${hoursSpan} hour${hoursSpan === 1 ? "" : "s"}`,
 			data: [
-				{ label: "Repos starred in window", value: maxReposInWindow, threshold: CONFIG.WATCH_SPAM_REPOS_HIGH },
+				{
+					label: "Repos starred in window",
+					value: maxReposInWindow,
+					threshold: CONFIG.WATCH_SPAM_REPOS_HIGH,
+				},
 				{ label: "Window duration (hours)", value: hoursSpan },
 				{ label: "Total star events", value: watchEvents.length },
 			],

@@ -43,7 +43,11 @@ export function detectExtremeAndDistributedPRSpam(
 			amplifiable: true,
 			detail: `${prsInLastDay.length} PRs in the last 24 hours`,
 			data: [
-				{ label: "PRs in last 24h", value: prsInLastDay.length, threshold: CONFIG.PRS_DAY_EXTREME },
+				{
+					label: "PRs in last 24h",
+					value: prsInLastDay.length,
+					threshold: CONFIG.PRS_DAY_EXTREME,
+				},
 			],
 			events: prsInLastDay,
 		});
@@ -57,7 +61,11 @@ export function detectExtremeAndDistributedPRSpam(
 			amplifiable: true,
 			detail: `${prsInLastWeek.length} PRs in the last 7 days`,
 			data: [
-				{ label: "PRs in last 7 days", value: prsInLastWeek.length, threshold: CONFIG.PRS_WEEK_EXTREME },
+				{
+					label: "PRs in last 7 days",
+					value: prsInLastWeek.length,
+					threshold: CONFIG.PRS_WEEK_EXTREME,
+				},
 			],
 			events: prsInLastWeek,
 		});
@@ -70,7 +78,11 @@ export function detectExtremeAndDistributedPRSpam(
 			amplifiable: true,
 			detail: `${prsInLastWeek.length} PRs in the last 7 days`,
 			data: [
-				{ label: "PRs in last 7 days", value: prsInLastWeek.length, threshold: CONFIG.PRS_WEEK_VERY_HIGH },
+				{
+					label: "PRs in last 7 days",
+					value: prsInLastWeek.length,
+					threshold: CONFIG.PRS_WEEK_VERY_HIGH,
+				},
 			],
 			events: prsInLastWeek,
 		});
@@ -132,9 +144,20 @@ export function detectExtremeAndDistributedPRSpam(
 						amplifiable: true,
 						detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}`,
 						data: [
-							{ label: "Total PRs", value: allPREvents.length, threshold: CONFIG.PRS_SPAM_VOLUME },
-							{ label: "Distinct repos targeted", value: prTargetRepos.size, threshold: CONFIG.REPOS_SPAM_SPREAD },
-							{ label: "PRs per week", value: parseFloat(prsPerWeek.toFixed(1)) },
+							{
+								label: "Total PRs",
+								value: allPREvents.length,
+								threshold: CONFIG.PRS_SPAM_VOLUME,
+							},
+							{
+								label: "Distinct repos targeted",
+								value: prTargetRepos.size,
+								threshold: CONFIG.REPOS_SPAM_SPREAD,
+							},
+							{
+								label: "PRs per week",
+								value: parseFloat(prsPerWeek.toFixed(1)),
+							},
 							{ label: "PRs in last 30 days", value: prsInLast30Days },
 						],
 						events: allPREvents,

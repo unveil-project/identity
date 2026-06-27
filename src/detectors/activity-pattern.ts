@@ -87,16 +87,20 @@ export function detectInhumanActivityPattern(
 			}
 
 			const dayEvents = events.filter(
-					(e) => dayjs.utc(e.created_at).format("YYYY-MM-DD") === pattern.day,
-				);
-				flags.push({
+				(e) => dayjs.utc(e.created_at).format("YYYY-MM-DD") === pattern.day,
+			);
+			flags.push({
 				label: "24/7 activity pattern",
 				points,
 				amplifiable: true,
 				detail: `${pattern.day}: active across ${pattern.hoursActive} hours with only ${minRestWindowFound} hour${minRestWindowFound === 1 ? "" : "s"} rest`,
 				data: [
 					{ label: "Date", value: pattern.day },
-					{ label: "Hours active", value: pattern.hoursActive, threshold: CONFIG.HOURS_ACTIVE_EXTREME },
+					{
+						label: "Hours active",
+						value: pattern.hoursActive,
+						threshold: CONFIG.HOURS_ACTIVE_EXTREME,
+					},
 					{ label: "Rest hours", value: minRestWindowFound },
 					{ label: "Events on that day", value: pattern.eventCount },
 				],
