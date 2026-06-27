@@ -78,12 +78,12 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				amplifiable: true,
 				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 				data: [
+					{ label: "Comments in window", value: commentsInWindow },
 					{
-						label: "Comments in window",
-						value: commentsInWindow,
+						label: "Distinct repos",
+						value: maxDistinctReposInWindow,
 						threshold: CONFIG.ISSUE_COMMENT_SPRAY_EXTREME,
 					},
-					{ label: "Distinct repos", value: maxDistinctReposInWindow },
 					{ label: "Window duration (min)", value: timeSpanMinutes },
 				],
 				events: windowEvents,
@@ -106,12 +106,12 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				amplifiable: true,
 				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 				data: [
+					{ label: "Comments in window", value: commentsInWindow },
 					{
-						label: "Comments in window",
-						value: commentsInWindow,
+						label: "Distinct repos",
+						value: maxDistinctReposInWindow,
 						threshold: CONFIG.ISSUE_COMMENT_SPRAY_HIGH,
 					},
-					{ label: "Distinct repos", value: maxDistinctReposInWindow },
 					{ label: "Window duration (min)", value: timeSpanMinutes },
 				],
 				events: windowEvents,
@@ -198,12 +198,12 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				amplifiable: true,
 				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 				data: [
+					{ label: "Comments in window", value: commentsInWindow },
 					{
-						label: "Comments in window",
-						value: commentsInWindow,
+						label: "Distinct PRs",
+						value: maxDistinctPRsInWindow,
 						threshold: CONFIG.PR_COMMENT_SPRAY_EXTREME,
 					},
-					{ label: "Distinct PRs", value: maxDistinctPRsInWindow },
 					{ label: "Window duration (min)", value: timeSpanMinutes },
 				],
 				events: windowEvents,
@@ -225,12 +225,12 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				amplifiable: true,
 				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 				data: [
+					{ label: "Comments in window", value: commentsInWindow },
 					{
-						label: "Comments in window",
-						value: commentsInWindow,
+						label: "Distinct PRs",
+						value: maxDistinctPRsInWindow,
 						threshold: CONFIG.PR_COMMENT_SPRAY_HIGH,
 					},
-					{ label: "Distinct PRs", value: maxDistinctPRsInWindow },
 					{ label: "Window duration (min)", value: timeSpanMinutes },
 				],
 				events: windowEvents,
