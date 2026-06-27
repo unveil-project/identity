@@ -106,6 +106,21 @@ export function detectClosedPRSpam(
 			points,
 			amplifiable: true,
 			detail: `${closedPREvents.length} PRs were closed across ${closedPRRepos.size} repositories in ${timeRangeStr}${burstStr}.`,
+			data: [
+				{
+					label: "Closed PRs",
+					value: closedPREvents.length,
+					threshold: minClosedPRs,
+				},
+				{
+					label: "Distinct repos",
+					value: closedPRRepos.size,
+					threshold: CONFIG.CLOSED_PR_REPO_SPREAD,
+				},
+				{ label: "Time span", value: timeRangeStr },
+				{ label: "Density (PRs/day)", value: parseFloat(prDensity.toFixed(1)) },
+			],
+			events: closedPREvents,
 		});
 		return flags;
 	}
@@ -125,6 +140,20 @@ export function detectClosedPRSpam(
 				points: burstPoints,
 				amplifiable: true,
 				detail: `${closedPREvents.length} PRs closed across ${closedPRRepos.size} repos in ${timeSpanMinutes}m (concentrated closing activity)`,
+				data: [
+					{
+						label: "Closed PRs",
+						value: closedPREvents.length,
+						threshold: minClosedPRs,
+					},
+					{ label: "Distinct repos", value: closedPRRepos.size },
+					{
+						label: "Time span (min)",
+						value: timeSpanMinutes,
+						threshold: CONFIG.CLOSED_PR_TIME_WINDOW_MINUTES,
+					},
+				],
+				events: closedPREvents,
 			});
 		}
 	}

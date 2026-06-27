@@ -61,12 +61,26 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			? Math.round(windowEnd.diff(windowStart, "hour", true))
 			: 0;
 
+	const windowEvents = watchTimestamps
+		.slice(maxWindowStartIdx, maxWindowEndIdx + 1)
+		.map((item) => item.event);
+
 	if (maxReposInWindow >= CONFIG.WATCH_SPAM_REPOS_EXTREME) {
 		flags.push({
 			label: "Very high starring rate",
 			points: CONFIG.POINTS_WATCH_SPAM_EXTREME,
 			amplifiable: true,
 			detail: `${maxReposInWindow} repositories starred within ${hoursSpan} hour${hoursSpan === 1 ? "" : "s"}`,
+			data: [
+				{
+					label: "Repos starred in window",
+					value: maxReposInWindow,
+					threshold: CONFIG.WATCH_SPAM_REPOS_EXTREME,
+				},
+				{ label: "Window duration (hours)", value: hoursSpan },
+				{ label: "Total star events", value: watchEvents.length },
+			],
+			events: windowEvents,
 		});
 	} else {
 		flags.push({
@@ -74,6 +88,16 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			points: CONFIG.POINTS_WATCH_SPAM_HIGH,
 			amplifiable: true,
 			detail: `${maxReposInWindow} repositories starred within ${hoursSpan} hour${hoursSpan === 1 ? "" : "s"}`,
+			data: [
+				{
+					label: "Repos starred in window",
+					value: maxReposInWindow,
+					threshold: CONFIG.WATCH_SPAM_REPOS_HIGH,
+				},
+				{ label: "Window duration (hours)", value: hoursSpan },
+				{ label: "Total star events", value: watchEvents.length },
+			],
+			events: windowEvents,
 		});
 	}
 

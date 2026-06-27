@@ -161,7 +161,8 @@ export const CONFIG = {
 	// Branch→PR temporal correlation (automated CI/CD workflow pattern)
 	BRANCH_PR_TIME_WINDOW_SECONDS: 90, // PR must follow branch within this window
 	BRANCH_PR_PATTERN_MIN_PAIRS: 8, // need at least this many correlated pairs to flag
-	BRANCH_PR_PATTERN_MIN_PAIRS_ESTABLISHED: 15, // stricter threshold for established accounts
+	BRANCH_PR_PATTERN_MIN_PAIRS_ESTABLISHED: 15, // stricter threshold for established accounts (same-repo check)
+	BRANCH_PR_FORK_MIN_PAIRS_ESTABLISHED: 10, // lower threshold for fork-workflow check (cross-repo match is already more specific)
 	BRANCH_PR_PATTERN_RATIO_MIN: 0.65, // >= 65% of branches must have matching PRs
 	BRANCH_PR_PATTERN_RATIO_MIN_ESTABLISHED: 0.8, // stricter ratio for established (80%)
 	BRANCH_PR_COUNT_RATIO_MIN: 0.65, // branches/PRs ratio must be >= this (low ratio = legitimate dev with many unrelated PRs)
@@ -229,6 +230,15 @@ export const CONFIG = {
 	BOUNTY_REPO_MERGE_RATE_CLEAN: 0.5, // >= 50% of closed bounty PRs merged = skip multiplier (legitimate contributor)
 	BOUNTY_MULTIPLIER_HIGH: 1.3, // >= 75% bounty PR ratio — multiplies existing automation signals
 	BOUNTY_MULTIPLIER_LOW: 1.15, // >= 40% bounty PR ratio or labeling activity — mild multiplier
+
+	// AI agent branch prefix detection
+	AI_BRANCH_MIN_CREATIONS: 3, // need at least this many branch creations to analyze
+	AI_BRANCH_RATIO_MIN: 0.5, // >= 50% of branches use AI agent prefixes
+	POINTS_AI_BRANCH_PREFIX: 30,
+
+	// Bounty label infrastructure detection
+	BOUNTY_LABEL_MIN: 3, // need at least this many bounty-labelled issues to flag
+	POINTS_BOUNTY_LABEL_INFRA: 25,
 
 	// AI commit metadata — multiplier, not a standalone signal
 	// Applies only to flags marked `amplifiable: true` (automation/spam signals).

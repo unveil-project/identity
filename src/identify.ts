@@ -4,6 +4,8 @@ import utc from "dayjs/plugin/utc";
 import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
+import { detectAIAgentBranchPrefix } from "./detectors/ai-branch-prefix";
+import { detectBountyLabelInfrastructure } from "./detectors/bounty-label-infra";
 import {
 	detectBountyRepoPRs,
 	hasBountyRepoEngagement,
@@ -91,6 +93,8 @@ export function identify({
 	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
 	flags.push(...detectCommentBeforePR(filteredEvents));
 	flags.push(...detectBountyRepoPRs(filteredEvents));
+	flags.push(...detectBountyLabelInfrastructure(filteredEvents));
+	flags.push(...detectAIAgentBranchPrefix(filteredEvents));
 	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
 
 	const organicBonus = detectOrganicSignals(filteredEvents, accountName);
@@ -116,6 +120,16 @@ export function identify({
 			label: "Predominantly AI-attributed commits",
 			points: 0,
 			detail,
+			data: [
+				{ label: "AI-attributed commits", value: commitMetadata.aiCommits },
+				{ label: "Total commits", value: commitMetadata.totalCommits },
+				{
+					label: "AI commit ratio",
+					value: `${Math.round(commitMetadata.ratio * 100)}%`,
+				},
+				{ label: "Score multiplier", value: aiMultiplier },
+			],
+			events: [],
 		});
 	}
 
