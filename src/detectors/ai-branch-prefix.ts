@@ -47,12 +47,12 @@ export function detectAIAgentBranchPrefix(
 			amplifiable: true,
 			detail: `${aiBranches.length}/${branchCreations.length} branches use AI agent tool prefixes (${detectedPrefixes.join(", ")})`,
 			data: [
+				{ label: "AI-prefixed branches", value: aiBranches.length },
 				{
-					label: "AI-prefixed branches",
-					value: aiBranches.length,
+					label: "Total branches",
+					value: branchCreations.length,
 					threshold: CONFIG.AI_BRANCH_MIN_CREATIONS,
 				},
-				{ label: "Total branches", value: branchCreations.length },
 				{
 					label: "AI branch ratio",
 					value: `${Math.round(ratio * 100)}%`,
