@@ -186,7 +186,7 @@
 </template>
 
 <script setup lang="ts">
-import type { EventConnection, GitHubEvent, GitHubUser, IdentifyFlag, IdentifyResult } from "@unveil/identity";
+import type { GitHubEvent, GitHubUser, IdentifyResult } from "@unveil/identity";
 import { identify } from "@unveil/identity";
 import { ref } from "vue";
 
@@ -222,13 +222,14 @@ async function fetchUserData(name: string): Promise<GitHubUser | null> {
 	return response.json();
 }
 
+const MAX_PAGES = 3
 async function fetchEvents(name: string): Promise<GitHubEvent[]> {
-	loadingMessage.value = "Fetching user events (page 1/2)...";
+	loadingMessage.value = `Fetching user events (page 1/${MAX_PAGES})...`;
 	const allEvents: GitHubEvent[] = [];
 
-	// Fetch 2 pages with 100 items per page = 200 events total
-	for (let page = 1; page <= 2; page++) {
-		loadingMessage.value = `Fetching user events (page ${page}/2)...`;
+	// Fetch 3 pages with 100 items per page = ~300 events total
+	for (let page = 1; page <= MAX_PAGES; page++) {
+		loadingMessage.value = `Fetching user events (page ${page}/${MAX_PAGES})...`;
 
 		const response = await fetch(
 			`https://api.github.com/users/${name}/events/public?per_page=100&page=${page}`,
