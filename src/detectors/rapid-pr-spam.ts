@@ -42,12 +42,15 @@ export function detectRapidPRSpam(
 	let maxConsecutivePairs = 0;
 	let maxConsecutiveTimeDiff = 0;
 	let targetRepo = "";
+	let maxStreakStartIdx = 0;
+	let maxStreakEndIdx = 0;
 
 	for (const [repoName, repoPRs] of prsByRepo.entries()) {
 		if (repoPRs.length < minRapidPRs) continue;
 
-		let consecutivePairs = 0;
-		let maxTimeDiff = 0;
+		let streakStart = 0;
+		let streakPairs = 0;
+		let streakMaxTimeDiff = 0;
 
 		for (let i = 0; i < repoPRs.length - 1; i++) {
 			const timeDiffSeconds = repoPRs[i + 1].time.diff(
@@ -56,23 +59,29 @@ export function detectRapidPRSpam(
 			);
 
 			if (timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS) {
-				consecutivePairs++;
-				maxTimeDiff = Math.max(maxTimeDiff, timeDiffSeconds);
+				streakPairs++;
+				streakMaxTimeDiff = Math.max(streakMaxTimeDiff, timeDiffSeconds);
+			} else {
+				streakStart = i + 1;
+				streakPairs = 0;
+				streakMaxTimeDiff = 0;
 			}
-		}
 
-		if (consecutivePairs > maxConsecutivePairs) {
-			maxConsecutivePairs = consecutivePairs;
-			maxConsecutiveTimeDiff = maxTimeDiff;
-			targetRepo = repoName;
+			if (streakPairs > maxConsecutivePairs) {
+				maxConsecutivePairs = streakPairs;
+				maxConsecutiveTimeDiff = streakMaxTimeDiff;
+				targetRepo = repoName;
+				maxStreakStartIdx = streakStart;
+				maxStreakEndIdx = i + 1;
+			}
 		}
 	}
 
 	// Compare pairs to PR count - 1 (minRapidPRs represents number of PRs, which is pairs + 1)
 	if (maxConsecutivePairs >= minRapidPRs - 1) {
-		const rapidRepoEvents = (prsByRepo.get(targetRepo) ?? []).map(
-			(entry) => entry.event,
-		);
+		const rapidRepoEvents = (prsByRepo.get(targetRepo) ?? [])
+			.slice(maxStreakStartIdx, maxStreakEndIdx + 1)
+			.map((entry) => entry.event);
 		flags.push({
 			label: "Rapid PRs to repository",
 			points: CONFIG.POINTS_RAPID_PR_SPAM,
