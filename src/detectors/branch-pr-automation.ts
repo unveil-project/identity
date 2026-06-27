@@ -190,8 +190,7 @@ export function detectBranchPRAutomation(
 							"second",
 						);
 
-						const branchOwner =
-							branchEntry.event.repo?.name?.split("/")[0];
+						const branchOwner = branchEntry.event.repo?.name?.split("/")[0];
 						const prOwner =
 							prsForProject[prIdx].event.repo?.name?.split("/")[0];
 

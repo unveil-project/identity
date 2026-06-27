@@ -157,9 +157,7 @@ export function detectExtremeAndDistributedPRSpam(
 							{
 								label: "PRs per week",
 								value:
-									timeSpanWeeks > 0
-										? parseFloat(prsPerWeek.toFixed(1))
-										: 0,
+									timeSpanWeeks > 0 ? parseFloat(prsPerWeek.toFixed(1)) : 0,
 							},
 							{ label: "PRs in last 30 days", value: prsInLast30Days },
 						],

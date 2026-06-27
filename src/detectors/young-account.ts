@@ -141,7 +141,9 @@ export function detectYoungAccountActivity(
 		// Consecutive marathon days = sustained uniform activity across many hours
 		if (maxConsecutive >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
 			const uniformDayEvents = codingEventsWithReviews.filter((e) => {
-				const day = dayjs(e.created_at ?? "").utc().format("YYYY-MM-DD");
+				const day = dayjs(e.created_at ?? "")
+					.utc()
+					.format("YYYY-MM-DD");
 				return daysWithUniformDistribution.includes(day);
 			});
 			flags.push({
@@ -166,7 +168,9 @@ export function detectYoungAccountActivity(
 			daysWithUniformDistribution.length >= CONFIG.FREQUENT_MARATHON_DAYS
 		) {
 			const uniformDayEvents = codingEventsWithReviews.filter((e) => {
-				const day = dayjs(e.created_at ?? "").utc().format("YYYY-MM-DD");
+				const day = dayjs(e.created_at ?? "")
+					.utc()
+					.format("YYYY-MM-DD");
 				return daysWithUniformDistribution.includes(day);
 			});
 			flags.push({
