@@ -131,6 +131,10 @@ export function detectBranchPRAutomation(
 							},
 						],
 						events: [...matchedBranchEvents, ...matchedPREvents],
+						connections: matchedBranchEvents.map((event, i) => ({
+							from: event,
+							to: matchedPREvents[i],
+						})),
 					});
 					return flags;
 				}
@@ -229,6 +233,10 @@ export function detectBranchPRAutomation(
 						},
 					],
 					events: [...matchedForkBranchEvents, ...matchedForkPREvents],
+					connections: matchedForkBranchEvents.map((event, i) => ({
+						from: event,
+						to: matchedForkPREvents[i],
+					})),
 				});
 			}
 		}
