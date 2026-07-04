@@ -8,30 +8,19 @@ allowed-users:
 comment-on-organic: true
 messages:
   organic: |-
-    ```markdown
     Thank you for your contribution!
-    ```
 
-    ```markdown
     ![](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGV3ZWRyd2x4Z2NjYnk4OXI2YzVjZG5vdXk5bHkzaThtbHI5NXFpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/11fot0YzpQMA0g/giphy.gif)
-    ```
+
   mixed: |-
-    ```markdown
     Your account has been detected as possibly automated, and this PR has been automatically closed.
 
     This is an automation-free zone — no droids allowed.
-    ```
 
-    ```markdown
     ![](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhoOHVidmo4cmxlNmp6enY3Y2NkZWduNHZzYXM1bmpxbTFtOWhheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9DPr4VjeCgeiLoMo/giphy.gif)
-    ```
   automation: |-
-    ```markdown
     Your account has been detected as possibly automated, and this PR has been automatically closed.
 
     This is an automation-free zone — no droids allowed.
-    ```
 
-    ```markdown
     ![](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhoOHVidmo4cmxlNmp6enY3Y2NkZWduNHZzYXM1bmpxbTFtOWhheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9DPr4VjeCgeiLoMo/giphy.gif)
-    ```
