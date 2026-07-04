@@ -7,6 +7,14 @@ allowed-users:
   - huang-julien
 comment-on-organic: true
 messages:
+  organic: |-
+    ```markdown
+    Thank you for your contribution!
+    ```
+
+    ```markdown
+    ![](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGV3ZWRyd2x4Z2NjYnk4OXI2YzVjZG5vdXk5bHkzaThtbHI5NXFpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/11fot0YzpQMA0g/giphy.gif)
+    ```
   mixed: |-
     ```markdown
     Your account has been detected as possibly automated, and this PR has been automatically closed.
