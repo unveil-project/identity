@@ -158,7 +158,7 @@ export const CONFIG = {
 	POINTS_PR_COMMENT_SPRAY_EXTREME: 38,
 	POINTS_PR_COMMENT_SPRAY_HIGH: 28,
 
-	// Branch→PR temporal correlation (automated CI/CD workflow pattern)
+	// Branch→PR temporal correlation (rapid branch-to-PR pattern, not necessarily automated)
 	BRANCH_PR_TIME_WINDOW_SECONDS: 90, // PR must follow branch within this window
 	BRANCH_PR_PATTERN_MIN_PAIRS: 8, // need at least this many correlated pairs to flag
 	BRANCH_PR_PATTERN_MIN_PAIRS_ESTABLISHED: 15, // stricter threshold for established accounts (same-repo check)
@@ -166,7 +166,7 @@ export const CONFIG = {
 	BRANCH_PR_PATTERN_RATIO_MIN: 0.65, // >= 65% of branches must have matching PRs
 	BRANCH_PR_PATTERN_RATIO_MIN_ESTABLISHED: 0.8, // stricter ratio for established (80%)
 	BRANCH_PR_COUNT_RATIO_MIN: 0.65, // branches/PRs ratio must be >= this (low ratio = legitimate dev with many unrelated PRs)
-	POINTS_BRANCH_PR_AUTOMATION: 35, // strong automation indicator
+	POINTS_BRANCH_PR_AUTOMATION: 35, // suspicious timing pattern; can also occur with fast manual workflows
 
 	// Rapid PR spam (multiple PRs to same repo in rapid succession - fork spam pattern)
 	RAPID_PR_SPAM_MIN_PRS: 4, // need at least this many rapid successive PRs to flag (young accounts)

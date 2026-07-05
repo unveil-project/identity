@@ -8,9 +8,10 @@ export function detectBranchPRAutomation(
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
-	// Pattern: Temporal branch→PR correlation (automated CI/CD workflow detection)
+	// Pattern: Temporal branch→PR correlation (fast branch-to-PR turnaround)
 	// Detects: branch created, PR submitted within short window, repeatedly (repo-scoped)
-	// This is a strong automation indicator: real developers don't mechanically repeat this pattern
+	// Note: a quick manual workflow (branch, push, open PR via CLI/web) can also land inside
+	// the window, so this is a suspicious-timing signal rather than proof of automation
 	const isEstablished = accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT;
 	const branchPRMinPairs = isEstablished
 		? CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS_ESTABLISHED
@@ -108,7 +109,7 @@ export function detectBranchPRAutomation(
 
 				if (automationRatio >= branchPRMinRatio) {
 					flags.push({
-						label: "Automated branch/PR workflow",
+						label: "Rapid branch→PR pattern",
 						points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
 						amplifiable: true,
 						detail: `${matchedPairs}/${branchCreates.length} branch creations followed by PRs within ${maxObservedTimeDiff}s`,
@@ -217,7 +218,7 @@ export function detectBranchPRAutomation(
 
 			if (automationRatio >= branchPRMinRatio) {
 				flags.push({
-					label: "Automated fork/PR workflow",
+					label: "Rapid fork→PR pattern",
 					points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
 					amplifiable: true,
 					detail: `${forkWorkflowMatches}/${branchCreates.length} fork branches followed by upstream PRs within ${forkMaxTimeDiff}s`,

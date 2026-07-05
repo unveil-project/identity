@@ -74,8 +74,8 @@ The system analyzes GitHub activity across **44 distinct heuristics** organized 
 10. **Rapid PR review comments** - 12+ distinct PRs in concentrated time window
 11. **High PR comment frequency** - 8-11 distinct PRs in concentrated time window
 
-#### Branch/PR Automation
-12. **Automated branch/PR workflow** - Near 1:1 ratio with branches consistently followed by PRs within time window
+#### Branch/PR Timing
+12. **Rapid branch→PR pattern** - Near 1:1 ratio with branches consistently followed by PRs within a short time window (suspicious timing, not conclusive proof of automation — a quick manual push-then-PR workflow can also trigger this)
 
 #### Fork Patterns (Multiple Time Windows)
 13. **Multiple forks** - 5-7 forks in 24 hours
