@@ -5,20 +5,7 @@ allowed-users:
   - matteogabriele
   - graphieros
   - huang-julien
-comment-on-organic: true
 messages:
-  organic: |-
-    Thank you for your **contribution**!
-
-    ![](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnBxZjRseTZ3a3UwbXQ4Ym5hNzZlcjdtYWpoOTZybDBxNjhpMTdocSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6MbmTd7iUDK5AiHu/giphy.gif)
-
-  mixed: |-
-    Your account has been detected as possibly automated, and this PR has been automatically closed.
-
-    This is an automation-free zone — no droids allowed.
-
-    ![](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhoOHVidmo4cmxlNmp6enY3Y2NkZWduNHZzYXM1bmpxbTFtOWhheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9DPr4VjeCgeiLoMo/giphy.gif)
-
   automation: |-
     Your account has been detected as possibly automated, and this PR has been automatically closed.
 
