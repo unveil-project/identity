@@ -16,6 +16,8 @@ export function detectZeroReposActivity(
 			label: "Only active on other people's repos",
 			points:
 				CONFIG.POINTS_ZERO_REPOS_ACTIVE + CONFIG.POINTS_NO_PERSONAL_ACTIVITY,
+			group: "external-focus",
+			amplifiable: true,
 			detail: `No personal repos, all ${events.length} events are on repos they don't own`,
 			data: [
 				{ label: "Personal repos", value: 0 },

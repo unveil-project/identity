@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
+import { calculateConfidence } from "./confidence";
 import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
@@ -14,12 +15,14 @@ import { detectBranchPRAutomation } from "./detectors/branch-pr-automation";
 import { detectClosedPRSpam } from "./detectors/closed-pr-spam";
 import { detectCommentBeforePR } from "./detectors/comment-before-pr";
 import { detectCommentSpam } from "./detectors/comment-spam";
+import { detectDormancy } from "./detectors/dormancy";
 import { detectNarrowActivityFocus } from "./detectors/event-diversity";
 import {
 	detectForkActivity,
 	detectForkCombinedActivity,
 } from "./detectors/fork-activity";
 import { detectExtremeAndDistributedPRSpam } from "./detectors/pr-spam";
+import { detectProfileSignals } from "./detectors/profile-signals";
 import { detectPushBurst } from "./detectors/push-burst";
 import { detectRapidPRSpam } from "./detectors/rapid-pr-spam";
 import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
@@ -32,25 +35,29 @@ import {
 } from "./modifiers/analyze-commit-metadata";
 import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
 import { detectOrganicSignals } from "./modifiers/organic-signals";
+import { scoreFlags } from "./scoring";
+import { estimateUtcOffset } from "./timezone";
 import type {
 	IdentifyFlag,
 	IdentifyOptions,
 	IdentifyResult,
 	IdentityClassification,
 } from "./types";
+import { analyzeWindow } from "./window";
 
 dayjs.extend(minMax);
 dayjs.extend(utc);
 
 export function identify({
-	createdAt,
-	reposCount,
-	accountName,
+	user,
 	events,
 	excludeRepos = [],
 	commits = [],
 }: IdentifyOptions): IdentifyResult {
 	const flags: IdentifyFlag[] = [];
+
+	const accountName = user.login;
+	const reposCount = user.public_repos;
 
 	const excludeReposLower = excludeRepos.map((r) => r.toLowerCase());
 	const filteredEvents = events.filter((e) => {
@@ -58,7 +65,11 @@ export function identify({
 		return repoName && !excludeReposLower.includes(repoName);
 	});
 
-	const accountAge = dayjs().diff(createdAt, "days");
+	const accountAge = dayjs().diff(user.created_at, "days");
+
+	const window = analyzeWindow(filteredEvents);
+	const timezone = estimateUtcOffset(filteredEvents);
+	const tzOffset = timezone.offsetHours;
 
 	const foreignEvents = filteredEvents.filter((e) => {
 		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
@@ -67,7 +78,22 @@ export function identify({
 
 	const isNewOrYoungAccount = accountAge < CONFIG.AGE_YOUNG_ACCOUNT;
 
+	const dormancy = detectDormancy(
+		filteredEvents,
+		accountAge,
+		reposCount,
+		window,
+	);
+
+	// Some checks are softer on old accounts. To get that, an account needs a
+	// history that matches its age, not just an old creation date.
+	const isEstablished =
+		accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT &&
+		!dormancy.isDormantReactivation;
+
 	flags.push(...detectAccountAge(accountAge));
+	flags.push(...dormancy.flags);
+	flags.push(...detectProfileSignals(user, accountAge));
 	flags.push(
 		...detectZeroReposActivity(reposCount, foreignEvents, filteredEvents),
 	);
@@ -76,10 +102,12 @@ export function identify({
 	flags.push(...detectNarrowActivityFocus(filteredEvents));
 	flags.push(...detectCommentSpam(filteredEvents));
 	flags.push(...detectWatchActivity(filteredEvents));
-	flags.push(...detectBranchPRAutomation(filteredEvents, accountAge));
-	flags.push(...detectRapidPRSpam(filteredEvents, accountAge));
-	flags.push(...detectClosedPRSpam(filteredEvents, accountAge, accountName));
-	flags.push(...detectForkActivity(filteredEvents));
+	flags.push(...detectBranchPRAutomation(filteredEvents, isEstablished));
+	flags.push(...detectRapidPRSpam(filteredEvents, isEstablished));
+	flags.push(
+		...detectClosedPRSpam(filteredEvents, isEstablished, accountName, tzOffset),
+	);
+	flags.push(...detectForkActivity(filteredEvents, tzOffset));
 	flags.push(...detectForkCombinedActivity(filteredEvents));
 	flags.push(
 		...detectYoungAccountActivity(
@@ -87,10 +115,11 @@ export function identify({
 			reposCount,
 			isNewOrYoungAccount,
 			accountName,
+			tzOffset,
 		),
 	);
 	flags.push(...detectPushBurst(filteredEvents));
-	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
+	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents, window));
 	flags.push(...detectCommentBeforePR(filteredEvents));
 	flags.push(...detectBountyRepoPRs(filteredEvents));
 	flags.push(...detectBountyLabelInfrastructure(filteredEvents));
@@ -119,6 +148,7 @@ export function identify({
 		flags.push({
 			label: "Predominantly AI-attributed commits",
 			points: 0,
+			group: "ai-attribution",
 			detail,
 			data: [
 				{ label: "AI-attributed commits", value: commitMetadata.aiCommits },
@@ -135,14 +165,14 @@ export function identify({
 
 	// Invert score: 100 = human, 0 = bot
 	const bountyMultiplier = getBountyMultiplier(filteredEvents) ?? 1;
-	const score = flags.reduce((total, flag) => {
-		const effective = flag.amplifiable
-			? Math.round(flag.points * aiMultiplier * bountyMultiplier)
-			: flag.points;
-		return total + effective;
-	}, 0);
+	const scored = scoreFlags(flags, { aiMultiplier, bountyMultiplier });
 
-	const humanScore = Math.min(100, Math.max(0, 100 - score + organicBonus));
+	const humanScore = Math.min(
+		100,
+		Math.max(0, 100 - scored.total + organicBonus),
+	);
+
+	const confidence = calculateConfidence(window);
 
 	let classification: IdentityClassification = "automation";
 	if (humanScore >= CONFIG.THRESHOLD_HUMAN) {
@@ -151,11 +181,26 @@ export function identify({
 		classification = "mixed";
 	}
 
+	// Too little activity is not proof that an account is fine.
+	// But if an account still triggers automation checks with
+	// only a few events, that result stands.
+	const hasInsufficientEvidence =
+		window.eventCount < CONFIG.MIN_EVENTS_FOR_CLASSIFICATION ||
+		confidence < CONFIG.CONFIDENCE_MIN_FOR_RESULT;
+
+	if (hasInsufficientEvidence && classification === "organic") {
+		classification = "insufficient-data";
+	}
+
 	return {
 		score: humanScore,
 		classification,
+		confidence,
 		isBountyHunter,
-		flags,
+		flags: scored.flags,
+		groups: scored.groups,
+		window,
+		timezone,
 		profile: {
 			age: accountAge,
 			repos: reposCount,

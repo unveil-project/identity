@@ -10,6 +10,14 @@ export function getClassificationDetails(
 		};
 	}
 
+	if (classification === "insufficient-data") {
+		return {
+			label: "Insufficient data",
+			description:
+				"Too little activity to judge. This is an absence of evidence, not a clean result.",
+		};
+	}
+
 	if (classification === "organic") {
 		return {
 			label: "Organic activity",

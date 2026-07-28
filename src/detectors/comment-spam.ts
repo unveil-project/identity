@@ -1,6 +1,20 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
 import type { GitHubEvent, IdentifyFlag } from "../types";
+import { type RampAnchor, rampPoints } from "../utils";
+
+const ISSUE_COMMENT_RAMP: readonly RampAnchor[] = [
+	[CONFIG.ISSUE_COMMENT_SPRAY_HIGH, CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH],
+	[
+		CONFIG.ISSUE_COMMENT_SPRAY_EXTREME,
+		CONFIG.POINTS_ISSUE_COMMENT_SPRAY_EXTREME,
+	],
+];
+
+const PR_COMMENT_RAMP: readonly RampAnchor[] = [
+	[CONFIG.PR_COMMENT_SPRAY_HIGH, CONFIG.POINTS_PR_COMMENT_SPRAY_HIGH],
+	[CONFIG.PR_COMMENT_SPRAY_EXTREME, CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME],
+];
 
 export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
@@ -74,7 +88,8 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				.map((item) => item.event);
 			flags.push({
 				label: "Rapid comments across repositories",
-				points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_EXTREME,
+				points: rampPoints(maxDistinctReposInWindow, ISSUE_COMMENT_RAMP),
+				group: "comment-volume",
 				amplifiable: true,
 				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 				data: [
@@ -102,7 +117,8 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				.map((item) => item.event);
 			flags.push({
 				label: "High comment frequency across repos",
-				points: CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH,
+				points: rampPoints(maxDistinctReposInWindow, ISSUE_COMMENT_RAMP),
+				group: "comment-volume",
 				amplifiable: true,
 				detail: `${commentsInWindow} comments to ${maxDistinctReposInWindow} different repos in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 				data: [
@@ -194,7 +210,8 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				.map((item) => item.event);
 			flags.push({
 				label: "Rapid PR review comments",
-				points: CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME,
+				points: rampPoints(maxDistinctPRsInWindow, PR_COMMENT_RAMP),
+				group: "pr-comment-volume",
 				amplifiable: true,
 				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 				data: [
@@ -221,7 +238,8 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				.map((item) => item.event);
 			flags.push({
 				label: "High PR comment frequency",
-				points: CONFIG.POINTS_PR_COMMENT_SPRAY_HIGH,
+				points: rampPoints(maxDistinctPRsInWindow, PR_COMMENT_RAMP),
+				group: "pr-comment-volume",
 				amplifiable: true,
 				detail: `${commentsInWindow} comments on ${maxDistinctPRsInWindow} different PRs in ${timeSpanMinutes} minute${timeSpanMinutes === 1 ? "" : "s"}`,
 				data: [

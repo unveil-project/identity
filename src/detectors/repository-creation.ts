@@ -1,6 +1,12 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
 import type { GitHubEvent, IdentifyFlag } from "../types";
+import { type RampAnchor, rampPoints } from "../utils";
+
+const CREATE_BURST_RAMP: readonly RampAnchor[] = [
+	[CONFIG.CREATE_BURST_HIGH, CONFIG.POINTS_CREATE_BURST_HIGH],
+	[CONFIG.CREATE_BURST_EXTREME, CONFIG.POINTS_CREATE_BURST_EXTREME],
+];
 
 export function detectRepositoryCreationBurst(
 	events: GitHubEvent[],
@@ -53,10 +59,13 @@ export function detectRepositoryCreationBurst(
 			maxWindowEndIdx + 1,
 		);
 
+		const burstPoints = rampPoints(maxCreatesInWindow, CREATE_BURST_RAMP);
+
 		if (maxCreatesInWindow >= CONFIG.CREATE_BURST_EXTREME) {
 			flags.push({
 				label: "Concentrated repository creation",
-				points: CONFIG.POINTS_CREATE_BURST_EXTREME,
+				points: burstPoints,
+				group: "repo-creation",
 				amplifiable: true,
 				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
 				data: [
@@ -72,7 +81,8 @@ export function detectRepositoryCreationBurst(
 		} else if (maxCreatesInWindow >= CONFIG.CREATE_BURST_HIGH) {
 			flags.push({
 				label: "Frequent repository creation",
-				points: CONFIG.POINTS_CREATE_BURST_HIGH,
+				points: burstPoints,
+				group: "repo-creation",
 				amplifiable: true,
 				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
 				data: [

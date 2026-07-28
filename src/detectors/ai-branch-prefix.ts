@@ -44,6 +44,7 @@ export function detectAIAgentBranchPrefix(
 		{
 			label: "AI agent branch naming pattern",
 			points: CONFIG.POINTS_AI_BRANCH_PREFIX,
+			group: "ai-attribution",
 			amplifiable: true,
 			detail: `${aiBranches.length}/${branchCreations.length} branches use AI agent tool prefixes (${detectedPrefixes.join(", ")})`,
 			data: [

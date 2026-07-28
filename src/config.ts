@@ -3,6 +3,24 @@ export const CONFIG = {
 	THRESHOLD_HUMAN: 70, // >= this = "human"
 	THRESHOLD_SUSPICIOUS: 50, // >= this = "suspicious", below = "likely_bot"
 
+	// Flag groups
+	// In one group the biggest flag counts fully, the other flags count this much
+	EXTRA_FLAG_WEIGHT: 0.25,
+
+	// GitHub never gives more events than this, and only goes back about 90 days
+	EVENTS_WINDOW_CAP: 300,
+
+	// How much activity we need before we trust a "looks fine" result
+	MIN_EVENTS_FOR_CLASSIFICATION: 10,
+	CONFIDENCE_FULL_EVENTS: 60, // this many events is as sure as we get
+	CONFIDENCE_FULL_SPAN_DAYS: 30, // this many days is as sure as we get
+	CONFIDENCE_MIN_FOR_RESULT: 0.35, // under this we say "insufficient-data"
+
+	// Guessing the account's timezone
+	TZ_MIN_EVENTS: 20, // we need this many events before we try
+	TZ_LOCAL_ACTIVITY_CENTER: 14, // we assume people are busiest at 2pm their time
+	TZ_MIN_CONFIDENCE: 0.15, // under this there is no clear pattern, so we use 0
+
 	// Account age thresholds (days)
 	AGE_NEW_ACCOUNT: 30, // < this = "new account"
 	AGE_YOUNG_ACCOUNT: 90, // < this = "young account"
@@ -11,14 +29,19 @@ export const CONFIG = {
 	POINTS_NEW_ACCOUNT: 20,
 	POINTS_YOUNG_ACCOUNT: 10,
 
-	// Identity penalty
-	POINTS_NO_IDENTITY: 15,
+	// Old accounts that sat unused and then woke up (these get bought and sold)
+	DORMANCY_INFERRED_MIN_AGE_DAYS: 365, // account at least this old
+	DORMANCY_INFERRED_MAX_SPAN_DAYS: 21, // ...and all activity we see fits in this many days
+	DORMANCY_INFERRED_MAX_REPOS: 2, // ...and it has almost no repos
+	POINTS_DORMANT_REACTIVATION: 30,
 
-	// Follow ratio thresholds
+	// Profile checks (from GET /users/{username})
+	POINTS_NO_IDENTITY: 15,
 	FOLLOW_RATIO_FOLLOWING_MIN: 50, // following > this AND followers < FOLLOW_RATIO_FOLLOWERS_MAX
 	FOLLOW_RATIO_FOLLOWERS_MAX: 5,
 	POINTS_FOLLOW_RATIO: 15,
 	POINTS_ZERO_FOLLOWERS: 10,
+	ZERO_FOLLOWERS_MIN_AGE_DAYS: 90, // new accounts need time, so only check older ones
 
 	// Minimum events required for activity analysis
 	MIN_EVENTS_FOR_ANALYSIS: 10,
@@ -28,11 +51,10 @@ export const CONFIG = {
 	FORKS_HIGH: 5, // >= this forks within 24 hours = "multiple forks"
 	FORKS_SURGE_SEVERE: 20, // >= this forks within 24 hours = severe automation
 	FORKS_SURGE_EXTREME_HIGH: 35, // >= this forks within 24 hours = extreme automation
-	FORK_SURGE_WINDOW_HOURS: 24, // time window to detect fork clustering (spam is spam)
-	POINTS_FORK_SURGE: 51, // points for 8-19 forks in 24 hours
-	POINTS_FORK_SURGE_SEVERE: 70, // points for 20-34 forks in 24 hours
-	POINTS_FORK_SURGE_EXTREME_HIGH: 85, // points for 35+ forks in 24 hours
-	POINTS_MULTIPLE_FORKS: 26, // points for 5-7 forks in 24 hours
+	POINTS_FORK_SURGE: 51, // points at exactly FORKS_EXTREME forks in 24 hours
+	POINTS_FORK_SURGE_SEVERE: 70, // points at exactly FORKS_SURGE_SEVERE forks
+	POINTS_FORK_SURGE_EXTREME_HIGH: 85, // points at FORKS_SURGE_EXTREME_HIGH forks and above
+	POINTS_MULTIPLE_FORKS: 26, // points at exactly FORKS_HIGH forks in 24 hours
 
 	// Multi-day fork surge (catches forks spread across multiple days)
 	FORKS_SURGE_48H: 18, // >= this forks within 48 hours = multi-day surge
@@ -71,28 +93,27 @@ export const CONFIG = {
 	POINTS_EXTREME_REPO_SPREAD_YOUNG: 30,
 	POINTS_WIDE_REPO_SPREAD_YOUNG: 15,
 
-	// External PR thresholds (time-based to catch rapid spam)
-	PRS_TODAY_EXTREME: 15, // >= this in 24h = PR burst
-	PRS_WEEK_HIGH: 20, // >= this in 7 days = high frequency
+	// External PRs (we use the busiest stretch anywhere in the data)
+	PRS_TODAY_EXTREME: 15, // >= this in any 24 hours = PR burst
+	PRS_WEEK_HIGH: 20, // >= this in any 7 days = high frequency
 	POINTS_PR_BURST: 20,
 	POINTS_HIGH_PR_FREQUENCY: 15,
 
-	// Extreme PR spam detection (ALL accounts, time-windowed)
-	PRS_DAY_EXTREME: 30, // >= this PRs in 24h = extreme daily spam
+	// Extreme PR spam (all accounts, busiest stretch anywhere in the data)
+	PRS_DAY_EXTREME: 30, // >= this many PRs in any 24 hours = extreme daily spam
 	POINTS_PRS_DAY_EXTREME: 45,
-	PRS_WEEK_EXTREME: 100, // >= this PRs in 7 days = extreme weekly spam
+	PRS_WEEK_EXTREME: 100, // >= this many PRs in any 7 days = extreme weekly spam
 	POINTS_PRS_WEEK_EXTREME: 50,
-	PRS_WEEK_VERY_HIGH: 50, // >= this PRs in 7 days = very high weekly spam
+	PRS_WEEK_VERY_HIGH: 50, // >= this many PRs in any 7 days = very high weekly spam
 	POINTS_PRS_WEEK_VERY_HIGH: 40,
 
 	// Distributed PR spam (high PR count + many repos)
 	PRS_SPAM_VOLUME: 50, // PR count threshold for combined check
 	REPOS_SPAM_SPREAD: 15, // repos threshold for combined check
-	POINTS_PR_SPAM_COMBINED: 45, // for combined high PR + repo spread
 
 	// Distributed PR spam density guards (prevent flagging long-term contributors)
 	PRS_SPAM_DENSITY_PER_WEEK: 15, // >= this PRs/week = suspicious density (distributed spam)
-	PRS_SPAM_ROLLING_30DAYS: 60, // >= this PRs in last 30 days + meets repo spread = flag
+	PRS_SPAM_ROLLING_30DAYS: 60, // >= this many PRs in any 30 days + many repos = flag
 	POINTS_PR_SPAM_DISTRIBUTED: 45, // points for distributed spam pattern
 
 	// PR-only contributor
@@ -101,9 +122,7 @@ export const CONFIG = {
 	POINTS_PR_ONLY_CONTRIBUTOR: 20,
 
 	// External activity ratio
-	FOREIGN_RATIO_FULL: 1, // 100% external
 	FOREIGN_RATIO_HIGH: 0.95, // 95%+ external
-	PERSONAL_REPOS_NONE: 3, // < this with 100% external = suspicious
 	POINTS_NO_PERSONAL_ACTIVITY: 30,
 	POINTS_EXTERNAL_FOCUS: 20,
 
@@ -117,9 +136,6 @@ export const CONFIG = {
 	POINTS_HIGH_ACTIVITY_DENSITY: 15,
 	POINTS_EXTREME_ACTIVITY_DENSITY: 25,
 
-	HOURLY_ACTIVITY_HIGH: 50,
-	HOURLY_ACTIVITY_EXTREME: 100,
-
 	TIGHT_COMMIT_SECONDS: 60 * 10,
 	TIGHT_COMMIT_THRESHOLD_GLOBAL: 70,
 	POINTS_TIGHT_BURST: 25,
@@ -131,15 +147,14 @@ export const CONFIG = {
 	POINTS_CREATE_BURST_EXTREME: 35,
 	POINTS_CREATE_BURST_HIGH: 25,
 
-	// 24/7 activity pattern (no sleep) - adjusted for fewer false positives
-	HOURS_ACTIVE_EXTREME: 21, // activity across 21+ hours = suspicious (no realistic sleep)
-	HOURS_ACTIVE_EXTREME_ESTABLISHED: 23, // stricter threshold for established accounts (23+ hours)
-	EVENTS_PER_HOUR_MIN: 2.0, // minimum events per active hour for 24/7 pattern
+	// 24/7 activity (we slide a 24 hour window over the events, not calendar days)
+	HOURS_ACTIVE_EXTREME: 21, // busy in 21+ different hours = suspicious
+	EVENTS_PER_HOUR_MIN: 2.0, // each busy hour needs at least this many events
+	REST_GAP_MIN_HOURS: 3, // longest quiet gap under this = no time to sleep
 	POINTS_24_7_ACTIVITY: 25,
-	AGE_ESTABLISHED_ACCOUNT: 1000, // accounts older than this (days) use stricter thresholds
+	AGE_ESTABLISHED_ACCOUNT: 1000, // accounts older than this (days) can get softer checks
 
 	// Event type diversity (bots have narrow activity)
-	EVENT_TYPE_DIVERSITY_MIN: 2, // <= 2 event types = very limited diversity
 	POINTS_LOW_DIVERSITY: 20,
 
 	// Issue comment spam (multiple comments to different repos in short timeframe)
@@ -179,9 +194,11 @@ export const CONFIG = {
 	CLOSED_PR_REPO_SPREAD: 3, // minimum different repos for spray detection
 	CLOSED_PR_TIME_WINDOW_MINUTES: 60, // PRs closed within this window = concentrated spray
 	CLOSED_PR_MIN_DENSITY: 1, // minimum PRs per day average to flag spray pattern
-	POINTS_CLOSED_PR_SPAM: 35, // base points for 5-24 closed PRs spread across repos
-	POINTS_CLOSED_PR_SPAM_HIGH: 55, // 25-99 closed PRs = high volume rejected submissions
-	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // 100+ closed PRs = extreme volume ecosystem-wide spam
+	CLOSED_PR_VOLUME_HIGH: 25, // 25+ closed PRs = high volume rejected submissions
+	CLOSED_PR_VOLUME_EXTREME: 100, // 100+ closed PRs = ecosystem-wide spam
+	POINTS_CLOSED_PR_SPAM: 35, // points at exactly CLOSED_PR_SPAM_MIN closed PRs
+	POINTS_CLOSED_PR_SPAM_HIGH: 55, // points at CLOSED_PR_VOLUME_HIGH
+	POINTS_CLOSED_PR_SPAM_EXTREME: 75, // points at CLOSED_PR_VOLUME_EXTREME and above
 	POINTS_CLOSED_PR_SPAM_BURST_EXTREME: 80, // 100+ closed PRs in burst = coordinated attack
 
 	// Limited community engagement (young accounts with zero engagement event types)

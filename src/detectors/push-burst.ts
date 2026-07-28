@@ -45,6 +45,7 @@ export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
 		flags.push({
 			label: "High push frequency",
 			points: CONFIG.POINTS_TIGHT_BURST,
+			group: "timing",
 			amplifiable: true,
 			detail: `${tightBurstCount} consecutive same-repo push pairs within ${windowMinutes} min of each other (${tightPushIndices.size} pushes involved)`,
 			data: [

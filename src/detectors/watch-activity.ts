@@ -1,6 +1,12 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
 import type { GitHubEvent, IdentifyFlag } from "../types";
+import { type RampAnchor, rampPoints } from "../utils";
+
+const WATCH_RAMP: readonly RampAnchor[] = [
+	[CONFIG.WATCH_SPAM_REPOS_HIGH, CONFIG.POINTS_WATCH_SPAM_HIGH],
+	[CONFIG.WATCH_SPAM_REPOS_EXTREME, CONFIG.POINTS_WATCH_SPAM_EXTREME],
+];
 
 export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
@@ -65,10 +71,13 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		.slice(maxWindowStartIdx, maxWindowEndIdx + 1)
 		.map((item) => item.event);
 
+	const watchPoints = rampPoints(maxReposInWindow, WATCH_RAMP);
+
 	if (maxReposInWindow >= CONFIG.WATCH_SPAM_REPOS_EXTREME) {
 		flags.push({
 			label: "Very high starring rate",
-			points: CONFIG.POINTS_WATCH_SPAM_EXTREME,
+			points: watchPoints,
+			group: "watch",
 			amplifiable: true,
 			detail: `${maxReposInWindow} repositories starred within ${hoursSpan} hour${hoursSpan === 1 ? "" : "s"}`,
 			data: [
@@ -85,7 +94,8 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 	} else {
 		flags.push({
 			label: "High starring rate",
-			points: CONFIG.POINTS_WATCH_SPAM_HIGH,
+			points: watchPoints,
+			group: "watch",
 			amplifiable: true,
 			detail: `${maxReposInWindow} repositories starred within ${hoursSpan} hour${hoursSpan === 1 ? "" : "s"}`,
 			data: [

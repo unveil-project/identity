@@ -1,10 +1,22 @@
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
 import type { GitHubEvent, IdentifyFlag } from "../types";
 
-dayjs.extend(utc);
+type RestWindow = {
+	start: dayjs.Dayjs;
+	end: dayjs.Dayjs;
+	hoursActive: number;
+	restGap: number;
+	eventCount: number;
+};
 
+/**
+ * Find any 24 hours where the account never stopped long enough to sleep.
+ *
+ * We slide a 24 hour window over the events instead of looking at each calendar
+ * day. Calendar days depend on the timezone, so a busy night that runs over
+ * midnight would be split in two and we would miss it.
+ */
 export function detectInhumanActivityPattern(
 	events: GitHubEvent[],
 ): IdentifyFlag[] {
@@ -14,100 +26,107 @@ export function detectInhumanActivityPattern(
 		return flags;
 	}
 
-	// 24/7 activity pattern detection - ONLY PER-DAY ANALYSIS
-	// Global hours across multiple days is meaningless - someone codes at different times on different days
-	// Only flag if a SINGLE DAY shows no realistic sleep window (< 3 hours gap)
-	const eventsByDay = new Map<string, Set<number>>();
-	events.forEach((e) => {
-		const day = dayjs.utc(e.created_at).format("YYYY-MM-DD");
-		const hour = dayjs.utc(e.created_at).hour();
-		if (!eventsByDay.has(day)) {
-			eventsByDay.set(day, new Set());
+	const times = events
+		.map((event) => ({ event, time: dayjs(event.created_at) }))
+		.filter((entry) => entry.time.isValid())
+		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+
+	if (times.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+		return flags;
+	}
+
+	const timeline = times.map((entry) => entry.time);
+	let worst: RestWindow | null = null;
+
+	for (let start = 0; start < timeline.length; start++) {
+		const windowStart = timeline[start];
+		if (!windowStart) continue;
+		const windowEnd = windowStart.add(24, "hour");
+
+		let end = start;
+		while (end < timeline.length) {
+			if (!timeline[end]?.isBefore(windowEnd)) break;
+			end++;
 		}
-		eventsByDay.get(day)?.add(hour);
-	});
 
-	// Find the day with the most suspicious 24/7 pattern
-	type DaySuspiciousPattern = {
-		day: string;
-		hoursActive: number;
-		restGap: number;
-		eventCount: number;
-	};
-	let dayWithMostSuspiciousPattern: DaySuspiciousPattern | null = null;
-	let minRestWindowFound = 24;
+		const eventCount = end - start;
+		if (eventCount < CONFIG.MIN_EVENTS_FOR_ANALYSIS) continue;
 
-	eventsByDay.forEach((hoursInDay, day) => {
-		const hoursActive = hoursInDay.size;
-		const eventsOnDay = events.filter(
-			(e) => dayjs.utc(e.created_at).format("YYYY-MM-DD") === day,
-		).length;
+		// Count busy hours from the start of the window, not from midnight.
+		const activeSlots = new Set<number>();
+		let maxGap = 0;
+		let previous = windowStart;
 
-		// Only check days with significant activity
-		if (hoursActive >= CONFIG.HOURS_ACTIVE_EXTREME && eventsOnDay >= 10) {
-			const avgEventsPerHour = eventsOnDay / hoursActive;
-			const meetsEventThreshold =
-				avgEventsPerHour >= CONFIG.EVENTS_PER_HOUR_MIN;
-
-			// Only consider days that meet event density requirement
-			if (meetsEventThreshold) {
-				const sortedHours = Array.from(hoursInDay).sort((a, b) => a - b);
-
-				// Find the largest rest window (sleep gap) in this specific day
-				const firstHour = sortedHours[0];
-				const lastHour = sortedHours[sortedHours.length - 1];
-				let maxRestThisDay = 24 - lastHour + firstHour - 1; // wrap-around gap, consistent -1 with intra-day logic
-
-				for (let i = 0; i < sortedHours.length - 1; i++) {
-					const gap = sortedHours[i + 1] - sortedHours[i] - 1;
-					maxRestThisDay = Math.max(maxRestThisDay, gap);
-				}
-
-				// Track the day with smallest rest window (most suspicious)
-				if (maxRestThisDay < minRestWindowFound) {
-					minRestWindowFound = maxRestThisDay;
-					dayWithMostSuspiciousPattern = {
-						day,
-						hoursActive,
-						restGap: maxRestThisDay,
-						eventCount: eventsOnDay,
-					} as DaySuspiciousPattern;
-				}
-			}
+		for (let i = start; i < end; i++) {
+			const time = timeline[i];
+			if (!time) continue;
+			activeSlots.add(Math.floor(time.diff(windowStart, "hour", true)));
+			const gap = time.diff(previous, "hour", true);
+			if (gap > maxGap) maxGap = gap;
+			previous = time;
 		}
-	});
 
-	// Only flag if found a day with unrealistic sleep (< 3 hours = no real sleep possible)
-	if (dayWithMostSuspiciousPattern) {
-		const pattern: DaySuspiciousPattern = dayWithMostSuspiciousPattern;
-		if (minRestWindowFound < 3) {
-			let points: number = CONFIG.POINTS_24_7_ACTIVITY;
-			if (minRestWindowFound < 1) {
-				points = Math.round(points * 1.5);
-			}
+		// The quiet time after the last event is rest too.
+		const trailingGap = windowEnd.diff(previous, "hour", true);
+		if (trailingGap > maxGap) maxGap = trailingGap;
 
-			const dayEvents = events.filter(
-				(e) => dayjs.utc(e.created_at).format("YYYY-MM-DD") === pattern.day,
-			);
-			flags.push({
-				label: "24/7 activity pattern",
-				points,
-				amplifiable: true,
-				detail: `${pattern.day}: active across ${pattern.hoursActive} hours with only ${minRestWindowFound} hour${minRestWindowFound === 1 ? "" : "s"} rest`,
-				data: [
-					{ label: "Date", value: pattern.day },
-					{
-						label: "Hours active",
-						value: pattern.hoursActive,
-						threshold: CONFIG.HOURS_ACTIVE_EXTREME,
-					},
-					{ label: "Rest hours", value: minRestWindowFound },
-					{ label: "Events on that day", value: pattern.eventCount },
-				],
-				events: dayEvents,
-			});
+		const hoursActive = activeSlots.size;
+		if (hoursActive < CONFIG.HOURS_ACTIVE_EXTREME) continue;
+		if (eventCount / hoursActive < CONFIG.EVENTS_PER_HOUR_MIN) continue;
+
+		if (!worst || maxGap < worst.restGap) {
+			worst = {
+				start: windowStart,
+				end: windowEnd,
+				hoursActive,
+				restGap: maxGap,
+				eventCount,
+			};
 		}
 	}
+
+	if (!worst || worst.restGap >= CONFIG.REST_GAP_MIN_HOURS) {
+		return flags;
+	}
+
+	let points: number = CONFIG.POINTS_24_7_ACTIVITY;
+	if (worst.restGap < 1) {
+		points = Math.round(points * 1.5);
+	}
+
+	const windowStart = worst.start;
+	const windowEnd = worst.end;
+	const windowEvents = times
+		.filter(
+			(entry) =>
+				!entry.time.isBefore(windowStart) && entry.time.isBefore(windowEnd),
+		)
+		.map((entry) => entry.event);
+
+	const restLabel = worst.restGap.toFixed(1);
+
+	flags.push({
+		label: "24/7 activity pattern",
+		points,
+		group: "timing",
+		amplifiable: true,
+		detail: `24 hours from ${windowStart.toISOString()}: active across ${worst.hoursActive} hours with a longest rest of only ${restLabel} hours`,
+		data: [
+			{ label: "Window start", value: windowStart.toISOString() },
+			{
+				label: "Hours active",
+				value: worst.hoursActive,
+				threshold: CONFIG.HOURS_ACTIVE_EXTREME,
+			},
+			{
+				label: "Longest rest (hours)",
+				value: parseFloat(restLabel),
+				threshold: CONFIG.REST_GAP_MIN_HOURS,
+			},
+			{ label: "Events in window", value: worst.eventCount },
+		],
+		events: windowEvents,
+	});
 
 	return flags;
 }
