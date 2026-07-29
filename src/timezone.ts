@@ -70,7 +70,9 @@ export function toLocal(
 	value: string | undefined | null,
 	offsetHours: number,
 ): dayjs.Dayjs {
-	return dayjs.utc(value ?? undefined).add(offsetHours, "hour");
+	// A missing timestamp stays invalid: `undefined` would make Day.js fall back
+	// to "now", which silently turns missing data into today.
+	return dayjs.utc(value ?? null).add(offsetHours, "hour");
 }
 
 /** The day in the account's own local time, as YYYY-MM-DD. */

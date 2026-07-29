@@ -69,6 +69,10 @@ export function detectClosedPRSpam(
 	// Find days with a lot of closed PRs. Days use the account's own local time.
 	const prsByDay = new Map<string, number>();
 	closedPREvents.forEach((e) => {
+		if (!e.created_at) {
+			return;
+		}
+
 		const day = localDay(e.created_at, tzOffsetHours);
 		prsByDay.set(day, (prsByDay.get(day) || 0) + 1);
 	});

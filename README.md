@@ -42,7 +42,7 @@ console.log(analysis);
 //   flags: [],
 //   groups: [],                  // how much each group took off the score
 //   window: {                    // the events we looked at
-//     eventCount: 184,
+//     eventCount: 100,
 //     spanDays: 46.2,
 //     saturated: false,          // true = GitHub capped the list, counts are minimums
 //     firstEventAt: "...",

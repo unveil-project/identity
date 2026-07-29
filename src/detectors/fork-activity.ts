@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
-import { localDay } from "../timezone";
+import { toLocal } from "../timezone";
 import type { GitHubEvent, IdentifyFlag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
@@ -262,9 +262,13 @@ export function detectForkActivity(
 	// Not a single concentrated burst (which is already flagged above)
 	// Group by day in the account's own local time, so one late night of forking
 	// counts as one day and not two
+	// Events without a usable timestamp are skipped: they cannot belong to a day,
+	// and a placeholder key would inflate the day count and break the streak sort
 	const forkDays = new Set<string>();
 	forkEvents.forEach((e) => {
-		forkDays.add(localDay(e.created_at, tzOffsetHours));
+		const local = toLocal(e.created_at, tzOffsetHours);
+		if (!local.isValid()) return;
+		forkDays.add(local.format("YYYY-MM-DD"));
 	});
 
 	if (forkDays.size >= CONFIG.CONSECUTIVE_FORK_DAYS && !forkSpikeFlag) {
@@ -299,7 +303,9 @@ export function detectForkActivity(
 				sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
 			const streakEndDay = sortedForkDays[maxStreakEnd];
 			const streakEvents = forkEvents.filter((e) => {
-				const day = localDay(e.created_at, tzOffsetHours);
+				const local = toLocal(e.created_at, tzOffsetHours);
+				if (!local.isValid()) return false;
+				const day = local.format("YYYY-MM-DD");
 				return (
 					streakStartDay &&
 					streakEndDay &&

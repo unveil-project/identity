@@ -148,10 +148,12 @@ export function detectYoungAccountActivity(
 
 		// Consecutive marathon days = sustained uniform activity across many hours
 		if (maxConsecutive >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
-			const uniformDayEvents = codingEventsWithReviews.filter((e) =>
-				daysWithUniformDistribution.includes(
-					localDay(e.created_at, tzOffsetHours),
-				),
+			const uniformDayEvents = codingEventsWithReviews.filter(
+				(e) =>
+					e.created_at &&
+					daysWithUniformDistribution.includes(
+						localDay(e.created_at, tzOffsetHours),
+					),
 			);
 			flags.push({
 				label: "Extended daily coding",
@@ -176,10 +178,12 @@ export function detectYoungAccountActivity(
 		} else if (
 			daysWithUniformDistribution.length >= CONFIG.FREQUENT_MARATHON_DAYS
 		) {
-			const uniformDayEvents = codingEventsWithReviews.filter((e) =>
-				daysWithUniformDistribution.includes(
-					localDay(e.created_at, tzOffsetHours),
-				),
+			const uniformDayEvents = codingEventsWithReviews.filter(
+				(e) =>
+					e.created_at &&
+					daysWithUniformDistribution.includes(
+						localDay(e.created_at, tzOffsetHours),
+					),
 			);
 			flags.push({
 				label: "Frequent long coding days",
