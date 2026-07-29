@@ -13,8 +13,7 @@ export function getClassificationDetails(
 	if (classification === "insufficient-data") {
 		return {
 			label: "Insufficient data",
-			description:
-				"Too little activity to judge. This is an absence of evidence, not a clean result.",
+			description: "Not enough activity yet to make a reliable assessment.",
 		};
 	}
 
