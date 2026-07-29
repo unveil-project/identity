@@ -22,7 +22,6 @@ import {
 	detectForkCombinedActivity,
 } from "./detectors/fork-activity";
 import { detectExtremeAndDistributedPRSpam } from "./detectors/pr-spam";
-import { detectProfileSignals } from "./detectors/profile-signals";
 import { detectPushBurst } from "./detectors/push-burst";
 import { detectRapidPRSpam } from "./detectors/rapid-pr-spam";
 import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
@@ -93,7 +92,6 @@ export function identify({
 
 	flags.push(...detectAccountAge(accountAge));
 	flags.push(...dormancy.flags);
-	flags.push(...detectProfileSignals(user, accountAge));
 	flags.push(
 		...detectZeroReposActivity(reposCount, foreignEvents, filteredEvents),
 	);
