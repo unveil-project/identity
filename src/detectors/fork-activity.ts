@@ -2,12 +2,25 @@ import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
+import { toLocal } from "../timezone";
 import type { GitHubEvent, IdentifyFlag } from "../types";
+import { type RampAnchor, rampPoints } from "../utils";
 
 dayjs.extend(utc);
 dayjs.extend(minMax);
 
-export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
+/** Points for forks in a 24 hour window, sliding between the steps below. */
+const FORK_24H_RAMP: readonly RampAnchor[] = [
+	[CONFIG.FORKS_HIGH, CONFIG.POINTS_MULTIPLE_FORKS],
+	[CONFIG.FORKS_EXTREME, CONFIG.POINTS_FORK_SURGE],
+	[CONFIG.FORKS_SURGE_SEVERE, CONFIG.POINTS_FORK_SURGE_SEVERE],
+	[CONFIG.FORKS_SURGE_EXTREME_HIGH, CONFIG.POINTS_FORK_SURGE_EXTREME_HIGH],
+];
+
+export function detectForkActivity(
+	events: GitHubEvent[],
+	tzOffsetHours = 0,
+): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
 	// Fork surge - applies uniformly to all accounts (detects time-based spike in forking)
@@ -70,6 +83,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 	// Using independent if-blocks for 48h/72h prevents a weaker 24h match from hiding
 	// a stronger multi-day surge.
 	const forkSpikeCandidates: IdentifyFlag[] = [];
+	const forks24hPoints = rampPoints(maxForksIn24h, FORK_24H_RAMP);
 
 	// 24h window — descending severity, at most one candidate added
 	if (maxForksIn24h >= CONFIG.FORKS_SURGE_EXTREME_HIGH) {
@@ -78,7 +92,8 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			.map((e) => e.event);
 		forkSpikeCandidates.push({
 			label: "Extreme fork automation",
-			points: CONFIG.POINTS_FORK_SURGE_EXTREME_HIGH,
+			points: forks24hPoints,
+			group: "fork",
 			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
 			data: [
@@ -97,7 +112,8 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			.map((e) => e.event);
 		forkSpikeCandidates.push({
 			label: "Severe fork surge",
-			points: CONFIG.POINTS_FORK_SURGE_SEVERE,
+			points: forks24hPoints,
+			group: "fork",
 			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
 			data: [
@@ -116,7 +132,8 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			.map((e) => e.event);
 		forkSpikeCandidates.push({
 			label: "Fork spike detected",
-			points: CONFIG.POINTS_FORK_SURGE,
+			points: forks24hPoints,
+			group: "fork",
 			amplifiable: true,
 			detail: `Burst of ${maxForksIn24h} fork events in a single 24-hour window`,
 			data: [
@@ -135,7 +152,8 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			.map((e) => e.event);
 		forkSpikeCandidates.push({
 			label: "Multiple forks",
-			points: CONFIG.POINTS_MULTIPLE_FORKS,
+			points: forks24hPoints,
+			group: "fork",
 			amplifiable: true,
 			detail: `${maxForksIn24h} repositories forked in a single 24-hour window`,
 			data: [
@@ -158,6 +176,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		forkSpikeCandidates.push({
 			label: "Multi-day fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_48H,
+			group: "fork",
 			amplifiable: true,
 			detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
 			data: [
@@ -180,6 +199,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		forkSpikeCandidates.push({
 			label: "Severe multi-day fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_72H,
+			group: "fork",
 			amplifiable: true,
 			detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
 			data: [
@@ -220,6 +240,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				flags.push({
 					label: "Sustained fork rate",
 					points: CONFIG.POINTS_FORKS_PER_DAY_HIGH,
+					group: "fork",
 					amplifiable: true,
 					detail: `Average of ${forksPerDay.toFixed(1)} forks per day over ${forkSpanDays} days (${forkEvents.length} total)`,
 					data: [
@@ -239,9 +260,15 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 
 	// Consecutive days of forking - only flag if it's a distributed pattern
 	// Not a single concentrated burst (which is already flagged above)
+	// Group by day in the account's own local time, so one late night of forking
+	// counts as one day and not two
+	// Events without a usable timestamp are skipped: they cannot belong to a day,
+	// and a placeholder key would inflate the day count and break the streak sort
 	const forkDays = new Set<string>();
 	forkEvents.forEach((e) => {
-		forkDays.add(dayjs.utc(e.created_at).format("YYYY-MM-DD"));
+		const local = toLocal(e.created_at, tzOffsetHours);
+		if (!local.isValid()) return;
+		forkDays.add(local.format("YYYY-MM-DD"));
 	});
 
 	if (forkDays.size >= CONFIG.CONSECUTIVE_FORK_DAYS && !forkSpikeFlag) {
@@ -276,7 +303,9 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 				sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
 			const streakEndDay = sortedForkDays[maxStreakEnd];
 			const streakEvents = forkEvents.filter((e) => {
-				const day = dayjs.utc(e.created_at).format("YYYY-MM-DD");
+				const local = toLocal(e.created_at, tzOffsetHours);
+				if (!local.isValid()) return false;
+				const day = local.format("YYYY-MM-DD");
 				return (
 					streakStartDay &&
 					streakEndDay &&
@@ -288,6 +317,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			flags.push({
 				label: "Extended forking pattern",
 				points: CONFIG.POINTS_CONSECUTIVE_FORK_DAYS,
+				group: "fork",
 				amplifiable: true,
 				detail: `Forking activity on ${totalDays} days (${maxConsecutiveForkDays} consecutive), ${forkEvents.length} repositories total`,
 				data: [
@@ -326,6 +356,7 @@ export function detectForkActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		flags.push({
 			label: "Fork scatter pattern",
 			points: CONFIG.POINTS_FORK_DIVERSITY,
+			group: "fork",
 			amplifiable: true,
 			detail: `Forks spread across ${forkedRepos.size} different repositories${timeSpanDetail}`,
 			data: [
@@ -414,6 +445,7 @@ export function detectForkCombinedActivity(
 			flags.push({
 				label: "Chained automation pattern",
 				points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
+				group: "fork",
 				amplifiable: true,
 				detail: `${totalOps} chained repository operations: ${forkEvents.length} forks followed by ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests (based on available event history)`,
 				data: [

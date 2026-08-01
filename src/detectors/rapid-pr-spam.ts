@@ -4,14 +4,13 @@ import type { GitHubEvent, IdentifyFlag } from "../types";
 
 export function detectRapidPRSpam(
 	events: GitHubEvent[],
-	accountAge: number,
+	isEstablished: boolean,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
 	// Rapid PRs to repository (fork contribution pattern)
 	// Detects: multiple PRs opened in rapid succession to same repo
 	// Catches rapid patterns that don't correlate with branch creation
-	const isEstablished = accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT;
 	const minRapidPRs = isEstablished
 		? CONFIG.RAPID_PR_SPAM_MIN_PRS_ESTABLISHED
 		: CONFIG.RAPID_PR_SPAM_MIN_PRS;
@@ -85,6 +84,7 @@ export function detectRapidPRSpam(
 		flags.push({
 			label: "Rapid PRs to repository",
 			points: CONFIG.POINTS_RAPID_PR_SPAM,
+			group: "branch-pr",
 			amplifiable: true,
 			detail: `${maxConsecutivePairs + 1} PRs opened to ${targetRepo} within ${maxConsecutiveTimeDiff}s intervals`,
 			data: [

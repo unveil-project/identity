@@ -8,6 +8,7 @@ export function detectAccountAge(accountAge: number): IdentifyFlag[] {
 		flags.push({
 			label: "Recently created",
 			points: CONFIG.POINTS_NEW_ACCOUNT,
+			group: "account-age",
 			detail: `Account is ${accountAge} days old`,
 			data: [
 				{
@@ -22,6 +23,7 @@ export function detectAccountAge(accountAge: number): IdentifyFlag[] {
 		flags.push({
 			label: "Young account",
 			points: CONFIG.POINTS_YOUNG_ACCOUNT,
+			group: "account-age",
 			detail: `Account is ${accountAge} days old`,
 			data: [
 				{

@@ -2,8 +2,12 @@ import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
+import { localDay, localHour } from "../timezone";
 import type { GitHubEvent, IdentifyFlag } from "../types";
-import { calculateNormalizedShannonsEntropy } from "../utils";
+import {
+	calculateNormalizedShannonsEntropy,
+	densestEventWindow,
+} from "../utils";
 
 dayjs.extend(minMax);
 dayjs.extend(utc);
@@ -13,6 +17,7 @@ export function detectYoungAccountActivity(
 	reposCount: number,
 	isNewOrYoungAccount: boolean,
 	accountName: string,
+	tzOffsetHours = 0,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -41,6 +46,8 @@ export function detectYoungAccountActivity(
 				flags.push({
 					label: "Very high PR volume",
 					points: CONFIG.POINTS_EXTREME_ACTIVITY_DENSITY + 10,
+					group: "pr-volume",
+					amplifiable: true,
 					detail: `${prEvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
 					data: [
 						{ label: "PRs opened", value: prEvents.length },
@@ -57,6 +64,8 @@ export function detectYoungAccountActivity(
 				flags.push({
 					label: "High PR volume",
 					points: CONFIG.POINTS_HIGH_ACTIVITY_DENSITY + 5,
+					group: "pr-volume",
+					amplifiable: true,
 					detail: `${prEvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
 					data: [
 						{ label: "PRs opened", value: prEvents.length },
@@ -84,25 +93,24 @@ export function detectYoungAccountActivity(
 			e.type === "PullRequestReviewCommentEvent",
 	);
 
-	const codingEventsByDay = new Map<string, dayjs.Dayjs[]>();
+	// Group by day and hour in the account's own local time
+	const codingEventsByDay = new Map<string, number[]>();
 	codingEventsWithReviews.forEach((e) => {
 		if (!e.created_at) {
 			return;
 		}
 
-		const t = dayjs(e.created_at).utc();
-		const day = t.format("YYYY-MM-DD");
+		const day = localDay(e.created_at, tzOffsetHours);
 		if (!codingEventsByDay.has(day)) codingEventsByDay.set(day, []);
-		codingEventsByDay.get(day)?.push(t);
+		codingEventsByDay.get(day)?.push(localHour(e.created_at, tzOffsetHours));
 	});
 
 	// For each day, analyze hour distribution using entropy
 	// Very high entropy (uniform spread) across many hours = unusual activity pattern
 	const daysWithUniformDistribution: string[] = [];
-	codingEventsByDay.forEach((dayTimestamps, day) => {
+	codingEventsByDay.forEach((dayHours, day) => {
 		const hourMap = new Map<number, number>();
-		dayTimestamps.forEach((t) => {
-			const hour = t.hour();
+		dayHours.forEach((hour) => {
 			hourMap.set(hour, (hourMap.get(hour) || 0) + 1);
 		});
 
@@ -140,15 +148,18 @@ export function detectYoungAccountActivity(
 
 		// Consecutive marathon days = sustained uniform activity across many hours
 		if (maxConsecutive >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
-			const uniformDayEvents = codingEventsWithReviews.filter((e) => {
-				const day = dayjs(e.created_at ?? "")
-					.utc()
-					.format("YYYY-MM-DD");
-				return daysWithUniformDistribution.includes(day);
-			});
+			const uniformDayEvents = codingEventsWithReviews.filter(
+				(e) =>
+					e.created_at &&
+					daysWithUniformDistribution.includes(
+						localDay(e.created_at, tzOffsetHours),
+					),
+			);
 			flags.push({
 				label: "Extended daily coding",
 				points: CONFIG.POINTS_NONSTOP_ACTIVITY,
+				group: "timing",
+				amplifiable: true,
 				detail: `${maxConsecutive} days in a row with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding`,
 				data: [
 					{
@@ -167,15 +178,18 @@ export function detectYoungAccountActivity(
 		} else if (
 			daysWithUniformDistribution.length >= CONFIG.FREQUENT_MARATHON_DAYS
 		) {
-			const uniformDayEvents = codingEventsWithReviews.filter((e) => {
-				const day = dayjs(e.created_at ?? "")
-					.utc()
-					.format("YYYY-MM-DD");
-				return daysWithUniformDistribution.includes(day);
-			});
+			const uniformDayEvents = codingEventsWithReviews.filter(
+				(e) =>
+					e.created_at &&
+					daysWithUniformDistribution.includes(
+						localDay(e.created_at, tzOffsetHours),
+					),
+			);
 			flags.push({
 				label: "Frequent long coding days",
 				points: CONFIG.POINTS_FREQUENT_MARATHON,
+				group: "timing",
+				amplifiable: true,
 				detail: `${daysWithUniformDistribution.length} days with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding and uniform hourly distribution`,
 				data: [
 					{
@@ -212,6 +226,8 @@ export function detectYoungAccountActivity(
 		flags.push({
 			label: "Highly distributed activity",
 			points: CONFIG.POINTS_EXTREME_REPO_SPREAD_YOUNG,
+			group: "repo-spread",
+			amplifiable: true,
 			detail: `Activity spread across ${externalRepos.size} external repositories`,
 			data: [
 				{
@@ -227,6 +243,8 @@ export function detectYoungAccountActivity(
 		flags.push({
 			label: "Distributed activity",
 			points: CONFIG.POINTS_WIDE_REPO_SPREAD_YOUNG,
+			group: "repo-spread",
+			amplifiable: true,
 			detail: `Activity spread across ${externalRepos.size} external repositories`,
 			data: [
 				{
@@ -247,48 +265,44 @@ export function detectYoungAccountActivity(
 		return repoOwner && repoOwner !== userLogin;
 	});
 
-	// Group PRs by day and week
-	const now = dayjs();
-	const oneWeekAgo = now.subtract(1, "week");
-	const oneDayAgo = now.subtract(1, "day");
-
-	const prsThisWeek = externalPRs.filter((e) =>
-		dayjs(e.created_at).isAfter(oneWeekAgo),
-	);
-	const prsToday = externalPRs.filter((e) =>
-		dayjs(e.created_at).isAfter(oneDayAgo),
-	);
+	// The busiest stretches anywhere in the data, not the ones ending today
+	const prDayWindow = densestEventWindow(externalPRs, 24);
+	const prWeekWindow = densestEventWindow(externalPRs, 24 * 7);
 
 	// Many PRs in a single day
 	// only flag extreme cases
-	if (prsToday.length >= CONFIG.PRS_TODAY_EXTREME) {
+	if (prDayWindow.count >= CONFIG.PRS_TODAY_EXTREME) {
 		flags.push({
-			label: "High PR volume in the past 24 hours",
+			label: "High PR volume in a 24-hour window",
 			points: CONFIG.POINTS_PR_BURST,
-			detail: `${prsToday.length} PRs to other repos in the last 24 hours`,
+			group: "pr-volume",
+			amplifiable: true,
+			detail: `${prDayWindow.count} PRs to other repos within a single 24-hour window`,
 			data: [
 				{
-					label: "PRs in last 24h",
-					value: prsToday.length,
+					label: "PRs in densest 24h window",
+					value: prDayWindow.count,
 					threshold: CONFIG.PRS_TODAY_EXTREME,
 				},
 			],
-			events: prsToday,
+			events: prDayWindow.items,
 		});
-	} else if (prsThisWeek.length >= CONFIG.PRS_WEEK_HIGH) {
+	} else if (prWeekWindow.count >= CONFIG.PRS_WEEK_HIGH) {
 		// Many PRs in a week
 		flags.push({
-			label: "High PR volume during last week",
+			label: "High PR volume in a 7-day window",
 			points: CONFIG.POINTS_HIGH_PR_FREQUENCY,
-			detail: `${prsThisWeek.length} PRs to other repos this week`,
+			group: "pr-volume",
+			amplifiable: true,
+			detail: `${prWeekWindow.count} PRs to other repos within a single 7-day window`,
 			data: [
 				{
-					label: "PRs in last 7 days",
-					value: prsThisWeek.length,
+					label: "PRs in densest 7-day window",
+					value: prWeekWindow.count,
 					threshold: CONFIG.PRS_WEEK_HIGH,
 				},
 			],
-			events: prsThisWeek,
+			events: prWeekWindow.items,
 		});
 	}
 
@@ -305,6 +319,8 @@ export function detectYoungAccountActivity(
 		flags.push({
 			label: "Primarily external contributions",
 			points: CONFIG.POINTS_PR_ONLY_CONTRIBUTOR,
+			group: "external-focus",
+			amplifiable: true,
 			detail,
 			data: [
 				{
@@ -336,6 +352,8 @@ export function detectYoungAccountActivity(
 		flags.push({
 			label: "Mostly external activity",
 			points: CONFIG.POINTS_EXTERNAL_FOCUS,
+			group: "external-focus",
+			amplifiable: true,
 			detail: `${Math.round(foreignRatio * 100)}% of activity on other people's repos`,
 			data: [
 				{
@@ -370,6 +388,7 @@ export function detectYoungAccountActivity(
 		flags.push({
 			label: "Limited community engagement",
 			points: CONFIG.POINTS_LIMITED_ENGAGEMENT,
+			group: "engagement",
 			amplifiable: true,
 			detail: `Code contributions to external repos with no observed issue, comment, review, or watch activity`,
 			data: [

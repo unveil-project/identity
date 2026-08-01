@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { identify } from "../src/identify";
 import type { GitHubEvent } from "../src/types";
+import { user } from "./utils/events";
 
 const date = new Date(2026, 2, 10, 12);
 
@@ -17,9 +18,7 @@ describe("identify - Account Age Flags", () => {
 	it("should flag recently created accounts (< 30 days old)", () => {
 		const recentDate = new Date(2026, 2, 5); // 5 days old
 		const result = identify({
-			createdAt: recentDate.toISOString(),
-			reposCount: 5,
-			accountName: "newuser",
+			user: user({ login: "newuser", created_at: recentDate.toISOString(), public_repos: 5 }),
 			events: [],
 		});
 
@@ -31,9 +30,7 @@ describe("identify - Account Age Flags", () => {
 	it("should flag young accounts (30-90 days old)", () => {
 		const youngDate = new Date(2026, 0, 20); // ~50 days old
 		const result = identify({
-			createdAt: youngDate.toISOString(),
-			reposCount: 5,
-			accountName: "younguser",
+			user: user({ login: "younguser", created_at: youngDate.toISOString(), public_repos: 5 }),
 			events: [],
 		});
 
@@ -45,9 +42,7 @@ describe("identify - Account Age Flags", () => {
 	it("should not flag established accounts (> 90 days old)", () => {
 		const establishedDate = new Date(2025, 11, 1); // > 100 days old
 		const result = identify({
-			createdAt: establishedDate.toISOString(),
-			reposCount: 5,
-			accountName: "olduser",
+			user: user({ login: "olduser", created_at: establishedDate.toISOString(), public_repos: 5 }),
 			events: [],
 		});
 
@@ -87,9 +82,7 @@ describe("identify - Zero Repos & External Activity", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-12-01T00:00:00Z",
-			reposCount: 0,
-			accountName: "contributor",
+			user: user({ login: "contributor", created_at: "2025-12-01T00:00:00Z", public_repos: 0 }),
 			events,
 		});
 
@@ -122,9 +115,7 @@ describe("identify - Fork Surge Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -142,9 +133,7 @@ describe("identify - Fork Surge Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -170,9 +159,7 @@ describe("identify - Fork Surge Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -202,9 +189,7 @@ describe("identify - Fork Surge Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -238,9 +223,7 @@ describe("identify - Fork Surge Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -276,9 +259,7 @@ describe("identify - Fork Surge Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -331,9 +312,7 @@ describe("identify - Repository Creation Patterns", () => {
 		} as any);
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 100,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 100 }),
 			events,
 		});
 
@@ -367,9 +346,7 @@ describe("identify - Repository Creation Patterns", () => {
 		} as any);
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 100,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 100 }),
 			events,
 		});
 
@@ -391,9 +368,7 @@ describe("identify - Repository Creation Patterns", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -435,9 +410,7 @@ describe("identify - Activity Pattern Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 5,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
 
@@ -460,9 +433,7 @@ describe("identify - Activity Pattern Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 5,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
 
@@ -493,9 +464,7 @@ describe("identify - Narrow Activity Focus", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 5,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
 
@@ -523,9 +492,7 @@ describe("identify - Narrow Activity Focus", () => {
 		} as any);
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 5,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
 
@@ -545,7 +512,7 @@ describe("identify - Score Calculation", () => {
 		vi.useRealTimers();
 	});
 
-	it("should calculate score as 100 minus sum of all flag points", () => {
+	it("should calculate score as 100 minus the grouped penalty total", () => {
 		const events: GitHubEvent[] = [];
 		// Create fork spike to add points
 		for (let i = 0; i < 10; i++) {
@@ -557,28 +524,60 @@ describe("identify - Score Calculation", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
-		// Should have some fork-related flags
-		const totalPoints = result.flags.reduce(
-			(sum, flag) => sum + flag.points,
+		const groupTotal = result.groups.reduce(
+			(sum, group) => sum + group.points,
 			0,
 		);
-		const expectedScore = Math.max(0, 100 - totalPoints);
-		expect(result.score).toBe(expectedScore);
+		expect(result.score).toBe(Math.max(0, 100 - groupTotal));
 		expect(result.score).toBeLessThanOrEqual(100);
 		expect(result.score).toBeGreaterThanOrEqual(0);
 	});
 
+	it("should not let correlated flags in one evidence group stack additively", () => {
+		const events: GitHubEvent[] = [];
+		// One burst of PR spam, busy enough to trigger several PR volume checks
+		for (let i = 0; i < 120; i++) {
+			events.push({
+				type: "PullRequestEvent",
+				payload: { action: "opened" },
+				created_at: new Date(
+					2026,
+					2,
+					8 + Math.floor(i / 40),
+					i % 24,
+					i % 60,
+				).toISOString(),
+				repo: { name: `target/repo${i % 25}` } as any,
+			} as any);
+		}
+
+		const result = identify({
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
+			events,
+		});
+
+		const prVolume = result.groups.find((g) => g.group === "pr-volume");
+		expect(prVolume).toBeDefined();
+		// More than one check fired on the same behaviour...
+		expect(prVolume?.flagCount).toBeGreaterThan(1);
+		// ...but the group adds much less than all of them added up.
+		expect(prVolume?.points).toBeLessThan(prVolume?.rawPoints ?? 0);
+		// The biggest single flag still counts fully.
+		const strongest = Math.max(
+			...result.flags
+				.filter((f) => f.group === "pr-volume")
+				.map((f) => f.effectivePoints ?? 0),
+		);
+		expect(prVolume?.points).toBeGreaterThanOrEqual(strongest);
+	});
+
 	it("should return score of 100 for account with no flags", () => {
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "established",
+			user: user({ login: "established", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events: [],
 		});
 
@@ -605,9 +604,8 @@ describe("identify - Score Calculation", () => {
 		}
 
 		const result = identify({
-			createdAt: "2026-03-08T00:00:00Z", // very new account
-			reposCount: 0,
-			accountName: "bot",
+			// very new account
+			user: user({ login: "bot", created_at: "2026-03-08T00:00:00Z", public_repos: 0 }),
 			events,
 		});
 
@@ -626,21 +624,44 @@ describe("identify - Classification", () => {
 	});
 
 	it("should classify as organic when score >= 70", () => {
+		// Needs enough events, otherwise we get "insufficient-data"
+		const events: GitHubEvent[] = [];
+		for (let day = 0; day < 20; day++) {
+			events.push({
+				type: "PushEvent",
+				created_at: new Date(2026, 1, 10 + day, 14, 0, 0).toISOString(),
+				repo: { name: "established/project" } as any,
+			} as any);
+			events.push({
+				type: "IssueCommentEvent",
+				created_at: new Date(2026, 1, 10 + day, 15, 0, 0).toISOString(),
+				repo: { name: "established/project" } as any,
+			} as any);
+		}
+
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 100,
-			accountName: "established",
-			events: [],
+			user: user({ login: "established", created_at: "2025-01-01T00:00:00Z", public_repos: 100 }),
+			events,
 		});
 
 		expect(result.classification).toBe("organic");
 		expect(result.score).toBeGreaterThanOrEqual(70);
 	});
 
+	it("should report insufficient-data rather than organic for an empty feed", () => {
+		const result = identify({
+			user: user({ login: "established", created_at: "2025-01-01T00:00:00Z", public_repos: 100 }),
+			events: [],
+		});
+
+		expect(result.classification).toBe("insufficient-data");
+		expect(result.confidence).toBe(0);
+	});
+
 	it("should classify as mixed when score is between 50-69", () => {
 		const events: GitHubEvent[] = [];
-		// Create moderate fork activity
-		for (let i = 0; i < 6; i++) {
+		// Exactly FORKS_HIGH forks, which is worth exactly 26 points
+		for (let i = 0; i < 5; i++) {
 			events.push({
 				type: "ForkEvent",
 				created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
@@ -649,9 +670,8 @@ describe("identify - Classification", () => {
 		}
 
 		const result = identify({
-			createdAt: "2026-04-15T00:00:00Z", // 14 days old (new account penalty: 20 points)
-			reposCount: 100,
-			accountName: "user",
+			// 14 days old (new account penalty: 20 points)
+			user: user({ created_at: "2026-04-15T00:00:00Z", public_repos: 100 }),
 			events,
 		});
 
@@ -680,9 +700,8 @@ describe("identify - Classification", () => {
 		}
 
 		const result = identify({
-			createdAt: "2026-03-08T00:00:00Z", // 52 days old (young account penalty: 10 points)
-			reposCount: 0,
-			accountName: "bot",
+			// 52 days old (young account penalty: 10 points)
+			user: user({ login: "bot", created_at: "2026-03-08T00:00:00Z", public_repos: 0 }),
 			events,
 		});
 
@@ -703,11 +722,9 @@ describe("identify - Profile Information", () => {
 	});
 
 	it("should include correct account age in profile", () => {
-		const createdAt = "2025-12-01T00:00:00Z"; // ~100 days ago
+		const created_at = "2025-12-01T00:00:00Z"; // ~100 days ago
 		const result = identify({
-			createdAt,
-			reposCount: 5,
-			accountName: "user",
+			user: user({ created_at, public_repos: 5 }),
 			events: [],
 		});
 
@@ -717,9 +734,7 @@ describe("identify - Profile Information", () => {
 
 	it("should include repos count in profile", () => {
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 42,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 42 }),
 			events: [],
 		});
 
@@ -757,9 +772,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 30,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
 
@@ -780,9 +793,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 30,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
 
@@ -811,9 +822,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		} as any);
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 30,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
 
@@ -846,9 +855,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -873,9 +880,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -902,9 +907,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -932,9 +935,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 30,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
 
@@ -957,9 +958,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -983,9 +982,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1013,9 +1010,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1058,9 +1053,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1087,9 +1080,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1116,9 +1107,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		} as any);
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1151,9 +1140,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1186,9 +1173,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1223,9 +1208,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1261,9 +1244,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 30,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
 
@@ -1295,9 +1276,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 30,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
 
@@ -1326,9 +1305,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1360,9 +1337,7 @@ describe("identify - PR Comment Spam Detection", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
@@ -1404,9 +1379,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 25,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 25 }),
 			events,
 		});
 
@@ -1443,9 +1416,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 5,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
 
@@ -1479,9 +1450,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -1522,9 +1491,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 35,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 35 }),
 			events,
 		});
 
@@ -1558,9 +1525,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 10,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
 
@@ -1603,17 +1568,13 @@ describe("identify - Repository Exclusion Filter", () => {
 
 		// Without filter - should flag because 12 forks within 24h triggers fork spike (>= FORKS_EXTREME: 8)
 		const resultWithoutFilter = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
 		// With filter excluding the problematic repo - should not flag because only 2 forks remain (< FORKS_HIGH: 5)
 		const resultWithFilter = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 			excludeRepos: ["excluded-owner/excluded-repo"],
 		});
@@ -1644,9 +1605,7 @@ describe("identify - Repository Exclusion Filter", () => {
 
 		// Filter with different case - should still exclude them
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 			excludeRepos: ["owner/myrepo"], // Lowercase
 		});
@@ -1682,9 +1641,7 @@ describe("identify - Repository Exclusion Filter", () => {
 
 		// Exclude first two repos - should only see 4 forks from repo-c
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 			excludeRepos: ["owner/repo-a", "owner/repo-b"],
 		});
@@ -1707,9 +1664,7 @@ describe("identify - Repository Exclusion Filter", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 			excludeRepos: [], // Empty array
 		});
@@ -1732,9 +1687,7 @@ describe("identify - Repository Exclusion Filter", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 			// excludeRepos not provided
 		});
@@ -1759,16 +1712,12 @@ describe("identify - Repository Exclusion Filter", () => {
 		}
 
 		const resultWithoutFilter = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 
 		const resultWithFilter = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 			excludeRepos: [
 				"spam-owner/spam-repo0",
@@ -1829,9 +1778,7 @@ describe("identify - Repository Exclusion Filter", () => {
 		}
 
 		const result = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 			excludeRepos: ["excluded-owner/excluded-repo"],
 		});
@@ -1845,9 +1792,7 @@ describe("identify - Repository Exclusion Filter", () => {
 
 		// Now test without filter - should flag
 		const resultNoFilter = identify({
-			createdAt: "2025-01-01T00:00:00Z",
-			reposCount: 20,
-			accountName: "user",
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
 

@@ -108,6 +108,7 @@ export function detectBountyRepoPRs(events: GitHubEvent[]): IdentifyFlag[] {
 		{
 			label,
 			points: 0,
+			group: "bounty",
 			amplifiable: false,
 			detail,
 			data: [

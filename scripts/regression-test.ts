@@ -38,12 +38,7 @@ function runRegressionTests(): RegressionResult[] {
 		const fixture = loadFixture(fixtureName);
 		const { user, events } = fixture;
 
-		const result = identify({
-			createdAt: user.created_at,
-			reposCount: user.public_repos,
-			accountName: user.login,
-			events: events || [],
-		});
+		const result = identify({ user, events: events || [] });
 
 		const expected = getExpected(entry);
 		const knownAs = getKnownAs(entry);

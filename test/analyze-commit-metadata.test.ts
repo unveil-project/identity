@@ -5,6 +5,7 @@ import {
 } from "../src/modifiers/analyze-commit-metadata";
 import { identify } from "../src/identify";
 import type { GitHubCommit, GitHubEvent } from "../src/types";
+import { user } from "./utils/events";
 
 const date = new Date(2026, 2, 10, 12);
 
@@ -181,18 +182,16 @@ describe("identify - AI commit metadata flag", () => {
 
   function runWithCommits(commits: GitHubCommit[], excludeRepos?: string[]) {
     return identify({
-      createdAt: "2025-01-01T00:00:00Z",
-      reposCount: 10,
-      accountName: "user",
+      user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
       events: [],
       commits,
       excludeRepos,
     });
   }
 
-  // Builds 6 forks within 24h → triggers "Multiple forks" (26 points, amplifiable).
+  // 5 forks within 24h. That triggers "Multiple forks", worth exactly 26 points.
   function makeForkBurstEvents(): GitHubEvent[] {
-    return Array.from({ length: 6 }, (_, i) => ({
+    return Array.from({ length: 5 }, (_, i) => ({
       type: "ForkEvent",
       created_at: new Date(date.getTime() - i * 3600_000).toISOString(),
       repo: { name: `target/repo${i}` } as any,
@@ -245,16 +244,12 @@ describe("identify - AI commit metadata flag", () => {
       const commits = [...makeAICommits(ai), ...makeHumanCommits(human)];
 
       const withCommits = identify({
-        createdAt: "2025-01-01T00:00:00Z",
-        reposCount: 10,
-        accountName: "user",
+        user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
         events,
         commits,
       });
       const withoutCommits = identify({
-        createdAt: "2025-01-01T00:00:00Z",
-        reposCount: 10,
-        accountName: "user",
+        user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
         events,
       });
 
@@ -272,16 +267,12 @@ describe("identify - AI commit metadata flag", () => {
     const commits = [...makeAICommits(9), ...makeHumanCommits(1)];
     // 14-day-old account triggers "Recently created" (20 points) — not amplifiable.
     const withMultiplier = identify({
-      createdAt: new Date(date.getTime() - 14 * 86400000).toISOString(),
-      reposCount: 10,
-      accountName: "user",
+      user: user({ login: "user", created_at: new Date(date.getTime() - 14 * 86400000).toISOString(), public_repos: 10 }),
       events: [],
       commits,
     });
     const withoutMultiplier = identify({
-      createdAt: new Date(date.getTime() - 14 * 86400000).toISOString(),
-      reposCount: 10,
-      accountName: "user",
+      user: user({ login: "user", created_at: new Date(date.getTime() - 14 * 86400000).toISOString(), public_repos: 10 }),
       events: [],
     });
     // Both should be 80 — multiplier must not touch "Recently created".

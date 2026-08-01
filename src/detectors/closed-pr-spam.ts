@@ -1,11 +1,20 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { localDay } from "../timezone";
 import type { GitHubEvent, IdentifyFlag } from "../types";
+import { type RampAnchor, rampPoints } from "../utils";
+
+const CLOSED_PR_RAMP: readonly RampAnchor[] = [
+	[CONFIG.CLOSED_PR_SPAM_MIN, CONFIG.POINTS_CLOSED_PR_SPAM],
+	[CONFIG.CLOSED_PR_VOLUME_HIGH, CONFIG.POINTS_CLOSED_PR_SPAM_HIGH],
+	[CONFIG.CLOSED_PR_VOLUME_EXTREME, CONFIG.POINTS_CLOSED_PR_SPAM_EXTREME],
+];
 
 export function detectClosedPRSpam(
 	events: GitHubEvent[],
-	accountAge: number,
+	isEstablished: boolean,
 	accountName: string,
+	tzOffsetHours = 0,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -14,7 +23,6 @@ export function detectClosedPRSpam(
 	//           Indicates: contributions being closed across a wide range of repositories
 	// Pattern 2: Concentrated closing - many closed PRs to varied repos in short time
 	//           Indicates: automated contribution pattern or concentrated closing activity
-	const isEstablished = accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT;
 	const minClosedPRs = isEstablished
 		? CONFIG.CLOSED_PR_SPAM_MIN_ESTABLISHED
 		: CONFIG.CLOSED_PR_SPAM_MIN;
@@ -58,11 +66,14 @@ export function detectClosedPRSpam(
 			? `${timeSpanDays}d`
 			: `${Math.ceil(timeSpanMinutes / 60)}h`;
 
-	// Find burst days (group by day and count PRs, then identify significant spikes)
-	// Use UTC normalization to ensure timezone-independent day boundaries
+	// Find days with a lot of closed PRs. Days use the account's own local time.
 	const prsByDay = new Map<string, number>();
 	closedPREvents.forEach((e) => {
-		const day = dayjs.utc(e.created_at).format("YYYY-MM-DD");
+		if (!e.created_at) {
+			return;
+		}
+
+		const day = localDay(e.created_at, tzOffsetHours);
 		prsByDay.set(day, (prsByDay.get(day) || 0) + 1);
 	});
 
@@ -85,13 +96,7 @@ export function detectClosedPRSpam(
 		}
 	}
 
-	// Determine severity based on volume of closed PRs
-	let points: number = CONFIG.POINTS_CLOSED_PR_SPAM; // base: 5-24 PRs
-	if (closedPREvents.length >= 100) {
-		points = CONFIG.POINTS_CLOSED_PR_SPAM_EXTREME; // 100+ PRs = extreme volume
-	} else if (closedPREvents.length >= 25) {
-		points = CONFIG.POINTS_CLOSED_PR_SPAM_HIGH; // 25-99 PRs = high volume
-	}
+	const points = rampPoints(closedPREvents.length, CLOSED_PR_RAMP);
 
 	// Pattern 1: Spray scatter - closed PRs across many repos at significant density
 	const prDensity =
@@ -104,6 +109,7 @@ export function detectClosedPRSpam(
 		flags.push({
 			label: "Closed PRs across many repositories",
 			points,
+			group: "pr-outcome",
 			amplifiable: true,
 			detail: `${closedPREvents.length} PRs were closed across ${closedPRRepos.size} repositories in ${timeRangeStr}${burstStr}.`,
 			data: [
@@ -131,13 +137,14 @@ export function detectClosedPRSpam(
 		if (timeSpanMinutes <= CONFIG.CLOSED_PR_TIME_WINDOW_MINUTES) {
 			// For burst patterns with extreme volume, boost points even higher
 			const burstPoints =
-				closedPREvents.length >= 100
+				closedPREvents.length >= CONFIG.CLOSED_PR_VOLUME_EXTREME
 					? CONFIG.POINTS_CLOSED_PR_SPAM_BURST_EXTREME
 					: points;
 
 			flags.push({
 				label: "Concentrated PR closures",
 				points: burstPoints,
+				group: "pr-outcome",
 				amplifiable: true,
 				detail: `${closedPREvents.length} PRs closed across ${closedPRRepos.size} repos in ${timeSpanMinutes}m (concentrated closing activity)`,
 				data: [

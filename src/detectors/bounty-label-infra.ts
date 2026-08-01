@@ -33,6 +33,7 @@ export function detectBountyLabelInfrastructure(
 		{
 			label: "Bounty infrastructure activity",
 			points: CONFIG.POINTS_BOUNTY_LABEL_INFRA,
+			group: "bounty",
 			amplifiable: true,
 			detail: `${bountyLabeledIssues.length} issues labeled with bounty amounts across ${repos.size} known bounty repo${repos.size !== 1 ? "s" : ""}`,
 			data: [

@@ -1,12 +1,20 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { GitHubEvent, IdentifyFlag, WindowInfo } from "../types";
+import { densestEventWindow, type RampAnchor, rampPoints } from "../utils";
+import { lowerBoundNote } from "../window";
 
 dayjs.extend(minMax);
 
+const PR_WEEK_RAMP: readonly RampAnchor[] = [
+	[CONFIG.PRS_WEEK_VERY_HIGH, CONFIG.POINTS_PRS_WEEK_VERY_HIGH],
+	[CONFIG.PRS_WEEK_EXTREME, CONFIG.POINTS_PRS_WEEK_EXTREME],
+];
+
 export function detectExtremeAndDistributedPRSpam(
 	events: GitHubEvent[],
+	window?: WindowInfo,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -20,71 +28,65 @@ export function detectExtremeAndDistributedPRSpam(
 		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
 	);
 
-	// Anchor time windows to latest PR in batch for reproducible, stable results
-	const prTimestamps = allPREvents.map((e) => dayjs(e.created_at));
-	const latestPRTime = dayjs.max(prTimestamps) || dayjs();
-	const now = latestPRTime;
-	const oneDayAgo = now.subtract(1, "day");
-	const oneWeekAgo = now.subtract(1, "week");
-
-	// Count PRs in different time windows
-	const prsInLastDay = allPREvents.filter((e) =>
-		dayjs(e.created_at).isAfter(oneDayAgo),
-	);
-	const prsInLastWeek = allPREvents.filter((e) =>
-		dayjs(e.created_at).isAfter(oneWeekAgo),
-	);
+	// The busiest 24 hours and 7 days anywhere in the data, not the last 24 hours
+	// or last 7 days before today
+	const dayWindow = densestEventWindow(allPREvents, 24);
+	const weekWindow = densestEventWindow(allPREvents, 24 * 7);
+	const boundNote = window ? lowerBoundNote(window) : "";
 
 	// Very high daily PR volume: 30+ PRs in 24 hours
-	if (prsInLastDay.length >= CONFIG.PRS_DAY_EXTREME) {
+	if (dayWindow.count >= CONFIG.PRS_DAY_EXTREME) {
 		flags.push({
 			label: "Very high PR volume (daily)",
 			points: CONFIG.POINTS_PRS_DAY_EXTREME,
+			group: "pr-volume",
 			amplifiable: true,
-			detail: `${prsInLastDay.length} PRs in the last 24 hours`,
+			detail: `${dayWindow.count} PRs within a single 24-hour window${boundNote}`,
 			data: [
 				{
-					label: "PRs in last 24h",
-					value: prsInLastDay.length,
+					label: "PRs in densest 24h window",
+					value: dayWindow.count,
 					threshold: CONFIG.PRS_DAY_EXTREME,
 				},
 			],
-			events: prsInLastDay,
+			events: dayWindow.items,
 		});
 	}
 
 	// Very high weekly PR volume: 100+ PRs in 7 days
-	if (prsInLastWeek.length >= CONFIG.PRS_WEEK_EXTREME) {
+	if (weekWindow.count >= CONFIG.PRS_WEEK_EXTREME) {
 		flags.push({
 			label: "Very high PR volume (weekly)",
-			points: CONFIG.POINTS_PRS_WEEK_EXTREME,
+			points: rampPoints(weekWindow.count, PR_WEEK_RAMP),
+			group: "pr-volume",
 			amplifiable: true,
-			detail: `${prsInLastWeek.length} PRs in the last 7 days`,
+			detail: `${weekWindow.count} PRs within a single 7-day window${boundNote}`,
 			data: [
 				{
-					label: "PRs in last 7 days",
-					value: prsInLastWeek.length,
+					label: "PRs in densest 7-day window",
+					value: weekWindow.count,
 					threshold: CONFIG.PRS_WEEK_EXTREME,
 				},
 			],
-			events: prsInLastWeek,
+			events: weekWindow.items,
 		});
 	}
 	// High weekly PR volume: 50+ PRs in 7 days (only if not already extreme)
-	else if (prsInLastWeek.length >= CONFIG.PRS_WEEK_VERY_HIGH) {
+	else if (weekWindow.count >= CONFIG.PRS_WEEK_VERY_HIGH) {
 		flags.push({
 			label: "High PR volume (weekly)",
-			points: CONFIG.POINTS_PRS_WEEK_VERY_HIGH,
+			points: rampPoints(weekWindow.count, PR_WEEK_RAMP),
+			group: "pr-volume",
 			amplifiable: true,
-			detail: `${prsInLastWeek.length} PRs in the last 7 days`,
+			detail: `${weekWindow.count} PRs within a single 7-day window${boundNote}`,
 			data: [
 				{
-					label: "PRs in last 7 days",
-					value: prsInLastWeek.length,
+					label: "PRs in densest 7-day window",
+					value: weekWindow.count,
 					threshold: CONFIG.PRS_WEEK_VERY_HIGH,
 				},
 			],
-			events: prsInLastWeek,
+			events: weekWindow.items,
 		});
 	}
 
@@ -124,11 +126,7 @@ export function detectExtremeAndDistributedPRSpam(
 				const prsPerWeek =
 					timeSpanWeeks > 0 ? allPREvents.length / timeSpanWeeks : Infinity;
 
-				// Check rolling 30-day window
-				const thirtyDaysAgo = now.subtract(30, "days");
-				const prsInLast30Days = allPREvents.filter((e) =>
-					dayjs(e.created_at).isAfter(thirtyDaysAgo),
-				).length;
+				const prsInLast30Days = densestEventWindow(allPREvents, 24 * 30).count;
 
 				// Flag if either:
 				// 1. High density (PRs per week exceeds threshold), OR
@@ -141,8 +139,9 @@ export function detectExtremeAndDistributedPRSpam(
 					flags.push({
 						label: "Distributed PR pattern",
 						points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
+						group: "pr-volume",
 						amplifiable: true,
-						detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}`,
+						detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}${boundNote}`,
 						data: [
 							{
 								label: "Total PRs",
@@ -159,7 +158,10 @@ export function detectExtremeAndDistributedPRSpam(
 								value:
 									timeSpanWeeks > 0 ? parseFloat(prsPerWeek.toFixed(1)) : 0,
 							},
-							{ label: "PRs in last 30 days", value: prsInLast30Days },
+							{
+								label: "PRs in densest 30-day window",
+								value: prsInLast30Days,
+							},
 						],
 						events: allPREvents,
 					});

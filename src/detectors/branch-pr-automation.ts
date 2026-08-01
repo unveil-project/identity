@@ -4,7 +4,7 @@ import type { GitHubEvent, IdentifyFlag } from "../types";
 
 export function detectBranchPRAutomation(
 	events: GitHubEvent[],
-	accountAge: number,
+	isEstablished: boolean,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -12,7 +12,6 @@ export function detectBranchPRAutomation(
 	// Detects: branch created, PR submitted within short window, repeatedly (repo-scoped)
 	// Note: a quick manual workflow (branch, push, open PR via CLI/web) can also land inside
 	// the window, so this is a suspicious-timing signal rather than proof of automation
-	const isEstablished = accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT;
 	const branchPRMinPairs = isEstablished
 		? CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS_ESTABLISHED
 		: CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS;
@@ -111,6 +110,7 @@ export function detectBranchPRAutomation(
 					flags.push({
 						label: "Rapid branch→PR pattern",
 						points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
+						group: "branch-pr",
 						amplifiable: true,
 						detail: `${matchedPairs}/${branchCreates.length} branch creations followed by PRs within ${maxObservedTimeDiff}s`,
 						data: [
@@ -220,6 +220,7 @@ export function detectBranchPRAutomation(
 				flags.push({
 					label: "Rapid fork→PR pattern",
 					points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
+					group: "branch-pr",
 					amplifiable: true,
 					detail: `${forkWorkflowMatches}/${branchCreates.length} fork branches followed by upstream PRs within ${forkMaxTimeDiff}s`,
 					data: [
