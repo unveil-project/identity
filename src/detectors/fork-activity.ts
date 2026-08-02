@@ -447,7 +447,7 @@ export function detectForkCombinedActivity(
 				points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
 				group: "fork",
 				amplifiable: true,
-				detail: `${totalOps} chained repository operations: ${forkEvents.length} forks followed by ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests (based on available event history)`,
+				detail: `${totalOps} steps in the same order every time: ${forkEvents.length} forks, then ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests`,
 				data: [
 					{ label: "Fork events", value: forkEvents.length },
 					{

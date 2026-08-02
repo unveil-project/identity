@@ -117,7 +117,7 @@ export function identify({
 		),
 	);
 	flags.push(...detectPushBurst(filteredEvents));
-	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents, window));
+	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
 	flags.push(...detectCommentBeforePR(filteredEvents));
 	flags.push(...detectBountyRepoPRs(filteredEvents));
 	flags.push(...detectBountyLabelInfrastructure(filteredEvents));
@@ -140,8 +140,8 @@ export function identify({
 		const { ratio, aiCommits, totalCommits } = commitMetadata;
 		const pct = Math.round(ratio * 100);
 		const detail = hasAmplifiable
-			? `${aiCommits}/${totalCommits} commits (${pct}%) AI-attributed — ${aiMultiplier}x multiplier applied to automation signals`
-			: `${aiCommits}/${totalCommits} commits (${pct}%) AI-attributed — no automation signals to amplify`;
+			? `${aiCommits}/${totalCommits} commits (${pct}%) are credited to an AI tool, so a ${aiMultiplier}x multiplier applied to automation signals`
+			: `${aiCommits}/${totalCommits} commits (${pct}%) are credited to an AI tool, but there are no automation signals to amplify`;
 
 		flags.push({
 			label: "Predominantly AI-attributed commits",

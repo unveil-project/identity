@@ -44,7 +44,7 @@ export function detectNarrowActivityFocus(
 			points: CONFIG.POINTS_LOW_DIVERSITY,
 			group: "diversity",
 			amplifiable: true,
-			detail: `${eventTypes.size} event types (entropy: ${eventTypeEntropy.toFixed(2)}) without interpersonal interactions`,
+			detail: `Only ${eventTypes.size} kinds of activity, and none of it involves other people`,
 			data: [
 				{ label: "Distinct event types", value: eventTypes.size, threshold: 3 },
 				{

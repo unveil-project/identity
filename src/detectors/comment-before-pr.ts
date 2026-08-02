@@ -74,7 +74,7 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 				points: CONFIG.POINTS_COMMENT_BEFORE_PR_VERY_FAST,
 				group: "comment-pr-timing",
 				amplifiable: true,
-				detail: `Issue comment and PR to the same repository within ${CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES} minutes, across ${veryFastRepos.size} repositories (shortest gap: ${fastest}s)`,
+				detail: `Commented on an issue and opened a PR to the same repo within ${CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES} minutes, in ${veryFastRepos.size} repositories (the fastest took ${fastest}s)`,
 				data: [
 					{
 						label: "Repos with fast comment→PR",

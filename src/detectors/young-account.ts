@@ -390,7 +390,7 @@ export function detectYoungAccountActivity(
 			points: CONFIG.POINTS_LIMITED_ENGAGEMENT,
 			group: "engagement",
 			amplifiable: true,
-			detail: `Code contributions to external repos with no observed issue, comment, review, or watch activity`,
+			detail: `Pushes code to other people's repos, but never opens an issue, comments, reviews, or stars anything`,
 			data: [
 				{ label: "External PRs", value: externalPRs.length },
 				{ label: "Has engagement events", value: false },

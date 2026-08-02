@@ -110,7 +110,7 @@ export function detectInhumanActivityPattern(
 		points,
 		group: "timing",
 		amplifiable: true,
-		detail: `24 hours from ${windowStart.toISOString()}: active across ${worst.hoursActive} hours with a longest rest of only ${restLabel} hours`,
+		detail: `Active in ${worst.hoursActive} of 24 hours, with the longest break being only ${restLabel} hours`,
 		data: [
 			{ label: "Window start", value: windowStart.toISOString() },
 			{

@@ -42,7 +42,7 @@ export function detectDormancy(
 				points: CONFIG.POINTS_DORMANT_REACTIVATION,
 				group: "account-age",
 				amplifiable: true,
-				detail: `Account is ${accountAge} days old with ${reposCount} repositories, yet all ${window.eventCount} observed events fall within ${window.spanDays.toFixed(1)} days`,
+				detail: `The account is ${accountAge} days old with ${reposCount} repositories, but all ${window.eventCount} events we can see happened in the space of ${window.spanDays.toFixed(1)} days`,
 				data: [
 					{
 						label: "Account age (days)",

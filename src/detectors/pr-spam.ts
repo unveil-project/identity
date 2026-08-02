@@ -1,9 +1,8 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag, WindowInfo } from "../types";
+import type { GitHubEvent, IdentifyFlag } from "../types";
 import { densestEventWindow, type RampAnchor, rampPoints } from "../utils";
-import { lowerBoundNote } from "../window";
 
 dayjs.extend(minMax);
 
@@ -14,7 +13,6 @@ const PR_WEEK_RAMP: readonly RampAnchor[] = [
 
 export function detectExtremeAndDistributedPRSpam(
 	events: GitHubEvent[],
-	window?: WindowInfo,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -32,7 +30,6 @@ export function detectExtremeAndDistributedPRSpam(
 	// or last 7 days before today
 	const dayWindow = densestEventWindow(allPREvents, 24);
 	const weekWindow = densestEventWindow(allPREvents, 24 * 7);
-	const boundNote = window ? lowerBoundNote(window) : "";
 
 	// Very high daily PR volume: 30+ PRs in 24 hours
 	if (dayWindow.count >= CONFIG.PRS_DAY_EXTREME) {
@@ -41,7 +38,7 @@ export function detectExtremeAndDistributedPRSpam(
 			points: CONFIG.POINTS_PRS_DAY_EXTREME,
 			group: "pr-volume",
 			amplifiable: true,
-			detail: `${dayWindow.count} PRs within a single 24-hour window${boundNote}`,
+			detail: `${dayWindow.count} PRs within a single 24-hour window`,
 			data: [
 				{
 					label: "PRs in densest 24h window",
@@ -60,7 +57,7 @@ export function detectExtremeAndDistributedPRSpam(
 			points: rampPoints(weekWindow.count, PR_WEEK_RAMP),
 			group: "pr-volume",
 			amplifiable: true,
-			detail: `${weekWindow.count} PRs within a single 7-day window${boundNote}`,
+			detail: `${weekWindow.count} PRs within a single 7-day window`,
 			data: [
 				{
 					label: "PRs in densest 7-day window",
@@ -78,7 +75,7 @@ export function detectExtremeAndDistributedPRSpam(
 			points: rampPoints(weekWindow.count, PR_WEEK_RAMP),
 			group: "pr-volume",
 			amplifiable: true,
-			detail: `${weekWindow.count} PRs within a single 7-day window${boundNote}`,
+			detail: `${weekWindow.count} PRs within a single 7-day window`,
 			data: [
 				{
 					label: "PRs in densest 7-day window",
@@ -141,7 +138,7 @@ export function detectExtremeAndDistributedPRSpam(
 						points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
 						group: "pr-volume",
 						amplifiable: true,
-						detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}${boundNote}`,
+						detail: `${allPREvents.length} PRs spread across ${prTargetRepos.size} different repositories${timeSpanDays > 0 ? ` (${prsPerWeek.toFixed(1)} PRs/week)` : ""}`,
 						data: [
 							{
 								label: "Total PRs",

@@ -26,10 +26,3 @@ export function analyzeWindow(events: readonly GitHubEvent[]): WindowInfo {
 		saturated: events.length >= CONFIG.EVENTS_WINDOW_CAP,
 	};
 }
-
-/** Text we add to a flag when the numbers come from a saturated event list. */
-export function lowerBoundNote(window: WindowInfo): string {
-	return window.saturated
-		? " (lower bound — the event window is saturated, actual volume is higher)"
-		: "";
-}
