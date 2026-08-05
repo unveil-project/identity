@@ -1,10 +1,14 @@
 version: 1
 scan:
   issues: true
+
 allowed-users:
   - matteogabriele
   - graphieros
   - huang-julien
+
+honeypot: true
+auto-close: true
 messages:
   automation: |-
     Your account has been detected as possibly automated, and this PR has been automatically closed.
