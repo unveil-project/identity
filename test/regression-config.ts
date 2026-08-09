@@ -54,7 +54,7 @@ export const REGRESSION_FIXTURES = {
 	"automation_2": "automation",
 	"automation_13": "automation",
 	"automation_14": "automation",
-	"automation_15": "automation"
+	"automation_15": "automation",
 	"automation_16": "automation",
 	"automation_17": "automation",
 	"automation_18": "automation",

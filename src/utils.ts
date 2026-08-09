@@ -2,9 +2,8 @@ import dayjs from "dayjs";
 import type { GitHubEvent } from "./types";
 
 /**
- * Calculate Shannon's entropy of a probability distribution
- * Lower entropy = more concentrated/predictable (bot-like)
- * Higher entropy = more uniformly distributed / random
+ * Measure how spread out a set of counts is.
+ * Low = concentrated in a few buckets (bot-like). High = evenly spread.
  */
 function calculateShannonsEntropy(counts: number[]): number {
 	if (counts.length === 0) return 0;
@@ -24,9 +23,8 @@ function calculateShannonsEntropy(counts: number[]): number {
 }
 
 /**
- * Calculate normalized Shannon's entropy (0 to 1)
- * Useful for comparing distributions with different state counts
- * Returns 0-1 where 0 = completely concentrated, 1 = perfectly uniform
+ * Same measure, rescaled to 0-1 so lists of different sizes can be compared.
+ * 0 = all in one bucket, 1 = perfectly even.
  */
 export function calculateNormalizedShannonsEntropy(counts: number[]): number {
 	if (counts.length <= 1) return 0;
@@ -40,15 +38,11 @@ export function calculateNormalizedShannonsEntropy(counts: number[]): number {
 export type RampAnchor = readonly [value: number, points: number];
 
 /**
- * Turn a number into points, sliding smoothly between fixed steps.
+ * Turn a number into points using [value, points] pairs, sorted small to large.
  *
- * `anchors` is a list of [value, points] pairs, ordered from small to large.
- * A value that matches a pair gets exactly those points. A value in between two
- * pairs gets points in between. Anything below the first pair or above the last
- * one gets the first or last points.
- *
- * We slide instead of jumping so that one extra fork (or PR, or comment) can
- * never suddenly double the points.
+ * A value between two pairs lands between their points; outside the range it
+ * clamps to the first or last. Sliding instead of jumping means one extra fork
+ * (or PR, or comment) can never suddenly double the score.
  */
 export function rampPoints(
 	value: number,
@@ -77,19 +71,41 @@ export function rampPoints(
 	return last[1];
 }
 
+/**
+ * Describe how long a burst lasted, in words.
+ *
+ * Uses minutes for short bursts so we never report "0 hours" for something
+ * like twenty stars in forty minutes.
+ */
+export function formatWindowDuration(
+	start: dayjs.Dayjs | undefined,
+	end: dayjs.Dayjs | undefined,
+): string {
+	const minutes = start && end ? end.diff(start, "minute", true) : 0;
+
+	if (minutes < 1) return "under a minute";
+
+	if (minutes < 90) {
+		const rounded = Math.round(minutes);
+		return `${rounded} minute${rounded === 1 ? "" : "s"}`;
+	}
+
+	const hours = Math.round(minutes / 60);
+	return `${hours} hour${hours === 1 ? "" : "s"}`;
+}
+
 export type DensestWindow<T> = {
-	/** Number of items in the densest window found. */
+	/** How many items landed in the busiest window. */
 	count: number;
-	/** The items inside that window. */
+	/** Those items. */
 	items: T[];
 };
 
 /**
- * Find the busiest stretch of time of a given length, anywhere in the list.
+ * Find the busiest stretch of `windowHours`, anywhere in the list.
  *
- * We look for the busiest stretch instead of counting back from today. This way
- * the answer stays the same no matter when we run the check, and an old burst
- * of activity cannot slip out of view.
+ * Scanning the whole list instead of counting back from today keeps the result
+ * stable whenever we run the check, and old bursts stay visible.
  */
 export function densestWindow<T>(
 	items: readonly T[],

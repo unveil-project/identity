@@ -64,7 +64,7 @@ export function detectClosedPRSpam(
 	const timeRangeStr =
 		timeSpanDays > 0
 			? `${timeSpanDays}d`
-			: `${Math.ceil(timeSpanMinutes / 60)}h`;
+			: `${Math.max(1, Math.ceil(timeSpanMinutes / 60))}h`;
 
 	// Find days with a lot of closed PRs. Days use the account's own local time.
 	const prsByDay = new Map<string, number>();

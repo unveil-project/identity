@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
 import type { GitHubEvent, IdentifyFlag } from "../types";
-import { type RampAnchor, rampPoints } from "../utils";
+import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils";
 
 const WATCH_RAMP: readonly RampAnchor[] = [
 	[CONFIG.WATCH_SPAM_REPOS_HIGH, CONFIG.POINTS_WATCH_SPAM_HIGH],
@@ -62,10 +62,7 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 
 	const windowStart = watchTimestamps[maxWindowStartIdx]?.time;
 	const windowEnd = watchTimestamps[maxWindowEndIdx]?.time;
-	const hoursSpan =
-		windowEnd && windowStart
-			? Math.round(windowEnd.diff(windowStart, "hour", true))
-			: 0;
+	const spanLabel = formatWindowDuration(windowStart, windowEnd);
 
 	const windowEvents = watchTimestamps
 		.slice(maxWindowStartIdx, maxWindowEndIdx + 1)
@@ -79,14 +76,14 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			points: watchPoints,
 			group: "watch",
 			amplifiable: true,
-			detail: `${maxReposInWindow} repositories starred within ${hoursSpan} hour${hoursSpan === 1 ? "" : "s"}`,
+			detail: `${maxReposInWindow} repositories starred within ${spanLabel}`,
 			data: [
 				{
 					label: "Repos starred in window",
 					value: maxReposInWindow,
 					threshold: CONFIG.WATCH_SPAM_REPOS_EXTREME,
 				},
-				{ label: "Window duration (hours)", value: hoursSpan },
+				{ label: "Window duration", value: spanLabel },
 				{ label: "Total star events", value: watchEvents.length },
 			],
 			events: windowEvents,
@@ -97,14 +94,14 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 			points: watchPoints,
 			group: "watch",
 			amplifiable: true,
-			detail: `${maxReposInWindow} repositories starred within ${hoursSpan} hour${hoursSpan === 1 ? "" : "s"}`,
+			detail: `${maxReposInWindow} repositories starred within ${spanLabel}`,
 			data: [
 				{
 					label: "Repos starred in window",
 					value: maxReposInWindow,
 					threshold: CONFIG.WATCH_SPAM_REPOS_HIGH,
 				},
-				{ label: "Window duration (hours)", value: hoursSpan },
+				{ label: "Window duration", value: spanLabel },
 				{ label: "Total star events", value: watchEvents.length },
 			],
 			events: windowEvents,

@@ -918,8 +918,11 @@ describe("identify - Issue Comment Spam Detection", () => {
 		);
 		expect(issueCommentFlag).toBeDefined();
 		if (issueCommentFlag) {
-			// Should show comments, repos, and time window (but not decimal metrics)
-			expect(issueCommentFlag.detail).toMatch(/comments to.*repos in.*minutes/);
+			// Should show comments, repos, and time window (but not decimal metrics).
+			// The burst is shorter than a minute, so it must not read "0 minutes".
+			expect(issueCommentFlag.detail).toMatch(
+				/comments to.*repos in under a minute/,
+			);
 		}
 	});
 
@@ -1219,8 +1222,9 @@ describe("identify - PR Comment Spam Detection", () => {
 		);
 		expect(prCommentFlag).toBeDefined();
 		if (prCommentFlag) {
-			// Should show comments, PRs, and time window (but not decimal metrics)
-			expect(prCommentFlag.detail).toMatch(/comments on.*PRs in.*minutes/);
+			// Should show comments, PRs, and time window (but not decimal metrics).
+			// The burst is shorter than a minute, so it must not read "0 minutes".
+			expect(prCommentFlag.detail).toMatch(/comments on.*PRs in under a minute/);
 		}
 	});
 
@@ -1801,5 +1805,41 @@ describe("identify - Repository Exclusion Filter", () => {
 				(f) => f.label.includes("fork") || f.label.includes("Fork"),
 			),
 		).toBe(true);
+	});
+});
+
+describe("identify - Star Burst Detection", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("should describe a sub-hour star burst in minutes, not '0 hours'", () => {
+		const events: GitHubEvent[] = [];
+		// 20 repos starred over 40 minutes: shorter than the unit we measure in
+		for (let i = 0; i < 20; i++) {
+			events.push({
+				type: "WatchEvent",
+				created_at: new Date(2026, 2, 10, 12, i * 2).toISOString(),
+				repo: { name: `owner/repo${i}` } as any,
+			} as any);
+		}
+
+		const result = identify({
+			user: user({
+				login: "user",
+				created_at: "2025-01-01T00:00:00Z",
+				public_repos: 20,
+			}),
+			events,
+		});
+
+		const watchFlag = result.flags.find((f) => f.group === "watch");
+		expect(watchFlag).toBeDefined();
+		expect(watchFlag?.detail).toBe("20 repositories starred within 38 minutes");
 	});
 });
