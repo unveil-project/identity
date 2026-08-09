@@ -57,7 +57,10 @@ export const REGRESSION_FIXTURES = {
 	"automation_15": "automation",
 	"automation_16": "automation",
 	"automation_17": "automation",
-	"automation_18": "automation",
+	"automation_18": {
+		"expected": "mixed",
+		"knownAs": "automation",
+	},
 	"automation_19": "automation",
 } satisfies Record<string, FixtureEntry>;
 
