@@ -21,7 +21,6 @@ export const BOUNTY_REPOS: readonly string[] = [
 	"atharvnaik1/ipaship-audit",
 	"auscaster/frantic-board",
 	"benglezhenjun/zeroeye",
-	"bitcoin-dot-org/Bitcoin.org",
 	"bolivian-peru/marketplace-service-template",
 	"caydyan/zeroeye",
 	"commaai/opendbc",
