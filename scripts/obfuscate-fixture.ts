@@ -101,7 +101,17 @@ const { data, stats } = obfuscateFixture(
 	raw as Parameters<typeof obfuscateFixture>[0],
 );
 
-writeFileSync(absOutput, JSON.stringify(data, null, "\t"), "utf-8");
+// We need to add the day of "capture" otherwise it will become stale and fail
+const capturedAt =
+	typeof raw.capturedAt === "string"
+		? raw.capturedAt
+		: new Date().toISOString();
+
+writeFileSync(
+	absOutput,
+	JSON.stringify({ capturedAt, ...data }, null, "\t"),
+	"utf-8",
+);
 unlinkSync(absInput);
 
 updateRegressionConfig(fixtureName, newName);

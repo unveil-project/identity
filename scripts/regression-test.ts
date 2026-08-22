@@ -10,6 +10,7 @@ import {
 	getKnownAs,
 	REGRESSION_FIXTURES,
 } from "../test/regression-config";
+import { runAtCaptureTime } from "../test/utils/frozen-clock";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,15 +31,27 @@ function loadFixture(fixtureName: string) {
 		__dirname,
 		`../test/fixtures/${fixtureName}.json`,
 	);
-	return JSON.parse(fs.readFileSync(fixturePath, "utf-8"));
+	const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf-8"));
+
+	if (typeof fixture.capturedAt !== "string") {
+		throw new Error(
+			`${fixtureName}.json has no "capturedAt" — add the ISO date the snapshot was taken, or the fixture will drift as the account ages.`,
+		);
+	}
+
+	return fixture;
 }
 
 function runRegressionTests(): RegressionResult[] {
 	return Object.entries(REGRESSION_FIXTURES).map(([fixtureName, entry]) => {
 		const fixture = loadFixture(fixtureName);
-		const { user, events } = fixture;
+		const { capturedAt, user, events } = fixture;
 
-		const result = identify({ user, events: events || [] });
+		// Replay the snapshot at the moment it was taken, so account age is what
+		// it was then and not however old the account has since become.
+		const result = runAtCaptureTime(capturedAt, () =>
+			identify({ user, events: events || [] }),
+		);
 
 		const expected = getExpected(entry);
 		const knownAs = getKnownAs(entry);

@@ -42,4 +42,32 @@ describe("regression config", () => {
 			expect(fs.existsSync(fixturePath), `missing ${name}.json`).toBe(true);
 		}
 	});
+
+	// Without a capture date the fixture is replayed against today's clock, so
+	// its account keeps ageing and the expected classification drifts on its own.
+	it("stamps every fixture with the date it was captured", () => {
+		for (const name of Object.keys(REGRESSION_FIXTURES)) {
+			const fixturePath = path.join(__dirname, `fixtures/${name}.json`);
+			const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf-8"));
+
+			expect(typeof fixture.capturedAt, `${name} capturedAt`).toBe("string");
+			expect(
+				Number.isNaN(new Date(fixture.capturedAt).getTime()),
+				`${name} capturedAt is not a valid date`,
+			).toBe(false);
+
+			const events: Array<{ created_at: string }> = fixture.events ?? [];
+			const newestEvent = events
+				.map((e) => e.created_at)
+				.sort()
+				.pop();
+
+			if (newestEvent) {
+				expect(
+					new Date(fixture.capturedAt).getTime(),
+					`${name} was captured before its newest event`,
+				).toBeGreaterThanOrEqual(new Date(newestEvent).getTime());
+			}
+		}
+	});
 });

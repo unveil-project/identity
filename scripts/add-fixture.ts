@@ -116,6 +116,7 @@ async function main(): Promise<void> {
 	}
 
 	console.log(`Fetching ${username}...`);
+	const capturedAt = new Date().toISOString();
 	const user = await fetchUser(username);
 	await new Promise((r) => setTimeout(r, 500));
 	const events = await fetchEvents(username);
@@ -132,7 +133,11 @@ async function main(): Promise<void> {
 	const outputPath = path.join(FIXTURES_DIR, `${fixtureName}.json`);
 
 	fs.mkdirSync(FIXTURES_DIR, { recursive: true });
-	fs.writeFileSync(outputPath, JSON.stringify(data, null, "\t"));
+	// capturedAt first: it pins the clock the fixture is replayed against.
+	fs.writeFileSync(
+		outputPath,
+		JSON.stringify({ capturedAt, ...data }, null, "\t"),
+	);
 
 	addToRegressionConfig(fixtureName, classification);
 

@@ -26,6 +26,9 @@ importers:
       dayjs:
         specifier: ^1.11.20
         version: 1.11.20
+      mockdate:
+        specifier: ^3.0.5
+        version: 3.0.5
       publint:
         specifier: ^0.3.17
         version: 0.3.18
@@ -871,6 +874,11 @@ packages:
 
   '@volar/typescript@1.11.1':
     resolution: {integrity: sha512-iU+t2mas/4lYierSnoFOeRFQUhAEMgsFuQxoxvwn5EdQopw43j+J27a4lt9LMInx1gLJBC6qL14WYGlgymaSMQ==}
+    peerDependencies:
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@vue/compiler-core@3.5.33':
     resolution: {integrity: sha512-3PZLQwFw4Za3TC8t0FvTy3wI16Kt+pmwcgNZca4Pj9iWL2E72a/gZlpBtAJvEdDMdCxdG/qq0C7PN0bsJuv0Rw==}
@@ -1296,6 +1304,9 @@ packages:
   minimatch@9.0.9:
     resolution: {integrity: sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  mockdate@3.0.5:
+    resolution: {integrity: sha512-iniQP4rj1FhBdBYS/+eQv7j1tadJ9lJtdzgOpvsOHng/GbcDh2Fhdeq+ZRldrPYdXvCyfFUmFeEwEGXZB5I/AQ==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -2162,10 +2173,12 @@ snapshots:
     dependencies:
       muggle-string: 0.3.1
 
-  '@volar/typescript@1.11.1':
+  '@volar/typescript@1.11.1(typescript@5.9.3)':
     dependencies:
       '@volar/language-core': 1.11.1
       path-browserify: 1.0.1
+    optionalDependencies:
+      typescript: 5.9.3
 
   '@vue/compiler-core@3.5.33':
     dependencies:
@@ -2550,6 +2563,8 @@ snapshots:
     dependencies:
       brace-expansion: 2.1.0
 
+  mockdate@3.0.5: {}
+
   mri@1.2.0: {}
 
   muggle-string@0.3.1: {}
@@ -2854,7 +2869,7 @@ snapshots:
 
   vue-tsc@1.8.27(typescript@5.9.3):
     dependencies:
-      '@volar/typescript': 1.11.1
+      '@volar/typescript': 1.11.1(typescript@5.9.3)
       '@vue/language-core': 1.8.27(typescript@5.9.3)
       semver: 7.7.4
       typescript: 5.9.3

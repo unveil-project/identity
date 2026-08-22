@@ -90,7 +90,8 @@ async function fetchFixture(username: string): Promise<void> {
 		const events = await fetchUserEvents(username);
 
 		const outputPath = path.join(FIXTURES_DIR, `${username}.json`);
-		const data = { user, events };
+		// Stamp the snapshot so it is always replayed at the age it was captured.
+		const data = { capturedAt: new Date().toISOString(), user, events };
 
 		fs.mkdirSync(FIXTURES_DIR, { recursive: true });
 		fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
