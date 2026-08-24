@@ -2,8 +2,13 @@ version: 1
 scan:
   issues: true
 
+trusted-author-associations:
+  - owner
+  - collaborator
+  - member
+
 allowed-users:
-  - matteogabriele
+  - MatteoGabriele
   - graphieros
   - huang-julien
 
