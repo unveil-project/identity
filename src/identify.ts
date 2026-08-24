@@ -100,7 +100,9 @@ export function identify({
 	flags.push(...detectNarrowActivityFocus(filteredEvents));
 	flags.push(...detectCommentSpam(filteredEvents));
 	flags.push(...detectWatchActivity(filteredEvents));
-	flags.push(...detectBranchPRAutomation(filteredEvents, isEstablished));
+	flags.push(
+		...detectBranchPRAutomation(filteredEvents, isEstablished, accountName),
+	);
 	flags.push(...detectRapidPRSpam(filteredEvents, isEstablished));
 	flags.push(
 		...detectClosedPRSpam(filteredEvents, isEstablished, accountName, tzOffset),

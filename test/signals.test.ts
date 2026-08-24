@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { identify } from "../src/identify";
 import type { GitHubEvent } from "../src/types";
-import { user } from "./utils/events";
+import { event, user } from "./utils/events";
 
 const date = new Date(2026, 2, 10, 12);
 
@@ -1841,5 +1841,99 @@ describe("identify - Star Burst Detection", () => {
 		const watchFlag = result.flags.find((f) => f.group === "watch");
 		expect(watchFlag).toBeDefined();
 		expect(watchFlag?.detail).toBe("20 repositories starred within 38 minutes");
+	});
+});
+
+describe("identify - Rapid branch→PR pattern", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	/**
+	 * Branch, push and open the PR in one go — what `gh pr create` and
+	 * `gh stack submit` do. The branch→PR gap is a couple of seconds either way;
+	 * only the repository owner differs between the two cases below.
+	 */
+	function branchThenPR(repo: string, count: number): GitHubEvent[] {
+		const events: GitHubEvent[] = [];
+		for (let i = 0; i < count; i++) {
+			const branchAt = new Date(2026, 2, 1, 9, i * 5);
+			const prAt = new Date(branchAt.getTime() + 2000);
+			events.push(
+				event("CreateEvent", branchAt.toISOString(), repo, {
+					ref_type: "branch",
+					ref: `feature-${i}`,
+				}),
+				event("PullRequestEvent", prAt.toISOString(), repo, {
+					action: "opened",
+				}),
+			);
+		}
+		return events;
+	}
+
+	it("flags rapid branch→PR churn inside the account's own repositories", () => {
+		const result = identify({
+			user: user({
+				login: "maintainer",
+				created_at: "2015-01-01T00:00:00Z",
+				public_repos: 30,
+			}),
+			events: branchThenPR("maintainer/own-repo", 20),
+		});
+
+		expect(result.flags).toContainEqual(
+			expect.objectContaining({ label: "Rapid branch→PR pattern" }),
+		);
+	});
+
+	it("does not flag the same pattern in a repository owned by someone else", () => {
+		// Creating a branch in a repo the account does not own means it was granted
+		// push access, so this is a collaborator running `gh pr create` — not a bot,
+		// which would have to fork instead (covered by the fork→PR check).
+		const result = identify({
+			user: user({
+				login: "maintainer",
+				created_at: "2015-01-01T00:00:00Z",
+				public_repos: 30,
+			}),
+			events: branchThenPR("someorg/upstream-repo", 20),
+		});
+
+		expect(result.flags.some((f) => f.group === "branch-pr")).toBe(false);
+	});
+
+	it("does not flag a handful of own-repo pairs against heavy branching elsewhere", () => {
+		// Matches are counted only in the account's own repositories, but the
+		// automation ratio is measured against every branch the account created.
+		// Someone who branches constantly across repos they contribute to and runs
+		// `gh pr create` in a few of their own must not clear the ratio on that
+		// handful alone.
+		const elsewhere: GitHubEvent[] = [];
+		for (let i = 0; i < 100; i++) {
+			const at = new Date(2026, 1, 10, 3, i * 7);
+			elsewhere.push(
+				event("CreateEvent", at.toISOString(), "someorg/upstream-repo", {
+					ref_type: "branch",
+					ref: `chore-${i}`,
+				}),
+			);
+		}
+
+		const result = identify({
+			user: user({
+				login: "maintainer",
+				created_at: "2015-01-01T00:00:00Z",
+				public_repos: 30,
+			}),
+			events: [...branchThenPR("maintainer/own-repo", 16), ...elsewhere],
+		});
+
+		expect(result.flags.some((f) => f.group === "branch-pr")).toBe(false);
 	});
 });
