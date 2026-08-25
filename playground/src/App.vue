@@ -1,3 +1,255 @@
+<script setup lang="ts">
+import type { GitHubEvent, GitHubUser, IdentifyResult } from "@unveil/identity";
+import { identify } from "@unveil/identity";
+import { ref } from "vue";
+
+const username = ref("");
+const loading = ref(false);
+const loadingMessage = ref("");
+const error = ref("");
+const result = ref<IdentifyResult | null>(null);
+const user = ref<GitHubUser | null>(null);
+const events = ref<GitHubEvent[]>([]);
+const openFlags = ref(new Set<number>());
+
+const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
+
+const baseHeaders: Record<string, string> = {
+	Accept: "application/vnd.github.v3+json",
+};
+
+if (githubToken) {
+	baseHeaders["Authorization"] = `token ${githubToken}`;
+}
+
+async function fetchUserData(name: string): Promise<GitHubUser | null> {
+	loadingMessage.value = "Fetching user data...";
+	const response = await fetch(`https://api.github.com/users/${name}`, {
+		headers: baseHeaders,
+	});
+
+	if (!response.ok) {
+		throw new Error(`Failed to fetch user: ${response.statusText}`);
+	}
+
+	return response.json();
+}
+
+const MAX_PAGES = 3
+async function fetchEvents(name: string): Promise<GitHubEvent[]> {
+	loadingMessage.value = `Fetching user events (page 1/${MAX_PAGES})...`;
+	const allEvents: GitHubEvent[] = [];
+
+	// Fetch 3 pages with 100 items per page = ~300 events total
+	for (let page = 1; page <= MAX_PAGES; page++) {
+		loadingMessage.value = `Fetching user events (page ${page}/${MAX_PAGES})...`;
+
+		const response = await fetch(
+			`https://api.github.com/users/${name}/events/public?per_page=100&page=${page}`,
+			{
+				headers: baseHeaders,
+			},
+		);
+
+		if (!response.ok) {
+			throw new Error(`Failed to fetch events: ${response.statusText}`);
+		}
+
+		const data = await response.json();
+		if (Array.isArray(data)) {
+			allEvents.push(...data);
+		}
+	}
+
+	return allEvents;
+}
+
+async function analyzeUser() {
+	if (!username.value.trim()) {
+		error.value = "Please enter a username";
+		return;
+	}
+
+	loading.value = true;
+	error.value = "";
+	result.value = null;
+	openFlags.value = new Set();
+
+	try {
+		// Fetch user data and events in parallel
+		loadingMessage.value = "Fetching data...";
+		const [userData, userEvents] = await Promise.all([
+			fetchUserData(username.value),
+			fetchEvents(username.value),
+		]);
+
+		if (!userData) {
+			throw new Error("User not found");
+		}
+
+		user.value = userData;
+		events.value = userEvents;
+
+		// Run analysis
+		loadingMessage.value = "Analyzing...";
+		const analysisResult = identify({
+      user: userData,
+			events: userEvents,
+		});
+
+		result.value = analysisResult;
+	} catch (err) {
+		error.value = err instanceof Error ? err.message : "An error occurred";
+		result.value = null;
+	} finally {
+		loading.value = false;
+	}
+}
+
+function toggleEvidence(index: number) {
+	if (openFlags.value.has(index)) {
+		openFlags.value.delete(index);
+	} else {
+		openFlags.value.add(index);
+	}
+	// trigger Vue reactivity on the Set
+	openFlags.value = new Set(openFlags.value);
+}
+
+// ─── Event formatting helpers ────────────────────────────────────────────────
+
+function formatEventType(event: GitHubEvent): string {
+	switch (event.type) {
+		case "CreateEvent":
+			if (event.payload?.ref_type === "branch") return "Branch";
+			if (event.payload?.ref_type === "repository") return "Repo";
+			return "Tag";
+		case "PullRequestEvent": {
+			const num = (event.payload?.pull_request as { number?: number } | undefined)?.number;
+			return num ? `PR #${num}` : "PR";
+		}
+		case "ForkEvent":
+			return "Fork";
+		case "PushEvent":
+			return "Push";
+		case "IssuesEvent":
+			return "Issue";
+		case "IssueCommentEvent":
+			return "Comment";
+		case "WatchEvent":
+			return "Star";
+		case "DeleteEvent":
+			return `Delete ${event.payload?.ref_type ?? ""}`.trim();
+		default:
+			return event.type?.replace("Event", "") ?? "Event";
+	}
+}
+
+function getEventBadgeClass(event: GitHubEvent): string {
+	switch (event.type) {
+		case "CreateEvent":
+			return "badge-create";
+		case "PullRequestEvent":
+			return "badge-pr";
+		case "ForkEvent":
+			return "badge-fork";
+		case "PushEvent":
+			return "badge-push";
+		case "IssuesEvent":
+		case "IssueCommentEvent":
+			return "badge-issue";
+		case "WatchEvent":
+			return "badge-watch";
+		default:
+			return "badge-default";
+	}
+}
+
+function shortRepo(fullName?: string | null): string {
+	if (!fullName) return "—";
+	const parts = fullName.split("/");
+	return parts[parts.length - 1] ?? fullName;
+}
+
+// ─── Time helpers ────────────────────────────────────────────────────────────
+
+function sortedEvents(evts: GitHubEvent[]): GitHubEvent[] {
+	return [...evts].sort(
+		(a, b) =>
+			new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime(),
+	);
+}
+
+function getDeltaSeconds(a: GitHubEvent, b: GitHubEvent): number {
+	return Math.round(
+		(new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()) / 1000,
+	);
+}
+
+function getGapSeconds(sorted: GitHubEvent[], index: number): number {
+	if (index === 0) return 0;
+	return getDeltaSeconds(sorted[index - 1], sorted[index]);
+}
+
+function getRapidBurst(
+	evts: GitHubEvent[],
+): { count: number; spanSeconds: number } | null {
+	if (evts.length < 3) return null;
+	const sorted = sortedEvents(evts);
+	const spanMs =
+		new Date(sorted[sorted.length - 1].created_at ?? 0).getTime() -
+		new Date(sorted[0].created_at ?? 0).getTime();
+	const spanSeconds = Math.round(spanMs / 1000);
+	// flag as rapid if average gap between events is less than 2 minutes
+	if (spanSeconds / (sorted.length - 1) < 120) {
+		return { count: sorted.length, spanSeconds };
+	}
+	return null;
+}
+
+function formatTime(dateString?: string | null): string {
+	if (!dateString) return "—";
+	return new Date(dateString).toLocaleTimeString("en-US", {
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	});
+}
+
+function formatSpan(seconds: number): string {
+	if (seconds < 60) return `${seconds}s`;
+	const m = Math.floor(seconds / 60);
+	const s = seconds % 60;
+	return s > 0 ? `${m}m ${s}s` : `${m}m`;
+}
+
+function formatDate(dateString?: string): string {
+	if (!dateString) return "—";
+	return new Date(dateString).toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	});
+}
+
+function formatAccountAge(days: number): string {
+	const years = Math.floor(days / 365);
+	const months = Math.floor((days % 365) / 30);
+	const remainingDays = days % 30;
+
+	if (years > 0) {
+		return months > 0
+			? `${years} year${years > 1 ? "s" : ""} and ${months} month${months > 1 ? "s" : ""}`
+			: `${years} year${years > 1 ? "s" : ""}`;
+	}
+	if (months > 0) {
+		return `${months} month${months > 1 ? "s" : ""}`;
+	}
+	return `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
+}
+</script>
+
 <template>
   <div>
     <main>
@@ -196,260 +448,6 @@
     </main>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { GitHubEvent, GitHubUser, IdentifyResult } from "@unveil/identity";
-import { identify } from "@unveil/identity";
-import { ref } from "vue";
-
-const username = ref("");
-const loading = ref(false);
-const loadingMessage = ref("");
-const error = ref("");
-const result = ref<IdentifyResult | null>(null);
-const user = ref<GitHubUser | null>(null);
-const events = ref<GitHubEvent[]>([]);
-const openFlags = ref(new Set<number>());
-
-const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
-
-const baseHeaders: Record<string, string> = {
-	Accept: "application/vnd.github.v3+json",
-};
-
-if (githubToken) {
-	baseHeaders["Authorization"] = `token ${githubToken}`;
-}
-
-async function fetchUserData(name: string): Promise<GitHubUser | null> {
-	loadingMessage.value = "Fetching user data...";
-	const response = await fetch(`https://api.github.com/users/${name}`, {
-		headers: baseHeaders,
-	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch user: ${response.statusText}`);
-	}
-
-	return response.json();
-}
-
-const MAX_PAGES = 3
-async function fetchEvents(name: string): Promise<GitHubEvent[]> {
-	loadingMessage.value = `Fetching user events (page 1/${MAX_PAGES})...`;
-	const allEvents: GitHubEvent[] = [];
-
-	// Fetch 3 pages with 100 items per page = ~300 events total
-	for (let page = 1; page <= MAX_PAGES; page++) {
-		loadingMessage.value = `Fetching user events (page ${page}/${MAX_PAGES})...`;
-
-		const response = await fetch(
-			`https://api.github.com/users/${name}/events/public?per_page=100&page=${page}`,
-			{
-				headers: baseHeaders,
-			},
-		);
-
-		if (!response.ok) {
-			throw new Error(`Failed to fetch events: ${response.statusText}`);
-		}
-
-		const data = await response.json();
-		if (Array.isArray(data)) {
-			allEvents.push(...data);
-		}
-	}
-
-	return allEvents;
-}
-
-async function analyzeUser() {
-	if (!username.value.trim()) {
-		error.value = "Please enter a username";
-		return;
-	}
-
-	loading.value = true;
-	error.value = "";
-	result.value = null;
-	openFlags.value = new Set();
-
-	try {
-		// Fetch user data and events in parallel
-		loadingMessage.value = "Fetching data...";
-		const [userData, userEvents] = await Promise.all([
-			fetchUserData(username.value),
-			fetchEvents(username.value),
-		]);
-
-		if (!userData) {
-			throw new Error("User not found");
-		}
-
-		user.value = userData;
-		events.value = userEvents;
-
-		// Run analysis
-		loadingMessage.value = "Analyzing...";
-		const analysisResult = identify({
-			createdAt: userData.created_at,
-			reposCount: userData.public_repos,
-			accountName: userData.login,
-			events: userEvents,
-		});
-
-		result.value = analysisResult;
-	} catch (err) {
-		error.value = err instanceof Error ? err.message : "An error occurred";
-		result.value = null;
-	} finally {
-		loading.value = false;
-	}
-}
-
-function toggleEvidence(index: number) {
-	if (openFlags.value.has(index)) {
-		openFlags.value.delete(index);
-	} else {
-		openFlags.value.add(index);
-	}
-	// trigger Vue reactivity on the Set
-	openFlags.value = new Set(openFlags.value);
-}
-
-// ─── Event formatting helpers ────────────────────────────────────────────────
-
-function formatEventType(event: GitHubEvent): string {
-	switch (event.type) {
-		case "CreateEvent":
-			if (event.payload?.ref_type === "branch") return "Branch";
-			if (event.payload?.ref_type === "repository") return "Repo";
-			return "Tag";
-		case "PullRequestEvent": {
-			const num = (event.payload?.pull_request as { number?: number } | undefined)?.number;
-			return num ? `PR #${num}` : "PR";
-		}
-		case "ForkEvent":
-			return "Fork";
-		case "PushEvent":
-			return "Push";
-		case "IssuesEvent":
-			return "Issue";
-		case "IssueCommentEvent":
-			return "Comment";
-		case "WatchEvent":
-			return "Star";
-		case "DeleteEvent":
-			return `Delete ${event.payload?.ref_type ?? ""}`.trim();
-		default:
-			return event.type?.replace("Event", "") ?? "Event";
-	}
-}
-
-function getEventBadgeClass(event: GitHubEvent): string {
-	switch (event.type) {
-		case "CreateEvent":
-			return "badge-create";
-		case "PullRequestEvent":
-			return "badge-pr";
-		case "ForkEvent":
-			return "badge-fork";
-		case "PushEvent":
-			return "badge-push";
-		case "IssuesEvent":
-		case "IssueCommentEvent":
-			return "badge-issue";
-		case "WatchEvent":
-			return "badge-watch";
-		default:
-			return "badge-default";
-	}
-}
-
-function shortRepo(fullName?: string | null): string {
-	if (!fullName) return "—";
-	const parts = fullName.split("/");
-	return parts[parts.length - 1] ?? fullName;
-}
-
-// ─── Time helpers ────────────────────────────────────────────────────────────
-
-function sortedEvents(evts: GitHubEvent[]): GitHubEvent[] {
-	return [...evts].sort(
-		(a, b) =>
-			new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime(),
-	);
-}
-
-function getDeltaSeconds(a: GitHubEvent, b: GitHubEvent): number {
-	return Math.round(
-		(new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()) / 1000,
-	);
-}
-
-function getGapSeconds(sorted: GitHubEvent[], index: number): number {
-	if (index === 0) return 0;
-	return getDeltaSeconds(sorted[index - 1], sorted[index]);
-}
-
-function getRapidBurst(
-	evts: GitHubEvent[],
-): { count: number; spanSeconds: number } | null {
-	if (evts.length < 3) return null;
-	const sorted = sortedEvents(evts);
-	const spanMs =
-		new Date(sorted[sorted.length - 1].created_at ?? 0).getTime() -
-		new Date(sorted[0].created_at ?? 0).getTime();
-	const spanSeconds = Math.round(spanMs / 1000);
-	// flag as rapid if average gap between events is less than 2 minutes
-	if (spanSeconds / (sorted.length - 1) < 120) {
-		return { count: sorted.length, spanSeconds };
-	}
-	return null;
-}
-
-function formatTime(dateString?: string | null): string {
-	if (!dateString) return "—";
-	return new Date(dateString).toLocaleTimeString("en-US", {
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-		hour12: false,
-	});
-}
-
-function formatSpan(seconds: number): string {
-	if (seconds < 60) return `${seconds}s`;
-	const m = Math.floor(seconds / 60);
-	const s = seconds % 60;
-	return s > 0 ? `${m}m ${s}s` : `${m}m`;
-}
-
-function formatDate(dateString?: string): string {
-	if (!dateString) return "—";
-	return new Date(dateString).toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-	});
-}
-
-function formatAccountAge(days: number): string {
-	const years = Math.floor(days / 365);
-	const months = Math.floor((days % 365) / 30);
-	const remainingDays = days % 30;
-
-	if (years > 0) {
-		return months > 0
-			? `${years} year${years > 1 ? "s" : ""} and ${months} month${months > 1 ? "s" : ""}`
-			: `${years} year${years > 1 ? "s" : ""}`;
-	}
-	if (months > 0) {
-		return `${months} month${months > 1 ? "s" : ""}`;
-	}
-	return `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
-}
-</script>
 
 <style scoped>
 header {

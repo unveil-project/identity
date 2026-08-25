@@ -50,6 +50,9 @@ importers:
       '@unveil/identity':
         specifier: workspace:*
         version: link:..
+      '@unveil/vk':
+        specifier: ^0.5.0
+        version: 0.5.0
       vue:
         specifier: ^3.4.21
         version: 3.5.33(typescript@5.9.3)
@@ -829,6 +832,12 @@ packages:
 
   '@types/node@25.5.0':
     resolution: {integrity: sha512-jp2P3tQMSxWugkCUKLRPVUpGaL5MVFwF8RDuSRztfwgN1wmqJeMSbKlnEtQqU8UrhTmzEmZdu2I6v2dpp7XIxw==}
+
+  '@unveil/identity@2.0.3':
+    resolution: {integrity: sha512-ZV1AxA7E7Z9tkUi8QFkhPr/Vz/gKdx498MFZ3zLV1zcxurAjTRsOtndiPB3hqqDfBua0Hbl1swyG9X0j960s6w==}
+
+  '@unveil/vk@0.5.0':
+    resolution: {integrity: sha512-HO/VCqxINcj/Obb8ibDATxyYpOV7my3mibDziqBdSMmx+xvwraEPcAdBJeVUDcp8Hy2cZiLG8JSwSYoOEadD4A==}
 
   '@vitejs/plugin-vue@5.2.4':
     resolution: {integrity: sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==}
@@ -2118,6 +2127,12 @@ snapshots:
   '@types/node@25.5.0':
     dependencies:
       undici-types: 7.18.2
+
+  '@unveil/identity@2.0.3': {}
+
+  '@unveil/vk@0.5.0':
+    dependencies:
+      '@unveil/identity': 2.0.3
 
   '@vitejs/plugin-vue@5.2.4(vite@5.4.21(@types/node@25.5.0)(lightningcss@1.32.0))(vue@3.5.33(typescript@5.9.3))':
     dependencies:

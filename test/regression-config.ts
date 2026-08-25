@@ -36,6 +36,7 @@ export const REGRESSION_FIXTURES = {
 	"organic_3": "organic",
 	"organic_4": "organic",
 	"organic_13": "organic",
+	"organic_14": "organic",
 
 	"automation_3": "automation",
 	"automation_8": "automation",
