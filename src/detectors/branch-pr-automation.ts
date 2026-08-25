@@ -223,6 +223,7 @@ export function detectBranchPRAutomation(
 							timeDiffSeconds >= 0 &&
 							timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS &&
 							branchOwner !== undefined &&
+							branchOwner.toLowerCase() === accountNameLower &&
 							prOwner !== undefined &&
 							branchOwner !== prOwner
 						) {

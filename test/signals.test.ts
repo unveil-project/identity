@@ -1936,4 +1936,88 @@ describe("identify - Rapid branch→PR pattern", () => {
 
 		expect(result.flags.some((f) => f.group === "branch-pr")).toBe(false);
 	});
+
+	/**
+	 * The fork workflow: branch in your own fork, open the PR against the
+	 * upstream project. Same project name, different repository owner.
+	 */
+	function forkBranchThenPR(
+		branchRepo: string,
+		prRepo: string,
+		count: number,
+	): GitHubEvent[] {
+		const events: GitHubEvent[] = [];
+		for (let i = 0; i < count; i++) {
+			const branchAt = new Date(2026, 2, 1, 9, i * 5);
+			const prAt = new Date(branchAt.getTime() + 2000);
+			events.push(
+				event("CreateEvent", branchAt.toISOString(), branchRepo, {
+					ref_type: "branch",
+					ref: `feature-${i}`,
+				}),
+				event("PullRequestEvent", prAt.toISOString(), prRepo, {
+					action: "opened",
+				}),
+			);
+		}
+		return events;
+	}
+
+	it("flags rapid fork branch→upstream PR churn", () => {
+		const result = identify({
+			user: user({
+				login: "maintainer",
+				created_at: "2015-01-01T00:00:00Z",
+				public_repos: 30,
+			}),
+			events: forkBranchThenPR(
+				"maintainer/upstream-repo",
+				"someorg/upstream-repo",
+				20,
+			),
+		});
+
+		expect(result.flags).toContainEqual(
+			expect.objectContaining({ label: "Rapid fork→PR pattern" }),
+		);
+	});
+
+	it("matches the account's fork regardless of login casing", () => {
+		const result = identify({
+			user: user({
+				login: "Maintainer",
+				created_at: "2015-01-01T00:00:00Z",
+				public_repos: 30,
+			}),
+			events: forkBranchThenPR(
+				"maintainer/upstream-repo",
+				"someorg/upstream-repo",
+				20,
+			),
+		});
+
+		expect(result.flags).toContainEqual(
+			expect.objectContaining({ label: "Rapid fork→PR pattern" }),
+		);
+	});
+
+	it("does not flag branches in a fork the account does not own", () => {
+		// Branching in someone else's repo needs push access a maintainer granted,
+		// so pairing those branches with PRs that happen to land in another owner's
+		// repo of the same name is not the fork workflow this check looks for.
+		const result = identify({
+			user: user({
+				login: "maintainer",
+				created_at: "2015-01-01T00:00:00Z",
+				public_repos: 30,
+			}),
+			events: forkBranchThenPR(
+				"otheruser/upstream-repo",
+				"someorg/upstream-repo",
+				20,
+			),
+		});
+
+		expect(result.flags.some((f) => f.group === "branch-pr")).toBe(false);
+	});
 });
