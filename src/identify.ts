@@ -28,6 +28,7 @@ import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
 import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
+import { isGitHubAppAccount } from "./github-app";
 import {
 	analyzeCommitMetadata,
 	getAiMultiplier,
@@ -125,6 +126,7 @@ export function identify({
 	flags.push(...detectBountyLabelInfrastructure(filteredEvents));
 	flags.push(...detectAIAgentBranchPrefix(filteredEvents));
 	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
+	const isGitHubApp = isGitHubAppAccount(user, events);
 
 	const organicBonus = detectOrganicSignals(filteredEvents, accountName);
 
@@ -197,6 +199,7 @@ export function identify({
 		classification,
 		confidence,
 		isBountyHunter,
+		isGitHubApp,
 		flags: scored.flags,
 		groups: scored.groups,
 		window,

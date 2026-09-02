@@ -39,6 +39,7 @@ console.log(analysis);
 //   classification: "organic",   // organic | mixed | automation | insufficient-data
 //   score: 100,                  // 100 = human, 0 = automation
 //   confidence: 0.83,            // 0-1: how sure we are about the result
+//   isGitHubApp: false,          // true = a GitHub App account, not a person
 //   flags: [],
 //   groups: [],                  // how much each group took off the score
 //   window: {                    // the events we looked at
@@ -69,6 +70,20 @@ database.
 
 Two more options: `excludeRepos` (a list of `owner/repo` to ignore) and `commits`
 (to turn on AI commit detection).
+
+### GitHub Apps
+
+Accounts like `coderabbitai[bot]` or `dependabot[bot]` are GitHub Apps, and
+GitHub says so itself: `GET /users/{username}` returns `type: "Bot"` for them.
+That value (or the reserved `[bot]` login suffix, if you did not fetch the
+type) sets `isGitHubApp` on the result. 
+
+```js
+if (analysis.isGitHubApp) {
+  // known automation, by declaration rather than by behaviour
+}
+```
+
 
 ### Issues and feature requests
 

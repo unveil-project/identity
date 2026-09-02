@@ -307,6 +307,12 @@ function formatAccountAge(days: number): string {
             </span>
           </div>
           <div class="info-row">
+            <span class="info-label">GitHub App:</span>
+            <span class="info-value bounty-hunter" :class="result.isGitHubApp ? 'bounty-hunter--on' : 'bounty-hunter--off'">
+              {{ result.isGitHubApp ? "Yes" : "No" }}
+            </span>
+          </div>
+          <div class="info-row">
             <span class="info-label">Account Age:</span>
             <span class="info-value">{{ formatAccountAge(result.profile.age) }}</span>
           </div>

@@ -4,6 +4,8 @@ export type GitHubUser = Endpoints["GET /users/{username}"]["response"]["data"];
 
 export type GitHubEvent =
 	Endpoints["GET /users/{username}/events/public"]["response"]["data"][number] & {
+		/** GitHub sends `type: "Bot"` here for GitHub App actors. */
+		actor?: { type?: string };
 		payload?: {
 			ref_type?: string;
 			ref?: string;
@@ -153,6 +155,13 @@ export type IdentifyResult = {
 	/** How sure we are about the result, from 0 to 1. */
 	confidence: number;
 	isBountyHunter: boolean;
+	/**
+	 * True when the account is a GitHub App (`coderabbitai[bot]` and friends)
+	 * rather than a person. Taken from GitHub's own `type: "Bot"`, so it is a
+	 * fact and not a score. Scoring is unchanged: the maintainer decides if
+	 * an app is welcome in the context you are checking.
+	 */
+	isGitHubApp: boolean;
 	flags: IdentifyFlag[];
 	/** How much each group added to the score. */
 	groups: ScoredGroup[];
