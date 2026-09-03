@@ -75,8 +75,6 @@ Two more options: `excludeRepos` (a list of `owner/repo` to ignore) and `commits
 
 Accounts like `coderabbitai[bot]` or `dependabot[bot]` are GitHub Apps, and
 GitHub says so itself: `GET /users/{username}` returns `type: "Bot"` for them.
-That value (or the reserved `[bot]` login suffix, if you did not fetch the
-type) sets `isGitHubApp` on the result. 
 
 ```js
 if (analysis.isGitHubApp) {
