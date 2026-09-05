@@ -30,7 +30,10 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 	function fakeLogin(real: string): string {
 		let cached = loginCache.get(real);
 		if (cached === undefined) {
-			cached = `user-${sha256(`login:${real}`).slice(0, 8)}`;
+			// Keep the "[bot]" suffix: it is not identifying, and it keeps a
+			// GitHub App fixture readable as one.
+			const suffix = real.endsWith("[bot]") ? "[bot]" : "";
+			cached = `user-${sha256(`login:${real}`).slice(0, 8)}${suffix}`;
 			loginCache.set(real, cached);
 		}
 		return cached;
@@ -41,7 +44,6 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 		if (cached === undefined) {
 			const lower = fullName.toLowerCase();
 			const repoName = lower.split("/")[1];
-			console.log(repoName, lower);
 			if (
 				BOUNTY_REPO_PATHS.has(lower) ||
 				(repoName !== undefined && BOUNTY_REPO_NAMES.has(repoName))

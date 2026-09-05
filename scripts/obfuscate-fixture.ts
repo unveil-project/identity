@@ -9,8 +9,11 @@ import {
 } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { IdentityClassification } from "../src/types";
-import { getExpected, REGRESSION_FIXTURES } from "../test/regression-config";
+import {
+	type FixtureCategory,
+	getCategory,
+	REGRESSION_FIXTURES,
+} from "../test/regression-config";
 import { obfuscateFixture } from "./utils/obfuscate";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -51,9 +54,18 @@ if (!entry) {
 	process.exit(1);
 }
 
-const classification: IdentityClassification = getExpected(entry);
+// Rename within the fixture's own category: a "github-app" fixture stays a
+// GitHub App even when identify() scores it as automation.
+const category = getCategory(fixtureName);
 
-function nextFixtureName(kind: IdentityClassification): string {
+if (!category) {
+	console.error(
+		`"${fixtureName}" does not start with a known category (<category>_<n>).`,
+	);
+	process.exit(1);
+}
+
+function nextFixtureName(kind: FixtureCategory): string {
 	const existing = readdirSync(FIXTURES_DIR)
 		.map((f) => basename(f, ".json"))
 		.filter((n) => n.startsWith(`${kind}_`))
@@ -63,7 +75,7 @@ function nextFixtureName(kind: IdentityClassification): string {
 	return `${kind}_${next}`;
 }
 
-const newName = nextFixtureName(classification);
+const newName = nextFixtureName(category);
 const absOutput = resolve(FIXTURES_DIR, `${newName}.json`);
 
 function updateRegressionConfig(oldName: string, newN: string): void {
@@ -97,9 +109,13 @@ function updateBenchmarkReports(oldName: string, newN: string): number {
 type JsonObject = { [key: string]: unknown };
 
 const raw: JsonObject = JSON.parse(readFileSync(absInput, "utf-8"));
-const { data, stats } = obfuscateFixture(
-	raw as Parameters<typeof obfuscateFixture>[0],
-);
+
+// Apps are not people: a github-app fixture is only renamed and re-stamped.
+const obfuscated =
+	category === "github-app"
+		? undefined
+		: obfuscateFixture(raw as Parameters<typeof obfuscateFixture>[0]);
+const data = obfuscated?.data ?? raw;
 
 // We need to add the day of "capture" otherwise it will become stale and fail
 const capturedAt =
@@ -117,8 +133,12 @@ unlinkSync(absInput);
 updateRegressionConfig(fixtureName, newName);
 const reportsUpdated = updateBenchmarkReports(fixtureName, newName);
 
-console.log(`${fixtureName} (${classification}) → ${newName}`);
-console.log(`  ${stats.logins} login(s), ${stats.repos} repo(s) obfuscated`);
+console.log(`${fixtureName} (${category}) → ${newName}`);
+console.log(
+	obfuscated
+		? `  ${obfuscated.stats.logins} login(s), ${obfuscated.stats.repos} repo(s) obfuscated`
+		: "  stored as fetched (apps are not people)",
+);
 console.log(`  regression-config.ts updated`);
 if (reportsUpdated > 0) {
 	console.log(`  ${reportsUpdated} benchmark report(s) updated`);

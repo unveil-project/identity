@@ -1,6 +1,43 @@
 import type { IdentityClassification } from "../src";
 
 /**
+ * What the account really is. Fixture files are named `<category>_<n>.json`,
+ * so the category is part of the file name and never drifts from the data.
+ *
+ * "github-app" is not a classification: identify() still scores those accounts
+ * like any other, but GitHub itself reports them as `type: "Bot"`, so they are
+ * additionally gated on `isGitHubApp`.
+ */
+export type FixtureCategory =
+	| "organic"
+	| "mixed"
+	| "automation"
+	| "github-app";
+
+export const FIXTURE_CATEGORIES: FixtureCategory[] = [
+	"organic",
+	"mixed",
+	"automation",
+	"github-app",
+];
+
+export function getCategory(
+	fixtureName: string,
+): FixtureCategory | undefined {
+	const prefix = fixtureName.slice(0, fixtureName.lastIndexOf("_"));
+	return FIXTURE_CATEGORIES.find((category) => category === prefix);
+}
+
+/**
+ * Whether identify() must report this fixture as a GitHub App. Fixtures in
+ * every other category must report `false`, so a bot filed under the wrong
+ * category fails just as loudly as a missed one.
+ */
+export function expectsGitHubApp(fixtureName: string): boolean {
+	return getCategory(fixtureName) === "github-app";
+}
+
+/**
  * A fixture where the system's current output differs from the known ground truth.
  * `expected` is what identify() produces (the test gate — fail if it changes).
  * `knownAs` is what the account truly is — warns if the system hasn't caught up yet.
@@ -69,6 +106,9 @@ export const REGRESSION_FIXTURES = {
 	"organic_17": "organic",
 	"organic_18": "organic",
 	"organic_19": "organic",
+	"github-app_1": "automation",
+	"github-app_2": "automation",
+	"github-app_3": "automation",
 } satisfies Record<string, FixtureEntry>;
 
 export type FixtureName = keyof typeof REGRESSION_FIXTURES;
