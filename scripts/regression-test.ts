@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { identify } from "../src/identify";
 import type { IdentityClassification } from "../src/types";
 import {
+	expectsGitHubApp,
 	getExpected,
 	getKnownAs,
 	REGRESSION_FIXTURES,
@@ -20,6 +21,9 @@ interface RegressionResult {
 	expected: IdentityClassification;
 	knownAs: IdentityClassification | undefined;
 	actual: IdentityClassification;
+	/** True when the fixture is a real GitHub App (the "github-app" category). */
+	expectedGitHubApp: boolean;
+	actualGitHubApp: boolean;
 	score: number;
 	passed: boolean;
 	// true when passed but system output differs from known ground truth
@@ -55,7 +59,10 @@ function runRegressionTests(): RegressionResult[] {
 
 		const expected = getExpected(entry);
 		const knownAs = getKnownAs(entry);
-		const passed = result.classification === expected;
+		const expectedGitHubApp = expectsGitHubApp(fixtureName);
+		const passed =
+			result.classification === expected &&
+			result.isGitHubApp === expectedGitHubApp;
 		const warned = passed && knownAs !== undefined && knownAs !== expected;
 
 		return {
@@ -63,6 +70,8 @@ function runRegressionTests(): RegressionResult[] {
 			expected,
 			knownAs,
 			actual: result.classification,
+			expectedGitHubApp,
+			actualGitHubApp: result.isGitHubApp,
 			score: result.score,
 			passed,
 			warned,
@@ -79,7 +88,11 @@ function printResults(results: RegressionResult[]): void {
 	console.log("═".repeat(60));
 
 	for (const result of results) {
-		if (!result.passed) {
+		if (result.actualGitHubApp !== result.expectedGitHubApp) {
+			console.log(
+				`❌ ${result.fixture}: FAIL (isGitHubApp expected: ${result.expectedGitHubApp}, actual: ${result.actualGitHubApp})`,
+			);
+		} else if (!result.passed) {
 			console.log(
 				`❌ ${result.fixture}: FAIL (expected: ${result.expected}, actual: ${result.actual}, score: ${result.score})`,
 			);
@@ -88,8 +101,9 @@ function printResults(results: RegressionResult[]): void {
 				`⚠️  ${result.fixture}: WARN — system says "${result.expected}" but known to be "${result.knownAs}" (score: ${result.score})`,
 			);
 		} else {
+			const app = result.actualGitHubApp ? ", GitHub App" : "";
 			console.log(
-				`✅ ${result.fixture}: PASS (${result.actual}, score: ${result.score})`,
+				`✅ ${result.fixture}: PASS (${result.actual}, score: ${result.score}${app})`,
 			);
 		}
 	}

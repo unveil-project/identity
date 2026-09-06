@@ -35,6 +35,8 @@ interface GitHubUser {
 	login: string;
 	created_at: string;
 	public_repos: number;
+	/** GitHub reports "Bot" for GitHub Apps — dropping it loses `isGitHubApp`. */
+	type: string;
 }
 
 async function fetchUserData(username: string): Promise<GitHubUser> {
@@ -54,6 +56,7 @@ async function fetchUserData(username: string): Promise<GitHubUser> {
 		login: data.login,
 		created_at: data.created_at,
 		public_repos: data.public_repos,
+		type: data.type,
 	};
 }
 

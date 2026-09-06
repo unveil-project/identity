@@ -4,6 +4,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { GitHubEvent, IdentityClassification } from "../src";
+import { identify } from "../src/identify";
+import {
+	FIXTURE_CATEGORIES,
+	type FixtureCategory,
+} from "../test/regression-config";
+import { runAtCaptureTime } from "../test/utils/frozen-clock";
 import { obfuscateFixture } from "./utils/obfuscate";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -13,26 +19,23 @@ const REGRESSION_CONFIG_PATH = path.join(
 	"../test/regression-config.ts",
 );
 
-const VALID_CLASSIFICATIONS: IdentityClassification[] = [
-	"organic",
-	"automation",
-	"mixed",
-];
-
-const [, , username, classificationArg] = process.argv;
+const [, , username, categoryArg] = process.argv;
 
 if (
 	!username ||
-	!classificationArg ||
-	!VALID_CLASSIFICATIONS.includes(classificationArg as IdentityClassification)
+	!categoryArg ||
+	!FIXTURE_CATEGORIES.includes(categoryArg as FixtureCategory)
 ) {
 	console.error(
-		"Usage: tsx scripts/add-fixture.ts <github-username> <organic|automation|mixed>",
+		`Usage: tsx scripts/add-fixture.ts <github-username> <${FIXTURE_CATEGORIES.join("|")}>`,
+	);
+	console.error(
+		'  github-app: the account is a real GitHub App — GitHub reports type: "Bot"',
 	);
 	process.exit(1);
 }
 
-const classification = classificationArg as IdentityClassification;
+const category = categoryArg as FixtureCategory;
 
 let GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 if (!GITHUB_TOKEN) {
@@ -48,9 +51,12 @@ const headers: Record<string, string> = GITHUB_TOKEN
 	? { Authorization: `token ${GITHUB_TOKEN}` }
 	: {};
 
-async function fetchUser(
-	login: string,
-): Promise<{ login: string; created_at: string; public_repos: number }> {
+async function fetchUser(login: string): Promise<{
+	login: string;
+	created_at: string;
+	public_repos: number;
+	type: string;
+}> {
 	const res = await fetch(`https://api.github.com/users/${login}`, {
 		headers,
 	});
@@ -61,11 +67,15 @@ async function fetchUser(
 		login: string;
 		created_at: string;
 		public_repos: number;
+		type: string;
 	};
 	return {
 		login: data.login,
 		created_at: data.created_at,
 		public_repos: data.public_repos,
+		// GitHub reports "Bot" for GitHub Apps. Keeping it is the whole point of
+		// the github-app category: without it the snapshot loses what it is.
+		type: data.type,
 	};
 }
 
@@ -88,7 +98,7 @@ async function fetchEvents(login: string): Promise<GitHubEvent[]> {
 	return events;
 }
 
-function nextFixtureName(kind: IdentityClassification): string {
+function nextFixtureName(kind: FixtureCategory): string {
 	const existing = fs
 		.readdirSync(FIXTURES_DIR)
 		.map((f) => path.basename(f, ".json"))
@@ -118,6 +128,21 @@ async function main(): Promise<void> {
 	console.log(`Fetching ${username}...`);
 	const capturedAt = new Date().toISOString();
 	const user = await fetchUser(username);
+
+	// GitHub is the authority on what an account is, so a fixture can never be
+	// filed under a category the API disagrees with.
+	const isApp = user.type.toLowerCase() === "bot";
+	if (isApp && category !== "github-app") {
+		throw new Error(
+			`${username} is a GitHub App (type: "${user.type}") — add it as "github-app", not "${category}".`,
+		);
+	}
+	if (!isApp && category === "github-app") {
+		throw new Error(
+			`${username} is not a GitHub App (type: "${user.type}") — only apps are reported as "Bot".`,
+		);
+	}
+
 	await new Promise((r) => setTimeout(r, 500));
 	const events = await fetchEvents(username);
 
@@ -125,11 +150,30 @@ async function main(): Promise<void> {
 	const raw = JSON.parse(JSON.stringify({ user, events })) as {
 		[key: string]: { [key: string]: unknown };
 	};
-	const { data, stats } = obfuscateFixture(
-		raw as Parameters<typeof obfuscateFixture>[0],
-	);
 
-	const fixtureName = nextFixtureName(classification);
+	// A GitHub App is not a person, so there is no identity to hide: it is
+	// stored as fetched, which also keeps the app recognisable in the fixture.
+	const obfuscated =
+		category === "github-app"
+			? undefined
+			: obfuscateFixture(raw as Parameters<typeof obfuscateFixture>[0]);
+	const data = obfuscated?.data ?? raw;
+
+	// Being an app is a fact, not a classification: the category pins
+	// `isGitHubApp`, while the entry still pins whatever identify() scores the
+	// app as, so a scoring change on apps shows up as a regression like any
+	// other. Score the stored snapshot — that is what gets replayed.
+	const expected: IdentityClassification =
+		category === "github-app"
+			? runAtCaptureTime(
+					capturedAt,
+					() =>
+						identify(data as unknown as Parameters<typeof identify>[0])
+							.classification,
+				)
+			: category;
+
+	const fixtureName = nextFixtureName(category);
 	const outputPath = path.join(FIXTURES_DIR, `${fixtureName}.json`);
 
 	fs.mkdirSync(FIXTURES_DIR, { recursive: true });
@@ -139,11 +183,13 @@ async function main(): Promise<void> {
 		JSON.stringify({ capturedAt, ...data }, null, "\t"),
 	);
 
-	addToRegressionConfig(fixtureName, classification);
+	addToRegressionConfig(fixtureName, expected);
 
-	console.log(`✅ ${username} → ${fixtureName} (${classification})`);
+	console.log(`✅ ${username} → ${fixtureName} (${category} → ${expected})`);
 	console.log(
-		`   ${events.length} events, ${stats.logins} login(s), ${stats.repos} repo(s) obfuscated`,
+		obfuscated
+			? `   ${events.length} events, ${obfuscated.stats.logins} login(s), ${obfuscated.stats.repos} repo(s) obfuscated`
+			: `   ${events.length} events, stored as fetched (apps are not people)`,
 	);
 	console.log("   regression-config.ts updated");
 }
