@@ -1,49 +1,49 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
-import { calculateConfidence } from "./confidence";
-import { CONFIG } from "./config";
-import { detectAccountAge } from "./detectors/account-age";
-import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
-import { detectAIAgentBranchPrefix } from "./detectors/ai-branch-prefix";
-import { detectBountyLabelInfrastructure } from "./detectors/bounty-label-infra";
+import { calculateConfidence } from "./confidence.ts";
+import { CONFIG } from "./config.ts";
+import { detectAccountAge } from "./detectors/account-age.ts";
+import { detectInhumanActivityPattern } from "./detectors/activity-pattern.ts";
+import { detectAIAgentBranchPrefix } from "./detectors/ai-branch-prefix.ts";
+import { detectBountyLabelInfrastructure } from "./detectors/bounty-label-infra.ts";
 import {
 	detectBountyRepoPRs,
 	hasBountyRepoEngagement,
-} from "./detectors/bounty-repo-activity";
-import { detectBranchPRAutomation } from "./detectors/branch-pr-automation";
-import { detectClosedPRSpam } from "./detectors/closed-pr-spam";
-import { detectCommentBeforePR } from "./detectors/comment-before-pr";
-import { detectCommentSpam } from "./detectors/comment-spam";
-import { detectDormancy } from "./detectors/dormancy";
-import { detectNarrowActivityFocus } from "./detectors/event-diversity";
+} from "./detectors/bounty-repo-activity.ts";
+import { detectBranchPRAutomation } from "./detectors/branch-pr-automation.ts";
+import { detectClosedPRSpam } from "./detectors/closed-pr-spam.ts";
+import { detectCommentBeforePR } from "./detectors/comment-before-pr.ts";
+import { detectCommentSpam } from "./detectors/comment-spam.ts";
+import { detectDormancy } from "./detectors/dormancy.ts";
+import { detectNarrowActivityFocus } from "./detectors/event-diversity.ts";
 import {
 	detectForkActivity,
 	detectForkCombinedActivity,
-} from "./detectors/fork-activity";
-import { detectExtremeAndDistributedPRSpam } from "./detectors/pr-spam";
-import { detectPushBurst } from "./detectors/push-burst";
-import { detectRapidPRSpam } from "./detectors/rapid-pr-spam";
-import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
-import { detectWatchActivity } from "./detectors/watch-activity";
-import { detectYoungAccountActivity } from "./detectors/young-account";
-import { detectZeroReposActivity } from "./detectors/zero-repos";
-import { isGitHubAppAccount } from "./github-app";
+} from "./detectors/fork-activity.ts";
+import { detectExtremeAndDistributedPRSpam } from "./detectors/pr-spam.ts";
+import { detectPushBurst } from "./detectors/push-burst.ts";
+import { detectRapidPRSpam } from "./detectors/rapid-pr-spam.ts";
+import { detectRepositoryCreationBurst } from "./detectors/repository-creation.ts";
+import { detectWatchActivity } from "./detectors/watch-activity.ts";
+import { detectYoungAccountActivity } from "./detectors/young-account.ts";
+import { detectZeroReposActivity } from "./detectors/zero-repos.ts";
+import { isGitHubAppAccount } from "./github-app.ts";
 import {
 	analyzeCommitMetadata,
 	getAiMultiplier,
-} from "./modifiers/analyze-commit-metadata";
-import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
-import { detectOrganicSignals } from "./modifiers/organic-signals";
-import { scoreFlags } from "./scoring";
-import { estimateUtcOffset } from "./timezone";
+} from "./modifiers/analyze-commit-metadata.ts";
+import { getBountyMultiplier } from "./modifiers/bounty-multiplier.ts";
+import { detectOrganicSignals } from "./modifiers/organic-signals.ts";
+import { scoreFlags } from "./scoring.ts";
+import { estimateUtcOffset } from "./timezone.ts";
 import type {
 	IdentifyFlag,
 	IdentifyOptions,
 	IdentifyResult,
 	IdentityClassification,
-} from "./types";
-import { analyzeWindow } from "./window";
+} from "./types.ts";
+import { analyzeWindow } from "./window.ts";
 
 dayjs.extend(minMax);
 dayjs.extend(utc);

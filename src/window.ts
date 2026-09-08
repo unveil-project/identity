@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { CONFIG } from "./config";
-import type { GitHubEvent, WindowInfo } from "./types";
+import { CONFIG } from "./config.ts";
+import type { GitHubEvent, WindowInfo } from "./types.ts";
 
 /**
  * Describe the list of events we were given.

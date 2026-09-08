@@ -1,5 +1,5 @@
-import { CONFIG } from "../config";
-import type { IdentifyFlag } from "../types";
+import { CONFIG } from "../config.ts";
+import type { IdentifyFlag } from "../types.ts";
 
 export function detectAccountAge(accountAge: number): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];

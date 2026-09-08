@@ -1,5 +1,5 @@
-import { CONFIG } from "../config";
-import type { GitHubCommit } from "../types";
+import { CONFIG } from "../config.ts";
+import type { GitHubCommit } from "../types.ts";
 
 const AI_COMMIT_PATTERNS: RegExp[] = [
 	/co-authored-by:.*<[^>]*@anthropic\.com>/i,

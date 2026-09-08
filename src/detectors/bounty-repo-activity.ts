@@ -1,6 +1,6 @@
-import { CONFIG } from "../config";
-import { BOUNTY_REPO_NAMES, BOUNTY_REPO_PATHS } from "../data/bounty-repos";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { CONFIG } from "../config.ts";
+import { BOUNTY_REPO_NAMES, BOUNTY_REPO_PATHS } from "../data/bounty-repos.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
 
 function isBountyRepo(repoFullName: string): boolean {
 	const lower = repoFullName.toLowerCase();

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { CONFIG } from "../config";
-import type { GitHubEvent } from "../types";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent } from "../types.ts";
 
 export function detectOrganicSignals(
 	events: GitHubEvent[],

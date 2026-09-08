@@ -1,4 +1,4 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 
 import {
 	existsSync,
@@ -13,8 +13,8 @@ import {
 	type FixtureCategory,
 	getCategory,
 	REGRESSION_FIXTURES,
-} from "../test/regression-config";
-import { obfuscateFixture } from "./utils/obfuscate";
+} from "../test/regression-config.ts";
+import { obfuscateFixture } from "./utils/obfuscate.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = resolve(__dirname, "../test/fixtures");
@@ -27,7 +27,7 @@ const REPORTS_DIR = resolve(__dirname, "../benchmark/reports");
 const [, , inputPath] = process.argv;
 
 if (!inputPath) {
-	console.error("Usage: tsx scripts/obfuscate-fixture.ts <input.json>");
+	console.error("Usage: node scripts/obfuscate-fixture.ts <input.json>");
 	process.exit(1);
 }
 

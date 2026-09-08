@@ -1,4 +1,4 @@
-import type { GitHubEvent, IdentifyUser } from "./types";
+import type { GitHubEvent, IdentifyUser } from "./types.ts";
 
 function isBotType(type: string | null | undefined): boolean {
 	return typeof type === "string" && type.toLowerCase() === "bot";
