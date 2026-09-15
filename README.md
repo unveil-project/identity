@@ -71,18 +71,6 @@ database.
 Two more options: `excludeRepos` (a list of `owner/repo` to ignore) and `commits`
 (to turn on AI commit detection).
 
-### GitHub Apps
-
-Accounts like `coderabbitai[bot]` or `dependabot[bot]` are GitHub Apps, and
-GitHub says so itself: `GET /users/{username}` returns `type: "Bot"` for them.
-
-```js
-if (analysis.isGitHubApp) {
-  // known automation, by declaration rather than by behaviour
-}
-```
-
-
 ### Issues and feature requests
 
 Please drop an issue if you find something that doesn't work, or have an idea for something that works better.
