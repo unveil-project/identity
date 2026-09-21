@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
-import { CONFIG } from "../config";
-import { localDay } from "../timezone";
-import type { GitHubEvent, IdentifyFlag } from "../types";
-import { type RampAnchor, rampPoints } from "../utils";
+import { CONFIG } from "../config.ts";
+import { localDay } from "../timezone.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
+import { type RampAnchor, rampPoints } from "../utils.ts";
 
 const CLOSED_PR_RAMP: readonly RampAnchor[] = [
 	[CONFIG.CLOSED_PR_SPAM_MIN, CONFIG.POINTS_CLOSED_PR_SPAM],

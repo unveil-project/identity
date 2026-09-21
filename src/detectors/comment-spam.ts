@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
-import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
-import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
+import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils.ts";
 
 const ISSUE_COMMENT_RAMP: readonly RampAnchor[] = [
 	[CONFIG.ISSUE_COMMENT_SPRAY_HIGH, CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH],

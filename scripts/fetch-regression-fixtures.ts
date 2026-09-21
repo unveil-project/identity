@@ -1,10 +1,10 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { GitHubEvent } from "../src";
-import { REGRESSION_FIXTURES } from "../test/regression-config";
+import type { GitHubEvent } from "../src/index.ts";
+import { REGRESSION_FIXTURES } from "../test/regression-config.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, "../test/fixtures");

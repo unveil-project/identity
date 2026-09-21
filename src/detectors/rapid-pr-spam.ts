@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
 
 export function detectRapidPRSpam(
 	events: GitHubEvent[],

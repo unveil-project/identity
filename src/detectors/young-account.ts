@@ -1,13 +1,13 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
-import { CONFIG } from "../config";
-import { localDay, localHour } from "../timezone";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { CONFIG } from "../config.ts";
+import { localDay, localHour } from "../timezone.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
 import {
 	calculateNormalizedShannonsEntropy,
 	densestEventWindow,
-} from "../utils";
+} from "../utils.ts";
 
 dayjs.extend(minMax);
 dayjs.extend(utc);
