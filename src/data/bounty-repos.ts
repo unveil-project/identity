@@ -16,7 +16,6 @@ export const BOUNTY_REPOS: readonly string[] = [
 	"Andyyook/zeroeye",
 	"aozorayama45/Apache-DolphinScheduler",
 	"aozorayama45/Traefik",
-	"Arrow-air/website",
 	"asyncapi/tck",
 	"atharvnaik1/ipaship-audit",
 	"auscaster/frantic-board",
