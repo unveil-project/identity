@@ -1,16 +1,16 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { GitHubEvent, IdentityClassification } from "../src";
-import { identify } from "../src/identify";
+import type { GitHubEvent, IdentityClassification } from "../src/index.ts";
+import { identify } from "../src/identify.ts";
 import {
 	FIXTURE_CATEGORIES,
 	type FixtureCategory,
-} from "../test/regression-config";
-import { runAtCaptureTime } from "../test/utils/frozen-clock";
-import { obfuscateFixture } from "./utils/obfuscate";
+} from "../test/regression-config.ts";
+import { runAtCaptureTime } from "../test/utils/frozen-clock.ts";
+import { obfuscateFixture } from "./utils/obfuscate.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, "../test/fixtures");
@@ -27,7 +27,7 @@ if (
 	!FIXTURE_CATEGORIES.includes(categoryArg as FixtureCategory)
 ) {
 	console.error(
-		`Usage: tsx scripts/add-fixture.ts <github-username> <${FIXTURE_CATEGORIES.join("|")}>`,
+		`Usage: node scripts/add-fixture.ts <github-username> <${FIXTURE_CATEGORIES.join("|")}>`,
 	);
 	console.error(
 		'  github-app: the account is a real GitHub App — GitHub reports type: "Bot"',

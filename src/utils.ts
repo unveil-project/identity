@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import type { GitHubEvent } from "./types";
+import type { GitHubEvent } from "./types.ts";
 
 /**
  * Measure how spread out a set of counts is.

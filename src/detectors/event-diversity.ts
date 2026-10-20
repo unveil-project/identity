@@ -1,6 +1,6 @@
-import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
-import { calculateNormalizedShannonsEntropy } from "../utils";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
+import { calculateNormalizedShannonsEntropy } from "../utils.ts";
 
 export function detectNarrowActivityFocus(
 	events: GitHubEvent[],

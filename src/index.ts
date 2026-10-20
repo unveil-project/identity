@@ -1,10 +1,10 @@
-export { getClassificationDetails } from "./classification";
-export { calculateConfidence } from "./confidence";
-export { CONFIG as identityConfig } from "./config";
-export { isGitHubAppAccount } from "./github-app";
-export { identify } from "./identify";
-export { type ScoreOptions, type ScoreResult, scoreFlags } from "./scoring";
-export { estimateUtcOffset } from "./timezone";
+export { getClassificationDetails } from "./classification.ts";
+export { calculateConfidence } from "./confidence.ts";
+export { CONFIG as identityConfig } from "./config.ts";
+export { isGitHubAppAccount } from "./github-app.ts";
+export { identify } from "./identify.ts";
+export { type ScoreOptions, type ScoreResult, scoreFlags } from "./scoring.ts";
+export { estimateUtcOffset } from "./timezone.ts";
 export type {
 	EventConnection,
 	EvidenceGroup,
@@ -19,5 +19,5 @@ export type {
 	ScoredGroup,
 	TimezoneEstimate,
 	WindowInfo,
-} from "./types";
-export { analyzeWindow } from "./window";
+} from "./types.ts";
+export { analyzeWindow } from "./window.ts";

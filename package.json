@@ -27,11 +27,11 @@
 		"test": "vitest",
 		"check": "biome check",
 		"check:fix": "biome check --fix",
-		"obfuscate:fixture": "tsx scripts/obfuscate-fixture.ts",
-		"add:fixture": "tsx scripts/add-fixture.ts",
-		"update-fixtures": "tsx scripts/fetch-regression-fixtures.ts",
+		"obfuscate:fixture": "node scripts/obfuscate-fixture.ts",
+		"add:fixture": "node scripts/add-fixture.ts",
+		"update-fixtures": "node scripts/fetch-regression-fixtures.ts",
 		"playground": "pnpm -F @unveil/identity-playground dev",
-		"regression-test": "tsx scripts/regression-test.ts",
+		"regression-test": "node scripts/regression-test.ts",
 		"prepublishOnly": "vitest --run && pnpm run build && pnpm run regression-test"
 	},
 	"devDependencies": {
@@ -44,7 +44,6 @@
 		"mockdate": "^3.0.5",
 		"publint": "^0.3.17",
 		"tsdown": "^0.22.4",
-		"tsx": "^4.23.0",
 		"typescript": "^6.0.3",
 		"vitest": "^4.0.16"
 	},

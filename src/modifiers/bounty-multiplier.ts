@@ -1,6 +1,6 @@
-import { CONFIG } from "../config";
-import { getBountyPRSignal } from "../detectors/bounty-repo-activity";
-import type { GitHubEvent } from "../types";
+import { CONFIG } from "../config.ts";
+import { getBountyPRSignal } from "../detectors/bounty-repo-activity.ts";
+import type { GitHubEvent } from "../types.ts";
 
 export function getBountyMultiplier(events: GitHubEvent[]): number | undefined {
 	const prSignal = getBountyPRSignal(events);

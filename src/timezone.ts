@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { CONFIG } from "./config";
-import type { GitHubEvent, TimezoneEstimate } from "./types";
+import { CONFIG } from "./config.ts";
+import type { GitHubEvent, TimezoneEstimate } from "./types.ts";
 
 dayjs.extend(utc);
 

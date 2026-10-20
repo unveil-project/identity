@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
-import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
-import { type RampAnchor, rampPoints } from "../utils";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
+import { type RampAnchor, rampPoints } from "../utils.ts";
 
 const CREATE_BURST_RAMP: readonly RampAnchor[] = [
 	[CONFIG.CREATE_BURST_HIGH, CONFIG.POINTS_CREATE_BURST_HIGH],

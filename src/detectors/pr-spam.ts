@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
-import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
-import { densestEventWindow, type RampAnchor, rampPoints } from "../utils";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
+import { densestEventWindow, type RampAnchor, rampPoints } from "../utils.ts";
 
 dayjs.extend(minMax);
 

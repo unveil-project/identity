@@ -1,5 +1,5 @@
-import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
 
 const AI_AGENT_PREFIXES = [
 	"codex/",

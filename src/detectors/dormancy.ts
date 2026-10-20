@@ -1,5 +1,5 @@
-import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag, WindowInfo } from "../types";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent, IdentifyFlag, WindowInfo } from "../types.ts";
 
 export type DormancyResult = {
 	flags: IdentifyFlag[];

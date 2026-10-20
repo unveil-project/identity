@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
-import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
-import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils";
+import { CONFIG } from "../config.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
+import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils.ts";
 
 const WATCH_RAMP: readonly RampAnchor[] = [
 	[CONFIG.WATCH_SPAM_REPOS_HIGH, CONFIG.POINTS_WATCH_SPAM_HIGH],

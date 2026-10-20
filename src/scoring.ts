@@ -1,5 +1,5 @@
-import { CONFIG } from "./config";
-import type { EvidenceGroup, IdentifyFlag, ScoredGroup } from "./types";
+import { CONFIG } from "./config.ts";
+import type { EvidenceGroup, IdentifyFlag, ScoredGroup } from "./types.ts";
 
 export type ScoreOptions = {
 	aiMultiplier?: number;

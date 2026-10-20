@@ -1,17 +1,17 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { identify } from "../src/identify";
-import type { IdentityClassification } from "../src/types";
+import { identify } from "../src/identify.ts";
+import type { IdentityClassification } from "../src/types.ts";
 import {
 	expectsGitHubApp,
 	getExpected,
 	getKnownAs,
 	REGRESSION_FIXTURES,
-} from "../test/regression-config";
-import { runAtCaptureTime } from "../test/utils/frozen-clock";
+} from "../test/regression-config.ts";
+import { runAtCaptureTime } from "../test/utils/frozen-clock.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

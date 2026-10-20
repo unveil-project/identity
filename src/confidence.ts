@@ -1,5 +1,5 @@
-import { CONFIG } from "./config";
-import type { WindowInfo } from "./types";
+import { CONFIG } from "./config.ts";
+import type { WindowInfo } from "./types.ts";
 
 /**
  * How sure we are about the result, from 0 to 1.

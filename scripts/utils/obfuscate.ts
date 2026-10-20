@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import {
 	BOUNTY_REPO_NAMES,
 	BOUNTY_REPO_PATHS,
-} from "../../src/data/bounty-repos";
+} from "../../src/data/bounty-repos.ts";
 
 type JsonValue =
 	| string

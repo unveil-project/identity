@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { CONFIG } from "../config";
-import type { EventConnection, GitHubEvent, IdentifyFlag } from "../types";
+import { CONFIG } from "../config.ts";
+import type { EventConnection, GitHubEvent, IdentifyFlag } from "../types.ts";
 
 type EventEntry = { event: GitHubEvent; time: dayjs.Dayjs };
 

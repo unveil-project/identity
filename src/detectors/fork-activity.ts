@@ -1,10 +1,10 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
-import { CONFIG } from "../config";
-import { toLocal } from "../timezone";
-import type { GitHubEvent, IdentifyFlag } from "../types";
-import { type RampAnchor, rampPoints } from "../utils";
+import { CONFIG } from "../config.ts";
+import { toLocal } from "../timezone.ts";
+import type { GitHubEvent, IdentifyFlag } from "../types.ts";
+import { type RampAnchor, rampPoints } from "../utils.ts";
 
 dayjs.extend(utc);
 dayjs.extend(minMax);
