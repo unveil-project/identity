@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { GitHubEvent } from "../src";
+import type { GitHubEvent } from "../src/github";
 import { REGRESSION_FIXTURES } from "../test/regression-config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -78,7 +78,10 @@ async function fetchUserEvents(username: string): Promise<GitHubEvent[]> {
 
 		const pageEvents = (await response.json()) as GitHubEvent[];
 
-		if (pageEvents.length === 0) break;
+		if (pageEvents.length === 0) {
+			break;
+		}
+
 		events.push(...pageEvents);
 	}
 
@@ -148,10 +151,12 @@ async function main(): Promise<void> {
 			console.log("   export GITHUB_TOKEN=your_github_token");
 			console.log("   npm run update-fixtures");
 		}
+
 		process.exit(1);
 	} else {
 		console.log("✅ All fixtures updated!");
 	}
+
 	console.log(`${"═".repeat(60)}\n`);
 }
 

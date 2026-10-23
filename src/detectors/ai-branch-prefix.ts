@@ -1,5 +1,5 @@
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 
 const AI_AGENT_PREFIXES = [
 	"codex/",
@@ -12,29 +12,35 @@ const AI_AGENT_PREFIXES = [
 
 function isAIAgentBranch(ref: string): boolean {
 	const lower = ref.toLowerCase();
+
 	return AI_AGENT_PREFIXES.some((prefix) => lower.startsWith(prefix));
 }
 
 export function detectAIAgentBranchPrefix(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 ): IdentifyFlag[] {
 	const branchCreations = events.filter(
-		(e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
+		(e) => e.type === "create" && e.ref?.type === "branch",
 	);
 
-	if (branchCreations.length < CONFIG.AI_BRANCH_MIN_CREATIONS) return [];
+	if (branchCreations.length < CONFIG.AI_BRANCH_MIN_CREATIONS) {
+		return [];
+	}
 
 	const aiBranches = branchCreations.filter((e) =>
-		isAIAgentBranch(e.payload?.ref ?? ""),
+		isAIAgentBranch(e.ref?.name ?? ""),
 	);
 	const ratio = aiBranches.length / branchCreations.length;
 
-	if (ratio < CONFIG.AI_BRANCH_RATIO_MIN) return [];
+	if (ratio < CONFIG.AI_BRANCH_RATIO_MIN) {
+		return [];
+	}
 
 	const detectedPrefixes = [
 		...new Set(
 			aiBranches.map((e) => {
-				const ref = (e.payload?.ref ?? "").toLowerCase();
+				const ref = (e.ref?.name ?? "").toLowerCase();
+
 				return AI_AGENT_PREFIXES.find((p) => ref.startsWith(p)) ?? "";
 			}),
 		),

@@ -18,6 +18,7 @@ npm install @unveil/identity
 
 ```js
 import { identify } from "@unveil/identity";
+import { fromGitHub } from "@unveil/identity/github";
 
 // Fetch user data from GitHub API
 const username = "github_account_username";
@@ -31,7 +32,7 @@ const eventsRes = await fetch(
 const events = await eventsRes.json();
 
 // Analyze the account
-const analysis = identify({ user, events });
+const analysis = identify(fromGitHub({ user, events }));
 
 console.log(analysis);
 // Output:
@@ -45,7 +46,7 @@ console.log(analysis);
 //   window: {                    // the events we looked at
 //     eventCount: 100,
 //     spanDays: 46.2,
-//     saturated: false,          // true = GitHub capped the list, counts are minimums
+//     saturated: false,          // true = the platform capped the list, counts are minimums
 //     firstEventAt: "...",
 //     lastEventAt: "...",
 //   },
@@ -59,17 +60,55 @@ console.log(analysis);
 
 ### Input
 
-`user` is the `GET /users/{username}` response. Only `login`, `created_at` and
-`public_repos` are needed. If `followers`, `following`, `bio`, `blog`, `company`,
-`location`, `email` or `twitter_username` are there, some extra checks turn on.
-If they are missing, those checks are skipped — nothing is penalised for data you
-did not fetch. So you can also pass a smaller object built from your own
-database.
+`identify` does not depend on any platform. It takes an `account` and a list of
+`events` in its own small shape. A provider turns a platform's data into that
+shape. For now there is one provider, for GitHub.
 
-`events` is the `GET /users/{username}/events` response.
+#### GitHub
 
-Two more options: `excludeRepos` (a list of `owner/repo` to ignore) and `commits`
-(to turn on AI commit detection).
+`fromGitHub({ user, events, commits })` takes the GitHub API responses as they
+are:
+
+- `user` is the `GET /users/{username}` response. Only `login`, `created_at`,
+  `public_repos` and `type` are read.
+- `events` is the `GET /users/{username}/events` response.
+- `commits` is optional. It is a list of `{ sha, message, repo }`, and turns on
+  AI commit detection.
+
+You can also pass smaller objects built from your own database. The
+`GitHubUser` and `GitHubEvent` types list the fields that are read.
+
+To ignore some repositories, add `excludeRepos` (a list of `owner/repo`):
+
+```js
+identify({ ...fromGitHub({ user, events }), excludeRepos: ["me/dotfiles"] });
+```
+
+Each flag lists the events behind it. Every event keeps the original GitHub
+event in `source`.
+
+#### Your own data
+
+You can also build the input yourself:
+
+```js
+identify({
+  account: { login: "octocat", createdAt: "2020-01-01T00:00:00Z", publicRepos: 8 },
+  events: [
+    { type: "push", at: "2026-05-01T10:00:00Z", repo: "octocat/hello" },
+    {
+      type: "pull-request",
+      action: "opened",
+      at: "2026-05-01T10:05:00Z",
+      repo: "someone/project",
+      pullRequest: { number: 12, isAuthor: true },
+    },
+  ],
+});
+```
+
+See the `IdentifyEvent` type for every field. The scoring was tuned on GitHub
+data, so results for other platforms are not calibrated yet.
 
 ### Issues and feature requests
 

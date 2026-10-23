@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils";
 
 const WATCH_RAMP: readonly RampAnchor[] = [
@@ -8,17 +8,17 @@ const WATCH_RAMP: readonly RampAnchor[] = [
 	[CONFIG.WATCH_SPAM_REPOS_EXTREME, CONFIG.POINTS_WATCH_SPAM_EXTREME],
 ];
 
-export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
+export function detectWatchActivity(events: IdentifyEvent[]): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
-	const watchEvents = events.filter((e) => e.type === "WatchEvent");
+	const watchEvents = events.filter((e) => e.type === "star");
 
 	if (watchEvents.length < CONFIG.WATCH_SPAM_MIN_EVENTS) {
 		return flags;
 	}
 
 	const watchTimestamps = watchEvents
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
+		.map((e) => ({ event: e, time: dayjs(e.at) }))
 		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
 
 	let maxReposInWindow = 0;
@@ -45,8 +45,7 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		const reposInWindow = new Set(
 			watchTimestamps
 				.slice(windowStartIdx, windowEndIdx + 1)
-				.map((item) => item.event.repo?.name)
-				.filter((name) => name !== undefined),
+				.map((item) => item.event.repo),
 		);
 
 		if (reposInWindow.size > maxReposInWindow) {

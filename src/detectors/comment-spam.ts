@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils";
 
 const ISSUE_COMMENT_RAMP: readonly RampAnchor[] = [
@@ -16,7 +16,7 @@ const PR_COMMENT_RAMP: readonly RampAnchor[] = [
 	[CONFIG.PR_COMMENT_SPRAY_EXTREME, CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME],
 ];
 
-export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
+export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
@@ -24,14 +24,12 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 	}
 
 	// Issue comment frequency detection (multiple comments across different repos in short time)
-	const issueCommentEvents = events.filter(
-		(e) => e.type === "IssueCommentEvent",
-	);
+	const issueCommentEvents = events.filter((e) => e.type === "issue-comment");
 
 	if (issueCommentEvents.length >= CONFIG.ISSUE_COMMENT_MIN_FOR_SPRAY) {
 		// Sort by timestamp
 		const commentTimestamps = issueCommentEvents
-			.map((e) => ({ event: e, time: dayjs(e.created_at) }))
+			.map((e) => ({ event: e, time: dayjs(e.at) }))
 			.sort((a, b) => a.time.valueOf() - b.time.valueOf());
 
 		// Find the densest window of activity
@@ -62,8 +60,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			const reposInWindow = new Set(
 				commentTimestamps
 					.slice(windowStartIdx, windowEndIdx + 1)
-					.map((item) => item.event.repo?.name)
-					.filter((name) => name !== undefined),
+					.map((item) => item.event.repo),
 			);
 
 			if (reposInWindow.size > maxDistinctReposInWindow) {
@@ -83,6 +80,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			const windowEvents = commentTimestamps
 				.slice(maxReposWindowStartIdx, maxReposWindowEndIdx + 1)
 				.map((item) => item.event);
+
 			flags.push({
 				label: "Rapid comments across repositories",
 				points: rampPoints(maxDistinctReposInWindow, ISSUE_COMMENT_RAMP),
@@ -109,6 +107,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			const windowEvents = commentTimestamps
 				.slice(maxReposWindowStartIdx, maxReposWindowEndIdx + 1)
 				.map((item) => item.event);
+
 			flags.push({
 				label: "High comment frequency across repos",
 				points: rampPoints(maxDistinctReposInWindow, ISSUE_COMMENT_RAMP),
@@ -130,14 +129,12 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 	}
 
 	// PR comment frequency detection (multiple review comments across different PRs/repos in short time)
-	const prCommentEvents = events.filter(
-		(e) => e.type === "PullRequestReviewCommentEvent",
-	);
+	const prCommentEvents = events.filter((e) => e.type === "review-comment");
 
 	if (prCommentEvents.length >= CONFIG.PR_COMMENT_MIN_FOR_SPRAY) {
 		// Sort by timestamp
 		const prCommentTimestamps = prCommentEvents
-			.map((e) => ({ event: e, time: dayjs(e.created_at) }))
+			.map((e) => ({ event: e, time: dayjs(e.at) }))
 			.sort((a, b) => a.time.valueOf() - b.time.valueOf());
 
 		// Find the densest window of PR comment activity
@@ -172,12 +169,13 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 				prCommentTimestamps
 					.slice(windowStartIdx, windowEndIdx + 1)
 					.map((item) => {
-						const repoName = item.event.repo?.name;
-						const prNumber = item.event.payload?.pull_request?.number;
+						const repoName = item.event.repo;
+						const prNumber = item.event.pullRequest?.number;
 
 						if (repoName && prNumber) {
 							return `${repoName}#${prNumber}`;
 						}
+
 						return repoName;
 					})
 					.filter((key) => key !== undefined),
@@ -199,6 +197,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			const windowEvents = prCommentTimestamps
 				.slice(maxPRsWindowStartIdx, maxPRsWindowEndIdx + 1)
 				.map((item) => item.event);
+
 			flags.push({
 				label: "Rapid PR review comments",
 				points: rampPoints(maxDistinctPRsInWindow, PR_COMMENT_RAMP),
@@ -224,6 +223,7 @@ export function detectCommentSpam(events: GitHubEvent[]): IdentifyFlag[] {
 			const windowEvents = prCommentTimestamps
 				.slice(maxPRsWindowStartIdx, maxPRsWindowEndIdx + 1)
 				.map((item) => item.event);
+
 			flags.push({
 				label: "High PR comment frequency",
 				points: rampPoints(maxDistinctPRsInWindow, PR_COMMENT_RAMP),

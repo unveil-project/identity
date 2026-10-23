@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { fromGitHub } from "../src/github";
 import { identify } from "../src/identify";
 import type { IdentityClassification } from "../src/types";
 import {
@@ -54,7 +55,7 @@ function runRegressionTests(): RegressionResult[] {
 		// Replay the snapshot at the moment it was taken, so account age is what
 		// it was then and not however old the account has since become.
 		const result = runAtCaptureTime(capturedAt, () =>
-			identify({ user, events: events || [] }),
+			identify(fromGitHub({ user, events: events || [] })),
 		);
 
 		const expected = getExpected(entry);
@@ -116,9 +117,11 @@ function printResults(results: RegressionResult[]): void {
 			`Warned: ${warned} (known misclassification — not a regression)`,
 		);
 	}
+
 	if (failed > 0) {
 		console.log(`Failed: ${failed}`);
 	}
+
 	console.log(`\n ${"═".repeat(60)}`);
 
 	if (failed === 0 && warned === 0) {

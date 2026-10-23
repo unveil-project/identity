@@ -3,9 +3,8 @@ import {
   hasAICommitMetadata,
   analyzeCommitMetadata,
 } from "../src/modifiers/analyze-commit-metadata";
-import { identify } from "../src/identify";
-import type { GitHubCommit, GitHubEvent } from "../src/types";
-import { user } from "./utils/events";
+import type { GitHubCommit, GitHubEvent } from "../src/github";
+import { identifyGitHub, user } from "./utils/events";
 
 const date = new Date(2026, 2, 10, 12);
 
@@ -181,7 +180,7 @@ describe("identify - AI commit metadata flag", () => {
   }
 
   function runWithCommits(commits: GitHubCommit[], excludeRepos?: string[]) {
-    return identify({
+    return identifyGitHub({
       user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
       events: [],
       commits,
@@ -243,12 +242,12 @@ describe("identify - AI commit metadata flag", () => {
       const events = makeForkBurstEvents();
       const commits = [...makeAICommits(ai), ...makeHumanCommits(human)];
 
-      const withCommits = identify({
+      const withCommits = identifyGitHub({
         user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
         events,
         commits,
       });
-      const withoutCommits = identify({
+      const withoutCommits = identifyGitHub({
         user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
         events,
       });
@@ -266,12 +265,12 @@ describe("identify - AI commit metadata flag", () => {
   it("does NOT amplify non-spam flags (account age, diversity, etc.)", () => {
     const commits = [...makeAICommits(9), ...makeHumanCommits(1)];
     // 14-day-old account triggers "Recently created" (20 points) — not amplifiable.
-    const withMultiplier = identify({
+    const withMultiplier = identifyGitHub({
       user: user({ login: "user", created_at: new Date(date.getTime() - 14 * 86400000).toISOString(), public_repos: 10 }),
       events: [],
       commits,
     });
-    const withoutMultiplier = identify({
+    const withoutMultiplier = identifyGitHub({
       user: user({ login: "user", created_at: new Date(date.getTime() - 14 * 86400000).toISOString(), public_repos: 10 }),
       events: [],
     });

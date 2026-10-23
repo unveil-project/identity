@@ -3,7 +3,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { GitHubEvent, IdentityClassification } from "../src";
+import type { IdentityClassification } from "../src";
+import { fromGitHub, type GitHubEvent, type GitHubInput } from "../src/github";
 import { identify } from "../src/identify";
 import {
 	FIXTURE_CATEGORIES,
@@ -43,7 +44,9 @@ if (!GITHUB_TOKEN) {
 	if (fs.existsSync(envPath)) {
 		const envContent = fs.readFileSync(envPath, "utf-8");
 		const match = envContent.match(/GITHUB_TOKEN\s*=\s*"?([^"\n%]+)"?/);
-		if (match) GITHUB_TOKEN = match[1].trim();
+		if (match) {
+			GITHUB_TOKEN = match[1].trim();
+		}
 	}
 }
 
@@ -63,12 +66,14 @@ async function fetchUser(login: string): Promise<{
 	if (!res.ok) {
 		throw new Error(`Failed to fetch user: ${res.status} ${res.statusText}`);
 	}
+
 	const data = (await res.json()) as {
 		login: string;
 		created_at: string;
 		public_repos: number;
 		type: string;
 	};
+
 	return {
 		login: data.login,
 		created_at: data.created_at,
@@ -91,10 +96,15 @@ async function fetchEvents(login: string): Promise<GitHubEvent[]> {
 				`Failed to fetch events: ${res.status} ${res.statusText}`,
 			);
 		}
+
 		const pageEvents = (await res.json()) as GitHubEvent[];
-		if (pageEvents.length === 0) break;
+		if (pageEvents.length === 0) {
+			break;
+		}
+
 		events.push(...pageEvents);
 	}
+
 	return events;
 }
 
@@ -106,6 +116,7 @@ function nextFixtureName(kind: FixtureCategory): string {
 		.map((n) => Number(n.slice(kind.length + 1)))
 		.filter((n) => !Number.isNaN(n));
 	const next = existing.length > 0 ? Math.max(...existing) + 1 : 1;
+
 	return `${kind}_${next}`;
 }
 
@@ -137,6 +148,7 @@ async function main(): Promise<void> {
 			`${username} is a GitHub App (type: "${user.type}") — add it as "github-app", not "${category}".`,
 		);
 	}
+
 	if (!isApp && category === "github-app") {
 		throw new Error(
 			`${username} is not a GitHub App (type: "${user.type}") — only apps are reported as "Bot".`,
@@ -168,8 +180,7 @@ async function main(): Promise<void> {
 			? runAtCaptureTime(
 					capturedAt,
 					() =>
-						identify(data as unknown as Parameters<typeof identify>[0])
-							.classification,
+						identify(fromGitHub(data as unknown as GitHubInput)).classification,
 				)
 			: category;
 

@@ -28,7 +28,6 @@ import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
 import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
-import { isGitHubAppAccount } from "./github-app";
 import {
 	analyzeCommitMetadata,
 	getAiMultiplier,
@@ -43,36 +42,46 @@ import type {
 	IdentifyResult,
 	IdentityClassification,
 } from "./types";
+import { ownerOf } from "./utils";
 import { analyzeWindow } from "./window";
 
 dayjs.extend(minMax);
 dayjs.extend(utc);
 
-export function identify({
-	user,
+/**
+ * Score an account. Build the input with a provider, like `fromGitHub`.
+ *
+ * @example
+ * identify(fromGitHub({ user, events }));
+ */
+export function identify<Source = unknown>({
+	account,
 	events,
 	excludeRepos = [],
 	commits = [],
-}: IdentifyOptions): IdentifyResult {
+	eventCap,
+}: IdentifyOptions<Source>): IdentifyResult<Source> {
 	const flags: IdentifyFlag[] = [];
 
-	const accountName = user.login;
-	const reposCount = user.public_repos;
+	const accountName = account.login;
+	const reposCount = account.publicRepos;
 
 	const excludeReposLower = excludeRepos.map((r) => r.toLowerCase());
 	const filteredEvents = events.filter((e) => {
-		const repoName = e.repo?.name?.toLowerCase();
+		const repoName = e.repo.toLowerCase();
+
 		return repoName && !excludeReposLower.includes(repoName);
 	});
 
-	const accountAge = dayjs().diff(user.created_at, "days");
+	const accountAge = dayjs().diff(account.createdAt, "days");
 
-	const window = analyzeWindow(filteredEvents);
+	const window = analyzeWindow(filteredEvents, eventCap);
 	const timezone = estimateUtcOffset(filteredEvents);
 	const tzOffset = timezone.offsetHours;
 
 	const foreignEvents = filteredEvents.filter((e) => {
-		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
+		const repoOwner = ownerOf(e.repo).toLowerCase();
+
 		return repoOwner && repoOwner !== accountName.toLowerCase();
 	});
 
@@ -105,9 +114,7 @@ export function identify({
 		...detectBranchPRAutomation(filteredEvents, isEstablished, accountName),
 	);
 	flags.push(...detectRapidPRSpam(filteredEvents, isEstablished));
-	flags.push(
-		...detectClosedPRSpam(filteredEvents, isEstablished, accountName, tzOffset),
-	);
+	flags.push(...detectClosedPRSpam(filteredEvents, isEstablished, tzOffset));
 	flags.push(...detectForkActivity(filteredEvents, tzOffset));
 	flags.push(...detectForkCombinedActivity(filteredEvents));
 	flags.push(
@@ -125,10 +132,12 @@ export function identify({
 	flags.push(...detectBountyRepoPRs(filteredEvents));
 	flags.push(...detectBountyLabelInfrastructure(filteredEvents));
 	flags.push(...detectAIAgentBranchPrefix(filteredEvents));
-	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
-	const isGitHubApp = isGitHubAppAccount(user, events);
 
-	const organicBonus = detectOrganicSignals(filteredEvents, accountName);
+	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
+	const isGitHubApp =
+		account.isApp === true || events.some((e) => e.actorIsApp === true);
+
+	const organicBonus = detectOrganicSignals(filteredEvents);
 
 	const filteredCommits = commits.filter(
 		(commit) =>
@@ -200,7 +209,8 @@ export function identify({
 		confidence,
 		isBountyHunter,
 		isGitHubApp,
-		flags: scored.flags,
+		// The flags point at the events we were given, so their source type holds.
+		flags: scored.flags as IdentifyFlag<Source>[],
 		groups: scored.groups,
 		window,
 		timezone,

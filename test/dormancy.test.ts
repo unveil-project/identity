@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { identify } from "../src/identify";
-import type { GitHubEvent } from "../src/types";
-import { event, user } from "./utils/events";
+import type { GitHubEvent } from "../src/github";
+import { event, identifyGitHub, user } from "./utils/events";
 
 /** 15 events packed into a few days, including 5 fast PRs to one repo. */
 function recentBurst(): GitHubEvent[] {
@@ -45,7 +44,7 @@ describe("dormant accounts", () => {
 	});
 
 	it("flags an old account with no repos whose activity is all recent", () => {
-		const result = identify({
+		const result = identifyGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 0 }),
 			events: recentBurst(),
 		});
@@ -58,7 +57,7 @@ describe("dormant accounts", () => {
 	});
 
 	it("does not flag an old account that has a real repo history", () => {
-		const result = identify({
+		const result = identifyGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 40 }),
 			events: recentBurst(),
 		});
@@ -71,7 +70,7 @@ describe("dormant accounts", () => {
 	});
 
 	it("does not flag an old account whose activity is spread out", () => {
-		const result = identify({
+		const result = identifyGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 0 }),
 			events: spreadOut(),
 		});
@@ -84,7 +83,7 @@ describe("dormant accounts", () => {
 	});
 
 	it("does not flag a young account", () => {
-		const result = identify({
+		const result = identifyGitHub({
 			user: user({ created_at: "2026-05-01T00:00:00Z", public_repos: 0 }),
 			events: recentBurst(),
 		});
@@ -103,11 +102,11 @@ describe("dormant accounts", () => {
 		// keeps the softer limit.
 		const events = recentBurst();
 
-		const trusted = identify({
+		const trusted = identifyGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 40 }),
 			events,
 		});
-		const reactivated = identify({
+		const reactivated = identifyGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 0 }),
 			events,
 		});

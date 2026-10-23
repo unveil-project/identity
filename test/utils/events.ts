@@ -1,7 +1,15 @@
-import type { GitHubEvent, IdentifyFlag, IdentifyUser } from "../../src/types";
+import {
+	fromGitHub,
+	fromGitHubEvent,
+	type GitHubEvent,
+	type GitHubInput,
+	type GitHubUser,
+} from "../../src/github";
+import { identify } from "../../src/identify";
+import type { IdentifyEvent, IdentifyFlag } from "../../src/types";
 
 /** Build a user, overriding only the fields a test cares about. */
-export function user(overrides: Partial<IdentifyUser> = {}): IdentifyUser {
+export function user(overrides: Partial<GitHubUser> = {}): GitHubUser {
 	return {
 		login: "user",
 		created_at: "2025-01-01T00:00:00Z",
@@ -22,7 +30,23 @@ export function event(
 		created_at: iso,
 		repo: { name: repo },
 		payload,
-	} as unknown as GitHubEvent;
+	} as GitHubEvent;
+}
+
+/** Turn GitHub test events into the shape `identify` reads. */
+export function toEvents(
+	events: GitHubEvent[],
+	login = "user",
+): IdentifyEvent<GitHubEvent>[] {
+	return events.map((e) => fromGitHubEvent(e, login));
+}
+
+/** Run `identify` on GitHub test data, the way a GitHub caller would. */
+export function identifyGitHub({
+	excludeRepos,
+	...input
+}: GitHubInput & { excludeRepos?: string[] }) {
+	return identify({ ...fromGitHub(input), excludeRepos });
 }
 
 /** Build a minimal flag, for testing the scorer on its own. */

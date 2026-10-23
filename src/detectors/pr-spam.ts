@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { densestEventWindow, type RampAnchor, rampPoints } from "../utils";
 
 dayjs.extend(minMax);
@@ -12,7 +12,7 @@ const PR_WEEK_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectExtremeAndDistributedPRSpam(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -23,7 +23,7 @@ export function detectExtremeAndDistributedPRSpam(
 	}
 
 	const allPREvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
 	// The busiest 24 hours and 7 days anywhere in the data, not the last 24 hours
@@ -99,17 +99,13 @@ export function detectExtremeAndDistributedPRSpam(
 
 		if (!hasTimeBasedFlag) {
 			// Count distinct repos targeted by PRs
-			const prTargetRepos = new Set(
-				allPREvents
-					.map((e) => e.repo?.name)
-					.filter((name) => name !== undefined),
-			);
+			const prTargetRepos = new Set(allPREvents.map((e) => e.repo));
 
 			if (prTargetRepos.size >= CONFIG.REPOS_SPAM_SPREAD) {
 				// Guard against flagging long-term contributors:
 				// Calculate time density and rolling window
 				const prTimestamps = allPREvents
-					.map((e) => dayjs(e.created_at))
+					.map((e) => dayjs(e.at))
 					.sort((a, b) => a.valueOf() - b.valueOf());
 
 				const earliestPR = prTimestamps[0];

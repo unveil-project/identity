@@ -1,9 +1,9 @@
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { calculateNormalizedShannonsEntropy } from "../utils";
 
 export function detectNarrowActivityFocus(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -30,10 +30,10 @@ export function detectNarrowActivityFocus(
 			.filter((t): t is string => t !== null && t !== undefined),
 	);
 	const hasInteraction =
-		eventTypes.has("IssueCommentEvent") ||
-		eventTypes.has("PullRequestReviewEvent") ||
-		eventTypes.has("PullRequestReviewCommentEvent");
-	const hasWatches = eventTypes.has("WatchEvent");
+		eventTypes.has("issue-comment") ||
+		eventTypes.has("review") ||
+		eventTypes.has("review-comment");
+	const hasWatches = eventTypes.has("star");
 
 	// Automation indicator: very narrow type profile (few types + low variety) + no interpersonal interactions
 	const narrowTypeProfile = eventTypes.size <= 3 && eventTypeEntropy < 0.8;

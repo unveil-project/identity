@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 const CREATE_BURST_RAMP: readonly RampAnchor[] = [
@@ -9,7 +9,7 @@ const CREATE_BURST_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectRepositoryCreationBurst(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -19,15 +19,15 @@ export function detectRepositoryCreationBurst(
 
 	// Filter CreateEvent to only actual repository creations (not branch/tag creation)
 	const createEvents = events.filter((e) => {
-		return e.type === "CreateEvent" && e.payload?.ref_type === "repository";
+		return e.type === "create" && e.ref?.type === "repository";
 	});
 
 	// Rapid repo creation burst (real repository creation clustering)
 	if (createEvents.length >= CONFIG.CREATE_EVENTS_MIN) {
 		const sortedCreateEvents = [...createEvents].sort(
-			(a, b) => dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
+			(a, b) => dayjs(a.at).valueOf() - dayjs(b.at).valueOf(),
 		);
-		const createTimestamps = sortedCreateEvents.map((e) => dayjs(e.created_at));
+		const createTimestamps = sortedCreateEvents.map((e) => dayjs(e.at));
 
 		// Check for repo creation clustering (multiple repos in short time window)
 		let maxCreatesInWindow = 0;

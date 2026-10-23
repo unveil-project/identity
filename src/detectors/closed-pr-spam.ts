@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
 import { localDay } from "../timezone";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 const CLOSED_PR_RAMP: readonly RampAnchor[] = [
@@ -11,9 +11,8 @@ const CLOSED_PR_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectClosedPRSpam(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 	isEstablished: boolean,
-	accountName: string,
 	tzOffsetHours = 0,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
@@ -27,31 +26,24 @@ export function detectClosedPRSpam(
 		? CONFIG.CLOSED_PR_SPAM_MIN_ESTABLISHED
 		: CONFIG.CLOSED_PR_SPAM_MIN;
 
-	const accountNameLower = accountName.toLowerCase();
-
-	const closedPREvents = events.filter((e) => {
-		if (e.type !== "PullRequestEvent" || e.payload?.action !== "closed")
-			return false;
-		// Only count PRs the user submitted (head branch from their fork).
-		// Excludes maintainer activity where the user closes other people's PRs.
-		const headUrl =
-			e.payload?.pull_request?.head?.repo?.url?.toLowerCase() ?? "";
-		return headUrl.includes(`/repos/${accountNameLower}/`);
-	});
+	// Only count PRs the user submitted. Excludes maintainer activity where the
+	// user closes other people's PRs.
+	const closedPREvents = events.filter(
+		(e) =>
+			e.type === "pull-request" &&
+			e.action === "closed" &&
+			e.pullRequest?.isAuthor === true,
+	);
 
 	if (closedPREvents.length < minClosedPRs) {
 		return flags;
 	}
 
 	// Count distinct repos targeted by closed PRs
-	const closedPRRepos = new Set<string>(
-		closedPREvents
-			.map((e) => e.repo?.name)
-			.filter((name) => name !== undefined),
-	);
+	const closedPRRepos = new Set<string>(closedPREvents.map((e) => e.repo));
 
 	// Calculate overall time span of closed PR activity
-	const closedPRTimestamps = closedPREvents.map((e) => dayjs(e.created_at));
+	const closedPRTimestamps = closedPREvents.map((e) => dayjs(e.at));
 	const earliestClosed = closedPRTimestamps.reduce((min, ts) =>
 		ts.isBefore(min) ? ts : min,
 	);
@@ -69,11 +61,11 @@ export function detectClosedPRSpam(
 	// Find days with a lot of closed PRs. Days use the account's own local time.
 	const prsByDay = new Map<string, number>();
 	closedPREvents.forEach((e) => {
-		if (!e.created_at) {
+		if (!e.at) {
 			return;
 		}
 
-		const day = localDay(e.created_at, tzOffsetHours);
+		const day = localDay(e.at, tzOffsetHours);
 		prsByDay.set(day, (prsByDay.get(day) || 0) + 1);
 	});
 
@@ -128,6 +120,7 @@ export function detectClosedPRSpam(
 			],
 			events: closedPREvents,
 		});
+
 		return flags;
 	}
 

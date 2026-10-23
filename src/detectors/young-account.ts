@@ -3,17 +3,18 @@ import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
 import { localDay, localHour } from "../timezone";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 import {
 	calculateNormalizedShannonsEntropy,
 	densestEventWindow,
+	ownerOf,
 } from "../utils";
 
 dayjs.extend(minMax);
 dayjs.extend(utc);
 
 export function detectYoungAccountActivity(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 	reposCount: number,
 	isNewOrYoungAccount: boolean,
 	accountName: string,
@@ -29,11 +30,11 @@ export function detectYoungAccountActivity(
 
 	// PRs (flag more aggressively)
 	const prEvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
 	if (prEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-		const timestamps = prEvents.map((e) => dayjs(e.created_at));
+		const timestamps = prEvents.map((e) => dayjs(e.at));
 		const oldestEvent = dayjs.min(timestamps);
 		const newestEvent = dayjs.max(timestamps);
 
@@ -85,24 +86,27 @@ export function detectYoungAccountActivity(
 	// Unusual daily coding activity detection using Shannon's entropy
 	// Automated accounts: uniform hour distribution (high entropy) across many hours
 	// Organic accounts: concentrated in certain hours (low entropy/predictable patterns)
-	const codingEventTypes = new Set(["PushEvent", "PullRequestEvent"]);
+	const codingEventTypes = new Set(["push", "pull-request"]);
 	const codingEventsWithReviews = events.filter(
 		(e) =>
 			(e.type && codingEventTypes.has(e.type)) ||
-			e.type === "PullRequestReviewEvent" ||
-			e.type === "PullRequestReviewCommentEvent",
+			e.type === "review" ||
+			e.type === "review-comment",
 	);
 
 	// Group by day and hour in the account's own local time
 	const codingEventsByDay = new Map<string, number[]>();
 	codingEventsWithReviews.forEach((e) => {
-		if (!e.created_at) {
+		if (!e.at) {
 			return;
 		}
 
-		const day = localDay(e.created_at, tzOffsetHours);
-		if (!codingEventsByDay.has(day)) codingEventsByDay.set(day, []);
-		codingEventsByDay.get(day)?.push(localHour(e.created_at, tzOffsetHours));
+		const day = localDay(e.at, tzOffsetHours);
+		if (!codingEventsByDay.has(day)) {
+			codingEventsByDay.set(day, []);
+		}
+
+		codingEventsByDay.get(day)?.push(localHour(e.at, tzOffsetHours));
 	});
 
 	// For each day, analyze hour distribution using entropy
@@ -150,11 +154,10 @@ export function detectYoungAccountActivity(
 		if (maxConsecutive >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
 			const uniformDayEvents = codingEventsWithReviews.filter(
 				(e) =>
-					e.created_at &&
-					daysWithUniformDistribution.includes(
-						localDay(e.created_at, tzOffsetHours),
-					),
+					e.at &&
+					daysWithUniformDistribution.includes(localDay(e.at, tzOffsetHours)),
 			);
+
 			flags.push({
 				label: "Extended daily coding",
 				points: CONFIG.POINTS_NONSTOP_ACTIVITY,
@@ -180,11 +183,10 @@ export function detectYoungAccountActivity(
 		) {
 			const uniformDayEvents = codingEventsWithReviews.filter(
 				(e) =>
-					e.created_at &&
-					daysWithUniformDistribution.includes(
-						localDay(e.created_at, tzOffsetHours),
-					),
+					e.at &&
+					daysWithUniformDistribution.includes(localDay(e.at, tzOffsetHours)),
 			);
+
 			flags.push({
 				label: "Frequent long coding days",
 				points: CONFIG.POINTS_FREQUENT_MARATHON,
@@ -209,16 +211,21 @@ export function detectYoungAccountActivity(
 	// Only flag for young accounts - established OSS devs often contribute widely
 	const externalRepos = new Set(
 		events
-			.map((e) => e.repo?.name)
+			.map((e) => e.repo)
 			.filter((name) => {
-				if (!name) return false;
-				const repoOwner = name.split("/")[0]?.toLowerCase();
+				if (!name) {
+					return false;
+				}
+
+				const repoOwner = ownerOf(name).toLowerCase();
+
 				return repoOwner !== userLogin;
 			}),
 	);
 
 	const externalEvents = events.filter((e) => {
-		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
+		const repoOwner = ownerOf(e.repo).toLowerCase();
+
 		return repoOwner && repoOwner !== userLogin;
 	});
 
@@ -261,7 +268,8 @@ export function detectYoungAccountActivity(
 	// External PRs
 	// check frequency, not just total
 	const externalPRs = prEvents.filter((e) => {
-		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
+		const repoOwner = ownerOf(e.repo).toLowerCase();
+
 		return repoOwner && repoOwner !== userLogin;
 	});
 
@@ -340,7 +348,8 @@ export function detectYoungAccountActivity(
 
 	// Mostly external activity (not 100%)
 	const foreignEvents = events.filter((e) => {
-		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
+		const repoOwner = ownerOf(e.repo).toLowerCase();
+
 		return repoOwner && repoOwner !== userLogin;
 	});
 	const foreignRatio = foreignEvents.length / events.length;
@@ -372,12 +381,12 @@ export function detectYoungAccountActivity(
 	// Young accounts contributing externally but with no engagement events (issues, comments,
 	// reviews, watches) show a contribution-only pattern uncommon in organic participation
 	const ENGAGEMENT_TYPES = new Set([
-		"IssuesEvent",
-		"IssueCommentEvent",
-		"WatchEvent",
-		"PullRequestReviewEvent",
-		"PullRequestReviewCommentEvent",
-		"CommitCommentEvent",
+		"issue",
+		"issue-comment",
+		"star",
+		"review",
+		"review-comment",
+		"commit-comment",
 	]);
 
 	const hasAnyEngagement = events.some(

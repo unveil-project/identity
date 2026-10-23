@@ -3,7 +3,7 @@ import minMax from "dayjs/plugin/minMax";
 import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
 import { toLocal } from "../timezone";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 dayjs.extend(utc);
@@ -18,14 +18,14 @@ const FORK_24H_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectForkActivity(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 	tzOffsetHours = 0,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
 	// Fork surge - applies uniformly to all accounts (detects time-based spike in forking)
 	// Elevated fork frequency applies uniformly regardless of account age
-	const forkEvents = events.filter((e) => e.type === "ForkEvent");
+	const forkEvents = events.filter((e) => e.type === "fork");
 
 	if (forkEvents.length < CONFIG.FORKS_HIGH) {
 		return flags;
@@ -33,7 +33,7 @@ export function detectForkActivity(
 
 	// Sort events and timestamps together so indices stay in sync
 	const sortedForkEntries = [...forkEvents]
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
+		.map((e) => ({ event: e, time: dayjs(e.at) }))
 		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
 	const forkTimestamps = sortedForkEntries.map((e) => e.time);
 
@@ -90,6 +90,7 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
 			label: "Extreme fork automation",
 			points: forks24hPoints,
@@ -110,6 +111,7 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
 			label: "Severe fork surge",
 			points: forks24hPoints,
@@ -130,6 +132,7 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
 			label: "Fork spike detected",
 			points: forks24hPoints,
@@ -150,6 +153,7 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
 			label: "Multiple forks",
 			points: forks24hPoints,
@@ -173,6 +177,7 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window48h.startIdx, window48h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
 			label: "Multi-day fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_48H,
@@ -196,6 +201,7 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window72h.startIdx, window72h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
 			label: "Severe multi-day fork surge",
 			points: CONFIG.POINTS_FORK_SURGE_72H,
@@ -266,8 +272,11 @@ export function detectForkActivity(
 	// and a placeholder key would inflate the day count and break the streak sort
 	const forkDays = new Set<string>();
 	forkEvents.forEach((e) => {
-		const local = toLocal(e.created_at, tzOffsetHours);
-		if (!local.isValid()) return;
+		const local = toLocal(e.at, tzOffsetHours);
+		if (!local.isValid()) {
+			return;
+		}
+
 		forkDays.add(local.format("YYYY-MM-DD"));
 	});
 
@@ -303,9 +312,13 @@ export function detectForkActivity(
 				sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
 			const streakEndDay = sortedForkDays[maxStreakEnd];
 			const streakEvents = forkEvents.filter((e) => {
-				const local = toLocal(e.created_at, tzOffsetHours);
-				if (!local.isValid()) return false;
+				const local = toLocal(e.at, tzOffsetHours);
+				if (!local.isValid()) {
+					return false;
+				}
+
 				const day = local.format("YYYY-MM-DD");
+
 				return (
 					streakStartDay &&
 					streakEndDay &&
@@ -313,7 +326,9 @@ export function detectForkActivity(
 					!dayjs(day).isAfter(streakEndDay)
 				);
 			});
+
 			const totalDays = forkDays.size;
+
 			flags.push({
 				label: "Extended forking pattern",
 				points: CONFIG.POINTS_CONSECUTIVE_FORK_DAYS,
@@ -336,9 +351,7 @@ export function detectForkActivity(
 
 	// Fork repository diversity (spreading across many different repos)
 	// Skip if we already flagged a spike (spike detection is more severe and already covers the attack)
-	const forkedRepos = new Set<string>(
-		forkEvents.map((e) => e.repo?.name).filter((name) => name !== undefined),
-	);
+	const forkedRepos = new Set<string>(forkEvents.map((e) => e.repo));
 
 	if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH && !forkSpikeFlag) {
 		let timeSpanDetail = "";
@@ -376,13 +389,13 @@ export function detectForkActivity(
 }
 
 export function detectForkCombinedActivity(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
 	// Fork + coordinated activity combo (forks + branches + PRs = chained automation)
 	// Verify actual chaining: branches in forked repos, PRs targeting forked repos, temporal order
-	const forkEvents = events.filter((e) => e.type === "ForkEvent");
+	const forkEvents = events.filter((e) => e.type === "fork");
 
 	if (
 		forkEvents.length < CONFIG.FORK_COMBINED_ACTIVITY_MIN ||
@@ -392,24 +405,22 @@ export function detectForkCombinedActivity(
 	}
 
 	// Get repos that were forked
-	const forkedRepoNames = new Set(
-		forkEvents.map((e) => e.repo?.name).filter((name) => name !== undefined),
-	);
+	const forkedRepoNames = new Set(forkEvents.map((e) => e.repo));
 
 	// Find branches created in forked repos
 	const branchCreateEvents = events.filter(
-		(e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
+		(e) => e.type === "create" && e.ref?.type === "branch",
 	);
 	const branchesInForkedRepos = branchCreateEvents.filter((e) =>
-		forkedRepoNames.has(e.repo?.name || ""),
+		forkedRepoNames.has(e.repo),
 	);
 
 	// Find PRs targeting forked repos
 	const allPREvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 	const prsInForkedRepos = allPREvents.filter((e) =>
-		forkedRepoNames.has(e.repo?.name || ""),
+		forkedRepoNames.has(e.repo),
 	);
 
 	// Verify temporal chaining: forks → branches → PRs
@@ -417,11 +428,9 @@ export function detectForkCombinedActivity(
 		branchesInForkedRepos.length >= CONFIG.FORK_COMBINED_BRANCHES &&
 		prsInForkedRepos.length >= CONFIG.FORK_COMBINED_PRS
 	) {
-		const forkTimestamps = forkEvents.map((e) => dayjs(e.created_at));
-		const branchTimestamps = branchesInForkedRepos.map((e) =>
-			dayjs(e.created_at),
-		);
-		const prTimestamps = prsInForkedRepos.map((e) => dayjs(e.created_at));
+		const forkTimestamps = forkEvents.map((e) => dayjs(e.at));
+		const branchTimestamps = branchesInForkedRepos.map((e) => dayjs(e.at));
+		const prTimestamps = prsInForkedRepos.map((e) => dayjs(e.at));
 
 		const latestFork = dayjs.max(forkTimestamps);
 		const earliestBranch = dayjs.min(branchTimestamps);
@@ -442,6 +451,7 @@ export function detectForkCombinedActivity(
 				forkEvents.length +
 				branchesInForkedRepos.length +
 				prsInForkedRepos.length;
+
 			flags.push({
 				label: "Chained automation pattern",
 				points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,

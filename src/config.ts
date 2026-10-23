@@ -7,9 +7,6 @@ export const CONFIG = {
 	// In one group the biggest flag counts fully, the other flags count this much
 	EXTRA_FLAG_WEIGHT: 0.25,
 
-	// GitHub never gives more events than this, and only goes back about 90 days
-	EVENTS_WINDOW_CAP: 300,
-
 	// How much activity we need before we trust a "looks fine" result
 	MIN_EVENTS_FOR_CLASSIFICATION: 10,
 	CONFIDENCE_FULL_EVENTS: 60, // this many events is as sure as we get

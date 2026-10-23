@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 
 type RestWindow = {
 	start: dayjs.Dayjs;
@@ -18,7 +18,7 @@ type RestWindow = {
  * midnight would be split in two and we would miss it.
  */
 export function detectInhumanActivityPattern(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
@@ -27,7 +27,7 @@ export function detectInhumanActivityPattern(
 	}
 
 	const times = events
-		.map((event) => ({ event, time: dayjs(event.created_at) }))
+		.map((event) => ({ event, time: dayjs(event.at) }))
 		.filter((entry) => entry.time.isValid())
 		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
 
@@ -40,17 +40,25 @@ export function detectInhumanActivityPattern(
 
 	for (let start = 0; start < timeline.length; start++) {
 		const windowStart = timeline[start];
-		if (!windowStart) continue;
+		if (!windowStart) {
+			continue;
+		}
+
 		const windowEnd = windowStart.add(24, "hour");
 
 		let end = start;
 		while (end < timeline.length) {
-			if (!timeline[end]?.isBefore(windowEnd)) break;
+			if (!timeline[end]?.isBefore(windowEnd)) {
+				break;
+			}
+
 			end++;
 		}
 
 		const eventCount = end - start;
-		if (eventCount < CONFIG.MIN_EVENTS_FOR_ANALYSIS) continue;
+		if (eventCount < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+			continue;
+		}
 
 		// Count busy hours from the start of the window, not from midnight.
 		const activeSlots = new Set<number>();
@@ -59,20 +67,33 @@ export function detectInhumanActivityPattern(
 
 		for (let i = start; i < end; i++) {
 			const time = timeline[i];
-			if (!time) continue;
+			if (!time) {
+				continue;
+			}
+
 			activeSlots.add(Math.floor(time.diff(windowStart, "hour", true)));
 			const gap = time.diff(previous, "hour", true);
-			if (gap > maxGap) maxGap = gap;
+			if (gap > maxGap) {
+				maxGap = gap;
+			}
+
 			previous = time;
 		}
 
 		// The quiet time after the last event is rest too.
 		const trailingGap = windowEnd.diff(previous, "hour", true);
-		if (trailingGap > maxGap) maxGap = trailingGap;
+		if (trailingGap > maxGap) {
+			maxGap = trailingGap;
+		}
 
 		const hoursActive = activeSlots.size;
-		if (hoursActive < CONFIG.HOURS_ACTIVE_EXTREME) continue;
-		if (eventCount / hoursActive < CONFIG.EVENTS_PER_HOUR_MIN) continue;
+		if (hoursActive < CONFIG.HOURS_ACTIVE_EXTREME) {
+			continue;
+		}
+
+		if (eventCount / hoursActive < CONFIG.EVENTS_PER_HOUR_MIN) {
+			continue;
+		}
 
 		if (!worst || maxGap < worst.restGap) {
 			worst = {

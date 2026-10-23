@@ -62,6 +62,7 @@ export function scoreFlags(
 			rawPoints,
 			points: groupPoints,
 		});
+
 		total += groupPoints;
 	}
 

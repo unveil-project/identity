@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { GitHubEvent, GitHubUser } from "../../src/types";
+import type { GitHubEvent, GitHubUser } from "../../src/github";
 
 export function getFixtures(): Array<
 	[{ user: GitHubUser; events: GitHubEvent[] }, string]

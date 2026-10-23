@@ -1,15 +1,13 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 
-export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
+export function detectPushBurst(events: IdentifyEvent[]): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
 	const pushEvents = events
-		.filter((e) => e.type === "PushEvent")
-		.sort(
-			(a, b) => dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
-		);
+		.filter((e) => e.type === "push")
+		.sort((a, b) => dayjs(a.at).valueOf() - dayjs(b.at).valueOf());
 
 	if (pushEvents.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
@@ -25,11 +23,11 @@ export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
 	for (let i = 1; i < pushEvents.length; i++) {
 		const prev = pushEvents[i - 1];
 		const curr = pushEvents[i];
-		if (!prev || !curr || prev.repo?.name !== curr.repo?.name) continue;
-		const diffSeconds = dayjs(curr.created_at).diff(
-			dayjs(prev.created_at),
-			"second",
-		);
+		if (!prev || !curr || prev.repo !== curr.repo) {
+			continue;
+		}
+
+		const diffSeconds = dayjs(curr.at).diff(dayjs(prev.at), "second");
 		if (diffSeconds <= CONFIG.TIGHT_COMMIT_SECONDS) {
 			tightBurstCount++;
 			tightPushIndices.add(i - 1);
@@ -42,6 +40,7 @@ export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
 		const burstPushEvents = pushEvents.filter((_, i) =>
 			tightPushIndices.has(i),
 		);
+
 		flags.push({
 			label: "High push frequency",
 			points: CONFIG.POINTS_TIGHT_BURST,

@@ -1,5 +1,5 @@
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag, WindowInfo } from "../types";
+import type { IdentifyEvent, IdentifyFlag, WindowInfo } from "../types";
 
 export type DormancyResult = {
 	flags: IdentifyFlag[];
@@ -19,7 +19,7 @@ export type DormancyResult = {
  * everything we can see happened in one short recent burst.
  */
 export function detectDormancy(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 	accountAge: number,
 	reposCount: number,
 	window: WindowInfo,

@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { identify } from "../src/identify";
-import { event, user } from "./utils/events";
+import { event, identifyGitHub, user } from "./utils/events";
 
 describe("same result every run", () => {
 	afterEach(() => {
@@ -20,7 +19,7 @@ describe("same result every run", () => {
 	function runAt(iso: string) {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date(iso));
-		const result = identify({
+		const result = identifyGitHub({
 			user: user({ created_at: "2020-01-01T00:00:00Z", public_repos: 12 }),
 			events,
 		});
@@ -61,7 +60,7 @@ describe("busiest time window", () => {
 			),
 		);
 
-		const result = identify({
+		const result = identifyGitHub({
 			user: user({ created_at: "2026-04-20T00:00:00Z", public_repos: 0 }),
 			events,
 		});

@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 
 export function detectRapidPRSpam(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 	isEstablished: boolean,
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
@@ -16,7 +16,7 @@ export function detectRapidPRSpam(
 		: CONFIG.RAPID_PR_SPAM_MIN_PRS;
 
 	const prEvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
 	if (prEvents.length < minRapidPRs) {
@@ -24,16 +24,17 @@ export function detectRapidPRSpam(
 	}
 
 	const prTimes = prEvents
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
+		.map((e) => ({ event: e, time: dayjs(e.at) }))
 		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
 
 	const prsByRepo = new Map<string, typeof prTimes>();
 	for (const prEntry of prTimes) {
-		const repoName = prEntry.event.repo?.name;
+		const repoName = prEntry.event.repo;
 		if (repoName) {
 			if (!prsByRepo.has(repoName)) {
 				prsByRepo.set(repoName, []);
 			}
+
 			prsByRepo.get(repoName)?.push(prEntry);
 		}
 	}
@@ -45,7 +46,9 @@ export function detectRapidPRSpam(
 	let maxStreakEndIdx = 0;
 
 	for (const [repoName, repoPRs] of prsByRepo.entries()) {
-		if (repoPRs.length < minRapidPRs) continue;
+		if (repoPRs.length < minRapidPRs) {
+			continue;
+		}
 
 		let streakStart = 0;
 		let streakPairs = 0;
@@ -81,6 +84,7 @@ export function detectRapidPRSpam(
 		const rapidRepoEvents = (prsByRepo.get(targetRepo) ?? [])
 			.slice(maxStreakStartIdx, maxStreakEndIdx + 1)
 			.map((entry) => entry.event);
+
 		flags.push({
 			label: "Rapid PRs to repository",
 			points: CONFIG.POINTS_RAPID_PR_SPAM,

@@ -1,9 +1,10 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
+import { nameOf, ownerOf } from "../utils";
 
 export function detectBranchPRAutomation(
-	events: GitHubEvent[],
+	events: IdentifyEvent[],
 	isEstablished: boolean,
 	accountName: string,
 ): IdentifyFlag[] {
@@ -20,18 +21,18 @@ export function detectBranchPRAutomation(
 		: CONFIG.BRANCH_PR_PATTERN_RATIO_MIN;
 
 	const branchCreates = events.filter(
-		(e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
+		(e) => e.type === "create" && e.ref?.type === "branch",
 	);
 	const prEvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
 	const branchTimes = branchCreates
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
+		.map((e) => ({ event: e, time: dayjs(e.at) }))
 		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
 
 	const prTimes = prEvents
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
+		.map((e) => ({ event: e, time: dayjs(e.at) }))
 		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
 
 	// First check: the branch and the PR are in the same repository, and the account
@@ -42,8 +43,8 @@ export function detectBranchPRAutomation(
 	// normal collaborators moving fast. An automation spraying PRs at repos it has
 	// no access to has to fork first, and the fork check further down catches that.
 	const accountNameLower = accountName.toLowerCase();
-	const ownsRepo = (event: GitHubEvent) =>
-		event.repo?.name?.split("/")[0]?.toLowerCase() === accountNameLower;
+	const ownsRepo = (event: IdentifyEvent) =>
+		ownerOf(event.repo).toLowerCase() === accountNameLower;
 
 	const ownedBranchTimes = branchTimes.filter((b) => ownsRepo(b.event));
 	const ownedPrTimes = prTimes.filter((p) => ownsRepo(p.event));
@@ -57,11 +58,12 @@ export function detectBranchPRAutomation(
 		if (branchPRRatio >= CONFIG.BRANCH_PR_COUNT_RATIO_MIN) {
 			const prTimesByRepo = new Map<string, typeof prTimes>();
 			for (const prEntry of ownedPrTimes) {
-				const repoName = prEntry.event.repo?.name;
+				const repoName = prEntry.event.repo;
 				if (repoName) {
 					if (!prTimesByRepo.has(repoName)) {
 						prTimesByRepo.set(repoName, []);
 					}
+
 					prTimesByRepo.get(repoName)?.push(prEntry);
 				}
 			}
@@ -69,15 +71,19 @@ export function detectBranchPRAutomation(
 			let matchedPairs = 0;
 			let maxObservedTimeDiff = 0;
 			const prIdxByRepo = new Map<string, number>();
-			const matchedBranchEvents: GitHubEvent[] = [];
-			const matchedPREvents: GitHubEvent[] = [];
+			const matchedBranchEvents: IdentifyEvent[] = [];
+			const matchedPREvents: IdentifyEvent[] = [];
 
 			for (const branchEntry of ownedBranchTimes) {
-				const repoName = branchEntry.event.repo?.name;
-				if (!repoName) continue;
+				const repoName = branchEntry.event.repo;
+				if (!repoName) {
+					continue;
+				}
 
 				const repoPrTimes = prTimesByRepo.get(repoName);
-				if (!repoPrTimes || repoPrTimes.length === 0) continue;
+				if (!repoPrTimes || repoPrTimes.length === 0) {
+					continue;
+				}
 
 				if (!prIdxByRepo.has(repoName)) {
 					prIdxByRepo.set(repoName, 0);
@@ -160,6 +166,7 @@ export function detectBranchPRAutomation(
 							to: matchedPREvents[i],
 						})),
 					});
+
 					return flags;
 				}
 			}
@@ -176,27 +183,31 @@ export function detectBranchPRAutomation(
 	if (branchCreates.length >= forkMinPairs && prEvents.length >= forkMinPairs) {
 		let forkWorkflowMatches = 0;
 		let forkMaxTimeDiff = 0;
-		const matchedForkBranchEvents: GitHubEvent[] = [];
-		const matchedForkPREvents: GitHubEvent[] = [];
+		const matchedForkBranchEvents: IdentifyEvent[] = [];
+		const matchedForkPREvents: IdentifyEvent[] = [];
 
 		const projectNames = new Set<string>();
 		for (const branch of branchTimes) {
-			const repo = branch.event.repo?.name;
+			const repo = branch.event.repo;
 			if (repo) {
-				const projectName = repo.split("/")[1];
-				if (projectName) projectNames.add(projectName);
+				const projectName = nameOf(repo);
+				if (projectName) {
+					projectNames.add(projectName);
+				}
 			}
 		}
 
 		for (const projectName of projectNames) {
 			const branchesForProject = branchTimes.filter((b) => {
-				const repoName = b.event.repo?.name;
-				return repoName && repoName.split("/")[1] === projectName;
+				const repoName = b.event.repo;
+
+				return repoName && nameOf(repoName) === projectName;
 			});
 
 			const prsForProject = prTimes.filter((p) => {
-				const repoName = p.event.repo?.name;
-				return repoName && repoName.split("/")[1] === projectName;
+				const repoName = p.event.repo;
+
+				return repoName && nameOf(repoName) === projectName;
 			});
 
 			if (branchesForProject.length > 0 && prsForProject.length > 0) {
@@ -215,9 +226,8 @@ export function detectBranchPRAutomation(
 							"second",
 						);
 
-						const branchOwner = branchEntry.event.repo?.name?.split("/")[0];
-						const prOwner =
-							prsForProject[prIdx].event.repo?.name?.split("/")[0];
+						const branchOwner = ownerOf(branchEntry.event.repo);
+						const prOwner = ownerOf(prsForProject[prIdx].event.repo);
 
 						if (
 							timeDiffSeconds >= 0 &&

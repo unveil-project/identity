@@ -1,33 +1,45 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { EventConnection, GitHubEvent, IdentifyFlag } from "../types";
+import type { EventConnection, IdentifyEvent, IdentifyFlag } from "../types";
 
-type EventEntry = { event: GitHubEvent; time: dayjs.Dayjs };
+type EventEntry = { event: IdentifyEvent; time: dayjs.Dayjs };
 
-export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
-	const issueCommentEvents = events.filter(
-		(e) => e.type === "IssueCommentEvent",
-	);
+export function detectCommentBeforePR(events: IdentifyEvent[]): IdentifyFlag[] {
+	const issueCommentEvents = events.filter((e) => e.type === "issue-comment");
 	const prOpenEvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
-	if (issueCommentEvents.length === 0 || prOpenEvents.length === 0) return [];
+	if (issueCommentEvents.length === 0 || prOpenEvents.length === 0) {
+		return [];
+	}
 
 	const commentsByRepo = new Map<string, EventEntry[]>();
 	for (const e of issueCommentEvents) {
-		const repo = e.repo?.name;
-		if (!repo) continue;
-		if (!commentsByRepo.has(repo)) commentsByRepo.set(repo, []);
-		commentsByRepo.get(repo)?.push({ event: e, time: dayjs(e.created_at) });
+		const repo = e.repo;
+		if (!repo) {
+			continue;
+		}
+
+		if (!commentsByRepo.has(repo)) {
+			commentsByRepo.set(repo, []);
+		}
+
+		commentsByRepo.get(repo)?.push({ event: e, time: dayjs(e.at) });
 	}
 
 	const prsByRepo = new Map<string, EventEntry[]>();
 	for (const e of prOpenEvents) {
-		const repo = e.repo?.name;
-		if (!repo) continue;
-		if (!prsByRepo.has(repo)) prsByRepo.set(repo, []);
-		prsByRepo.get(repo)?.push({ event: e, time: dayjs(e.created_at) });
+		const repo = e.repo;
+		if (!repo) {
+			continue;
+		}
+
+		if (!prsByRepo.has(repo)) {
+			prsByRepo.set(repo, []);
+		}
+
+		prsByRepo.get(repo)?.push({ event: e, time: dayjs(e.at) });
 	}
 
 	const veryFastRepos = new Set<string>();
@@ -36,7 +48,9 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 
 	for (const [repo, commentEntries] of commentsByRepo) {
 		const prEntries = prsByRepo.get(repo);
-		if (!prEntries) continue;
+		if (!prEntries) {
+			continue;
+		}
 
 		for (const commentEntry of commentEntries) {
 			for (const prEntry of prEntries) {
@@ -45,6 +59,7 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 					"minute",
 					true,
 				);
+
 				if (
 					diffMinutes > 0 &&
 					diffMinutes < CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES
@@ -56,7 +71,10 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 						"second",
 						true,
 					);
-					if (diffSeconds < fastestSeconds) fastestSeconds = diffSeconds;
+
+					if (diffSeconds < fastestSeconds) {
+						fastestSeconds = diffSeconds;
+					}
 				}
 			}
 		}
@@ -68,6 +86,7 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 		const pairedEvents = [
 			...new Set(matchedPairs.flatMap((p) => [p.from, p.to])),
 		];
+
 		return [
 			{
 				label: "Issue comment and PR within minutes",

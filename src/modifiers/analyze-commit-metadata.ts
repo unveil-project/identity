@@ -1,5 +1,5 @@
 import { CONFIG } from "../config";
-import type { GitHubCommit } from "../types";
+import type { IdentifyCommit } from "../types";
 
 const AI_COMMIT_PATTERNS: RegExp[] = [
 	/co-authored-by:.*<[^>]*@anthropic\.com>/i,
@@ -22,7 +22,10 @@ const AI_COMMIT_PATTERNS: RegExp[] = [
 export function hasAICommitMetadata(
 	message: string | undefined | null,
 ): boolean {
-	if (!message) return false;
+	if (!message) {
+		return false;
+	}
+
 	return AI_COMMIT_PATTERNS.some((re) => re.test(message));
 }
 
@@ -35,13 +38,16 @@ export type CommitMetadataStats = {
 export function getAiMultiplier(
 	stats: CommitMetadataStats,
 ): number | undefined {
-	if (stats.totalCommits < CONFIG.AI_COMMIT_MIN_COMMITS) return undefined;
+	if (stats.totalCommits < CONFIG.AI_COMMIT_MIN_COMMITS) {
+		return undefined;
+	}
+
 	return CONFIG.AI_COMMIT_TIERS.find((tier) => stats.ratio >= tier.ratio)
 		?.multiplier;
 }
 
 export function analyzeCommitMetadata(
-	commits: GitHubCommit[],
+	commits: IdentifyCommit[],
 ): CommitMetadataStats {
 	const seen = new Set<string>();
 	let totalCommits = 0;
@@ -49,9 +55,13 @@ export function analyzeCommitMetadata(
 
 	for (const commit of commits) {
 		if (commit.sha) {
-			if (seen.has(commit.sha)) continue;
+			if (seen.has(commit.sha)) {
+				continue;
+			}
+
 			seen.add(commit.sha);
 		}
+
 		totalCommits++;
 		if (hasAICommitMetadata(commit.message)) {
 			aiCommits++;

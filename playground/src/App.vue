@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import type { GitHubEvent, GitHubUser, IdentifyResult } from "@unveil/identity";
+import type { IdentifyEvent, IdentifyResult } from "@unveil/identity";
 import { identify } from "@unveil/identity";
+import {
+	fromGitHub,
+	type GitHubEvent,
+	type GitHubUser,
+} from "@unveil/identity/github";
 import { ref } from "vue";
 
 const username = ref("");
 const loading = ref(false);
 const loadingMessage = ref("");
 const error = ref("");
-const result = ref<IdentifyResult | null>(null);
+const result = ref<IdentifyResult<GitHubEvent> | null>(null);
 const user = ref<GitHubUser | null>(null);
 const events = ref<GitHubEvent[]>([]);
 const openFlags = ref(new Set<number>());
@@ -92,10 +97,9 @@ async function analyzeUser() {
 
 		// Run analysis
 		loadingMessage.value = "Analyzing...";
-		const analysisResult = identify({
-      user: userData,
-			events: userEvents,
-		});
+		const analysisResult = identify(
+			fromGitHub({ user: userData, events: userEvents }),
+		);
 
 		result.value = analysisResult;
 	} catch (err) {
@@ -118,47 +122,47 @@ function toggleEvidence(index: number) {
 
 // ─── Event formatting helpers ────────────────────────────────────────────────
 
-function formatEventType(event: GitHubEvent): string {
+function formatEventType(event: IdentifyEvent): string {
 	switch (event.type) {
-		case "CreateEvent":
-			if (event.payload?.ref_type === "branch") return "Branch";
-			if (event.payload?.ref_type === "repository") return "Repo";
+		case "create":
+			if (event.ref?.type === "branch") return "Branch";
+			if (event.ref?.type === "repository") return "Repo";
 			return "Tag";
-		case "PullRequestEvent": {
-			const num = (event.payload?.pull_request as { number?: number } | undefined)?.number;
+		case "pull-request": {
+			const num = event.pullRequest?.number;
 			return num ? `PR #${num}` : "PR";
 		}
-		case "ForkEvent":
+		case "fork":
 			return "Fork";
-		case "PushEvent":
+		case "push":
 			return "Push";
-		case "IssuesEvent":
+		case "issue":
 			return "Issue";
-		case "IssueCommentEvent":
+		case "issue-comment":
 			return "Comment";
-		case "WatchEvent":
+		case "star":
 			return "Star";
-		case "DeleteEvent":
-			return `Delete ${event.payload?.ref_type ?? ""}`.trim();
+		case "delete":
+			return `Delete ${event.ref?.type ?? ""}`.trim();
 		default:
-			return event.type?.replace("Event", "") ?? "Event";
+			return event.type || "Event";
 	}
 }
 
-function getEventBadgeClass(event: GitHubEvent): string {
+function getEventBadgeClass(event: IdentifyEvent): string {
 	switch (event.type) {
-		case "CreateEvent":
+		case "create":
 			return "badge-create";
-		case "PullRequestEvent":
+		case "pull-request":
 			return "badge-pr";
-		case "ForkEvent":
+		case "fork":
 			return "badge-fork";
-		case "PushEvent":
+		case "push":
 			return "badge-push";
-		case "IssuesEvent":
-		case "IssueCommentEvent":
+		case "issue":
+		case "issue-comment":
 			return "badge-issue";
-		case "WatchEvent":
+		case "star":
 			return "badge-watch";
 		default:
 			return "badge-default";
@@ -173,32 +177,31 @@ function shortRepo(fullName?: string | null): string {
 
 // ─── Time helpers ────────────────────────────────────────────────────────────
 
-function sortedEvents(evts: GitHubEvent[]): GitHubEvent[] {
+function sortedEvents(evts: IdentifyEvent[]): IdentifyEvent[] {
 	return [...evts].sort(
-		(a, b) =>
-			new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime(),
+		(a, b) => new Date(a.at).getTime() - new Date(b.at).getTime(),
 	);
 }
 
-function getDeltaSeconds(a: GitHubEvent, b: GitHubEvent): number {
+function getDeltaSeconds(a: IdentifyEvent, b: IdentifyEvent): number {
 	return Math.round(
-		(new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()) / 1000,
+		(new Date(b.at).getTime() - new Date(a.at).getTime()) / 1000,
 	);
 }
 
-function getGapSeconds(sorted: GitHubEvent[], index: number): number {
+function getGapSeconds(sorted: IdentifyEvent[], index: number): number {
 	if (index === 0) return 0;
 	return getDeltaSeconds(sorted[index - 1], sorted[index]);
 }
 
 function getRapidBurst(
-	evts: GitHubEvent[],
+	evts: IdentifyEvent[],
 ): { count: number; spanSeconds: number } | null {
 	if (evts.length < 3) return null;
 	const sorted = sortedEvents(evts);
 	const spanMs =
-		new Date(sorted[sorted.length - 1].created_at ?? 0).getTime() -
-		new Date(sorted[0].created_at ?? 0).getTime();
+		new Date(sorted[sorted.length - 1].at).getTime() -
+		new Date(sorted[0].at).getTime();
 	const spanSeconds = Math.round(spanMs / 1000);
 	// flag as rapid if average gap between events is less than 2 minutes
 	if (spanSeconds / (sorted.length - 1) < 120) {
@@ -371,8 +374,8 @@ function formatAccountAge(days: number): string {
                     <div v-for="(conn, i) in flag.connections" :key="i" class="connection-row">
                       <div class="conn-event">
                         <span :class="['event-badge', getEventBadgeClass(conn.from)]">{{ formatEventType(conn.from) }}</span>
-                        <span class="event-repo">{{ shortRepo(conn.from.repo?.name) }}</span>
-                        <span class="event-ts">{{ formatTime(conn.from.created_at) }}</span>
+                        <span class="event-repo">{{ shortRepo(conn.from.repo) }}</span>
+                        <span class="event-ts">{{ formatTime(conn.from.at) }}</span>
                       </div>
                       <div class="conn-arrow-wrap">
                         <div class="conn-arrow">→</div>
@@ -382,8 +385,8 @@ function formatAccountAge(days: number): string {
                       </div>
                       <div class="conn-event">
                         <span :class="['event-badge', getEventBadgeClass(conn.to)]">{{ formatEventType(conn.to) }}</span>
-                        <span class="event-repo">{{ shortRepo(conn.to.repo?.name) }}</span>
-                        <span class="event-ts">{{ formatTime(conn.to.created_at) }}</span>
+                        <span class="event-repo">{{ shortRepo(conn.to.repo) }}</span>
+                        <span class="event-ts">{{ formatTime(conn.to.at) }}</span>
                       </div>
                     </div>
                   </div>
@@ -394,7 +397,7 @@ function formatAccountAge(days: number): string {
                   <div class="evidence-section-label">{{ flag.events.length }} event{{ flag.events.length !== 1 ? "s" : "" }}</div>
                   <template v-for="sorted in [sortedEvents(flag.events)]" :key="'timeline-' + index">
                     <div class="event-timeline">
-                      <div v-for="(event, i) in sorted" :key="event.id ?? i" class="timeline-row">
+                      <div v-for="(event, i) in sorted" :key="i" class="timeline-row">
                         <div class="timeline-gap">
                           <span
                             v-if="i > 0"
@@ -404,8 +407,8 @@ function formatAccountAge(days: number): string {
                         </div>
                         <div class="timeline-event">
                           <span :class="['event-badge', getEventBadgeClass(event)]">{{ formatEventType(event) }}</span>
-                          <span class="event-repo">{{ shortRepo(event.repo?.name) }}</span>
-                          <span class="event-ts">{{ formatTime(event.created_at) }}</span>
+                          <span class="event-repo">{{ shortRepo(event.repo) }}</span>
+                          <span class="event-ts">{{ formatTime(event.at) }}</span>
                         </div>
                       </div>
                     </div>

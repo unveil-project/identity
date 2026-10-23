@@ -1,10 +1,10 @@
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { IdentifyEvent, IdentifyFlag } from "../types";
 
 export function detectZeroReposActivity(
 	reposCount: number,
-	foreignEvents: GitHubEvent[],
-	events: GitHubEvent[],
+	foreignEvents: IdentifyEvent[],
+	events: IdentifyEvent[],
 ): IdentifyFlag[] {
 	const flags: IdentifyFlag[] = [];
 
