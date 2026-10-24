@@ -9,7 +9,7 @@ import {
 	fromGitHub,
 	type GitHubEvent,
 	type GitHubUser,
-} from "@unveil/identity/github";
+} from "@unveil/identity/providers/github";
 import { ref } from "vue";
 
 const username = ref("");

@@ -4,7 +4,7 @@ import {
 	type GitHubEvent,
 	type GitHubInput,
 	type GitHubUser,
-} from "../../src/github";
+} from "../../src/providers/github";
 import { identify } from "../../src/identify";
 import type { IdentifyEvent, IdentifyFlag } from "../../src/types";
 

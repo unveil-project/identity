@@ -24,35 +24,17 @@ export type IdentifyEventType =
 	| "sponsorship"
 	| (string & {});
 
-/**
- * One thing the account did, in a shape that works for any platform.
- *
- * `Source` is the platform's original event, kept in `source` so the events a
- * flag points at can be traced back to it.
- */
 export type IdentifyEvent<Source = unknown> = {
 	type: IdentifyEventType;
-	/** When it happened, as an ISO timestamp. */
 	at: string;
-	/**
-	 * The repository's full path, "owner/name". The owner is everything before
-	 * the last slash, so nested groups ("group/subgroup/name") work too.
-	 */
 	repo: string;
-	/** What happened, for types that say: "opened", "closed", "merged", "labeled"… */
 	action?: string;
-	/** For "create": what was created ("branch", "repository", "tag") and its name. */
 	ref?: { type?: string; name?: string };
 	issue?: { title?: string };
 	pullRequest?: {
 		number?: number;
-		/**
-		 * True when the account submitted this PR. False when, for example, it
-		 * closed or merged someone else's PR as a maintainer.
-		 */
 		isAuthor?: boolean;
 	};
-	/** True when the platform says an app, not a person, did this. */
 	actorIsApp?: boolean;
 	source?: Source;
 };
@@ -60,7 +42,6 @@ export type IdentifyEvent<Source = unknown> = {
 export type IdentifyCommit = {
 	sha?: string;
 	message?: string;
-	/** The repository's full path, "owner/name". */
 	repo?: string;
 };
 
@@ -76,10 +57,6 @@ export type EventConnection<Source = unknown> = {
 	label?: string;
 };
 
-/**
- * Groups of flags. Flags in the same group are about the same behaviour, so
- * they do not fully add up. Flags in different groups do. See `scoreFlags`.
- */
 export type EvidenceGroup =
 	| "account-age"
 	| "profile"
@@ -102,9 +79,8 @@ export type EvidenceGroup =
 
 export type IdentifyFlag<Source = unknown> = {
 	label: string;
-	/** Points the check gave, before multipliers and grouping. */
 	points: number;
-	/** Points after the AI and bounty multipliers. Set by `scoreFlags`. */
+	/** Points after the AI and bounty multipliers. */
 	effectivePoints?: number;
 	group: EvidenceGroup;
 	detail: string;
@@ -114,13 +90,16 @@ export type IdentifyFlag<Source = unknown> = {
 	amplifiable?: boolean;
 };
 
-/** Shows how each group added to the final score. */
+/**
+ * How much one group took off the score. Flags of 30, 20 and 10 give
+ * `rawPoints` 60 and `points` 38 (30, plus 25% of 20 and 10).
+ */
 export type ScoredGroup = {
 	group: EvidenceGroup;
 	flagCount: number;
-	/** All the flag points in this group, simply added up. */
+	/** Every flag's points added up. For display only: the score ignores it. */
 	rawPoints: number;
-	/** What the group really added: the biggest flag, plus a little for the rest. */
+	/** What the score really lost: the biggest flag, plus 25% of the other flags. */
 	points: number;
 };
 

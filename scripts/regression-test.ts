@@ -3,8 +3,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { fromGitHub } from "../src/github";
 import { identify } from "../src/identify";
+import { fromGitHub } from "../src/providers/github";
 import type { IdentityClassification } from "../src/types";
 import {
 	expectsGitHubApp,

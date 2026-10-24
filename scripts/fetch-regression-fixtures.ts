@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { GitHubEvent } from "../src/github";
+import type { GitHubEvent } from "../src/providers/github";
 import { REGRESSION_FIXTURES } from "../test/regression-config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

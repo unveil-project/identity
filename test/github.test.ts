@@ -6,7 +6,7 @@ import {
 	GITHUB_EVENT_CAP,
 	type GitHubEvent,
 	type GitHubUser,
-} from "../src/github";
+} from "../src/providers/github";
 import { identify } from "../src/identify";
 import type { IdentifyEvent } from "../src/types";
 import { event, user } from "./utils/events";

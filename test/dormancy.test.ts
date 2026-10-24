@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { GitHubEvent } from "../src/github";
+import type { GitHubEvent } from "../src/providers/github";
 import { event, identifyGitHub, user } from "./utils/events";
 
 /** 15 events packed into a few days, including 5 fast PRs to one repo. */

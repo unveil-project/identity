@@ -18,7 +18,7 @@ npm install @unveil/identity
 
 ```js
 import { identify } from "@unveil/identity";
-import { fromGitHub } from "@unveil/identity/github";
+import { fromGitHub } from "@unveil/identity/providers/github";
 
 // Fetch user data from GitHub API
 const username = "github_account_username";

@@ -1,11 +1,16 @@
 import { defineConfig } from "tsdown";
 
+const entry = {
+	index: "src/index.ts",
+	"providers/github": "src/providers/github.ts",
+};
+
 export default defineConfig({
-	entry: ["src/index.ts", "src/github.ts"],
+	entry,
 	exports: true,
 	deps: {
 		alwaysBundle: ["dayjs", "dayjs/plugin/minMax", "dayjs/plugin/utc"],
 	},
 	publint: true,
-	dts: { entry: ["src/index.ts", "src/github.ts"] },
+	dts: { entry: Object.values(entry) },
 });

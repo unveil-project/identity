@@ -3,7 +3,7 @@ import type {
 	IdentifyEvent,
 	IdentifyEventType,
 	IdentifyInput,
-} from "./types";
+} from "../types";
 
 /** GitHub never gives more events than this, and only goes back about 90 days. */
 export const GITHUB_EVENT_CAP = 300;

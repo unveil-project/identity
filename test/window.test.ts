@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CONFIG } from "../src/config";
-import { GITHUB_EVENT_CAP } from "../src/github";
+import { GITHUB_EVENT_CAP } from "../src/providers/github";
 import { analyzeWindow } from "../src/window";
 import { event, identifyGitHub, toEvents, user } from "./utils/events";
 

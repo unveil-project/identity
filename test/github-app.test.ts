@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isGitHubAppAccount } from "../src/github";
+import { isGitHubAppAccount } from "../src/providers/github";
 import { event, identifyGitHub, user } from "./utils/events";
 
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CONFIG } from "../src/config";
 import { estimateUtcOffset } from "../src/timezone";
-import type { GitHubEvent } from "../src/github";
+import type { GitHubEvent } from "../src/providers/github";
 import { event, identifyGitHub, toEvents, user } from "./utils/events";
 
 function workingHours(fromHourUtc: number, toHourUtc: number): GitHubEvent[] {

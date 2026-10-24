@@ -3,7 +3,7 @@ import {
   hasAICommitMetadata,
   analyzeCommitMetadata,
 } from "../src/modifiers/analyze-commit-metadata";
-import type { GitHubCommit, GitHubEvent } from "../src/github";
+import type { GitHubCommit, GitHubEvent } from "../src/providers/github";
 import { identifyGitHub, user } from "./utils/events";
 
 const date = new Date(2026, 2, 10, 12);

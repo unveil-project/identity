@@ -4,8 +4,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { IdentityClassification } from "../src";
-import { fromGitHub, type GitHubEvent, type GitHubInput } from "../src/github";
 import { identify } from "../src/identify";
+import {
+	fromGitHub,
+	type GitHubEvent,
+	type GitHubInput,
+} from "../src/providers/github";
 import {
 	FIXTURE_CATEGORIES,
 	type FixtureCategory,
