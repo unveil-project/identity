@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { IdentifyEvent, IdentifyResult } from "@unveil/identity";
+import type {
+	IdentifyAccount,
+	IdentifyEvent,
+	IdentifyResult,
+} from "@unveil/identity";
 import { identify } from "@unveil/identity";
 import {
 	fromGitHub,
@@ -13,7 +17,7 @@ const loading = ref(false);
 const loadingMessage = ref("");
 const error = ref("");
 const result = ref<IdentifyResult<GitHubEvent> | null>(null);
-const user = ref<GitHubUser | null>(null);
+const account = ref<IdentifyAccount | null>(null);
 const events = ref<GitHubEvent[]>([]);
 const openFlags = ref(new Set<number>());
 
@@ -92,16 +96,14 @@ async function analyzeUser() {
 			throw new Error("User not found");
 		}
 
-		user.value = userData;
 		events.value = userEvents;
 
 		// Run analysis
 		loadingMessage.value = "Analyzing...";
-		const analysisResult = identify(
-			fromGitHub({ user: userData, events: userEvents }),
-		);
+		const input = fromGitHub({ user: userData, events: userEvents });
 
-		result.value = analysisResult;
+		account.value = input.account;
+		result.value = identify(input);
 	} catch (err) {
 		error.value = err instanceof Error ? err.message : "An error occurred";
 		result.value = null;
@@ -282,11 +284,11 @@ function formatAccountAge(days: number): string {
         <!-- User Profile Card -->
         <div class="card full-width">
           <div class="user-header">
-            <img v-if="user" :src="user.avatar_url" :alt="user.name || user.login" class="user-avatar" />
+            <img v-if="account?.avatarUrl" :src="account.avatarUrl" :alt="account.name || account.login" class="user-avatar" />
             <div>
-              <div class="user-name">{{ user?.name || user?.login }}</div>
-              <div class="user-login">@{{ user?.login }}</div>
-              <a v-if="user?.html_url" :href="user.html_url" target="_blank" style="opacity: 0.6; font-size: 14px"
+              <div class="user-name">{{ account?.name || account?.login }}</div>
+              <div class="user-login">@{{ account?.login }}</div>
+              <a v-if="account?.url" :href="account.url" target="_blank" style="opacity: 0.6; font-size: 14px"
                 >View on GitHub</a
               >
             </div>
@@ -426,27 +428,23 @@ function formatAccountAge(days: number): string {
           <h2>User Data</h2>
           <div class="info-row">
             <span class="info-label">ID:</span>
-            <span class="info-value">{{ user?.id }}</span>
+            <span class="info-value">{{ account?.id }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Created:</span>
-            <span class="info-value">{{ formatDate(user?.created_at) }}</span>
+            <span class="info-value">{{ formatDate(account?.createdAt) }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Followers:</span>
-            <span class="info-value">{{ user?.followers }}</span>
+            <span class="info-value">{{ account?.followers }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Following:</span>
-            <span class="info-value">{{ user?.following }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Public Gists:</span>
-            <span class="info-value">{{ user?.public_gists }}</span>
+            <span class="info-value">{{ account?.following }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Bio:</span>
-            <span class="info-value">{{ user?.bio || "—" }}</span>
+            <span class="info-value">{{ account?.bio || "—" }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Events Analyzed:</span>

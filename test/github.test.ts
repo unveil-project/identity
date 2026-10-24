@@ -134,6 +134,31 @@ describe("fromGitHub", () => {
 		expect(input.eventCap).toBe(GITHUB_EVENT_CAP);
 	});
 
+	it("reads the profile fields when GitHub sends them", () => {
+		const input = fromGitHub({
+			user: user({
+				id: 583231,
+				name: "The Octocat",
+				bio: null,
+				avatar_url: "https://avatars.githubusercontent.com/u/583231",
+				html_url: "https://github.com/octocat",
+				followers: 10,
+				following: 2,
+			}),
+			events: [],
+		});
+
+		expect(input.account).toMatchObject({
+			id: "583231",
+			name: "The Octocat",
+			bio: null,
+			avatarUrl: "https://avatars.githubusercontent.com/u/583231",
+			url: "https://github.com/octocat",
+			followers: 10,
+			following: 2,
+		});
+	});
+
 	it("lets flag events be traced back to the GitHub event", () => {
 		const events = Array.from({ length: 25 }, (_, i) =>
 			event(

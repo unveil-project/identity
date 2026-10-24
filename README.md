@@ -69,8 +69,10 @@ shape. For now there is one provider, for GitHub.
 `fromGitHub({ user, events, commits })` takes the GitHub API responses as they
 are:
 
-- `user` is the `GET /users/{username}` response. Only `login`, `created_at`,
-  `public_repos` and `type` are read.
+- `user` is the `GET /users/{username}` response. The checks read `login`,
+  `created_at`, `public_repos` and `type`. `id`, `name`, `bio`, `avatar_url`,
+  `html_url`, `followers` and `following` are passed on to the account, for
+  showing the profile.
 - `events` is the `GET /users/{username}/events` response.
 - `commits` is optional. It is a list of `{ sha, message, repo }`, and turns on
   AI commit detection.

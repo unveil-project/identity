@@ -132,6 +132,16 @@ export type IdentifyAccount = {
 	publicRepos: number;
 	/** True when the platform says the account is an app, not a person. */
 	isApp?: boolean;
+	/** The platform's own id for the account. */
+	id?: string;
+	/** The display name, when the account has one. */
+	name?: string | null;
+	bio?: string | null;
+	avatarUrl?: string;
+	/** The account's page on the platform. */
+	url?: string;
+	followers?: number;
+	following?: number;
 };
 
 /**

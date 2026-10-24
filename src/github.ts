@@ -18,6 +18,13 @@ export type GitHubUser = {
 	public_repos: number;
 	/** GitHub sends `"Bot"` for GitHub App accounts. */
 	type?: string | null;
+	id?: number;
+	name?: string | null;
+	bio?: string | null;
+	avatar_url?: string;
+	html_url?: string;
+	followers?: number;
+	following?: number;
 };
 
 /**
@@ -121,6 +128,13 @@ export function fromGitHub({
 			createdAt: user.created_at,
 			publicRepos: user.public_repos,
 			isApp: isBotType(user.type),
+			id: user.id === undefined ? undefined : String(user.id),
+			name: user.name,
+			bio: user.bio,
+			avatarUrl: user.avatar_url,
+			url: user.html_url,
+			followers: user.followers,
+			following: user.following,
 		},
 		events: events.map((event) => fromGitHubEvent(event, user.login)),
 		commits,
