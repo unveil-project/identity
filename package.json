@@ -15,7 +15,10 @@
 	},
 	"exports": {
 		".": "./dist/index.mjs",
+		"./providers/codeberg": "./dist/providers/codeberg.mjs",
 		"./providers/github": "./dist/providers/github.mjs",
+		"./providers/gitlab": "./dist/providers/gitlab.mjs",
+		"./providers/tangled": "./dist/providers/tangled.mjs",
 		"./package.json": "./package.json"
 	},
 	"types": "./dist/index.d.mts",

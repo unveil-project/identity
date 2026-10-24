@@ -62,7 +62,7 @@ console.log(analysis);
 
 `identify` does not depend on any platform. It takes an `account` and a list of
 `events` in its own small shape. A provider turns a platform's data into that
-shape. For now there is one provider, for GitHub.
+shape. There are providers for GitHub, GitLab, Codeberg and Tangled.
 
 #### GitHub
 
@@ -89,6 +89,67 @@ identify({ ...fromGitHub({ user, events }), excludeRepos: ["me/dotfiles"] });
 Each flag lists the events behind it. Every event keeps the original GitHub
 event in `source`.
 
+#### GitLab
+
+```js
+import { fromGitLab } from "@unveil/identity/providers/gitlab";
+
+identify(fromGitLab({ user, events, projects, publicRepos }));
+```
+
+- `user` is the `GET /users/:id` response. `bot` marks the account as an app.
+- `events` is the `GET /users/:id/events` response.
+- `publicRepos` is required, because GitLab's user has no project count. Read
+  the `X-Total` header of `GET /users/:id/projects`.
+- `projects` is a list of `{ id, path_with_namespace }`, for the projects the
+  events happened in. GitLab events only carry a `project_id`. Without the
+  projects, repos are named by their id, and the checks can't tell the user's
+  own projects from other people's.
+
+Merged merge requests (`accepted` in GitLab) become `merged`. Only opening a
+merge request marks the user as its author, since GitLab events only say who
+acted.
+
+#### Codeberg
+
+```js
+import { fromCodeberg } from "@unveil/identity/providers/codeberg";
+
+identify(fromCodeberg({ user, events, publicRepos }));
+```
+
+This works for any Forgejo or Gitea server, not just Codeberg.
+
+- `user` is the `GET /api/v1/users/{username}` response.
+- `events` is the `GET /api/v1/users/{username}/activities/feeds?only-performed-by=true`
+  response. Activities by other people are left out either way.
+- `publicRepos` is required, because the user has no repo count. Read the
+  `X-Total-Count` header of `GET /api/v1/users/{username}/repos`.
+
+#### Tangled
+
+```js
+import { fromTangled } from "@unveil/identity/providers/tangled";
+
+identify(
+  fromTangled({
+    account: { did, handle, createdAt },
+    records,
+  }),
+);
+```
+
+- `account.createdAt` is required, because Tangled keeps no sign-up date. Use
+  the first entry of the DID's PLC audit log, or the `createdAt` of the
+  account's Bluesky profile.
+- `records` are the account's `sh.tangled.*` records, as
+  `com.atproto.repo.listRecords` or the AppView's `list*By` queries return them
+  (`{ uri, value }`), plus the `sh.tangled.git.refUpdate` records it pushed.
+  `publicRepos` is the number of `sh.tangled.repo` records in there.
+- Issues and pulls point at a repo DID, not a name. To name those repos, also
+  pass the repo, issue and pull records they point at. Records by other
+  accounts are only used to look up names, and never count as activity.
+
 #### Your own data
 
 You can also build the input yourself:
@@ -110,7 +171,8 @@ identify({
 ```
 
 See the `IdentifyEvent` type for every field. The scoring was tuned on GitHub
-data, so results for other platforms are not calibrated yet.
+data, so results for GitLab, Codeberg, Tangled and other platforms are not
+calibrated yet.
 
 ### Issues and feature requests
 
