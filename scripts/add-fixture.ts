@@ -24,10 +24,10 @@ const REGRESSION_CONFIG_PATH = path.join(
 	"../test/regression-config.ts",
 );
 
-const [, , username, categoryArg] = process.argv;
+const [, , usernameArg, categoryArg] = process.argv;
 
 if (
-	!username ||
+	!usernameArg ||
 	!categoryArg ||
 	!FIXTURE_CATEGORIES.includes(categoryArg as FixtureCategory)
 ) {
@@ -40,6 +40,7 @@ if (
 	process.exit(1);
 }
 
+const username = usernameArg;
 const category = categoryArg as FixtureCategory;
 
 let GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -48,7 +49,7 @@ if (!GITHUB_TOKEN) {
 	if (fs.existsSync(envPath)) {
 		const envContent = fs.readFileSync(envPath, "utf-8");
 		const match = envContent.match(/GITHUB_TOKEN\s*=\s*"?([^"\n%]+)"?/);
-		if (match) {
+		if (match?.[1]) {
 			GITHUB_TOKEN = match[1].trim();
 		}
 	}

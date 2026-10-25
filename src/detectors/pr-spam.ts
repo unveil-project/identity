@@ -86,7 +86,10 @@ export function detectExtremeAndDistributedPRSpam(
 
 				const earliestPR = prTimestamps[0];
 				const latestPR = prTimestamps[prTimestamps.length - 1];
-				const timeSpanDays = latestPR ? daysBetween(earliestPR, latestPR) : 0;
+				let timeSpanDays = 0;
+				if (earliestPR !== undefined && latestPR !== undefined) {
+					timeSpanDays = daysBetween(earliestPR, latestPR);
+				}
 				const timeSpanWeeks = timeSpanDays / 7;
 
 				// Calculate density: PRs per week

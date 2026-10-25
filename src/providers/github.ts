@@ -57,26 +57,26 @@ export type GitHubInput = {
 	commits?: GitHubCommit[];
 };
 
-const TYPES: Record<string, IdentifyEventType> = {
-	PushEvent: "push",
-	CreateEvent: "create",
-	DeleteEvent: "delete",
-	ForkEvent: "fork",
-	WatchEvent: "star",
-	IssuesEvent: "issue",
-	IssueCommentEvent: "issue-comment",
-	PullRequestEvent: "pull-request",
-	PullRequestReviewEvent: "review",
-	PullRequestReviewCommentEvent: "review-comment",
-	PullRequestReviewThreadEvent: "review-thread",
-	CommitCommentEvent: "commit-comment",
-	ReleaseEvent: "release",
-	MemberEvent: "member",
-	PublicEvent: "public",
-	GollumEvent: "wiki",
-	DiscussionEvent: "discussion",
-	SponsorshipEvent: "sponsorship",
-};
+const TYPES = new Map<string, IdentifyEventType>([
+	["PushEvent", "push"],
+	["CreateEvent", "create"],
+	["DeleteEvent", "delete"],
+	["ForkEvent", "fork"],
+	["WatchEvent", "star"],
+	["IssuesEvent", "issue"],
+	["IssueCommentEvent", "issue-comment"],
+	["PullRequestEvent", "pull-request"],
+	["PullRequestReviewEvent", "review"],
+	["PullRequestReviewCommentEvent", "review-comment"],
+	["PullRequestReviewThreadEvent", "review-thread"],
+	["CommitCommentEvent", "commit-comment"],
+	["ReleaseEvent", "release"],
+	["MemberEvent", "member"],
+	["PublicEvent", "public"],
+	["GollumEvent", "wiki"],
+	["DiscussionEvent", "discussion"],
+	["SponsorshipEvent", "sponsorship"],
+]);
 
 function isBotType(type: string | null | undefined): boolean {
 	return typeof type === "string" && type.toLowerCase() === "bot";
@@ -97,7 +97,7 @@ export function fromGitHubEvent(
 	const isAuthor = headUrl.includes(`/repos/${login.toLowerCase()}/`);
 
 	return {
-		type: Object.hasOwn(TYPES, type) ? TYPES[type] : type,
+		type: TYPES.get(type) ?? type,
 		at: event.created_at ?? "",
 		repo: event.repo?.name ?? "",
 		action: payload?.action,

@@ -1,7 +1,15 @@
 import { CONFIG } from "../config";
 import { secondsBetween, toTime } from "../time";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { EventConnection, IdentifyEvent, IdentifyFlag } from "../types";
 import { nameOf, ownerOf } from "../utils";
+
+/** Every branch event first, then every PR event. */
+function eventsOf(connections: EventConnection[]): IdentifyEvent[] {
+	const branchEvents = connections.map((connection) => connection.from);
+	const prEvents = connections.map((connection) => connection.to);
+
+	return [...branchEvents, ...prEvents];
+}
 
 export function detectBranchPRAutomation(
 	events: IdentifyEvent[],
@@ -71,8 +79,7 @@ export function detectBranchPRAutomation(
 			let matchedPairs = 0;
 			let maxObservedTimeDiff = 0;
 			const prIdxByRepo = new Map<string, number>();
-			const matchedBranchEvents: IdentifyEvent[] = [];
-			const matchedPREvents: IdentifyEvent[] = [];
+			const matchedConnections: EventConnection[] = [];
 
 			for (const branchEntry of ownedBranchTimes) {
 				const repoName = branchEntry.event.repo;
@@ -90,17 +97,16 @@ export function detectBranchPRAutomation(
 				}
 
 				let prIdx = prIdxByRepo.get(repoName) ?? 0;
+				let prEntry = repoPrTimes[prIdx];
 
-				while (
-					prIdx < repoPrTimes.length &&
-					repoPrTimes[prIdx].time < branchEntry.time
-				) {
+				while (prEntry && prEntry.time < branchEntry.time) {
 					prIdx++;
+					prEntry = repoPrTimes[prIdx];
 				}
 
-				if (prIdx < repoPrTimes.length) {
+				if (prEntry) {
 					const timeDiffSeconds = Math.trunc(
-						secondsBetween(branchEntry.time, repoPrTimes[prIdx].time),
+						secondsBetween(branchEntry.time, prEntry.time),
 					);
 
 					if (
@@ -112,8 +118,10 @@ export function detectBranchPRAutomation(
 							maxObservedTimeDiff,
 							timeDiffSeconds,
 						);
-						matchedBranchEvents.push(branchEntry.event);
-						matchedPREvents.push(repoPrTimes[prIdx].event);
+						matchedConnections.push({
+							from: branchEntry.event,
+							to: prEntry.event,
+						});
 						prIdx++;
 					}
 				}
@@ -145,11 +153,8 @@ export function detectBranchPRAutomation(
 							minRatio: branchPRMinRatio,
 							maxGapSeconds: maxObservedTimeDiff,
 						},
-						events: [...matchedBranchEvents, ...matchedPREvents],
-						connections: matchedBranchEvents.map((event, i) => ({
-							from: event,
-							to: matchedPREvents[i],
-						})),
+						events: eventsOf(matchedConnections),
+						connections: matchedConnections,
 					});
 
 					return flags;
@@ -168,8 +173,7 @@ export function detectBranchPRAutomation(
 	if (branchCreates.length >= forkMinPairs && prEvents.length >= forkMinPairs) {
 		let forkWorkflowMatches = 0;
 		let forkMaxTimeDiff = 0;
-		const matchedForkBranchEvents: IdentifyEvent[] = [];
-		const matchedForkPREvents: IdentifyEvent[] = [];
+		const matchedForkConnections: EventConnection[] = [];
 
 		const projectNames = new Set<string>();
 		for (const branch of branchTimes) {
@@ -198,20 +202,20 @@ export function detectBranchPRAutomation(
 			if (branchesForProject.length > 0 && prsForProject.length > 0) {
 				let prIdx = 0;
 				for (const branchEntry of branchesForProject) {
-					while (
-						prIdx < prsForProject.length &&
-						prsForProject[prIdx].time < branchEntry.time
-					) {
+					let prEntry = prsForProject[prIdx];
+
+					while (prEntry && prEntry.time < branchEntry.time) {
 						prIdx++;
+						prEntry = prsForProject[prIdx];
 					}
 
-					if (prIdx < prsForProject.length) {
+					if (prEntry) {
 						const timeDiffSeconds = Math.trunc(
-							secondsBetween(branchEntry.time, prsForProject[prIdx].time),
+							secondsBetween(branchEntry.time, prEntry.time),
 						);
 
 						const branchOwner = ownerOf(branchEntry.event.repo);
-						const prOwner = ownerOf(prsForProject[prIdx].event.repo);
+						const prOwner = ownerOf(prEntry.event.repo);
 
 						if (
 							timeDiffSeconds >= 0 &&
@@ -223,8 +227,10 @@ export function detectBranchPRAutomation(
 						) {
 							forkWorkflowMatches++;
 							forkMaxTimeDiff = Math.max(forkMaxTimeDiff, timeDiffSeconds);
-							matchedForkBranchEvents.push(branchEntry.event);
-							matchedForkPREvents.push(prsForProject[prIdx].event);
+							matchedForkConnections.push({
+								from: branchEntry.event,
+								to: prEntry.event,
+							});
 							prIdx++;
 						}
 					}
@@ -249,11 +255,8 @@ export function detectBranchPRAutomation(
 						minRatio: branchPRMinRatio,
 						maxGapSeconds: forkMaxTimeDiff,
 					},
-					events: [...matchedForkBranchEvents, ...matchedForkPREvents],
-					connections: matchedForkBranchEvents.map((event, i) => ({
-						from: event,
-						to: matchedForkPREvents[i],
-					})),
+					events: eventsOf(matchedForkConnections),
+					connections: matchedForkConnections,
 				});
 			}
 		}

@@ -55,8 +55,14 @@ export function detectRapidPRSpam(
 		let streakMaxTimeDiff = 0;
 
 		for (let i = 0; i < repoPRs.length - 1; i++) {
+			const currentPR = repoPRs[i];
+			const nextPR = repoPRs[i + 1];
+			if (!currentPR || !nextPR) {
+				continue;
+			}
+
 			const timeDiffSeconds = Math.trunc(
-				secondsBetween(repoPRs[i].time, repoPRs[i + 1].time),
+				secondsBetween(currentPR.time, nextPR.time),
 			);
 
 			if (timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS) {

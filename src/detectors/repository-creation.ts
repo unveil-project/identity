@@ -37,13 +37,16 @@ export function detectRepositoryCreationBurst(
 
 		for (let endIdx = 0; endIdx < createTimestamps.length; endIdx++) {
 			const windowEnd = createTimestamps[endIdx];
+			let windowStart = createTimestamps[windowStartIdx];
 
 			// Slide window to include only events within 24 hours
 			while (
+				windowStart !== undefined &&
 				windowEnd &&
-				hoursBetween(createTimestamps[windowStartIdx], windowEnd) > 24
+				hoursBetween(windowStart, windowEnd) > 24
 			) {
 				windowStartIdx++;
+				windowStart = createTimestamps[windowStartIdx];
 			}
 
 			const createsInWindow = endIdx - windowStartIdx + 1;

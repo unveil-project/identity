@@ -47,12 +47,15 @@ export function detectForkActivity(
 			windowEndIdx++
 		) {
 			const windowEnd = forkTimestamps[windowEndIdx];
+			let windowStart = forkTimestamps[windowStartIdx];
 
 			while (
+				windowStart !== undefined &&
 				windowEnd &&
-				hoursBetween(forkTimestamps[windowStartIdx], windowEnd) > hours
+				hoursBetween(windowStart, windowEnd) > hours
 			) {
 				windowStartIdx++;
+				windowStart = forkTimestamps[windowStartIdx];
 			}
 
 			const forksInWindow = windowEndIdx - windowStartIdx + 1;
@@ -238,6 +241,9 @@ export function detectForkActivity(
 		for (let i = 1; i < sortedForkDays.length; i++) {
 			const prev = sortedForkDays[i - 1];
 			const curr = sortedForkDays[i];
+			if (prev === undefined || curr === undefined) {
+				continue;
+			}
 
 			if (daysBetween(prev, curr) === 1) {
 				currentStreak++;
@@ -252,10 +258,15 @@ export function detectForkActivity(
 			}
 		}
 
-		if (maxConsecutiveForkDays >= CONFIG.CONSECUTIVE_FORK_DAYS) {
-			const streakStartDay =
-				sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
-			const streakEndDay = sortedForkDays[maxStreakEnd];
+		const streakStartDay =
+			sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
+		const streakEndDay = sortedForkDays[maxStreakEnd];
+
+		if (
+			maxConsecutiveForkDays >= CONFIG.CONSECUTIVE_FORK_DAYS &&
+			streakStartDay !== undefined &&
+			streakEndDay !== undefined
+		) {
 			const streakEvents = forkEvents.filter((e) => {
 				const day = toTime(localDay(e.at, tzOffsetHours));
 
@@ -285,9 +296,9 @@ export function detectForkActivity(
 
 	if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH && !forkSpikeFlag) {
 		let spanDaysValue = 0;
-		if (forkTimestamps.length > 1) {
-			const earliestFork = forkTimestamps[0];
-			const latestFork = forkTimestamps[forkTimestamps.length - 1];
+		const earliestFork = forkTimestamps[0];
+		const latestFork = forkTimestamps[forkTimestamps.length - 1];
+		if (earliestFork !== undefined && latestFork !== undefined) {
 			spanDaysValue = Math.trunc(daysBetween(earliestFork, latestFork));
 		}
 

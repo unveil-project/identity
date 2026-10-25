@@ -45,15 +45,16 @@ export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 			windowEndIdx++
 		) {
 			const windowEnd = commentTimestamps[windowEndIdx]?.time;
+			let windowStart = commentTimestamps[windowStartIdx]?.time;
 
 			// Slide window start forward until within the time window
 			while (
-				commentTimestamps[windowStartIdx] &&
+				windowStart !== undefined &&
 				windowEnd &&
-				minutesBetween(commentTimestamps[windowStartIdx].time, windowEnd) >
-					windowMinutes
+				minutesBetween(windowStart, windowEnd) > windowMinutes
 			) {
 				windowStartIdx++;
+				windowStart = commentTimestamps[windowStartIdx]?.time;
 			}
 
 			// Count distinct repos in this time window
@@ -71,50 +72,51 @@ export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 		}
 
 		// Flag if comments are being sprayed across many repos
-		if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_EXTREME) {
-			const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
-			const windowEnd = commentTimestamps[maxReposWindowEndIdx]?.time;
-			const commentsInWindow =
-				maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
-			const windowMinutes = minutesBetween(windowStart, windowEnd);
-			const windowEvents = commentTimestamps
-				.slice(maxReposWindowStartIdx, maxReposWindowEndIdx + 1)
-				.map((item) => item.event);
+		const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
+		const windowEnd = commentTimestamps[maxReposWindowEndIdx]?.time;
 
-			flags.push({
-				id: "issue-comment-spray-extreme",
-				points: rampPoints(maxDistinctReposInWindow, ISSUE_COMMENT_RAMP),
-				group: "comment-volume",
-				amplifiable: true,
-				facts: {
-					comments: commentsInWindow,
-					repos: maxDistinctReposInWindow,
-					windowMinutes,
-				},
-				events: windowEvents,
-			});
-		} else if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_HIGH) {
-			const windowStart = commentTimestamps[maxReposWindowStartIdx]?.time;
-			const windowEnd = commentTimestamps[maxReposWindowEndIdx]?.time;
-			const commentsInWindow =
-				maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
-			const windowMinutes = minutesBetween(windowStart, windowEnd);
-			const windowEvents = commentTimestamps
-				.slice(maxReposWindowStartIdx, maxReposWindowEndIdx + 1)
-				.map((item) => item.event);
+		if (windowStart !== undefined && windowEnd !== undefined) {
+			if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_EXTREME) {
+				const commentsInWindow =
+					maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
+				const windowMinutes = minutesBetween(windowStart, windowEnd);
+				const windowEvents = commentTimestamps
+					.slice(maxReposWindowStartIdx, maxReposWindowEndIdx + 1)
+					.map((item) => item.event);
 
-			flags.push({
-				id: "issue-comment-spray-high",
-				points: rampPoints(maxDistinctReposInWindow, ISSUE_COMMENT_RAMP),
-				group: "comment-volume",
-				amplifiable: true,
-				facts: {
-					comments: commentsInWindow,
-					repos: maxDistinctReposInWindow,
-					windowMinutes,
-				},
-				events: windowEvents,
-			});
+				flags.push({
+					id: "issue-comment-spray-extreme",
+					points: rampPoints(maxDistinctReposInWindow, ISSUE_COMMENT_RAMP),
+					group: "comment-volume",
+					amplifiable: true,
+					facts: {
+						comments: commentsInWindow,
+						repos: maxDistinctReposInWindow,
+						windowMinutes,
+					},
+					events: windowEvents,
+				});
+			} else if (maxDistinctReposInWindow >= CONFIG.ISSUE_COMMENT_SPRAY_HIGH) {
+				const commentsInWindow =
+					maxReposWindowEndIdx - maxReposWindowStartIdx + 1;
+				const windowMinutes = minutesBetween(windowStart, windowEnd);
+				const windowEvents = commentTimestamps
+					.slice(maxReposWindowStartIdx, maxReposWindowEndIdx + 1)
+					.map((item) => item.event);
+
+				flags.push({
+					id: "issue-comment-spray-high",
+					points: rampPoints(maxDistinctReposInWindow, ISSUE_COMMENT_RAMP),
+					group: "comment-volume",
+					amplifiable: true,
+					facts: {
+						comments: commentsInWindow,
+						repos: maxDistinctReposInWindow,
+						windowMinutes,
+					},
+					events: windowEvents,
+				});
+			}
 		}
 	}
 
@@ -140,15 +142,16 @@ export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 			windowEndIdx++
 		) {
 			const windowEnd = prCommentTimestamps[windowEndIdx]?.time;
+			let windowStart = prCommentTimestamps[windowStartIdx]?.time;
 
 			// Slide window start forward until within the time window
 			while (
-				prCommentTimestamps[windowStartIdx] &&
+				windowStart !== undefined &&
 				windowEnd &&
-				minutesBetween(prCommentTimestamps[windowStartIdx].time, windowEnd) >
-					windowMinutes
+				minutesBetween(windowStart, windowEnd) > windowMinutes
 			) {
 				windowStartIdx++;
+				windowStart = prCommentTimestamps[windowStartIdx]?.time;
 			}
 
 			// Count distinct PRs (identified by repo + pull request number combination)
@@ -176,48 +179,49 @@ export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 		}
 
 		// Flag if comments are being sprayed across many PRs
-		if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_EXTREME) {
-			const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
-			const windowEnd = prCommentTimestamps[maxPRsWindowEndIdx]?.time;
-			const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
-			const windowMinutes = minutesBetween(windowStart, windowEnd);
-			const windowEvents = prCommentTimestamps
-				.slice(maxPRsWindowStartIdx, maxPRsWindowEndIdx + 1)
-				.map((item) => item.event);
+		const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
+		const windowEnd = prCommentTimestamps[maxPRsWindowEndIdx]?.time;
 
-			flags.push({
-				id: "pr-comment-spray-extreme",
-				points: rampPoints(maxDistinctPRsInWindow, PR_COMMENT_RAMP),
-				group: "pr-comment-volume",
-				amplifiable: true,
-				facts: {
-					comments: commentsInWindow,
-					prs: maxDistinctPRsInWindow,
-					windowMinutes,
-				},
-				events: windowEvents,
-			});
-		} else if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_HIGH) {
-			const windowStart = prCommentTimestamps[maxPRsWindowStartIdx]?.time;
-			const windowEnd = prCommentTimestamps[maxPRsWindowEndIdx]?.time;
-			const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
-			const windowMinutes = minutesBetween(windowStart, windowEnd);
-			const windowEvents = prCommentTimestamps
-				.slice(maxPRsWindowStartIdx, maxPRsWindowEndIdx + 1)
-				.map((item) => item.event);
+		if (windowStart !== undefined && windowEnd !== undefined) {
+			if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_EXTREME) {
+				const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
+				const windowMinutes = minutesBetween(windowStart, windowEnd);
+				const windowEvents = prCommentTimestamps
+					.slice(maxPRsWindowStartIdx, maxPRsWindowEndIdx + 1)
+					.map((item) => item.event);
 
-			flags.push({
-				id: "pr-comment-spray-high",
-				points: rampPoints(maxDistinctPRsInWindow, PR_COMMENT_RAMP),
-				group: "pr-comment-volume",
-				amplifiable: true,
-				facts: {
-					comments: commentsInWindow,
-					prs: maxDistinctPRsInWindow,
-					windowMinutes,
-				},
-				events: windowEvents,
-			});
+				flags.push({
+					id: "pr-comment-spray-extreme",
+					points: rampPoints(maxDistinctPRsInWindow, PR_COMMENT_RAMP),
+					group: "pr-comment-volume",
+					amplifiable: true,
+					facts: {
+						comments: commentsInWindow,
+						prs: maxDistinctPRsInWindow,
+						windowMinutes,
+					},
+					events: windowEvents,
+				});
+			} else if (maxDistinctPRsInWindow >= CONFIG.PR_COMMENT_SPRAY_HIGH) {
+				const commentsInWindow = maxPRsWindowEndIdx - maxPRsWindowStartIdx + 1;
+				const windowMinutes = minutesBetween(windowStart, windowEnd);
+				const windowEvents = prCommentTimestamps
+					.slice(maxPRsWindowStartIdx, maxPRsWindowEndIdx + 1)
+					.map((item) => item.event);
+
+				flags.push({
+					id: "pr-comment-spray-high",
+					points: rampPoints(maxDistinctPRsInWindow, PR_COMMENT_RAMP),
+					group: "pr-comment-volume",
+					amplifiable: true,
+					facts: {
+						comments: commentsInWindow,
+						prs: maxDistinctPRsInWindow,
+						windowMinutes,
+					},
+					events: windowEvents,
+				});
+			}
 		}
 	}
 

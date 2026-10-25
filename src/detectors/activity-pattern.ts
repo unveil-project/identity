@@ -47,8 +47,10 @@ export function detectInhumanActivityPattern(
 		const windowEnd = addHours(windowStart, 24);
 
 		let end = start;
-		while (end < timeline.length && timeline[end] < windowEnd) {
+		let endTime = timeline[end];
+		while (endTime !== undefined && endTime < windowEnd) {
 			end++;
+			endTime = timeline[end];
 		}
 
 		const eventCount = end - start;

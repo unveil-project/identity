@@ -32,14 +32,15 @@ export function detectWatchActivity(events: IdentifyEvent[]): IdentifyFlag[] {
 		windowEndIdx++
 	) {
 		const windowEnd = watchTimestamps[windowEndIdx]?.time;
+		let windowStart = watchTimestamps[windowStartIdx]?.time;
 
 		while (
-			watchTimestamps[windowStartIdx] &&
+			windowStart !== undefined &&
 			windowEnd &&
-			hoursBetween(watchTimestamps[windowStartIdx].time, windowEnd) >
-				CONFIG.WATCH_SPAM_WINDOW_HOURS
+			hoursBetween(windowStart, windowEnd) > CONFIG.WATCH_SPAM_WINDOW_HOURS
 		) {
 			windowStartIdx++;
+			windowStart = watchTimestamps[windowStartIdx]?.time;
 		}
 
 		const reposInWindow = new Set(
@@ -61,6 +62,11 @@ export function detectWatchActivity(events: IdentifyEvent[]): IdentifyFlag[] {
 
 	const windowStart = watchTimestamps[maxWindowStartIdx]?.time;
 	const windowEnd = watchTimestamps[maxWindowEndIdx]?.time;
+
+	if (windowStart === undefined || windowEnd === undefined) {
+		return flags;
+	}
+
 	const windowMinutes = minutesBetween(windowStart, windowEnd);
 
 	const windowEvents = watchTimestamps

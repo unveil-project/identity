@@ -132,11 +132,14 @@ export function densestWindow<T>(
 			continue;
 		}
 
+		let startTime = sorted[start]?.time;
+
 		while (
-			sorted[start] &&
-			hoursBetween(sorted[start].time, endTime) > windowHours
+			startTime !== undefined &&
+			hoursBetween(startTime, endTime) > windowHours
 		) {
 			start++;
+			startTime = sorted[start]?.time;
 		}
 
 		const count = end - start + 1;

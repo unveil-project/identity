@@ -17,7 +17,7 @@ if (!GITHUB_TOKEN) {
 	if (fs.existsSync(envPath)) {
 		const envContent = fs.readFileSync(envPath, "utf-8");
 		const match = envContent.match(/GITHUB_TOKEN\s*=\s*"?([^"\n%]+)"?/);
-		if (match) {
+		if (match?.[1]) {
 			GITHUB_TOKEN = match[1].trim();
 		}
 	}
