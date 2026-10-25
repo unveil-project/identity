@@ -316,7 +316,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		maxGapSeconds,
 	}) => ({
 		label: "Rapid branch→PR pattern",
-		detail: `${pairs}/${branches} branch creations followed by PRs within ${maxGapSeconds}s, counting only the account's own repositories`,
+		detail: `${pairs} branches in the account's own repositories followed by PRs within ${maxGapSeconds}s, out of ${branches} branches created in total`,
 		data: [
 			{ label: "Matched branch→PR pairs", value: pairs, threshold: minPairs },
 			{ label: "Total branches", value: branches },
@@ -342,7 +342,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		maxGapSeconds,
 	}) => ({
 		label: "Rapid fork→PR pattern",
-		detail: `${pairs}/${branches} fork branches followed by upstream PRs within ${maxGapSeconds}s`,
+		detail: `${pairs} fork branches followed by upstream PRs within ${maxGapSeconds}s, out of ${branches} branches created in total`,
 		data: [
 			{
 				label: "Matched fork branch→PR pairs",
