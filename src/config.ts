@@ -152,6 +152,8 @@ export const CONFIG = {
 	AGE_ESTABLISHED_ACCOUNT: 1000, // accounts older than this (days) can get softer checks
 
 	// Event type diversity (bots have narrow activity)
+	DIVERSITY_MAX_EVENT_TYPES: 3, // <= this many kinds of event...
+	DIVERSITY_MAX_ENTROPY: 0.8, // ...spread less evenly than this = narrow focus
 	POINTS_LOW_DIVERSITY: 20,
 
 	// Issue comment spam (multiple comments to different repos in short timeframe)

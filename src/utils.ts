@@ -94,31 +94,16 @@ export function rampPoints(
 	return last[1];
 }
 
-/**
- * Describe how long a burst lasted, in words.
- *
- * Uses minutes for short bursts so we never report "0 hours" for something
- * like twenty stars in forty minutes.
- */
-export function formatWindowDuration(
+/** How long a burst lasted, in minutes. 0 when either end is missing. */
+export function minutesBetween(
 	start: dayjs.Dayjs | undefined,
 	end: dayjs.Dayjs | undefined,
-): string {
-	const minutes = start && end ? end.diff(start, "minute", true) : 0;
-
-	if (minutes < 1) {
-		return "under a minute";
+): number {
+	if (!start || !end) {
+		return 0;
 	}
 
-	if (minutes < 90) {
-		const rounded = Math.round(minutes);
-
-		return `${rounded} minute${rounded === 1 ? "" : "s"}`;
-	}
-
-	const hours = Math.round(minutes / 60);
-
-	return `${hours} hour${hours === 1 ? "" : "s"}`;
+	return end.diff(start, "minute", true);
 }
 
 export type DensestWindow<T> = {

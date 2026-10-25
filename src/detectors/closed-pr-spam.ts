@@ -53,10 +53,6 @@ export function detectClosedPRSpam(
 	const timeSpanMinutes = latestClosed.diff(earliestClosed, "minute");
 	const timeSpanDays = latestClosed.diff(earliestClosed, "day");
 	const fractionalDays = latestClosed.diff(earliestClosed, "day", true);
-	const timeRangeStr =
-		timeSpanDays > 0
-			? `${timeSpanDays}d`
-			: `${Math.max(1, Math.ceil(timeSpanMinutes / 60))}h`;
 
 	// Find days with a lot of closed PRs. Days use the account's own local time.
 	const prsByDay = new Map<string, number>();
@@ -75,19 +71,6 @@ export function detectClosedPRSpam(
 		.sort((a, b) => b[1] - a[1])
 		.map(([_, count]) => count);
 
-	// Format burst details for human-readable output
-	let burstStr = "";
-	if (burstDays.length > 0) {
-		if (burstDays.length === 1) {
-			burstStr = `, with a spike of ${burstDays[0]} closures on one day`;
-		} else {
-			const burstList =
-				burstDays.slice(0, -1).join(", ") +
-				` and ${burstDays[burstDays.length - 1]}`;
-			burstStr = `, with spike days of ${burstList} closures each`;
-		}
-	}
-
 	const points = rampPoints(closedPREvents.length, CLOSED_PR_RAMP);
 
 	// Pattern 1: Spray scatter - closed PRs across many repos at significant density
@@ -99,25 +82,19 @@ export function detectClosedPRSpam(
 
 	if (closedPRRepos.size >= CONFIG.CLOSED_PR_REPO_SPREAD && highDensity) {
 		flags.push({
-			label: "Closed PRs across many repositories",
+			id: "closed-pr-spray",
 			points,
 			group: "pr-outcome",
 			amplifiable: true,
-			detail: `${closedPREvents.length} PRs were closed across ${closedPRRepos.size} repositories in ${timeRangeStr}${burstStr}.`,
-			data: [
-				{
-					label: "Closed PRs",
-					value: closedPREvents.length,
-					threshold: minClosedPRs,
-				},
-				{
-					label: "Distinct repos",
-					value: closedPRRepos.size,
-					threshold: CONFIG.CLOSED_PR_REPO_SPREAD,
-				},
-				{ label: "Time span", value: timeRangeStr },
-				{ label: "Density (PRs/day)", value: parseFloat(prDensity.toFixed(1)) },
-			],
+			facts: {
+				closed: closedPREvents.length,
+				minClosed: minClosedPRs,
+				repos: closedPRRepos.size,
+				spanDays: timeSpanDays,
+				spanMinutes: timeSpanMinutes,
+				spikeDays: burstDays,
+				perDay: prDensity,
+			},
 			events: closedPREvents,
 		});
 
@@ -135,24 +112,16 @@ export function detectClosedPRSpam(
 					: points;
 
 			flags.push({
-				label: "Concentrated PR closures",
+				id: "closed-pr-burst",
 				points: burstPoints,
 				group: "pr-outcome",
 				amplifiable: true,
-				detail: `${closedPREvents.length} PRs closed across ${closedPRRepos.size} repos in ${timeSpanMinutes}m (concentrated closing activity)`,
-				data: [
-					{
-						label: "Closed PRs",
-						value: closedPREvents.length,
-						threshold: minClosedPRs,
-					},
-					{ label: "Distinct repos", value: closedPRRepos.size },
-					{
-						label: "Time span (min)",
-						value: timeSpanMinutes,
-						threshold: CONFIG.CLOSED_PR_TIME_WINDOW_MINUTES,
-					},
-				],
+				facts: {
+					closed: closedPREvents.length,
+					minClosed: minClosedPRs,
+					repos: closedPRRepos.size,
+					spanMinutes: timeSpanMinutes,
+				},
 				events: closedPREvents,
 			});
 		}

@@ -1,4 +1,4 @@
-import type { IdentityClassification } from "./types";
+import type { IdentityClassification } from "../types";
 
 export function getClassificationDetails(
 	classification: IdentityClassification | undefined,

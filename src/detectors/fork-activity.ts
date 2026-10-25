@@ -92,19 +92,11 @@ export function detectForkActivity(
 			.map((e) => e.event);
 
 		forkSpikeCandidates.push({
-			label: "Extreme fork automation",
+			id: "fork-extreme",
 			points: forks24hPoints,
 			group: "fork",
 			amplifiable: true,
-			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
-			data: [
-				{
-					label: "Forks in 24h window",
-					value: maxForksIn24h,
-					threshold: CONFIG.FORKS_SURGE_EXTREME_HIGH,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn24h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE) {
@@ -113,19 +105,11 @@ export function detectForkActivity(
 			.map((e) => e.event);
 
 		forkSpikeCandidates.push({
-			label: "Severe fork surge",
+			id: "fork-severe",
 			points: forks24hPoints,
 			group: "fork",
 			amplifiable: true,
-			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
-			data: [
-				{
-					label: "Forks in 24h window",
-					value: maxForksIn24h,
-					threshold: CONFIG.FORKS_SURGE_SEVERE,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn24h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_EXTREME) {
@@ -134,19 +118,11 @@ export function detectForkActivity(
 			.map((e) => e.event);
 
 		forkSpikeCandidates.push({
-			label: "Fork spike detected",
+			id: "fork-spike",
 			points: forks24hPoints,
 			group: "fork",
 			amplifiable: true,
-			detail: `Burst of ${maxForksIn24h} fork events in a single 24-hour window`,
-			data: [
-				{
-					label: "Forks in 24h window",
-					value: maxForksIn24h,
-					threshold: CONFIG.FORKS_EXTREME,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn24h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_HIGH) {
@@ -155,19 +131,11 @@ export function detectForkActivity(
 			.map((e) => e.event);
 
 		forkSpikeCandidates.push({
-			label: "Multiple forks",
+			id: "fork-multiple",
 			points: forks24hPoints,
 			group: "fork",
 			amplifiable: true,
-			detail: `${maxForksIn24h} repositories forked in a single 24-hour window`,
-			data: [
-				{
-					label: "Forks in 24h window",
-					value: maxForksIn24h,
-					threshold: CONFIG.FORKS_HIGH,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn24h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	}
@@ -179,19 +147,11 @@ export function detectForkActivity(
 			.map((e) => e.event);
 
 		forkSpikeCandidates.push({
-			label: "Multi-day fork surge",
+			id: "fork-surge-48h",
 			points: CONFIG.POINTS_FORK_SURGE_48H,
 			group: "fork",
 			amplifiable: true,
-			detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
-			data: [
-				{
-					label: "Forks in 48h window",
-					value: maxForksIn48h,
-					threshold: CONFIG.FORKS_SURGE_48H,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn48h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	}
@@ -203,19 +163,11 @@ export function detectForkActivity(
 			.map((e) => e.event);
 
 		forkSpikeCandidates.push({
-			label: "Severe multi-day fork surge",
+			id: "fork-surge-72h",
 			points: CONFIG.POINTS_FORK_SURGE_72H,
 			group: "fork",
 			amplifiable: true,
-			detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
-			data: [
-				{
-					label: "Forks in 72h window",
-					value: maxForksIn72h,
-					threshold: CONFIG.FORKS_SURGE_72H,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn72h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	}
@@ -244,20 +196,15 @@ export function detectForkActivity(
 			// Only flag as "sustained" if activity spans 3+ days (not single-day bursts)
 			if (forksPerDay >= CONFIG.FORKS_PER_DAY_HIGH && forkSpanDays >= 3) {
 				flags.push({
-					label: "Sustained fork rate",
+					id: "fork-rate",
 					points: CONFIG.POINTS_FORKS_PER_DAY_HIGH,
 					group: "fork",
 					amplifiable: true,
-					detail: `Average of ${forksPerDay.toFixed(1)} forks per day over ${forkSpanDays} days (${forkEvents.length} total)`,
-					data: [
-						{
-							label: "Forks per day",
-							value: parseFloat(forksPerDay.toFixed(1)),
-							threshold: CONFIG.FORKS_PER_DAY_HIGH,
-						},
-						{ label: "Activity span (days)", value: forkSpanDays },
-						{ label: "Total forks", value: forkEvents.length },
-					],
+					facts: {
+						perDay: forksPerDay,
+						spanDays: forkSpanDays,
+						totalForks: forkEvents.length,
+					},
 					events: forkEvents,
 				});
 			}
@@ -330,20 +277,15 @@ export function detectForkActivity(
 			const totalDays = forkDays.size;
 
 			flags.push({
-				label: "Extended forking pattern",
+				id: "fork-streak",
 				points: CONFIG.POINTS_CONSECUTIVE_FORK_DAYS,
 				group: "fork",
 				amplifiable: true,
-				detail: `Forking activity on ${totalDays} days (${maxConsecutiveForkDays} consecutive), ${forkEvents.length} repositories total`,
-				data: [
-					{
-						label: "Consecutive fork days",
-						value: maxConsecutiveForkDays,
-						threshold: CONFIG.CONSECUTIVE_FORK_DAYS,
-					},
-					{ label: "Total active days", value: totalDays },
-					{ label: "Total forks", value: forkEvents.length },
-				],
+				facts: {
+					streakDays: maxConsecutiveForkDays,
+					activeDays: totalDays,
+					totalForks: forkEvents.length,
+				},
 				events: streakEvents,
 			});
 		}
@@ -354,33 +296,23 @@ export function detectForkActivity(
 	const forkedRepos = new Set<string>(forkEvents.map((e) => e.repo));
 
 	if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH && !forkSpikeFlag) {
-		let timeSpanDetail = "";
 		let spanDaysValue = 0;
 		if (forkTimestamps.length > 1) {
 			const earliestFork = forkTimestamps[0];
 			const latestFork = forkTimestamps[forkTimestamps.length - 1];
 			spanDaysValue = latestFork.diff(earliestFork, "day");
-			timeSpanDetail =
-				spanDaysValue > 0
-					? ` over ${spanDaysValue} days`
-					: " in a short timeframe";
 		}
 
 		flags.push({
-			label: "Fork scatter pattern",
+			id: "fork-scatter",
 			points: CONFIG.POINTS_FORK_DIVERSITY,
 			group: "fork",
 			amplifiable: true,
-			detail: `Forks spread across ${forkedRepos.size} different repositories${timeSpanDetail}`,
-			data: [
-				{
-					label: "Distinct repos forked",
-					value: forkedRepos.size,
-					threshold: CONFIG.FORK_REPO_DIVERSITY_HIGH,
-				},
-				{ label: "Total forks", value: forkEvents.length },
-				{ label: "Activity span (days)", value: spanDaysValue },
-			],
+			facts: {
+				repos: forkedRepos.size,
+				totalForks: forkEvents.length,
+				spanDays: spanDaysValue,
+			},
 			events: forkEvents,
 		});
 	}
@@ -447,26 +379,16 @@ export function detectForkCombinedActivity(
 			prsInForkedRepos.length <= branchesInForkedRepos.length * 2.0;
 
 		if (isChainingEvident) {
-			const totalOps =
-				forkEvents.length +
-				branchesInForkedRepos.length +
-				prsInForkedRepos.length;
-
 			flags.push({
-				label: "Chained automation pattern",
+				id: "fork-chain",
 				points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
 				group: "fork",
 				amplifiable: true,
-				detail: `${totalOps} steps in the same order every time: ${forkEvents.length} forks, then ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests`,
-				data: [
-					{ label: "Fork events", value: forkEvents.length },
-					{
-						label: "Branch creates in forked repos",
-						value: branchesInForkedRepos.length,
-					},
-					{ label: "PRs from forked repos", value: prsInForkedRepos.length },
-					{ label: "Total chained operations", value: totalOps },
-				],
+				facts: {
+					forks: forkEvents.length,
+					branches: branchesInForkedRepos.length,
+					prs: prsInForkedRepos.length,
+				},
 				events: [...forkEvents, ...branchesInForkedRepos, ...prsInForkedRepos],
 			});
 		}

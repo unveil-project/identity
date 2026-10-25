@@ -124,28 +124,17 @@ export function detectInhumanActivityPattern(
 		)
 		.map((entry) => entry.event);
 
-	const restLabel = worst.restGap.toFixed(1);
-
 	flags.push({
-		label: "24/7 activity pattern",
+		id: "always-active",
 		points,
 		group: "timing",
 		amplifiable: true,
-		detail: `Active in ${worst.hoursActive} of 24 hours, with the longest break being only ${restLabel} hours`,
-		data: [
-			{ label: "Window start", value: windowStart.toISOString() },
-			{
-				label: "Hours active",
-				value: worst.hoursActive,
-				threshold: CONFIG.HOURS_ACTIVE_EXTREME,
-			},
-			{
-				label: "Longest rest (hours)",
-				value: parseFloat(restLabel),
-				threshold: CONFIG.REST_GAP_MIN_HOURS,
-			},
-			{ label: "Events in window", value: worst.eventCount },
-		],
+		facts: {
+			windowStart: windowStart.toISOString(),
+			hoursActive: worst.hoursActive,
+			longestRestHours: worst.restGap,
+			events: worst.eventCount,
+		},
 		events: windowEvents,
 	});
 

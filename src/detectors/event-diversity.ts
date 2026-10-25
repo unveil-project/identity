@@ -36,25 +36,17 @@ export function detectNarrowActivityFocus(
 	const hasWatches = eventTypes.has("star");
 
 	// Automation indicator: very narrow type profile (few types + low variety) + no interpersonal interactions
-	const narrowTypeProfile = eventTypes.size <= 3 && eventTypeEntropy < 0.8;
+	const narrowTypeProfile =
+		eventTypes.size <= CONFIG.DIVERSITY_MAX_EVENT_TYPES &&
+		eventTypeEntropy < CONFIG.DIVERSITY_MAX_ENTROPY;
 
 	if (narrowTypeProfile && !hasInteraction && !hasWatches) {
 		flags.push({
-			label: "Narrow activity focus",
+			id: "narrow-activity",
 			points: CONFIG.POINTS_LOW_DIVERSITY,
 			group: "diversity",
 			amplifiable: true,
-			detail: `Only ${eventTypes.size} kinds of activity, and none of it involves other people`,
-			data: [
-				{ label: "Distinct event types", value: eventTypes.size, threshold: 3 },
-				{
-					label: "Activity entropy",
-					value: parseFloat(eventTypeEntropy.toFixed(2)),
-					threshold: 0.8,
-				},
-				{ label: "Has social interactions", value: false },
-				{ label: "Has watch activity", value: false },
-			],
+			facts: { eventTypes: eventTypes.size, entropy: eventTypeEntropy },
 			events,
 		});
 	}

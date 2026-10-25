@@ -58,6 +58,49 @@ console.log(analysis);
 // }
 ```
 
+### Flags and their text
+
+Each flag has an `id`, its `points`, its `group`, the `events` behind it, and
+`facts`: the numbers the check measured. There is no text in it, so the main
+bundle stays small:
+
+```js
+// {
+//   id: "fork-spike",
+//   points: 51,
+//   group: "fork",
+//   facts: { forks: 12, totalForks: 14 },
+//   events: [...],
+// }
+```
+
+To show flags to people, add the text with `explain`. It comes from its own
+entry, so the text is only in your bundle when you import it:
+
+```js
+import { identify } from "@unveil/identity";
+import { explain, getClassificationDetails } from "@unveil/identity/explain";
+
+const analysis = explain(identify(fromGitHub({ user, events })));
+
+analysis.flags[0];
+// {
+//   ...the same flag,
+//   label: "Fork spike detected",
+//   detail: "Burst of 12 fork events in a single 24-hour window",
+//   data: [
+//     { label: "Forks in 24h window", value: 12, threshold: 8 },
+//     { label: "Total forks observed", value: 14 },
+//   ],
+// }
+
+getClassificationDetails(analysis.classification);
+// { label: "Organic activity", description: "No automation signals detected in the analyzed events." }
+```
+
+`explainFlag(flag)` does the same for a single flag. The `FlagFacts` type lists
+the facts of every flag id.
+
 ### Input
 
 `identify` does not depend on any platform. It takes an `account` and a list of

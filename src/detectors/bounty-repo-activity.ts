@@ -109,33 +109,19 @@ export function detectBountyRepoPRs(events: IdentifyEvent[]): IdentifyFlag[] {
 			isBountyRepo(e.repo),
 	);
 
-	const ratio = bountyPRs.length / openedPRs.length;
-	const pct = Math.round(ratio * 100);
-
-	const detail =
-		mergedBountyPRs.length + closedBountyPRs.length > 0
-			? `${bountyPRs.length} of ${openedPRs.length} opened PRs (${pct}%) target known bounty program repositories; ${mergedBountyPRs.length} merged, ${closedBountyPRs.length} closed without merge`
-			: `${bountyPRs.length} of ${openedPRs.length} opened PRs (${pct}%) target known bounty program repositories`;
-
-	const label =
-		signal === "high"
-			? "PRs predominantly targeting known bounty program repositories"
-			: "PR activity in known bounty program repositories";
-
 	return [
 		{
-			label,
+			id: signal === "high" ? "bounty-prs-high" : "bounty-prs-low",
 			points: 0,
 			group: "bounty",
 			amplifiable: false,
-			detail,
-			data: [
-				{ label: "PRs to bounty repos", value: bountyPRs.length },
-				{ label: "Total PRs opened", value: openedPRs.length },
-				{ label: "Bounty PR ratio", value: `${pct}%` },
-				{ label: "Merged", value: mergedBountyPRs.length },
-				{ label: "Closed without merge", value: closedBountyPRs.length },
-			],
+			facts: {
+				bountyPRs: bountyPRs.length,
+				openedPRs: openedPRs.length,
+				ratio: bountyPRs.length / openedPRs.length,
+				merged: mergedBountyPRs.length,
+				closed: closedBountyPRs.length,
+			},
 			events: [...bountyPRs, ...mergedBountyPRs, ...closedBountyPRs],
 		},
 	];

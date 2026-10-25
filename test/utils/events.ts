@@ -5,6 +5,7 @@ import {
 	type GitHubInput,
 	type GitHubUser,
 } from "../../src/providers/github";
+import { explain } from "../../src/explain";
 import { identify } from "../../src/identify";
 import type { IdentifyEvent, IdentifyFlag } from "../../src/types";
 
@@ -41,19 +42,18 @@ export function toEvents(
 	return events.map((e) => fromGitHubEvent(e, login));
 }
 
-/** Run `identify` on GitHub test data, the way a GitHub caller would. */
+/**
+ * Run `identify` on GitHub test data, the way a GitHub caller would, with the
+ * flags explained so tests can read their labels and details.
+ */
 export function identifyGitHub({
 	excludeRepos,
 	...input
 }: GitHubInput & { excludeRepos?: string[] }) {
-	return identify({ ...fromGitHub(input), excludeRepos });
+	return explain(identify({ ...fromGitHub(input), excludeRepos }));
 }
 
 /** Build a minimal flag, for testing the scorer on its own. */
-export function flag(
-	group: IdentifyFlag["group"],
-	points: number,
-	label = `${group}-${points}`,
-): IdentifyFlag {
-	return { label, points, group, detail: "", data: [], events: [] };
+export function flag(group: IdentifyFlag["group"], points: number): IdentifyFlag {
+	return { id: "new-account", points, group, facts: { ageDays: 0 }, events: [] };
 }

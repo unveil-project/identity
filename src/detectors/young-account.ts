@@ -45,38 +45,28 @@ export function detectYoungAccountActivity(
 			if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_EXTREME / 2) {
 				// PRs are much rarer
 				flags.push({
-					label: "Very high PR volume",
+					id: "young-pr-volume-extreme",
 					points: CONFIG.POINTS_EXTREME_ACTIVITY_DENSITY + 10,
 					group: "pr-volume",
 					amplifiable: true,
-					detail: `${prEvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
-					data: [
-						{ label: "PRs opened", value: prEvents.length },
-						{ label: "Over (days)", value: eventSpanDays },
-						{
-							label: "PRs per day",
-							value: parseFloat(prsPerDay.toFixed(1)),
-							threshold: CONFIG.ACTIVITY_DENSITY_EXTREME / 2,
-						},
-					],
+					facts: {
+						prs: prEvents.length,
+						spanDays: eventSpanDays,
+						perDay: prsPerDay,
+					},
 					events: prEvents,
 				});
 			} else if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_HIGH / 2) {
 				flags.push({
-					label: "High PR volume",
+					id: "young-pr-volume-high",
 					points: CONFIG.POINTS_HIGH_ACTIVITY_DENSITY + 5,
 					group: "pr-volume",
 					amplifiable: true,
-					detail: `${prEvents.length} PRs in ${eventSpanDays} day${eventSpanDays === 1 ? "" : "s"}`,
-					data: [
-						{ label: "PRs opened", value: prEvents.length },
-						{ label: "Over (days)", value: eventSpanDays },
-						{
-							label: "PRs per day",
-							value: parseFloat(prsPerDay.toFixed(1)),
-							threshold: CONFIG.ACTIVITY_DENSITY_HIGH / 2,
-						},
-					],
+					facts: {
+						prs: prEvents.length,
+						spanDays: eventSpanDays,
+						perDay: prsPerDay,
+					},
 					events: prEvents,
 				});
 			}
@@ -159,23 +149,14 @@ export function detectYoungAccountActivity(
 			);
 
 			flags.push({
-				label: "Extended daily coding",
+				id: "coding-streak",
 				points: CONFIG.POINTS_NONSTOP_ACTIVITY,
 				group: "timing",
 				amplifiable: true,
-				detail: `${maxConsecutive} days in a row with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding`,
-				data: [
-					{
-						label: "Consecutive inhuman days",
-						value: maxConsecutive,
-						threshold: CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME,
-					},
-					{ label: "Hours/day threshold", value: CONFIG.HOURS_PER_DAY_INHUMAN },
-					{
-						label: "Total uniform days",
-						value: daysWithUniformDistribution.length,
-					},
-				],
+				facts: {
+					streakDays: maxConsecutive,
+					uniformDays: daysWithUniformDistribution.length,
+				},
 				events: uniformDayEvents,
 			});
 		} else if (
@@ -188,19 +169,11 @@ export function detectYoungAccountActivity(
 			);
 
 			flags.push({
-				label: "Frequent long coding days",
+				id: "coding-marathons",
 				points: CONFIG.POINTS_FREQUENT_MARATHON,
 				group: "timing",
 				amplifiable: true,
-				detail: `${daysWithUniformDistribution.length} days with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding and uniform hourly distribution`,
-				data: [
-					{
-						label: "Uniform-distribution days",
-						value: daysWithUniformDistribution.length,
-						threshold: CONFIG.FREQUENT_MARATHON_DAYS,
-					},
-					{ label: "Hours/day threshold", value: CONFIG.HOURS_PER_DAY_INHUMAN },
-				],
+				facts: { uniformDays: daysWithUniformDistribution.length },
 				events: uniformDayEvents,
 			});
 		}
@@ -231,36 +204,26 @@ export function detectYoungAccountActivity(
 
 	if (externalRepos.size >= CONFIG.REPO_SPREAD_EXTREME) {
 		flags.push({
-			label: "Highly distributed activity",
+			id: "repo-spread-extreme",
 			points: CONFIG.POINTS_EXTREME_REPO_SPREAD_YOUNG,
 			group: "repo-spread",
 			amplifiable: true,
-			detail: `Activity spread across ${externalRepos.size} external repositories`,
-			data: [
-				{
-					label: "Distinct external repos",
-					value: externalRepos.size,
-					threshold: CONFIG.REPO_SPREAD_EXTREME,
-				},
-				{ label: "External events", value: externalEvents.length },
-			],
+			facts: {
+				repos: externalRepos.size,
+				externalEvents: externalEvents.length,
+			},
 			events: externalEvents,
 		});
 	} else if (externalRepos.size >= CONFIG.REPO_SPREAD_HIGH) {
 		flags.push({
-			label: "Distributed activity",
+			id: "repo-spread-high",
 			points: CONFIG.POINTS_WIDE_REPO_SPREAD_YOUNG,
 			group: "repo-spread",
 			amplifiable: true,
-			detail: `Activity spread across ${externalRepos.size} external repositories`,
-			data: [
-				{
-					label: "Distinct external repos",
-					value: externalRepos.size,
-					threshold: CONFIG.REPO_SPREAD_HIGH,
-				},
-				{ label: "External events", value: externalEvents.length },
-			],
+			facts: {
+				repos: externalRepos.size,
+				externalEvents: externalEvents.length,
+			},
 			events: externalEvents,
 		});
 	}
@@ -281,35 +244,21 @@ export function detectYoungAccountActivity(
 	// only flag extreme cases
 	if (prDayWindow.count >= CONFIG.PRS_TODAY_EXTREME) {
 		flags.push({
-			label: "High PR volume in a 24-hour window",
+			id: "external-pr-day",
 			points: CONFIG.POINTS_PR_BURST,
 			group: "pr-volume",
 			amplifiable: true,
-			detail: `${prDayWindow.count} PRs to other repos within a single 24-hour window`,
-			data: [
-				{
-					label: "PRs in densest 24h window",
-					value: prDayWindow.count,
-					threshold: CONFIG.PRS_TODAY_EXTREME,
-				},
-			],
+			facts: { prs: prDayWindow.count },
 			events: prDayWindow.items,
 		});
 	} else if (prWeekWindow.count >= CONFIG.PRS_WEEK_HIGH) {
 		// Many PRs in a week
 		flags.push({
-			label: "High PR volume in a 7-day window",
+			id: "external-pr-week",
 			points: CONFIG.POINTS_HIGH_PR_FREQUENCY,
 			group: "pr-volume",
 			amplifiable: true,
-			detail: `${prWeekWindow.count} PRs to other repos within a single 7-day window`,
-			data: [
-				{
-					label: "PRs in densest 7-day window",
-					value: prWeekWindow.count,
-					threshold: CONFIG.PRS_WEEK_HIGH,
-				},
-			],
+			facts: { prs: prWeekWindow.count },
 			events: prWeekWindow.items,
 		});
 	}
@@ -319,29 +268,12 @@ export function detectYoungAccountActivity(
 		externalPRs.length >= CONFIG.EXTERNAL_PRS_MIN &&
 		reposCount < CONFIG.PERSONAL_REPOS_LOW
 	) {
-		let detail = `${externalPRs.length} PRs to other repos, but only ${reposCount} of their own`;
-		if (reposCount === 0) {
-			detail = `${externalPRs.length} PRs to other repos, none of their own`;
-		}
-
 		flags.push({
-			label: "Primarily external contributions",
+			id: "external-contributor",
 			points: CONFIG.POINTS_PR_ONLY_CONTRIBUTOR,
 			group: "external-focus",
 			amplifiable: true,
-			detail,
-			data: [
-				{
-					label: "PRs to external repos",
-					value: externalPRs.length,
-					threshold: CONFIG.EXTERNAL_PRS_MIN,
-				},
-				{
-					label: "Own repos",
-					value: reposCount,
-					threshold: CONFIG.PERSONAL_REPOS_LOW,
-				},
-			],
+			facts: { externalPRs: externalPRs.length, ownRepos: reposCount },
 			events: externalPRs,
 		});
 	}
@@ -359,21 +291,16 @@ export function detectYoungAccountActivity(
 		reposCount < CONFIG.PERSONAL_REPOS_LOW
 	) {
 		flags.push({
-			label: "Mostly external activity",
+			id: "mostly-external",
 			points: CONFIG.POINTS_EXTERNAL_FOCUS,
 			group: "external-focus",
 			amplifiable: true,
-			detail: `${Math.round(foreignRatio * 100)}% of activity on other people's repos`,
-			data: [
-				{
-					label: "External activity ratio",
-					value: `${Math.round(foreignRatio * 100)}%`,
-					threshold: `${Math.round(CONFIG.FOREIGN_RATIO_HIGH * 100)}%`,
-				},
-				{ label: "External events", value: foreignEvents.length },
-				{ label: "Total events", value: events.length },
-				{ label: "Own repos", value: reposCount },
-			],
+			facts: {
+				ratio: foreignRatio,
+				externalEvents: foreignEvents.length,
+				totalEvents: events.length,
+				ownRepos: reposCount,
+			},
 			events: foreignEvents,
 		});
 	}
@@ -395,15 +322,11 @@ export function detectYoungAccountActivity(
 
 	if (!hasAnyEngagement && externalPRs.length >= 1) {
 		flags.push({
-			label: "Limited community engagement",
+			id: "limited-engagement",
 			points: CONFIG.POINTS_LIMITED_ENGAGEMENT,
 			group: "engagement",
 			amplifiable: true,
-			detail: `Pushes code to other people's repos, but never opens an issue, comments, reviews, or stars anything`,
-			data: [
-				{ label: "External PRs", value: externalPRs.length },
-				{ label: "Has engagement events", value: false },
-			],
+			facts: { externalPRs: externalPRs.length },
 			events: externalPRs,
 		});
 	}

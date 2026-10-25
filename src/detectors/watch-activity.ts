@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { CONFIG } from "../config";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
-import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils";
+import { minutesBetween, type RampAnchor, rampPoints } from "../utils";
 
 const WATCH_RAMP: readonly RampAnchor[] = [
 	[CONFIG.WATCH_SPAM_REPOS_HIGH, CONFIG.POINTS_WATCH_SPAM_HIGH],
@@ -61,7 +61,7 @@ export function detectWatchActivity(events: IdentifyEvent[]): IdentifyFlag[] {
 
 	const windowStart = watchTimestamps[maxWindowStartIdx]?.time;
 	const windowEnd = watchTimestamps[maxWindowEndIdx]?.time;
-	const spanLabel = formatWindowDuration(windowStart, windowEnd);
+	const windowMinutes = minutesBetween(windowStart, windowEnd);
 
 	const windowEvents = watchTimestamps
 		.slice(maxWindowStartIdx, maxWindowEndIdx + 1)
@@ -71,38 +71,28 @@ export function detectWatchActivity(events: IdentifyEvent[]): IdentifyFlag[] {
 
 	if (maxReposInWindow >= CONFIG.WATCH_SPAM_REPOS_EXTREME) {
 		flags.push({
-			label: "Very high starring rate",
+			id: "star-spray-extreme",
 			points: watchPoints,
 			group: "watch",
 			amplifiable: true,
-			detail: `${maxReposInWindow} repositories starred within ${spanLabel}`,
-			data: [
-				{
-					label: "Repos starred in window",
-					value: maxReposInWindow,
-					threshold: CONFIG.WATCH_SPAM_REPOS_EXTREME,
-				},
-				{ label: "Window duration", value: spanLabel },
-				{ label: "Total star events", value: watchEvents.length },
-			],
+			facts: {
+				repos: maxReposInWindow,
+				windowMinutes,
+				totalStars: watchEvents.length,
+			},
 			events: windowEvents,
 		});
 	} else {
 		flags.push({
-			label: "High starring rate",
+			id: "star-spray-high",
 			points: watchPoints,
 			group: "watch",
 			amplifiable: true,
-			detail: `${maxReposInWindow} repositories starred within ${spanLabel}`,
-			data: [
-				{
-					label: "Repos starred in window",
-					value: maxReposInWindow,
-					threshold: CONFIG.WATCH_SPAM_REPOS_HIGH,
-				},
-				{ label: "Window duration", value: spanLabel },
-				{ label: "Total star events", value: watchEvents.length },
-			],
+			facts: {
+				repos: maxReposInWindow,
+				windowMinutes,
+				totalStars: watchEvents.length,
+			},
 			events: windowEvents,
 		});
 	}

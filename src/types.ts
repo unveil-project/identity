@@ -45,12 +45,6 @@ export type IdentifyCommit = {
 	repo?: string;
 };
 
-export type FlagDataPoint = {
-	label: string;
-	value: number | string | boolean;
-	threshold?: number | string;
-};
-
 export type EventConnection<Source = unknown> = {
 	from: IdentifyEvent<Source>;
 	to: IdentifyEvent<Source>;
@@ -77,18 +71,192 @@ export type EvidenceGroup =
 	| "bounty"
 	| "ai-attribution";
 
-export type IdentifyFlag<Source = unknown> = {
-	label: string;
+type ForkWindowFacts = {
+	/** Forks in the busiest window. */
+	forks: number;
+	/** Every fork we saw. */
+	totalForks: number;
+};
+
+type PRWindowFacts = {
+	/** Opened PRs in the busiest window. */
+	prs: number;
+};
+
+type CommentSprayFacts = {
+	/** Comments in the busiest window. */
+	comments: number;
+	/** How long that window lasted. */
+	windowMinutes: number;
+};
+
+type BountyPRFacts = {
+	bountyPRs: number;
+	openedPRs: number;
+	/** Share of opened PRs that target bounty repos, from 0 to 1. */
+	ratio: number;
+	merged: number;
+	closed: number;
+};
+
+/**
+ * The numbers behind each flag, by flag id. They are what the check measured,
+ * without any text. `explain` from `@unveil/identity/explain` turns them into
+ * a label, a sentence and a list of metrics.
+ */
+export type FlagFacts = {
+	"new-account": { ageDays: number };
+	"young-account": { ageDays: number };
+	"dormant-reactivation": {
+		ageDays: number;
+		repos: number;
+		events: number;
+		spanDays: number;
+	};
+	"zero-repos-external": { externalEvents: number; totalEvents: number };
+	"repo-creation-extreme": { created: number; totalCreated: number };
+	"repo-creation-high": { created: number; totalCreated: number };
+	"always-active": {
+		windowStart: string;
+		hoursActive: number;
+		longestRestHours: number;
+		events: number;
+	};
+	"narrow-activity": { eventTypes: number; entropy: number };
+	"issue-comment-spray-extreme": CommentSprayFacts & { repos: number };
+	"issue-comment-spray-high": CommentSprayFacts & { repos: number };
+	"pr-comment-spray-extreme": CommentSprayFacts & { prs: number };
+	"pr-comment-spray-high": CommentSprayFacts & { prs: number };
+	"star-spray-extreme": {
+		repos: number;
+		windowMinutes: number;
+		totalStars: number;
+	};
+	"star-spray-high": {
+		repos: number;
+		windowMinutes: number;
+		totalStars: number;
+	};
+	"branch-pr-pattern": {
+		pairs: number;
+		/** Fewer pairs than this do not count. Higher for established accounts. */
+		minPairs: number;
+		branches: number;
+		ownBranches: number;
+		/** Matched pairs out of all branches, from 0 to 1. */
+		ratio: number;
+		minRatio: number;
+		maxGapSeconds: number;
+	};
+	"fork-pr-pattern": {
+		pairs: number;
+		minPairs: number;
+		branches: number;
+		ratio: number;
+		minRatio: number;
+		maxGapSeconds: number;
+	};
+	"rapid-prs": {
+		prs: number;
+		minPRs: number;
+		repo: string;
+		maxGapSeconds: number;
+	};
+	"closed-pr-spray": {
+		closed: number;
+		minClosed: number;
+		repos: number;
+		spanDays: number;
+		spanMinutes: number;
+		/** Closures on each busy day, biggest first. */
+		spikeDays: number[];
+		perDay: number;
+	};
+	"closed-pr-burst": {
+		closed: number;
+		minClosed: number;
+		repos: number;
+		spanMinutes: number;
+	};
+	"fork-extreme": ForkWindowFacts;
+	"fork-severe": ForkWindowFacts;
+	"fork-spike": ForkWindowFacts;
+	"fork-multiple": ForkWindowFacts;
+	"fork-surge-48h": ForkWindowFacts;
+	"fork-surge-72h": ForkWindowFacts;
+	"fork-rate": { perDay: number; spanDays: number; totalForks: number };
+	"fork-streak": { streakDays: number; activeDays: number; totalForks: number };
+	"fork-scatter": { repos: number; totalForks: number; spanDays: number };
+	"fork-chain": { forks: number; branches: number; prs: number };
+	"young-pr-volume-extreme": { prs: number; spanDays: number; perDay: number };
+	"young-pr-volume-high": { prs: number; spanDays: number; perDay: number };
+	"coding-streak": { streakDays: number; uniformDays: number };
+	"coding-marathons": { uniformDays: number };
+	"repo-spread-extreme": { repos: number; externalEvents: number };
+	"repo-spread-high": { repos: number; externalEvents: number };
+	"external-pr-day": PRWindowFacts;
+	"external-pr-week": PRWindowFacts;
+	"external-contributor": { externalPRs: number; ownRepos: number };
+	"mostly-external": {
+		/** Share of events on other people's repos, from 0 to 1. */
+		ratio: number;
+		externalEvents: number;
+		totalEvents: number;
+		ownRepos: number;
+	};
+	"limited-engagement": { externalPRs: number };
+	"push-burst": { pairs: number; pushes: number };
+	"pr-volume-day": PRWindowFacts;
+	"pr-volume-week-extreme": PRWindowFacts;
+	"pr-volume-week-high": PRWindowFacts;
+	"pr-distributed": {
+		prs: number;
+		repos: number;
+		/** 0 when every PR happened at the same moment. */
+		perWeek: number;
+		busiest30Days: number;
+	};
+	"comment-pr-fast": { repos: number; fastestSeconds: number };
+	"bounty-prs-high": BountyPRFacts;
+	"bounty-prs-low": BountyPRFacts;
+	"bounty-labels": { issues: number; repos: number };
+	"ai-branch-prefix": {
+		aiBranches: number;
+		branches: number;
+		ratio: number;
+		prefixes: string[];
+	};
+	"ai-commits": {
+		aiCommits: number;
+		commits: number;
+		ratio: number;
+		multiplier: number;
+		/** False when there were no automation flags for the multiplier to raise. */
+		amplified: boolean;
+	};
+};
+
+export type FlagId = keyof FlagFacts;
+
+type FlagBase<Source> = {
 	points: number;
 	/** Points after the AI and bounty multipliers. */
 	effectivePoints?: number;
 	group: EvidenceGroup;
-	detail: string;
-	data: FlagDataPoint[];
 	events: IdentifyEvent<Source>[];
 	connections?: EventConnection<Source>[];
 	amplifiable?: boolean;
 };
+
+/**
+ * One thing a check found. Narrow on `id` to read its `facts`:
+ *
+ * @example
+ * if (flag.id === "fork-spike") flag.facts.forks;
+ */
+export type IdentifyFlag<Source = unknown, Id extends FlagId = FlagId> = {
+	[K in Id]: FlagBase<Source> & { id: K; facts: FlagFacts[K] };
+}[Id];
 
 /**
  * How much one group took off the score. Flags of 30, 20 and 10 give

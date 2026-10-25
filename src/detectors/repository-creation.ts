@@ -63,36 +63,26 @@ export function detectRepositoryCreationBurst(
 
 		if (maxCreatesInWindow >= CONFIG.CREATE_BURST_EXTREME) {
 			flags.push({
-				label: "Concentrated repository creation",
+				id: "repo-creation-extreme",
 				points: burstPoints,
 				group: "repo-creation",
 				amplifiable: true,
-				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
-				data: [
-					{
-						label: "Repos created in 24h",
-						value: maxCreatesInWindow,
-						threshold: CONFIG.CREATE_BURST_EXTREME,
-					},
-					{ label: "Total repo creations", value: createEvents.length },
-				],
+				facts: {
+					created: maxCreatesInWindow,
+					totalCreated: createEvents.length,
+				},
 				events: burstEvents,
 			});
 		} else if (maxCreatesInWindow >= CONFIG.CREATE_BURST_HIGH) {
 			flags.push({
-				label: "Frequent repository creation",
+				id: "repo-creation-high",
 				points: burstPoints,
 				group: "repo-creation",
 				amplifiable: true,
-				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
-				data: [
-					{
-						label: "Repos created in 24h",
-						value: maxCreatesInWindow,
-						threshold: CONFIG.CREATE_BURST_HIGH,
-					},
-					{ label: "Total repo creations", value: createEvents.length },
-				],
+				facts: {
+					created: maxCreatesInWindow,
+					totalCreated: createEvents.length,
+				},
 				events: burstEvents,
 			});
 		}

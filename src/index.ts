@@ -1,4 +1,3 @@
-export { getClassificationDetails } from "./classification";
 export { calculateConfidence } from "./confidence";
 export { CONFIG as identityConfig } from "./config";
 export { identify } from "./identify";
@@ -7,7 +6,8 @@ export { estimateUtcOffset } from "./timezone";
 export type {
 	EventConnection,
 	EvidenceGroup,
-	FlagDataPoint,
+	FlagFacts,
+	FlagId,
 	IdentifyAccount,
 	IdentifyCommit,
 	IdentifyEvent,

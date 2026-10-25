@@ -150,26 +150,17 @@ export function identify<Source = unknown>({
 	const hasAmplifiable = flags.some((f) => f.amplifiable && f.points > 0);
 
 	if (aiMultiplier > 1) {
-		const { ratio, aiCommits, totalCommits } = commitMetadata;
-		const pct = Math.round(ratio * 100);
-		const detail = hasAmplifiable
-			? `${aiCommits}/${totalCommits} commits (${pct}%) are credited to an AI tool, so a ${aiMultiplier}x multiplier applied to automation signals`
-			: `${aiCommits}/${totalCommits} commits (${pct}%) are credited to an AI tool, but there are no automation signals to amplify`;
-
 		flags.push({
-			label: "Predominantly AI-attributed commits",
+			id: "ai-commits",
 			points: 0,
 			group: "ai-attribution",
-			detail,
-			data: [
-				{ label: "AI-attributed commits", value: commitMetadata.aiCommits },
-				{ label: "Total commits", value: commitMetadata.totalCommits },
-				{
-					label: "AI commit ratio",
-					value: `${Math.round(commitMetadata.ratio * 100)}%`,
-				},
-				{ label: "Score multiplier", value: aiMultiplier },
-			],
+			facts: {
+				aiCommits: commitMetadata.aiCommits,
+				commits: commitMetadata.totalCommits,
+				ratio: commitMetadata.ratio,
+				multiplier: aiMultiplier,
+				amplified: hasAmplifiable,
+			},
 			events: [],
 		});
 	}

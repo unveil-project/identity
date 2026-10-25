@@ -198,7 +198,7 @@ describe("identify without a provider", () => {
 		});
 
 		const external = (r: typeof own) =>
-			r.flags.some((f) => f.label === "Only active on other people's repos");
+			r.flags.some((f) => f.id === "zero-repos-external");
 		expect(external(own)).toBe(false);
 		expect(external(foreign)).toBe(true);
 	});

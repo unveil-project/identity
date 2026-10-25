@@ -89,23 +89,11 @@ export function detectCommentBeforePR(events: IdentifyEvent[]): IdentifyFlag[] {
 
 		return [
 			{
-				label: "Issue comment and PR within minutes",
+				id: "comment-pr-fast",
 				points: CONFIG.POINTS_COMMENT_BEFORE_PR_VERY_FAST,
 				group: "comment-pr-timing",
 				amplifiable: true,
-				detail: `Commented on an issue and opened a PR to the same repo within ${CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES} minutes, in ${veryFastRepos.size} repositories (the fastest took ${fastest}s)`,
-				data: [
-					{
-						label: "Repos with fast comment→PR",
-						value: veryFastRepos.size,
-						threshold: CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MIN_REPOS,
-					},
-					{ label: "Shortest gap (s)", value: fastest },
-					{
-						label: "Window (min)",
-						value: CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES,
-					},
-				],
+				facts: { repos: veryFastRepos.size, fastestSeconds: fastest },
 				events: pairedEvents,
 				connections: matchedPairs,
 			},

@@ -6,32 +6,18 @@ export function detectAccountAge(accountAge: number): IdentifyFlag[] {
 
 	if (accountAge < CONFIG.AGE_NEW_ACCOUNT) {
 		flags.push({
-			label: "Recently created",
+			id: "new-account",
 			points: CONFIG.POINTS_NEW_ACCOUNT,
 			group: "account-age",
-			detail: `Account is ${accountAge} days old`,
-			data: [
-				{
-					label: "Account age (days)",
-					value: accountAge,
-					threshold: CONFIG.AGE_NEW_ACCOUNT,
-				},
-			],
+			facts: { ageDays: accountAge },
 			events: [],
 		});
 	} else if (accountAge < CONFIG.AGE_YOUNG_ACCOUNT) {
 		flags.push({
-			label: "Young account",
+			id: "young-account",
 			points: CONFIG.POINTS_YOUNG_ACCOUNT,
 			group: "account-age",
-			detail: `Account is ${accountAge} days old`,
-			data: [
-				{
-					label: "Account age (days)",
-					value: accountAge,
-					threshold: CONFIG.AGE_YOUNG_ACCOUNT,
-				},
-			],
+			facts: { ageDays: accountAge },
 			events: [],
 		});
 	}

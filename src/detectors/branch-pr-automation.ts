@@ -133,33 +133,19 @@ export function detectBranchPRAutomation(
 
 				if (automationRatio >= branchPRMinRatio) {
 					flags.push({
-						label: "Rapid branch→PR pattern",
+						id: "branch-pr-pattern",
 						points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
 						group: "branch-pr",
 						amplifiable: true,
-						detail: `${matchedPairs}/${branchCreates.length} branch creations followed by PRs within ${maxObservedTimeDiff}s, counting only the account's own repositories`,
-						data: [
-							{
-								label: "Matched branch→PR pairs",
-								value: matchedPairs,
-								threshold: branchPRMinPairs,
-							},
-							{ label: "Total branches", value: branchCreates.length },
-							{
-								label: "Branches in own repos",
-								value: ownedBranchTimes.length,
-							},
-							{
-								label: "Automation ratio",
-								value: `${Math.round(automationRatio * 100)}%`,
-								threshold: `${Math.round(branchPRMinRatio * 100)}%`,
-							},
-							{
-								label: "Max time branch→PR (s)",
-								value: maxObservedTimeDiff,
-								threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
-							},
-						],
+						facts: {
+							pairs: matchedPairs,
+							minPairs: branchPRMinPairs,
+							branches: branchCreates.length,
+							ownBranches: ownedBranchTimes.length,
+							ratio: automationRatio,
+							minRatio: branchPRMinRatio,
+							maxGapSeconds: maxObservedTimeDiff,
+						},
 						events: [...matchedBranchEvents, ...matchedPREvents],
 						connections: matchedBranchEvents.map((event, i) => ({
 							from: event,
@@ -253,29 +239,18 @@ export function detectBranchPRAutomation(
 
 			if (automationRatio >= branchPRMinRatio) {
 				flags.push({
-					label: "Rapid fork→PR pattern",
+					id: "fork-pr-pattern",
 					points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
 					group: "branch-pr",
 					amplifiable: true,
-					detail: `${forkWorkflowMatches}/${branchCreates.length} fork branches followed by upstream PRs within ${forkMaxTimeDiff}s`,
-					data: [
-						{
-							label: "Matched fork branch→PR pairs",
-							value: forkWorkflowMatches,
-							threshold: forkMinPairs,
-						},
-						{ label: "Total branches", value: branchCreates.length },
-						{
-							label: "Automation ratio",
-							value: `${Math.round(automationRatio * 100)}%`,
-							threshold: `${Math.round(branchPRMinRatio * 100)}%`,
-						},
-						{
-							label: "Max time branch→PR (s)",
-							value: forkMaxTimeDiff,
-							threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
-						},
-					],
+					facts: {
+						pairs: forkWorkflowMatches,
+						minPairs: forkMinPairs,
+						branches: branchCreates.length,
+						ratio: automationRatio,
+						minRatio: branchPRMinRatio,
+						maxGapSeconds: forkMaxTimeDiff,
+					},
 					events: [...matchedForkBranchEvents, ...matchedForkPREvents],
 					connections: matchedForkBranchEvents.map((event, i) => ({
 						from: event,
