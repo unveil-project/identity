@@ -767,22 +767,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			{ label: "Detected prefixes", value: prefixes.join(", ") },
 		],
 	}),
-	"ai-commits": ({ aiCommits, commits, ratio, multiplier, amplified }) => {
-		const effect = amplified
-			? `so a ${multiplier}x multiplier applied to automation signals`
-			: "but there are no automation signals to amplify";
-
-		return {
-			label: "Predominantly AI-attributed commits",
-			detail: `${aiCommits}/${commits} commits (${percent(ratio)}) are credited to an AI tool, ${effect}`,
-			data: [
-				{ label: "AI-attributed commits", value: aiCommits },
-				{ label: "Total commits", value: commits },
-				{ label: "AI commit ratio", value: percent(ratio) },
-				{ label: "Score multiplier", value: multiplier },
-			],
-		};
-	},
 };
 
 /** The sentence and metrics shared by both bounty PR flags. */

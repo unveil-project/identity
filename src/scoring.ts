@@ -2,7 +2,6 @@ import { CONFIG } from "./config";
 import type { EvidenceGroup, IdentifyFlag, ScoredGroup } from "./types";
 
 export type ScoreOptions = {
-	aiMultiplier?: number;
 	bountyMultiplier?: number;
 };
 
@@ -25,12 +24,12 @@ export type ScoreResult = {
  */
 export function scoreFlags(
 	flags: readonly IdentifyFlag[],
-	{ aiMultiplier = 1, bountyMultiplier = 1 }: ScoreOptions = {},
+	{ bountyMultiplier = 1 }: ScoreOptions = {},
 ): ScoreResult {
 	const scored: IdentifyFlag[] = flags.map((flag) => ({
 		...flag,
 		effectivePoints: flag.amplifiable
-			? Math.round(flag.points * aiMultiplier * bountyMultiplier)
+			? Math.round(flag.points * bountyMultiplier)
 			: flag.points,
 	}));
 

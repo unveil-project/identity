@@ -68,7 +68,7 @@ describe("scoreFlags", () => {
 			amplifiable: true,
 		};
 		const fixed = flag("account-age", 40);
-		const result = scoreFlags([amplifiable, fixed], { aiMultiplier: 1.5 });
+		const result = scoreFlags([amplifiable, fixed], { bountyMultiplier: 1.5 });
 		expect(result.flags[0]?.effectivePoints).toBe(60);
 		expect(result.flags[1]?.effectivePoints).toBe(40);
 	});

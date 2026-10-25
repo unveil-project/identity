@@ -15,8 +15,8 @@
 	},
 	"exports": {
 		".": "./dist/index.mjs",
-		"./explain": "./dist/explain.mjs",
 		"./providers/github": "./dist/providers/github.mjs",
+		"./report": "./dist/report.mjs",
 		"./package.json": "./package.json"
 	},
 	"types": "./dist/index.d.mts",

@@ -7,7 +7,7 @@ import {
 	type GitHubEvent,
 	type GitHubUser,
 } from "../src/providers/github";
-import { identify } from "../src/identify";
+import { report } from "../src/report";
 import type { IdentifyEvent } from "../src/types";
 import { event, user } from "./utils/events";
 
@@ -167,7 +167,7 @@ describe("fromGitHub", () => {
 				`owner${i}/repo`,
 			),
 		);
-		const result = identify(fromGitHub({ user: user(), events }));
+		const result = report(fromGitHub({ user: user(), events }));
 		const starFlag = result.flags.find((f) => f.group === "watch");
 
 		expect(starFlag).toBeDefined();
@@ -177,7 +177,7 @@ describe("fromGitHub", () => {
 	});
 });
 
-describe("identify without a provider", () => {
+describe("report without a provider", () => {
 	it("treats everything before the last slash as the owner", () => {
 		// A nested group path: "team/sub" owns "team/sub/project".
 		const events: IdentifyEvent[] = Array.from({ length: 25 }, (_, i) => ({
@@ -191,8 +191,8 @@ describe("identify without a provider", () => {
 			publicRepos: 0,
 		};
 
-		const own = identify({ account, events });
-		const foreign = identify({
+		const own = report({ account, events });
+		const foreign = report({
 			account: { ...account, login: "someone" },
 			events,
 		});

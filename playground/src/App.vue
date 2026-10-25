@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { IdentifyAccount, IdentifyEvent } from "@unveil/identity";
-import { identify } from "@unveil/identity";
-import { type ExplainedResult, explain } from "@unveil/identity/explain";
+import { type IdentityReport, report } from "@unveil/identity/report";
 import {
 	fromGitHub,
 	type GitHubEvent,
@@ -13,7 +12,7 @@ const username = ref("");
 const loading = ref(false);
 const loadingMessage = ref("");
 const error = ref("");
-const result = ref<ExplainedResult<GitHubEvent> | null>(null);
+const result = ref<IdentityReport<GitHubEvent> | null>(null);
 const account = ref<IdentifyAccount | null>(null);
 const events = ref<GitHubEvent[]>([]);
 const openFlags = ref(new Set<number>());
@@ -100,7 +99,7 @@ async function analyzeUser() {
 		const input = fromGitHub({ user: userData, events: userEvents });
 
 		account.value = input.account;
-		result.value = explain(identify(input));
+		result.value = report(input);
 	} catch (err) {
 		error.value = err instanceof Error ? err.message : "An error occurred";
 		result.value = null;

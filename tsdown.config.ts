@@ -2,7 +2,7 @@ import { defineConfig } from "tsdown";
 
 const entry = {
 	index: "src/index.ts",
-	explain: "src/explain/index.ts",
+	report: "src/report/index.ts",
 	"providers/github": "src/providers/github.ts",
 };
 

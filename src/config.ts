@@ -255,14 +255,4 @@ export const CONFIG = {
 	// Bounty label infrastructure detection
 	BOUNTY_LABEL_MIN: 3, // need at least this many bounty-labelled issues to flag
 	POINTS_BOUNTY_LABEL_INFRA: 25,
-
-	// AI commit metadata — multiplier, not a standalone signal
-	// Applies only to flags marked `amplifiable: true` (automation/spam signals).
-	// Tiers are evaluated highest-first; the first matching ratio wins.
-	AI_COMMIT_MIN_COMMITS: 5,
-	AI_COMMIT_TIERS: [
-		{ ratio: 0.9, multiplier: 1.5 },
-		{ ratio: 0.85, multiplier: 1.3 },
-		{ ratio: 0.75, multiplier: 1.15 },
-	],
 } as const;

@@ -1,9 +1,4 @@
-import type {
-	IdentifyCommit,
-	IdentifyEvent,
-	IdentifyEventType,
-	IdentifyInput,
-} from "../types";
+import type { IdentifyEvent, IdentifyEventType, IdentifyInput } from "../types";
 
 /** GitHub never gives more events than this, and only goes back about 90 days. */
 export const GITHUB_EVENT_CAP = 300;
@@ -49,12 +44,9 @@ export type GitHubEvent = {
 	};
 };
 
-export type GitHubCommit = IdentifyCommit;
-
 export type GitHubInput = {
 	user: GitHubUser;
 	events: GitHubEvent[];
-	commits?: GitHubCommit[];
 };
 
 const TYPES = new Map<string, IdentifyEventType>([
@@ -120,7 +112,6 @@ export function fromGitHubEvent(
 export function fromGitHub({
 	user,
 	events,
-	commits,
 }: GitHubInput): IdentifyInput<GitHubEvent> {
 	return {
 		account: {
@@ -137,7 +128,6 @@ export function fromGitHub({
 			following: user.following,
 		},
 		events: events.map((event) => fromGitHubEvent(event, user.login)),
-		commits,
 		eventCap: GITHUB_EVENT_CAP,
 	};
 }

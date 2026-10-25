@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { explain, explainFlag } from "../src/explain";
+import { identify } from "../src/identify";
+import { fromGitHub } from "../src/providers/github";
+import { describeFlag, report } from "../src/report";
 import {
 	describeSpikeDays,
 	formatShortSpan,
 	formatWindowDuration,
-} from "../src/explain/format";
-import { identify } from "../src/identify";
-import { fromGitHub } from "../src/providers/github";
+} from "../src/report/format";
 import type { IdentifyFlag } from "../src/types";
 import { event, user } from "./utils/events";
 
@@ -21,36 +21,35 @@ function forkingAccount() {
 	);
 	const created = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
 
-	return identify(
-		fromGitHub({ user: user({ created_at: created.toISOString() }), events }),
-	);
+	return fromGitHub({ user: user({ created_at: created.toISOString() }), events });
 }
 
-describe("identify without explain", () => {
-	it("gives flags an id and facts, but no text", () => {
-		const result = forkingAccount();
-		const spike = result.flags.find((f) => f.id === "fork-spike");
+describe("identify", () => {
+	it("returns only the verdict", () => {
+		const result = identify(forkingAccount());
 
-		expect(spike?.facts).toEqual({ forks: 12, totalForks: 12 });
-		for (const flag of result.flags) {
-			expect(flag).not.toHaveProperty("label");
-			expect(flag).not.toHaveProperty("detail");
-			expect(flag).not.toHaveProperty("data");
-		}
+		expect(Object.keys(result).sort()).toEqual([
+			"classification",
+			"confidence",
+			"isBountyHunter",
+			"isGitHubApp",
+			"score",
+		]);
 	});
 });
 
-describe("explain", () => {
+describe("report", () => {
 	it("adds a label, detail and data to every flag", () => {
-		const result = forkingAccount();
-		const explained = explain(result);
+		const { flags } = report(forkingAccount());
 
-		expect(explained.flags.map((f) => f.label)).toEqual([
+		expect(flags.map((f) => f.label)).toEqual([
 			"Recently created",
 			"Narrow activity focus",
 			"Fork spike detected",
 		]);
-		expect(explained.flags[2]).toMatchObject({
+		expect(flags[2]).toMatchObject({
+			id: "fork-spike",
+			facts: { forks: 12, totalForks: 12 },
 			detail: "Burst of 12 fork events in a single 24-hour window",
 			data: [
 				{ label: "Forks in 24h window", value: 12, threshold: 8 },
@@ -59,17 +58,21 @@ describe("explain", () => {
 		});
 	});
 
-	it("keeps everything else as it was", () => {
-		const result = forkingAccount();
-		const explained = explain(result);
+	it("gives the same verdict as identify", () => {
+		const input = forkingAccount();
 
-		expect(explained.score).toBe(result.score);
-		expect(explained.classification).toBe(result.classification);
-		explained.flags.forEach((flag, i) => {
-			expect(flag).toMatchObject(result.flags[i] as object);
-			// Same event objects, so `source` still points at the GitHub event.
-			expect(flag.events).toBe(result.flags[i]?.events);
-		});
+		expect(report(input)).toMatchObject(identify(input));
+	});
+
+	it("keeps the original event on every flag event", () => {
+		const input = forkingAccount();
+		const { flags } = report(input);
+
+		for (const flag of flags) {
+			for (const e of flag.events) {
+				expect(input.events).toContain(e);
+			}
+		}
 	});
 
 	it("uses the threshold the check used, not a fixed one", () => {
@@ -81,7 +84,7 @@ describe("explain", () => {
 			events: [],
 		};
 
-		expect(explainFlag(flag).data[0]).toEqual({
+		expect(describeFlag(flag).data[0]).toEqual({
 			label: "Rapid PRs to same repo",
 			value: 7,
 			threshold: 6,

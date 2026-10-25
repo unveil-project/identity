@@ -39,12 +39,6 @@ export type IdentifyEvent<Source = unknown> = {
 	source?: Source;
 };
 
-export type IdentifyCommit = {
-	sha?: string;
-	message?: string;
-	repo?: string;
-};
-
 export type EventConnection<Source = unknown> = {
 	from: IdentifyEvent<Source>;
 	to: IdentifyEvent<Source>;
@@ -101,7 +95,7 @@ type BountyPRFacts = {
 
 /**
  * The numbers behind each flag, by flag id. They are what the check measured,
- * without any text. `explain` from `@unveil/identity/explain` turns them into
+ * without any text. `report` from `@unveil/identity/report` turns them into
  * a label, a sentence and a list of metrics.
  */
 export type FlagFacts = {
@@ -226,14 +220,6 @@ export type FlagFacts = {
 		ratio: number;
 		prefixes: string[];
 	};
-	"ai-commits": {
-		aiCommits: number;
-		commits: number;
-		ratio: number;
-		multiplier: number;
-		/** False when there were no automation flags for the multiplier to raise. */
-		amplified: boolean;
-	};
 };
 
 export type FlagId = keyof FlagFacts;
@@ -298,17 +284,11 @@ export type IdentifyAccount = {
 export type IdentifyInput<Source = unknown> = {
 	account: IdentifyAccount;
 	events: IdentifyEvent<Source>[];
-	commits?: IdentifyCommit[];
 	/**
 	 * The most events the platform ever returns. When we get this many, the
 	 * window is marked `saturated`. Leave it out if there is no such limit.
 	 */
 	eventCap?: number;
-};
-
-export type IdentifyOptions<Source = unknown> = IdentifyInput<Source> & {
-	/** Repositories ("owner/name") to leave out of the analysis. */
-	excludeRepos?: string[];
 };
 
 export type IdentityClassification =
@@ -337,7 +317,11 @@ export type TimezoneEstimate = {
 	confidence: number;
 };
 
-export type IdentifyResult<Source = unknown> = {
+/**
+ * The verdict on an account. For the flags and the numbers behind it, use
+ * `report` from `@unveil/identity/report`.
+ */
+export type IdentifyResult = {
 	score: number;
 	classification: IdentityClassification;
 	/** How sure we are about the result, from 0 to 1. */
@@ -351,6 +335,10 @@ export type IdentifyResult<Source = unknown> = {
 	 * context you are checking.
 	 */
 	isGitHubApp: boolean;
+};
+
+/** The verdict plus everything that led to it. */
+export type Analysis<Source = unknown> = IdentifyResult & {
 	flags: IdentifyFlag<Source>[];
 	/** How much each group added to the score. */
 	groups: ScoredGroup[];

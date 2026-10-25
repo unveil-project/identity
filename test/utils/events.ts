@@ -5,8 +5,7 @@ import {
 	type GitHubInput,
 	type GitHubUser,
 } from "../../src/providers/github";
-import { explain } from "../../src/explain";
-import { identify } from "../../src/identify";
+import { report } from "../../src/report";
 import type { IdentifyEvent, IdentifyFlag } from "../../src/types";
 
 /** Build a user, overriding only the fields a test cares about. */
@@ -43,14 +42,11 @@ export function toEvents(
 }
 
 /**
- * Run `identify` on GitHub test data, the way a GitHub caller would, with the
- * flags explained so tests can read their labels and details.
+ * Run `report` on GitHub test data, the way a GitHub caller would, so tests
+ * can read the flags with their labels and details.
  */
-export function identifyGitHub({
-	excludeRepos,
-	...input
-}: GitHubInput & { excludeRepos?: string[] }) {
-	return explain(identify({ ...fromGitHub(input), excludeRepos }));
+export function identifyGitHub(input: GitHubInput) {
+	return report(fromGitHub(input));
 }
 
 /** Build a minimal flag, for testing the scorer on its own. */

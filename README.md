@@ -40,7 +40,27 @@ console.log(analysis);
 //   classification: "organic",   // organic | mixed | automation | insufficient-data
 //   score: 100,                  // 100 = human, 0 = automation
 //   confidence: 0.83,            // 0-1: how sure we are about the result
+//   isBountyHunter: false,       // true = opens PRs on known bounty repositories
 //   isGitHubApp: false,          // true = a GitHub App account, not a person
+// }
+```
+
+### The full report
+
+`identify` only gives the verdict. To see why, use `report`. It takes the same
+input, runs the same checks, and returns the verdict plus every flag with its
+text and the numbers behind the score. It comes from its own entry, so the
+text is only in your bundle when you import it:
+
+```js
+import { report, getClassificationDetails } from "@unveil/identity/report";
+
+const analysis = report(fromGitHub({ user, events }));
+
+console.log(analysis);
+// Output:
+// {
+//   ...the same fields as identify,
 //   flags: [],
 //   groups: [],                  // how much each group took off the score
 //   window: {                    // the events we looked at
@@ -56,36 +76,14 @@ console.log(analysis);
 //   },
 //   profile: { age: 1204, repos: 37 },
 // }
-```
 
-### Flags and their text
-
-Each flag has an `id`, its `points`, its `group`, the `events` behind it, and
-`facts`: the numbers the check measured. There is no text in it, so the main
-bundle stays small:
-
-```js
+analysis.flags[0];
 // {
 //   id: "fork-spike",
 //   points: 51,
 //   group: "fork",
-//   facts: { forks: 12, totalForks: 14 },
-//   events: [...],
-// }
-```
-
-To show flags to people, add the text with `explain`. It comes from its own
-entry, so the text is only in your bundle when you import it:
-
-```js
-import { identify } from "@unveil/identity";
-import { explain, getClassificationDetails } from "@unveil/identity/explain";
-
-const analysis = explain(identify(fromGitHub({ user, events })));
-
-analysis.flags[0];
-// {
-//   ...the same flag,
+//   facts: { forks: 12, totalForks: 14 },   // the numbers the check measured
+//   events: [...],                          // the events behind the flag
 //   label: "Fork spike detected",
 //   detail: "Burst of 12 fork events in a single 24-hour window",
 //   data: [
@@ -98,18 +96,18 @@ getClassificationDetails(analysis.classification);
 // { label: "Organic activity", description: "No automation signals detected in the analyzed events." }
 ```
 
-`explainFlag(flag)` does the same for a single flag. The `FlagFacts` type lists
-the facts of every flag id.
+`describeFlag(flag)` gives the text for a single flag. The `FlagFacts` type
+lists the facts of every flag id.
 
 ### Input
 
-`identify` does not depend on any platform. It takes an `account` and a list of
+`identify` and `report` do not depend on any platform. It takes an `account` and a list of
 `events` in its own small shape. A provider turns a platform's data into that
 shape. There is a provider for GitHub.
 
 #### GitHub
 
-`fromGitHub({ user, events, commits })` takes the GitHub API responses as they
+`fromGitHub({ user, events })` takes the GitHub API responses as they
 are:
 
 - `user` is the `GET /users/{username}` response. The checks read `login`,
@@ -117,20 +115,12 @@ are:
   `html_url`, `followers` and `following` are passed on to the account, for
   showing the profile.
 - `events` is the `GET /users/{username}/events` response.
-- `commits` is optional. It is a list of `{ sha, message, repo }`, and turns on
-  AI commit detection.
 
 You can also pass smaller objects built from your own database. The
 `GitHubUser` and `GitHubEvent` types list the fields that are read.
 
-To ignore some repositories, add `excludeRepos` (a list of `owner/repo`):
-
-```js
-identify({ ...fromGitHub({ user, events }), excludeRepos: ["me/dotfiles"] });
-```
-
-Each flag lists the events behind it. Every event keeps the original GitHub
-event in `source`.
+In a `report`, each flag lists the events behind it. Every event keeps the
+original GitHub event in `source`.
 
 #### Your own data
 
