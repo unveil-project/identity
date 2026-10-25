@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { secondsBetween, toTime } from "../time";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { nameOf, ownerOf } from "../utils";
 
@@ -28,12 +28,12 @@ export function detectBranchPRAutomation(
 	);
 
 	const branchTimes = branchCreates
-		.map((e) => ({ event: e, time: dayjs(e.at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 
 	const prTimes = prEvents
-		.map((e) => ({ event: e, time: dayjs(e.at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 
 	// First check: the branch and the PR are in the same repository, and the account
 	// owns it.
@@ -93,15 +93,14 @@ export function detectBranchPRAutomation(
 
 				while (
 					prIdx < repoPrTimes.length &&
-					repoPrTimes[prIdx].time.valueOf() < branchEntry.time.valueOf()
+					repoPrTimes[prIdx].time < branchEntry.time
 				) {
 					prIdx++;
 				}
 
 				if (prIdx < repoPrTimes.length) {
-					const timeDiffSeconds = repoPrTimes[prIdx].time.diff(
-						branchEntry.time,
-						"second",
+					const timeDiffSeconds = Math.trunc(
+						secondsBetween(branchEntry.time, repoPrTimes[prIdx].time),
 					);
 
 					if (
@@ -201,15 +200,14 @@ export function detectBranchPRAutomation(
 				for (const branchEntry of branchesForProject) {
 					while (
 						prIdx < prsForProject.length &&
-						prsForProject[prIdx].time.valueOf() < branchEntry.time.valueOf()
+						prsForProject[prIdx].time < branchEntry.time
 					) {
 						prIdx++;
 					}
 
 					if (prIdx < prsForProject.length) {
-						const timeDiffSeconds = prsForProject[prIdx].time.diff(
-							branchEntry.time,
-							"second",
+						const timeDiffSeconds = Math.trunc(
+							secondsBetween(branchEntry.time, prsForProject[prIdx].time),
 						);
 
 						const branchOwner = ownerOf(branchEntry.event.repo);

@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { secondsBetween, toTime } from "../time";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 
 export function detectPushBurst(events: IdentifyEvent[]): IdentifyFlag[] {
@@ -7,7 +7,7 @@ export function detectPushBurst(events: IdentifyEvent[]): IdentifyFlag[] {
 
 	const pushEvents = events
 		.filter((e) => e.type === "push")
-		.sort((a, b) => dayjs(a.at).valueOf() - dayjs(b.at).valueOf());
+		.sort((a, b) => toTime(a.at) - toTime(b.at));
 
 	if (pushEvents.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
@@ -27,7 +27,9 @@ export function detectPushBurst(events: IdentifyEvent[]): IdentifyFlag[] {
 			continue;
 		}
 
-		const diffSeconds = dayjs(curr.at).diff(dayjs(prev.at), "second");
+		const diffSeconds = Math.trunc(
+			secondsBetween(toTime(prev.at), toTime(curr.at)),
+		);
 		if (diffSeconds <= CONFIG.TIGHT_COMMIT_SECONDS) {
 			tightBurstCount++;
 			tightPushIndices.add(i - 1);

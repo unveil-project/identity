@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { daysBetween, minutesBetween, toTime } from "../time";
 import { localDay } from "../timezone";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
@@ -43,16 +43,14 @@ export function detectClosedPRSpam(
 	const closedPRRepos = new Set<string>(closedPREvents.map((e) => e.repo));
 
 	// Calculate overall time span of closed PR activity
-	const closedPRTimestamps = closedPREvents.map((e) => dayjs(e.at));
-	const earliestClosed = closedPRTimestamps.reduce((min, ts) =>
-		ts.isBefore(min) ? ts : min,
+	const closedPRTimestamps = closedPREvents.map((e) => toTime(e.at));
+	const earliestClosed = Math.min(...closedPRTimestamps);
+	const latestClosed = Math.max(...closedPRTimestamps);
+	const timeSpanMinutes = Math.trunc(
+		minutesBetween(earliestClosed, latestClosed),
 	);
-	const latestClosed = closedPRTimestamps.reduce((max, ts) =>
-		ts.isAfter(max) ? ts : max,
-	);
-	const timeSpanMinutes = latestClosed.diff(earliestClosed, "minute");
-	const timeSpanDays = latestClosed.diff(earliestClosed, "day");
-	const fractionalDays = latestClosed.diff(earliestClosed, "day", true);
+	const fractionalDays = daysBetween(earliestClosed, latestClosed);
+	const timeSpanDays = Math.trunc(fractionalDays);
 
 	// Find days with a lot of closed PRs. Days use the account's own local time.
 	const prsByDay = new Map<string, number>();

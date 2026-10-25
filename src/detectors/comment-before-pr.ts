@@ -1,8 +1,8 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { minutesBetween, secondsBetween, toTime } from "../time";
 import type { EventConnection, IdentifyEvent, IdentifyFlag } from "../types";
 
-type EventEntry = { event: IdentifyEvent; time: dayjs.Dayjs };
+type EventEntry = { event: IdentifyEvent; time: number };
 
 export function detectCommentBeforePR(events: IdentifyEvent[]): IdentifyFlag[] {
 	const issueCommentEvents = events.filter((e) => e.type === "issue-comment");
@@ -25,7 +25,7 @@ export function detectCommentBeforePR(events: IdentifyEvent[]): IdentifyFlag[] {
 			commentsByRepo.set(repo, []);
 		}
 
-		commentsByRepo.get(repo)?.push({ event: e, time: dayjs(e.at) });
+		commentsByRepo.get(repo)?.push({ event: e, time: toTime(e.at) });
 	}
 
 	const prsByRepo = new Map<string, EventEntry[]>();
@@ -39,7 +39,7 @@ export function detectCommentBeforePR(events: IdentifyEvent[]): IdentifyFlag[] {
 			prsByRepo.set(repo, []);
 		}
 
-		prsByRepo.get(repo)?.push({ event: e, time: dayjs(e.at) });
+		prsByRepo.get(repo)?.push({ event: e, time: toTime(e.at) });
 	}
 
 	const veryFastRepos = new Set<string>();
@@ -54,11 +54,7 @@ export function detectCommentBeforePR(events: IdentifyEvent[]): IdentifyFlag[] {
 
 		for (const commentEntry of commentEntries) {
 			for (const prEntry of prEntries) {
-				const diffMinutes = prEntry.time.diff(
-					commentEntry.time,
-					"minute",
-					true,
-				);
+				const diffMinutes = minutesBetween(commentEntry.time, prEntry.time);
 
 				if (
 					diffMinutes > 0 &&
@@ -66,11 +62,7 @@ export function detectCommentBeforePR(events: IdentifyEvent[]): IdentifyFlag[] {
 				) {
 					veryFastRepos.add(repo);
 					matchedPairs.push({ from: commentEntry.event, to: prEntry.event });
-					const diffSeconds = prEntry.time.diff(
-						commentEntry.time,
-						"second",
-						true,
-					);
+					const diffSeconds = secondsBetween(commentEntry.time, prEntry.time);
 
 					if (diffSeconds < fastestSeconds) {
 						fastestSeconds = diffSeconds;

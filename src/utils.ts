@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { hoursBetween, isValidTime, toTime } from "./time";
 import type { IdentifyEvent } from "./types";
 
 /**
@@ -94,18 +94,6 @@ export function rampPoints(
 	return last[1];
 }
 
-/** How long a burst lasted, in minutes. 0 when either end is missing. */
-export function minutesBetween(
-	start: dayjs.Dayjs | undefined,
-	end: dayjs.Dayjs | undefined,
-): number {
-	if (!start || !end) {
-		return 0;
-	}
-
-	return end.diff(start, "minute", true);
-}
-
 export type DensestWindow<T> = {
 	/** How many items landed in the busiest window. */
 	count: number;
@@ -121,7 +109,7 @@ export type DensestWindow<T> = {
  */
 export function densestWindow<T>(
 	items: readonly T[],
-	getTime: (item: T) => dayjs.Dayjs,
+	getTime: (item: T) => number,
 	windowHours: number,
 ): DensestWindow<T> {
 	if (items.length === 0) {
@@ -130,8 +118,8 @@ export function densestWindow<T>(
 
 	const sorted = [...items]
 		.map((item) => ({ item, time: getTime(item) }))
-		.filter((entry) => entry.time.isValid())
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.filter((entry) => isValidTime(entry.time))
+		.sort((a, b) => a.time - b.time);
 
 	let best = 0;
 	let bestStart = 0;
@@ -146,7 +134,7 @@ export function densestWindow<T>(
 
 		while (
 			sorted[start] &&
-			endTime.diff(sorted[start].time, "hour", true) > windowHours
+			hoursBetween(sorted[start].time, endTime) > windowHours
 		) {
 			start++;
 		}
@@ -170,7 +158,7 @@ export function densestEventWindow(
 	events: readonly IdentifyEvent[],
 	windowHours: number,
 ): DensestWindow<IdentifyEvent> {
-	return densestWindow(events, (e) => dayjs(e.at), windowHours);
+	return densestWindow(events, (e) => toTime(e.at), windowHours);
 }
 
 /** The owner part of "owner/name": everything before the last slash. */

@@ -1,13 +1,8 @@
-import dayjs from "dayjs";
-import minMax from "dayjs/plugin/minMax";
-import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
-import { toLocal } from "../timezone";
+import { daysBetween, hoursBetween, toTime } from "../time";
+import { localDay } from "../timezone";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
-
-dayjs.extend(utc);
-dayjs.extend(minMax);
 
 /** Points for forks in a 24 hour window, sliding between the steps below. */
 const FORK_24H_RAMP: readonly RampAnchor[] = [
@@ -33,8 +28,8 @@ export function detectForkActivity(
 
 	// Sort events and timestamps together so indices stay in sync
 	const sortedForkEntries = [...forkEvents]
-		.map((e) => ({ event: e, time: dayjs(e.at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 	const forkTimestamps = sortedForkEntries.map((e) => e.time);
 
 	// Helper to find the densest window: returns count and the window's start/end indices
@@ -55,7 +50,7 @@ export function detectForkActivity(
 
 			while (
 				windowEnd &&
-				windowEnd.diff(forkTimestamps[windowStartIdx], "hour", true) > hours
+				hoursBetween(forkTimestamps[windowStartIdx], windowEnd) > hours
 			) {
 				windowStartIdx++;
 			}
@@ -190,7 +185,10 @@ export function detectForkActivity(
 		const newestFork = forkTimestamps[forkTimestamps.length - 1];
 
 		if (oldestFork && newestFork) {
-			const forkSpanDays = Math.max(1, newestFork.diff(oldestFork, "day"));
+			const forkSpanDays = Math.max(
+				1,
+				Math.trunc(daysBetween(oldestFork, newestFork)),
+			);
 			const forksPerDay = forkEvents.length / forkSpanDays;
 
 			// Only flag as "sustained" if activity spans 3+ days (not single-day bursts)
@@ -219,18 +217,18 @@ export function detectForkActivity(
 	// and a placeholder key would inflate the day count and break the streak sort
 	const forkDays = new Set<string>();
 	forkEvents.forEach((e) => {
-		const local = toLocal(e.at, tzOffsetHours);
-		if (!local.isValid()) {
+		const day = localDay(e.at, tzOffsetHours);
+		if (!day) {
 			return;
 		}
 
-		forkDays.add(local.format("YYYY-MM-DD"));
+		forkDays.add(day);
 	});
 
 	if (forkDays.size >= CONFIG.CONSECUTIVE_FORK_DAYS && !forkSpikeFlag) {
 		const sortedForkDays = Array.from(forkDays)
-			.map((d) => dayjs(d, "YYYY-MM-DD"))
-			.sort((a, b) => a.valueOf() - b.valueOf());
+			.map((day) => toTime(day))
+			.sort((a, b) => a - b);
 
 		let maxConsecutiveForkDays = 1;
 		let currentStreak = 1;
@@ -241,7 +239,7 @@ export function detectForkActivity(
 			const prev = sortedForkDays[i - 1];
 			const curr = sortedForkDays[i];
 
-			if (curr && prev && curr.diff(prev, "day") === 1) {
+			if (daysBetween(prev, curr) === 1) {
 				currentStreak++;
 				streakEnd = i;
 				if (currentStreak > maxConsecutiveForkDays) {
@@ -259,19 +257,9 @@ export function detectForkActivity(
 				sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
 			const streakEndDay = sortedForkDays[maxStreakEnd];
 			const streakEvents = forkEvents.filter((e) => {
-				const local = toLocal(e.at, tzOffsetHours);
-				if (!local.isValid()) {
-					return false;
-				}
+				const day = toTime(localDay(e.at, tzOffsetHours));
 
-				const day = local.format("YYYY-MM-DD");
-
-				return (
-					streakStartDay &&
-					streakEndDay &&
-					!dayjs(day).isBefore(streakStartDay) &&
-					!dayjs(day).isAfter(streakEndDay)
-				);
+				return day >= streakStartDay && day <= streakEndDay;
 			});
 
 			const totalDays = forkDays.size;
@@ -300,7 +288,7 @@ export function detectForkActivity(
 		if (forkTimestamps.length > 1) {
 			const earliestFork = forkTimestamps[0];
 			const latestFork = forkTimestamps[forkTimestamps.length - 1];
-			spanDaysValue = latestFork.diff(earliestFork, "day");
+			spanDaysValue = Math.trunc(daysBetween(earliestFork, latestFork));
 		}
 
 		flags.push({
@@ -360,22 +348,19 @@ export function detectForkCombinedActivity(
 		branchesInForkedRepos.length >= CONFIG.FORK_COMBINED_BRANCHES &&
 		prsInForkedRepos.length >= CONFIG.FORK_COMBINED_PRS
 	) {
-		const forkTimestamps = forkEvents.map((e) => dayjs(e.at));
-		const branchTimestamps = branchesInForkedRepos.map((e) => dayjs(e.at));
-		const prTimestamps = prsInForkedRepos.map((e) => dayjs(e.at));
+		const forkTimestamps = forkEvents.map((e) => toTime(e.at));
+		const branchTimestamps = branchesInForkedRepos.map((e) => toTime(e.at));
+		const prTimestamps = prsInForkedRepos.map((e) => toTime(e.at));
 
-		const latestFork = dayjs.max(forkTimestamps);
-		const earliestBranch = dayjs.min(branchTimestamps);
-		const earliestPR = dayjs.min(prTimestamps);
+		const latestFork = Math.max(...forkTimestamps);
+		const earliestBranch = Math.min(...branchTimestamps);
+		const earliestPR = Math.min(...prTimestamps);
 
 		// Check if there's a temporal sequence: forks before branches before PRs
 		// Relaxed ratio check (2.0x tolerance) to account for potential incomplete event history
 		const isChainingEvident =
-			latestFork &&
-			earliestBranch &&
-			earliestPR &&
-			latestFork.isBefore(earliestBranch) &&
-			earliestBranch.isBefore(earliestPR) &&
+			latestFork < earliestBranch &&
+			earliestBranch < earliestPR &&
 			prsInForkedRepos.length <= branchesInForkedRepos.length * 2.0;
 
 		if (isChainingEvident) {

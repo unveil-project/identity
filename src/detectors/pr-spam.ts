@@ -1,10 +1,7 @@
-import dayjs from "dayjs";
-import minMax from "dayjs/plugin/minMax";
 import { CONFIG } from "../config";
+import { daysBetween, toTime } from "../time";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { densestEventWindow, type RampAnchor, rampPoints } from "../utils";
-
-dayjs.extend(minMax);
 
 const PR_WEEK_RAMP: readonly RampAnchor[] = [
 	[CONFIG.PRS_WEEK_VERY_HIGH, CONFIG.POINTS_PRS_WEEK_VERY_HIGH],
@@ -84,14 +81,12 @@ export function detectExtremeAndDistributedPRSpam(
 				// Guard against flagging long-term contributors:
 				// Calculate time density and rolling window
 				const prTimestamps = allPREvents
-					.map((e) => dayjs(e.at))
-					.sort((a, b) => a.valueOf() - b.valueOf());
+					.map((e) => toTime(e.at))
+					.sort((a, b) => a - b);
 
 				const earliestPR = prTimestamps[0];
 				const latestPR = prTimestamps[prTimestamps.length - 1];
-				const timeSpanDays = latestPR
-					? latestPR.diff(earliestPR, "days", true)
-					: 0;
+				const timeSpanDays = latestPR ? daysBetween(earliestPR, latestPR) : 0;
 				const timeSpanWeeks = timeSpanDays / 7;
 
 				// Calculate density: PRs per week

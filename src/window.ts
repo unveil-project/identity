@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { daysBetween, isValidTime, toISO, toTime } from "./time";
 import type { IdentifyEvent, WindowInfo } from "./types";
 
 /**
@@ -13,18 +13,18 @@ export function analyzeWindow(
 	eventCap?: number,
 ): WindowInfo {
 	const times = events
-		.map((event) => dayjs(event.at))
-		.filter((time) => time.isValid())
-		.sort((a, b) => a.valueOf() - b.valueOf());
+		.map((event) => toTime(event.at))
+		.filter(isValidTime)
+		.sort((a, b) => a - b);
 
 	const first = times[0];
 	const last = times[times.length - 1];
 
 	return {
 		eventCount: events.length,
-		spanDays: first && last ? last.diff(first, "day", true) : 0,
-		firstEventAt: first ? first.toISOString() : null,
-		lastEventAt: last ? last.toISOString() : null,
+		spanDays: first && last ? daysBetween(first, last) : 0,
+		firstEventAt: first ? toISO(first) : null,
+		lastEventAt: last ? toISO(last) : null,
 		saturated: eventCap !== undefined && events.length >= eventCap,
 	};
 }

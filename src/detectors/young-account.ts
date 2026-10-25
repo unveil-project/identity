@@ -1,7 +1,5 @@
-import dayjs from "dayjs";
-import minMax from "dayjs/plugin/minMax";
-import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
+import { daysBetween, toTime } from "../time";
 import { localDay, localHour } from "../timezone";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 import {
@@ -9,9 +7,6 @@ import {
 	densestEventWindow,
 	ownerOf,
 } from "../utils";
-
-dayjs.extend(minMax);
-dayjs.extend(utc);
 
 export function detectYoungAccountActivity(
 	events: IdentifyEvent[],
@@ -34,12 +29,15 @@ export function detectYoungAccountActivity(
 	);
 
 	if (prEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-		const timestamps = prEvents.map((e) => dayjs(e.at));
-		const oldestEvent = dayjs.min(timestamps);
-		const newestEvent = dayjs.max(timestamps);
+		const timestamps = prEvents.map((e) => toTime(e.at));
+		const oldestEvent = Math.min(...timestamps);
+		const newestEvent = Math.max(...timestamps);
 
 		if (newestEvent) {
-			const eventSpanDays = Math.max(1, newestEvent.diff(oldestEvent, "day"));
+			const eventSpanDays = Math.max(
+				1,
+				Math.trunc(daysBetween(oldestEvent, newestEvent)),
+			);
 			const prsPerDay = prEvents.length / eventSpanDays;
 
 			if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_EXTREME / 2) {
@@ -128,9 +126,9 @@ export function detectYoungAccountActivity(
 		let consecutiveCount = 1;
 		let maxConsecutive = 1;
 		for (let i = 1; i < daysWithUniformDistribution.length; i++) {
-			const prev = dayjs(daysWithUniformDistribution[i - 1]);
-			const curr = dayjs(daysWithUniformDistribution[i]);
-			const diffDays = curr.diff(prev, "day");
+			const prev = toTime(daysWithUniformDistribution[i - 1]);
+			const curr = toTime(daysWithUniformDistribution[i]);
+			const diffDays = daysBetween(prev, curr);
 
 			if (diffDays === 1) {
 				consecutiveCount++;

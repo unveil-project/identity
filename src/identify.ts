@@ -1,6 +1,3 @@
-import dayjs from "dayjs";
-import minMax from "dayjs/plugin/minMax";
-import utc from "dayjs/plugin/utc";
 import { calculateConfidence } from "./confidence";
 import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
@@ -35,6 +32,7 @@ import {
 import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
 import { detectOrganicSignals } from "./modifiers/organic-signals";
 import { scoreFlags } from "./scoring";
+import { daysBetween, toTime } from "./time";
 import { estimateUtcOffset } from "./timezone";
 import type {
 	IdentifyFlag,
@@ -44,9 +42,6 @@ import type {
 } from "./types";
 import { ownerOf } from "./utils";
 import { analyzeWindow } from "./window";
-
-dayjs.extend(minMax);
-dayjs.extend(utc);
 
 /**
  * Score an account. Build the input with a provider, like `fromGitHub`.
@@ -73,7 +68,9 @@ export function identify<Source = unknown>({
 		return repoName && !excludeReposLower.includes(repoName);
 	});
 
-	const accountAge = dayjs().diff(account.createdAt, "days");
+	const accountAge = Math.trunc(
+		daysBetween(toTime(account.createdAt), Date.now()),
+	);
 
 	const window = analyzeWindow(filteredEvents, eventCap);
 	const timezone = estimateUtcOffset(filteredEvents);

@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { hoursBetween, minutesBetween, toTime } from "../time";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
-import { minutesBetween, type RampAnchor, rampPoints } from "../utils";
+import { type RampAnchor, rampPoints } from "../utils";
 
 const WATCH_RAMP: readonly RampAnchor[] = [
 	[CONFIG.WATCH_SPAM_REPOS_HIGH, CONFIG.POINTS_WATCH_SPAM_HIGH],
@@ -18,8 +18,8 @@ export function detectWatchActivity(events: IdentifyEvent[]): IdentifyFlag[] {
 	}
 
 	const watchTimestamps = watchEvents
-		.map((e) => ({ event: e, time: dayjs(e.at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 
 	let maxReposInWindow = 0;
 	let maxWindowStartIdx = 0;
@@ -36,7 +36,7 @@ export function detectWatchActivity(events: IdentifyEvent[]): IdentifyFlag[] {
 		while (
 			watchTimestamps[windowStartIdx] &&
 			windowEnd &&
-			windowEnd.diff(watchTimestamps[windowStartIdx].time, "hour", true) >
+			hoursBetween(watchTimestamps[windowStartIdx].time, windowEnd) >
 				CONFIG.WATCH_SPAM_WINDOW_HOURS
 		) {
 			windowStartIdx++;

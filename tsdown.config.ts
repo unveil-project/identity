@@ -9,9 +9,6 @@ const entry = {
 export default defineConfig({
 	entry,
 	exports: true,
-	deps: {
-		alwaysBundle: ["dayjs", "dayjs/plugin/minMax", "dayjs/plugin/utc"],
-	},
 	publint: true,
 	dts: { entry: Object.values(entry) },
 });

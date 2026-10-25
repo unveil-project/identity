@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { hoursBetween, toTime } from "../time";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
@@ -25,9 +25,9 @@ export function detectRepositoryCreationBurst(
 	// Rapid repo creation burst (real repository creation clustering)
 	if (createEvents.length >= CONFIG.CREATE_EVENTS_MIN) {
 		const sortedCreateEvents = [...createEvents].sort(
-			(a, b) => dayjs(a.at).valueOf() - dayjs(b.at).valueOf(),
+			(a, b) => toTime(a.at) - toTime(b.at),
 		);
-		const createTimestamps = sortedCreateEvents.map((e) => dayjs(e.at));
+		const createTimestamps = sortedCreateEvents.map((e) => toTime(e.at));
 
 		// Check for repo creation clustering (multiple repos in short time window)
 		let maxCreatesInWindow = 0;
@@ -41,7 +41,7 @@ export function detectRepositoryCreationBurst(
 			// Slide window to include only events within 24 hours
 			while (
 				windowEnd &&
-				windowEnd.diff(createTimestamps[windowStartIdx], "hour", true) > 24
+				hoursBetween(createTimestamps[windowStartIdx], windowEnd) > 24
 			) {
 				windowStartIdx++;
 			}

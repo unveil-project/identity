@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { minutesBetween, toTime } from "../time";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
-import { minutesBetween, type RampAnchor, rampPoints } from "../utils";
+import { type RampAnchor, rampPoints } from "../utils";
 
 const ISSUE_COMMENT_RAMP: readonly RampAnchor[] = [
 	[CONFIG.ISSUE_COMMENT_SPRAY_HIGH, CONFIG.POINTS_ISSUE_COMMENT_SPRAY_HIGH],
@@ -29,8 +29,8 @@ export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 	if (issueCommentEvents.length >= CONFIG.ISSUE_COMMENT_MIN_FOR_SPRAY) {
 		// Sort by timestamp
 		const commentTimestamps = issueCommentEvents
-			.map((e) => ({ event: e, time: dayjs(e.at) }))
-			.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+			.map((e) => ({ event: e, time: toTime(e.at) }))
+			.sort((a, b) => a.time - b.time);
 
 		// Find the densest window of activity
 		let maxDistinctReposInWindow = 0;
@@ -50,7 +50,7 @@ export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 			while (
 				commentTimestamps[windowStartIdx] &&
 				windowEnd &&
-				windowEnd.diff(commentTimestamps[windowStartIdx].time, "minute", true) >
+				minutesBetween(commentTimestamps[windowStartIdx].time, windowEnd) >
 					windowMinutes
 			) {
 				windowStartIdx++;
@@ -124,8 +124,8 @@ export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 	if (prCommentEvents.length >= CONFIG.PR_COMMENT_MIN_FOR_SPRAY) {
 		// Sort by timestamp
 		const prCommentTimestamps = prCommentEvents
-			.map((e) => ({ event: e, time: dayjs(e.at) }))
-			.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+			.map((e) => ({ event: e, time: toTime(e.at) }))
+			.sort((a, b) => a.time - b.time);
 
 		// Find the densest window of PR comment activity
 		let maxDistinctPRsInWindow = 0;
@@ -145,11 +145,8 @@ export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
 			while (
 				prCommentTimestamps[windowStartIdx] &&
 				windowEnd &&
-				windowEnd.diff(
-					prCommentTimestamps[windowStartIdx].time,
-					"minute",
-					true,
-				) > windowMinutes
+				minutesBetween(prCommentTimestamps[windowStartIdx].time, windowEnd) >
+					windowMinutes
 			) {
 				windowStartIdx++;
 			}

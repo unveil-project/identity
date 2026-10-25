@@ -1,10 +1,10 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { addHours, hoursBetween, isValidTime, toISO, toTime } from "../time";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 
 type RestWindow = {
-	start: dayjs.Dayjs;
-	end: dayjs.Dayjs;
+	start: number;
+	end: number;
 	hoursActive: number;
 	restGap: number;
 	eventCount: number;
@@ -27,9 +27,9 @@ export function detectInhumanActivityPattern(
 	}
 
 	const times = events
-		.map((event) => ({ event, time: dayjs(event.at) }))
-		.filter((entry) => entry.time.isValid())
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((event) => ({ event, time: toTime(event.at) }))
+		.filter((entry) => isValidTime(entry.time))
+		.sort((a, b) => a.time - b.time);
 
 	if (times.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
@@ -44,14 +44,10 @@ export function detectInhumanActivityPattern(
 			continue;
 		}
 
-		const windowEnd = windowStart.add(24, "hour");
+		const windowEnd = addHours(windowStart, 24);
 
 		let end = start;
-		while (end < timeline.length) {
-			if (!timeline[end]?.isBefore(windowEnd)) {
-				break;
-			}
-
+		while (end < timeline.length && timeline[end] < windowEnd) {
 			end++;
 		}
 
@@ -71,8 +67,8 @@ export function detectInhumanActivityPattern(
 				continue;
 			}
 
-			activeSlots.add(Math.floor(time.diff(windowStart, "hour", true)));
-			const gap = time.diff(previous, "hour", true);
+			activeSlots.add(Math.floor(hoursBetween(windowStart, time)));
+			const gap = hoursBetween(previous, time);
 			if (gap > maxGap) {
 				maxGap = gap;
 			}
@@ -81,7 +77,7 @@ export function detectInhumanActivityPattern(
 		}
 
 		// The quiet time after the last event is rest too.
-		const trailingGap = windowEnd.diff(previous, "hour", true);
+		const trailingGap = hoursBetween(previous, windowEnd);
 		if (trailingGap > maxGap) {
 			maxGap = trailingGap;
 		}
@@ -118,10 +114,7 @@ export function detectInhumanActivityPattern(
 	const windowStart = worst.start;
 	const windowEnd = worst.end;
 	const windowEvents = times
-		.filter(
-			(entry) =>
-				!entry.time.isBefore(windowStart) && entry.time.isBefore(windowEnd),
-		)
+		.filter((entry) => entry.time >= windowStart && entry.time < windowEnd)
 		.map((entry) => entry.event);
 
 	flags.push({
@@ -130,7 +123,7 @@ export function detectInhumanActivityPattern(
 		group: "timing",
 		amplifiable: true,
 		facts: {
-			windowStart: windowStart.toISOString(),
+			windowStart: toISO(windowStart),
 			hoursActive: worst.hoursActive,
 			longestRestHours: worst.restGap,
 			events: worst.eventCount,

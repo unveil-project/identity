@@ -1,9 +1,6 @@
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { CONFIG } from "./config";
+import { addHours, isValidTime, toDay, toTime } from "./time";
 import type { IdentifyEvent, TimezoneEstimate } from "./types";
-
-dayjs.extend(utc);
 
 const HOURS = 24;
 const RADIANS_PER_HOUR = (2 * Math.PI) / HOURS;
@@ -32,12 +29,13 @@ export function estimateUtcOffset(
 	let total = 0;
 
 	for (const event of events) {
-		const time = dayjs.utc(event.at);
-		if (!time.isValid()) {
+		const time = toTime(event.at);
+		if (!isValidTime(time)) {
 			continue;
 		}
 
-		const hour = time.hour() + time.minute() / 60;
+		const date = new Date(time);
+		const hour = date.getUTCHours() + date.getUTCMinutes() / 60;
 		const angle = hour * RADIANS_PER_HOUR;
 		cos += Math.cos(angle);
 		sin += Math.sin(angle);
@@ -76,21 +74,24 @@ export function estimateUtcOffset(
 }
 
 /** Move a timestamp into the account's own local time. */
-export function toLocal(
+function toLocalTime(
 	value: string | undefined | null,
 	offsetHours: number,
-): dayjs.Dayjs {
-	// A missing timestamp stays invalid: `undefined` would make Day.js fall back
-	// to "now", which silently turns missing data into today.
-	return dayjs.utc(value ?? null).add(offsetHours, "hour");
+): number {
+	return addHours(toTime(value), offsetHours);
 }
 
-/** The day in the account's own local time, as YYYY-MM-DD. */
+/**
+ * The day in the account's own local time, as YYYY-MM-DD.
+ * Empty when the timestamp cannot be read.
+ */
 export function localDay(
 	value: string | undefined | null,
 	offsetHours: number,
 ): string {
-	return toLocal(value, offsetHours).format("YYYY-MM-DD");
+	const time = toLocalTime(value, offsetHours);
+
+	return isValidTime(time) ? toDay(time) : "";
 }
 
 /** The hour (0–23) in the account's own local time. */
@@ -98,5 +99,5 @@ export function localHour(
 	value: string | undefined | null,
 	offsetHours: number,
 ): number {
-	return toLocal(value, offsetHours).hour();
+	return new Date(toLocalTime(value, offsetHours)).getUTCHours();
 }

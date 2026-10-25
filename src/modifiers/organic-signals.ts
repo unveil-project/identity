@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { daysBetween, toTime } from "../time";
 import type { IdentifyEvent } from "../types";
 
 export function detectOrganicSignals(events: IdentifyEvent[]): number {
@@ -22,13 +22,15 @@ export function detectOrganicSignals(events: IdentifyEvent[]): number {
 
 		if (issueRepos.size >= CONFIG.ORGANIC_ISSUE_MIN_REPOS) {
 			const issueTimestamps = issueOpenEvents
-				.map((e) => dayjs(e.at))
-				.sort((a, b) => a.valueOf() - b.valueOf());
+				.map((e) => toTime(e.at))
+				.sort((a, b) => a - b);
 
 			const firstIssue = issueTimestamps[0];
 			const lastIssue = issueTimestamps[issueTimestamps.length - 1];
 			const timeSpanDays =
-				firstIssue && lastIssue ? lastIssue.diff(firstIssue, "day") : 0;
+				firstIssue && lastIssue
+					? Math.trunc(daysBetween(firstIssue, lastIssue))
+					: 0;
 
 			if (timeSpanDays >= CONFIG.ORGANIC_ISSUE_MIN_DAYS) {
 				bonus += CONFIG.POINTS_ORGANIC_ISSUE_ENGAGEMENT;

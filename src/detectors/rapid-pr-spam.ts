@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { secondsBetween, toTime } from "../time";
 import type { IdentifyEvent, IdentifyFlag } from "../types";
 
 export function detectRapidPRSpam(
@@ -24,8 +24,8 @@ export function detectRapidPRSpam(
 	}
 
 	const prTimes = prEvents
-		.map((e) => ({ event: e, time: dayjs(e.at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 
 	const prsByRepo = new Map<string, typeof prTimes>();
 	for (const prEntry of prTimes) {
@@ -55,9 +55,8 @@ export function detectRapidPRSpam(
 		let streakMaxTimeDiff = 0;
 
 		for (let i = 0; i < repoPRs.length - 1; i++) {
-			const timeDiffSeconds = repoPRs[i + 1].time.diff(
-				repoPRs[i].time,
-				"second",
+			const timeDiffSeconds = Math.trunc(
+				secondsBetween(repoPRs[i].time, repoPRs[i + 1].time),
 			);
 
 			if (timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS) {
