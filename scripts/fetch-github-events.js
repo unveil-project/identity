@@ -94,7 +94,9 @@ async function fetchGitHubEvents(
 				);
 			}
 			const pageEvents = await eventsResponse.json();
-			if (pageEvents.length === 0) break; // Stop if no more events
+			if (pageEvents.length === 0) {
+				break; // Stop if no more events
+			}
 			events.push(...pageEvents);
 		}
 

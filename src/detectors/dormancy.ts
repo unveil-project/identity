@@ -1,8 +1,8 @@
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag, WindowInfo } from "../types";
+import type { ActivityEvent, Flag, WindowInfo } from "../types";
 
 export type DormancyResult = {
-	flags: IdentifyFlag[];
+	flags: Flag[];
 	/** True when the account's age is not backed by a matching activity history. */
 	isDormantReactivation: boolean;
 };
@@ -19,7 +19,7 @@ export type DormancyResult = {
  * everything we can see happened in one short recent burst.
  */
 export function detectDormancy(
-	events: GitHubEvent[],
+	events: ActivityEvent[],
 	accountAge: number,
 	reposCount: number,
 	window: WindowInfo,
@@ -38,28 +38,16 @@ export function detectDormancy(
 		isDormantReactivation: true,
 		flags: [
 			{
-				label: "Activity inconsistent with account age",
+				id: "dormant-reactivation",
 				points: CONFIG.POINTS_DORMANT_REACTIVATION,
 				group: "account-age",
 				amplifiable: true,
-				detail: `The account is ${accountAge} days old with ${reposCount} repositories, but all ${window.eventCount} events we can see happened in the space of ${window.spanDays.toFixed(1)} days`,
-				data: [
-					{
-						label: "Account age (days)",
-						value: accountAge,
-						threshold: CONFIG.DORMANCY_INFERRED_MIN_AGE_DAYS,
-					},
-					{
-						label: "Observed activity span (days)",
-						value: parseFloat(window.spanDays.toFixed(1)),
-						threshold: CONFIG.DORMANCY_INFERRED_MAX_SPAN_DAYS,
-					},
-					{
-						label: "Public repos",
-						value: reposCount,
-						threshold: CONFIG.DORMANCY_INFERRED_MAX_REPOS,
-					},
-				],
+				facts: {
+					ageDays: accountAge,
+					repos: reposCount,
+					events: window.eventCount,
+					spanDays: window.spanDays,
+				},
 				events,
 			},
 		],

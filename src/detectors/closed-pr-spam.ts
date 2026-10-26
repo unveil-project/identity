@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
+import { daysBetween, minutesBetween, toTime } from "../time";
 import { localDay } from "../timezone";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 const CLOSED_PR_RAMP: readonly RampAnchor[] = [
@@ -11,12 +11,11 @@ const CLOSED_PR_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectClosedPRSpam(
-	events: GitHubEvent[],
+	events: ActivityEvent[],
 	isEstablished: boolean,
-	accountName: string,
 	tzOffsetHours = 0,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// Closed PR detection (closed contributions across many repos)
 	// Pattern 1: Spray scatter - account closes PRs across many different repos
@@ -27,53 +26,40 @@ export function detectClosedPRSpam(
 		? CONFIG.CLOSED_PR_SPAM_MIN_ESTABLISHED
 		: CONFIG.CLOSED_PR_SPAM_MIN;
 
-	const accountNameLower = accountName.toLowerCase();
-
-	const closedPREvents = events.filter((e) => {
-		if (e.type !== "PullRequestEvent" || e.payload?.action !== "closed")
-			return false;
-		// Only count PRs the user submitted (head branch from their fork).
-		// Excludes maintainer activity where the user closes other people's PRs.
-		const headUrl =
-			e.payload?.pull_request?.head?.repo?.url?.toLowerCase() ?? "";
-		return headUrl.includes(`/repos/${accountNameLower}/`);
-	});
+	// Only count PRs the user submitted. Excludes maintainer activity where the
+	// user closes other people's PRs.
+	const closedPREvents = events.filter(
+		(e) =>
+			e.type === "pull-request" &&
+			e.action === "closed" &&
+			e.pullRequest?.isAuthor === true,
+	);
 
 	if (closedPREvents.length < minClosedPRs) {
 		return flags;
 	}
 
 	// Count distinct repos targeted by closed PRs
-	const closedPRRepos = new Set<string>(
-		closedPREvents
-			.map((e) => e.repo?.name)
-			.filter((name) => name !== undefined),
-	);
+	const closedPRRepos = new Set<string>(closedPREvents.map((e) => e.repo));
 
 	// Calculate overall time span of closed PR activity
-	const closedPRTimestamps = closedPREvents.map((e) => dayjs(e.created_at));
-	const earliestClosed = closedPRTimestamps.reduce((min, ts) =>
-		ts.isBefore(min) ? ts : min,
+	const closedPRTimestamps = closedPREvents.map((e) => toTime(e.at));
+	const earliestClosed = Math.min(...closedPRTimestamps);
+	const latestClosed = Math.max(...closedPRTimestamps);
+	const timeSpanMinutes = Math.trunc(
+		minutesBetween(earliestClosed, latestClosed),
 	);
-	const latestClosed = closedPRTimestamps.reduce((max, ts) =>
-		ts.isAfter(max) ? ts : max,
-	);
-	const timeSpanMinutes = latestClosed.diff(earliestClosed, "minute");
-	const timeSpanDays = latestClosed.diff(earliestClosed, "day");
-	const fractionalDays = latestClosed.diff(earliestClosed, "day", true);
-	const timeRangeStr =
-		timeSpanDays > 0
-			? `${timeSpanDays}d`
-			: `${Math.max(1, Math.ceil(timeSpanMinutes / 60))}h`;
+	const fractionalDays = daysBetween(earliestClosed, latestClosed);
+	const timeSpanDays = Math.trunc(fractionalDays);
 
 	// Find days with a lot of closed PRs. Days use the account's own local time.
 	const prsByDay = new Map<string, number>();
 	closedPREvents.forEach((e) => {
-		if (!e.created_at) {
+		if (!e.at) {
 			return;
 		}
 
-		const day = localDay(e.created_at, tzOffsetHours);
+		const day = localDay(e.at, tzOffsetHours);
 		prsByDay.set(day, (prsByDay.get(day) || 0) + 1);
 	});
 
@@ -82,19 +68,6 @@ export function detectClosedPRSpam(
 		.filter(([_, count]) => count >= 10)
 		.sort((a, b) => b[1] - a[1])
 		.map(([_, count]) => count);
-
-	// Format burst details for human-readable output
-	let burstStr = "";
-	if (burstDays.length > 0) {
-		if (burstDays.length === 1) {
-			burstStr = `, with a spike of ${burstDays[0]} closures on one day`;
-		} else {
-			const burstList =
-				burstDays.slice(0, -1).join(", ") +
-				` and ${burstDays[burstDays.length - 1]}`;
-			burstStr = `, with spike days of ${burstList} closures each`;
-		}
-	}
 
 	const points = rampPoints(closedPREvents.length, CLOSED_PR_RAMP);
 
@@ -107,27 +80,22 @@ export function detectClosedPRSpam(
 
 	if (closedPRRepos.size >= CONFIG.CLOSED_PR_REPO_SPREAD && highDensity) {
 		flags.push({
-			label: "Closed PRs across many repositories",
+			id: "closed-pr-spray",
 			points,
 			group: "pr-outcome",
 			amplifiable: true,
-			detail: `${closedPREvents.length} PRs were closed across ${closedPRRepos.size} repositories in ${timeRangeStr}${burstStr}.`,
-			data: [
-				{
-					label: "Closed PRs",
-					value: closedPREvents.length,
-					threshold: minClosedPRs,
-				},
-				{
-					label: "Distinct repos",
-					value: closedPRRepos.size,
-					threshold: CONFIG.CLOSED_PR_REPO_SPREAD,
-				},
-				{ label: "Time span", value: timeRangeStr },
-				{ label: "Density (PRs/day)", value: parseFloat(prDensity.toFixed(1)) },
-			],
+			facts: {
+				closed: closedPREvents.length,
+				minClosed: minClosedPRs,
+				repos: closedPRRepos.size,
+				spanDays: timeSpanDays,
+				spanMinutes: timeSpanMinutes,
+				spikeDays: burstDays,
+				perDay: prDensity,
+			},
 			events: closedPREvents,
 		});
+
 		return flags;
 	}
 
@@ -142,24 +110,16 @@ export function detectClosedPRSpam(
 					: points;
 
 			flags.push({
-				label: "Concentrated PR closures",
+				id: "closed-pr-burst",
 				points: burstPoints,
 				group: "pr-outcome",
 				amplifiable: true,
-				detail: `${closedPREvents.length} PRs closed across ${closedPRRepos.size} repos in ${timeSpanMinutes}m (concentrated closing activity)`,
-				data: [
-					{
-						label: "Closed PRs",
-						value: closedPREvents.length,
-						threshold: minClosedPRs,
-					},
-					{ label: "Distinct repos", value: closedPRRepos.size },
-					{
-						label: "Time span (min)",
-						value: timeSpanMinutes,
-						threshold: CONFIG.CLOSED_PR_TIME_WINDOW_MINUTES,
-					},
-				],
+				facts: {
+					closed: closedPREvents.length,
+					minClosed: minClosedPRs,
+					repos: closedPRRepos.size,
+					spanMinutes: timeSpanMinutes,
+				},
 				events: closedPREvents,
 			});
 		}

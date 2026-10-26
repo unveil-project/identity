@@ -1,54 +1,50 @@
-import type { Endpoints } from "@octokit/types";
+/**
+ * What an event is about. The names do not belong to any platform: a provider
+ * (see `fromGitHub`) maps its own event types onto them. A type the provider
+ * does not know is passed through as-is, so it still counts as its own type.
+ */
+export type ActivityEventType =
+	| "push"
+	| "create"
+	| "delete"
+	| "fork"
+	| "star"
+	| "issue"
+	| "issue-comment"
+	| "pull-request"
+	| "review"
+	| "review-comment"
+	| "review-thread"
+	| "commit-comment"
+	| "release"
+	| "member"
+	| "public"
+	| "wiki"
+	| "discussion"
+	| "sponsorship"
+	| (string & {});
 
-export type GitHubUser = Endpoints["GET /users/{username}"]["response"]["data"];
-
-export type GitHubEvent =
-	Endpoints["GET /users/{username}/events/public"]["response"]["data"][number] & {
-		/** GitHub sends `type: "Bot"` here for GitHub App actors. */
-		actor?: { type?: string };
-		payload?: {
-			ref_type?: string;
-			ref?: string;
-			action?: string;
-			issue?: {
-				title?: string;
-				[key: string]: unknown;
-			};
-			pull_request?: {
-				number?: number;
-				head?: {
-					repo?: {
-						url?: string;
-					};
-				};
-				[key: string]: unknown;
-			};
-			[key: string]: unknown;
-		};
+export type ActivityEvent<Source = unknown> = {
+	type: ActivityEventType;
+	at: string;
+	repo: string;
+	action?: string;
+	ref?: { type?: string; name?: string };
+	issue?: { title?: string };
+	pullRequest?: {
+		number?: number;
+		isAuthor?: boolean;
 	};
-
-export type GitHubCommit = {
-	sha?: string;
-	message?: string;
-	repo?: string;
+	actorIsApp?: boolean;
+	source?: Source;
 };
 
-export type FlagDataPoint = {
-	label: string;
-	value: number | string | boolean;
-	threshold?: number | string;
-};
-
-export type EventConnection = {
-	from: GitHubEvent;
-	to: GitHubEvent;
+export type EventConnection<Source = unknown> = {
+	from: ActivityEvent<Source>;
+	to: ActivityEvent<Source>;
 	label?: string;
 };
 
-/**
- * Groups of flags. Flags in the same group are about the same behaviour, so
- * they do not fully add up. Flags in different groups do. See `scoreFlags`.
- */
 export type EvidenceGroup =
 	| "account-age"
 	| "profile"
@@ -69,61 +65,233 @@ export type EvidenceGroup =
 	| "bounty"
 	| "ai-attribution";
 
-export type IdentifyFlag = {
-	label: string;
-	/** Points the check gave, before multipliers and grouping. */
-	points: number;
-	/** Points after the AI and bounty multipliers. Set by `scoreFlags`. */
-	effectivePoints?: number;
-	group: EvidenceGroup;
-	detail: string;
-	data: FlagDataPoint[];
-	events: GitHubEvent[];
-	connections?: EventConnection[];
-	amplifiable?: boolean;
+type ForkWindowFacts = {
+	/** Forks in the busiest window. */
+	forks: number;
+	/** Every fork we saw. */
+	totalForks: number;
 };
 
-/** Shows how each group added to the final score. */
-export type ScoredGroup = {
-	group: EvidenceGroup;
-	flagCount: number;
-	/** All the flag points in this group, simply added up. */
-	rawPoints: number;
-	/** What the group really added: the biggest flag, plus a little for the rest. */
-	points: number;
+type PRWindowFacts = {
+	/** Opened PRs in the busiest window. */
+	prs: number;
+};
+
+type CommentSprayFacts = {
+	/** Comments in the busiest window. */
+	comments: number;
+	/** How long that window lasted. */
+	windowMinutes: number;
+};
+
+type BountyPRFacts = {
+	bountyPRs: number;
+	openedPRs: number;
+	/** Share of opened PRs that target bounty repos, from 0 to 1. */
+	ratio: number;
+	merged: number;
+	closed: number;
 };
 
 /**
- * The user to analyse. Pass the whole GET /users/{username} response — any
- * field we do not use is ignored.
- *
- * Only `login`, `created_at` and `public_repos` are needed. The other fields
- * turn on extra checks when they are there, and are skipped when they are not,
- * so you can also pass a smaller object built from your own database.
+ * The numbers behind each flag, by flag id. They are what the check measured,
+ * without any text. `report` from `@unveil/identity/report` turns them into
+ * a label, a sentence and a list of metrics.
  */
-export type IdentifyUser = {
+export type FlagFacts = {
+	"new-account": { ageDays: number };
+	"young-account": { ageDays: number };
+	"dormant-reactivation": {
+		ageDays: number;
+		repos: number;
+		events: number;
+		spanDays: number;
+	};
+	"zero-repos-external": { externalEvents: number; totalEvents: number };
+	"repo-creation-extreme": { created: number; totalCreated: number };
+	"repo-creation-high": { created: number; totalCreated: number };
+	"always-active": {
+		windowStart: string;
+		hoursActive: number;
+		longestRestHours: number;
+		events: number;
+	};
+	"narrow-activity": { eventTypes: number; entropy: number };
+	"issue-comment-spray-extreme": CommentSprayFacts & { repos: number };
+	"issue-comment-spray-high": CommentSprayFacts & { repos: number };
+	"pr-comment-spray-extreme": CommentSprayFacts & { prs: number };
+	"pr-comment-spray-high": CommentSprayFacts & { prs: number };
+	"star-spray-extreme": {
+		repos: number;
+		windowMinutes: number;
+		totalStars: number;
+	};
+	"star-spray-high": {
+		repos: number;
+		windowMinutes: number;
+		totalStars: number;
+	};
+	"branch-pr-pattern": {
+		pairs: number;
+		/** Fewer pairs than this do not count. Higher for established accounts. */
+		minPairs: number;
+		branches: number;
+		ownBranches: number;
+		/** Matched pairs out of all branches, from 0 to 1. */
+		ratio: number;
+		minRatio: number;
+		maxGapSeconds: number;
+	};
+	"fork-pr-pattern": {
+		pairs: number;
+		minPairs: number;
+		branches: number;
+		ratio: number;
+		minRatio: number;
+		maxGapSeconds: number;
+	};
+	"rapid-prs": {
+		prs: number;
+		minPRs: number;
+		repo: string;
+		maxGapSeconds: number;
+	};
+	"closed-pr-spray": {
+		closed: number;
+		minClosed: number;
+		repos: number;
+		spanDays: number;
+		spanMinutes: number;
+		/** Closures on each busy day, biggest first. */
+		spikeDays: number[];
+		perDay: number;
+	};
+	"closed-pr-burst": {
+		closed: number;
+		minClosed: number;
+		repos: number;
+		spanMinutes: number;
+	};
+	"fork-extreme": ForkWindowFacts;
+	"fork-severe": ForkWindowFacts;
+	"fork-spike": ForkWindowFacts;
+	"fork-multiple": ForkWindowFacts;
+	"fork-surge-48h": ForkWindowFacts;
+	"fork-surge-72h": ForkWindowFacts;
+	"fork-rate": { perDay: number; spanDays: number; totalForks: number };
+	"fork-streak": { streakDays: number; activeDays: number; totalForks: number };
+	"fork-scatter": { repos: number; totalForks: number; spanDays: number };
+	"fork-chain": { forks: number; branches: number; prs: number };
+	"young-pr-volume-extreme": { prs: number; spanDays: number; perDay: number };
+	"young-pr-volume-high": { prs: number; spanDays: number; perDay: number };
+	"coding-streak": { streakDays: number; uniformDays: number };
+	"coding-marathons": { uniformDays: number };
+	"repo-spread-extreme": { repos: number; externalEvents: number };
+	"repo-spread-high": { repos: number; externalEvents: number };
+	"external-pr-day": PRWindowFacts;
+	"external-pr-week": PRWindowFacts;
+	"external-contributor": { externalPRs: number; ownRepos: number };
+	"mostly-external": {
+		/** Share of events on other people's repos, from 0 to 1. */
+		ratio: number;
+		externalEvents: number;
+		totalEvents: number;
+		ownRepos: number;
+	};
+	"limited-engagement": { externalPRs: number };
+	"push-burst": { pairs: number; pushes: number };
+	"pr-volume-day": PRWindowFacts;
+	"pr-volume-week-extreme": PRWindowFacts;
+	"pr-volume-week-high": PRWindowFacts;
+	"pr-distributed": {
+		prs: number;
+		repos: number;
+		/** 0 when every PR happened at the same moment. */
+		perWeek: number;
+		busiest30Days: number;
+	};
+	"comment-pr-fast": { repos: number; fastestSeconds: number };
+	"bounty-prs-high": BountyPRFacts;
+	"bounty-prs-low": BountyPRFacts;
+	"bounty-labels": { issues: number; repos: number };
+	"ai-branch-prefix": {
+		aiBranches: number;
+		branches: number;
+		ratio: number;
+		prefixes: string[];
+	};
+};
+
+export type FlagId = keyof FlagFacts;
+
+type FlagBase<Source> = {
+	points: number;
+	/** Points after the AI and bounty multipliers. */
+	effectivePoints?: number;
+	group: EvidenceGroup;
+	events: ActivityEvent<Source>[];
+	connections?: EventConnection<Source>[];
+	amplifiable?: boolean;
+};
+
+/**
+ * One thing a check found. Narrow on `id` to read its `facts`:
+ *
+ * @example
+ * if (flag.id === "fork-spike") flag.facts.forks;
+ */
+export type Flag<Source = unknown, Id extends FlagId = FlagId> = {
+	[K in Id]: FlagBase<Source> & { id: K; facts: FlagFacts[K] };
+}[Id];
+
+/**
+ * How much one group took off the score. Flags of 30, 20 and 10 give
+ * `rawPoints` 60 and `points` 38 (30, plus 25% of 20 and 10).
+ */
+export type ScoredGroup = {
+	group: EvidenceGroup;
+	flagCount: number;
+	/** Every flag's points added up. For display only: the score ignores it. */
+	rawPoints: number;
+	/** What the score really lost: the biggest flag, plus 25% of the other flags. */
+	points: number;
+};
+
+/** The account to analyse, in a shape that works for any platform. */
+export type Account = {
 	login: string;
-	created_at: string;
-	public_repos: number;
-	followers?: number | null;
-	following?: number | null;
+	/** When the account was created, as an ISO timestamp. */
+	createdAt: string;
+	publicRepos: number;
+	/** True when the platform says the account is an app, not a person. */
+	isApp?: boolean;
+	/** The platform's own id for the account. */
+	id?: string;
+	/** The display name, when the account has one. */
+	name?: string | null;
 	bio?: string | null;
-	blog?: string | null;
-	company?: string | null;
-	location?: string | null;
-	email?: string | null;
-	twitter_username?: string | null;
-	type?: string;
+	avatarUrl?: string;
+	/** The account's page on the platform. */
+	url?: string;
+	followers?: number;
+	following?: number;
 };
 
-export type IdentifyOptions = {
-	user: IdentifyUser;
-	events: GitHubEvent[];
-	excludeRepos?: string[];
-	commits?: GitHubCommit[];
+/**
+ * What `classify` needs. Build it with a provider, like `fromGitHub`, or by
+ * hand from your own data.
+ */
+export type AccountInput<Source = unknown> = {
+	account: Account;
+	events: ActivityEvent<Source>[];
+	/**
+	 * The most events the platform ever returns. When we get this many, the
+	 * window is marked `saturated`. Leave it out if there is no such limit.
+	 */
+	eventCap?: number;
 };
 
-export type IdentityClassification =
+export type ClassificationLabel =
 	| "organic"
 	| "mixed"
 	| "automation"
@@ -136,7 +304,7 @@ export type WindowInfo = {
 	spanDays: number;
 	firstEventAt: string | null;
 	lastEventAt: string | null;
-	/** True if GitHub hit its limit. The real counts are higher than what we see. */
+	/** True if the platform hit its limit. The real counts are higher than what we see. */
 	saturated: boolean;
 };
 
@@ -149,20 +317,29 @@ export type TimezoneEstimate = {
 	confidence: number;
 };
 
-export type IdentifyResult = {
+/**
+ * The classification of an account. For the flags and the numbers behind it,
+ * use `report` from `@unveil/identity/report`.
+ */
+export type Classification = {
 	score: number;
-	classification: IdentityClassification;
+	classification: ClassificationLabel;
 	/** How sure we are about the result, from 0 to 1. */
 	confidence: number;
 	isBountyHunter: boolean;
 	/**
-	 * True when the account is a GitHub App (`coderabbitai[bot]` and friends)
-	 * rather than a person. Taken from GitHub's own `type: "Bot"`, so it is a
-	 * fact and not a score. Scoring is unchanged: the maintainer decides if
-	 * an app is welcome in the context you are checking.
+	 * True when the account is an app (`coderabbitai[bot]` and friends) rather
+	 * than a person. Taken from the platform's own account type (`isApp` on the
+	 * account or `actorIsApp` on an event), so it is a fact and not a score.
+	 * Scoring is unchanged: the maintainer decides if an app is welcome in the
+	 * context you are checking.
 	 */
 	isGitHubApp: boolean;
-	flags: IdentifyFlag[];
+};
+
+/** The classification plus everything that led to it. */
+export type Analysis<Source = unknown> = Classification & {
+	flags: Flag<Source>[];
 	/** How much each group added to the score. */
 	groups: ScoredGroup[];
 	window: WindowInfo;
@@ -174,5 +351,5 @@ export type IdentifyResult = {
 };
 
 export type FlagReturn = {
-	flags: IdentifyFlag[];
+	flags: Flag[];
 };

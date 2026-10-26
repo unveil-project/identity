@@ -1,10 +1,15 @@
 import { CONFIG } from "../config";
 import { getBountyPRSignal } from "../detectors/bounty-repo-activity";
-import type { GitHubEvent } from "../types";
+import type { ActivityEvent } from "../types";
 
-export function getBountyMultiplier(events: GitHubEvent[]): number | undefined {
+export function getBountyMultiplier(
+	events: ActivityEvent[],
+): number | undefined {
 	const prSignal = getBountyPRSignal(events);
-	if (!prSignal) return undefined;
+	if (!prSignal) {
+		return undefined;
+	}
+
 	return prSignal === "high"
 		? CONFIG.BOUNTY_MULTIPLIER_HIGH
 		: CONFIG.BOUNTY_MULTIPLIER_LOW;

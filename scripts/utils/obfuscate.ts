@@ -124,7 +124,9 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 	}
 
 	function repoFullNameFromUrl(url: unknown): string | null {
-		if (!url || typeof url !== "string") return null;
+		if (!url || typeof url !== "string") {
+			return null;
+		}
 		const m = url.match(/\/repos\/([^/]+)\/([^/?{]+)/);
 		return m ? `${m[1]}/${m[2]}` : null;
 	}
@@ -142,7 +144,9 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 		val: JsonValue,
 		parent: JsonObject,
 	): JsonValue {
-		if (val === null || val === undefined) return val;
+		if (val === null || val === undefined) {
+			return val;
+		}
 
 		if (Array.isArray(val)) {
 			return val.map((item) =>
@@ -152,21 +156,30 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 			);
 		}
 
-		if (typeof val === "object") return transformObj(val as JsonObject);
+		if (typeof val === "object") {
+			return transformObj(val as JsonObject);
+		}
 
 		if (typeof val === "string") {
-			if (key === "login" || key === "display_login") return fakeLogin(val);
-			if (key === "node_id") return fakeNodeId(val);
+			if (key === "login" || key === "display_login") {
+				return fakeLogin(val);
+			}
+			if (key === "node_id") {
+				return fakeNodeId(val);
+			}
 
-			if ((key === "name" || key === "full_name") && val.includes("/"))
+			if ((key === "name" || key === "full_name") && val.includes("/")) {
 				return fakeRepo(val);
+			}
 
 			if (key === "name" && !val.includes("/")) {
 				if (typeof parent.full_name === "string") {
 					return fakeRepo(parent.full_name).split("/")[1] ?? val;
 				}
 				const fullName = repoFullNameFromUrl(parent.url);
-				if (fullName) return fakeRepo(fullName).split("/")[1] ?? val;
+				if (fullName) {
+					return fakeRepo(fullName).split("/")[1] ?? val;
+				}
 			}
 
 			if (
@@ -182,7 +195,9 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 		}
 
 		if (typeof val === "number") {
-			if (key === "id" || key.endsWith("_id")) return fakeNumericId(val);
+			if (key === "id" || key.endsWith("_id")) {
+				return fakeNumericId(val);
+			}
 			return val;
 		}
 

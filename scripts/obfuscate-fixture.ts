@@ -33,10 +33,16 @@ if (!inputPath) {
 
 function resolveInput(raw: string): string {
 	const direct = resolve(raw);
-	if (existsSync(direct)) return direct;
+	if (existsSync(direct)) {
+		return direct;
+	}
+
 	const name = raw.endsWith(".json") ? raw : `${raw}.json`;
 	const inFixtures = resolve(FIXTURES_DIR, basename(name));
-	if (existsSync(inFixtures)) return inFixtures;
+	if (existsSync(inFixtures)) {
+		return inFixtures;
+	}
+
 	console.error(`File not found: ${raw}`);
 	process.exit(1);
 }
@@ -55,7 +61,7 @@ if (!entry) {
 }
 
 // Rename within the fixture's own category: a "github-app" fixture stays a
-// GitHub App even when identify() scores it as automation.
+// GitHub App even when classify() scores it as automation.
 const category = getCategory(fixtureName);
 
 if (!category) {
@@ -72,6 +78,7 @@ function nextFixtureName(kind: FixtureCategory): string {
 		.map((n) => Number(n.slice(kind.length + 1)))
 		.filter((n) => !Number.isNaN(n));
 	const next = existing.length > 0 ? Math.max(...existing) + 1 : 1;
+
 	return `${kind}_${next}`;
 }
 
@@ -88,7 +95,10 @@ function updateRegressionConfig(oldName: string, newN: string): void {
 }
 
 function updateBenchmarkReports(oldName: string, newN: string): number {
-	if (!existsSync(REPORTS_DIR)) return 0;
+	if (!existsSync(REPORTS_DIR)) {
+		return 0;
+	}
+
 	const files = readdirSync(REPORTS_DIR).filter((f) => f.endsWith(".json"));
 	let updated = 0;
 	for (const file of files) {
@@ -98,11 +108,13 @@ function updateBenchmarkReports(oldName: string, newN: string): number {
 			`"fixture": "${oldName}"`,
 			`"fixture": "${newN}"`,
 		);
+
 		if (next !== content) {
 			writeFileSync(p, next, "utf-8");
 			updated++;
 		}
 	}
+
 	return updated;
 }
 

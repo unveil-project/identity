@@ -1,6 +1,3 @@
-import dayjs from "dayjs";
-import minMax from "dayjs/plugin/minMax";
-import utc from "dayjs/plugin/utc";
 import { calculateConfidence } from "./confidence";
 import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
@@ -28,51 +25,47 @@ import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
 import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
-import { isGitHubAppAccount } from "./github-app";
-import {
-	analyzeCommitMetadata,
-	getAiMultiplier,
-} from "./modifiers/analyze-commit-metadata";
 import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
 import { detectOrganicSignals } from "./modifiers/organic-signals";
 import { scoreFlags } from "./scoring";
+import { daysBetween, toTime } from "./time";
 import { estimateUtcOffset } from "./timezone";
 import type {
-	IdentifyFlag,
-	IdentifyOptions,
-	IdentifyResult,
-	IdentityClassification,
+	AccountInput,
+	Analysis,
+	ClassificationLabel,
+	Flag,
 } from "./types";
+import { ownerOf } from "./utils";
 import { analyzeWindow } from "./window";
 
-dayjs.extend(minMax);
-dayjs.extend(utc);
-
-export function identify({
-	user,
+/**
+ * Run every check on an account and score it. `classify` and `report` both
+ * start from this, and each returns the part its caller asked for.
+ */
+export function analyze<Source = unknown>({
+	account,
 	events,
-	excludeRepos = [],
-	commits = [],
-}: IdentifyOptions): IdentifyResult {
-	const flags: IdentifyFlag[] = [];
+	eventCap,
+}: AccountInput<Source>): Analysis<Source> {
+	const flags: Flag[] = [];
 
-	const accountName = user.login;
-	const reposCount = user.public_repos;
+	const accountName = account.login;
+	const reposCount = account.publicRepos;
 
-	const excludeReposLower = excludeRepos.map((r) => r.toLowerCase());
-	const filteredEvents = events.filter((e) => {
-		const repoName = e.repo?.name?.toLowerCase();
-		return repoName && !excludeReposLower.includes(repoName);
-	});
+	const filteredEvents = events.filter((e) => e.repo);
 
-	const accountAge = dayjs().diff(user.created_at, "days");
+	const accountAge = Math.trunc(
+		daysBetween(toTime(account.createdAt), Date.now()),
+	);
 
-	const window = analyzeWindow(filteredEvents);
+	const window = analyzeWindow(filteredEvents, eventCap);
 	const timezone = estimateUtcOffset(filteredEvents);
 	const tzOffset = timezone.offsetHours;
 
 	const foreignEvents = filteredEvents.filter((e) => {
-		const repoOwner = e.repo?.name?.split("/")[0]?.toLowerCase();
+		const repoOwner = ownerOf(e.repo).toLowerCase();
+
 		return repoOwner && repoOwner !== accountName.toLowerCase();
 	});
 
@@ -105,9 +98,7 @@ export function identify({
 		...detectBranchPRAutomation(filteredEvents, isEstablished, accountName),
 	);
 	flags.push(...detectRapidPRSpam(filteredEvents, isEstablished));
-	flags.push(
-		...detectClosedPRSpam(filteredEvents, isEstablished, accountName, tzOffset),
-	);
+	flags.push(...detectClosedPRSpam(filteredEvents, isEstablished, tzOffset));
 	flags.push(...detectForkActivity(filteredEvents, tzOffset));
 	flags.push(...detectForkCombinedActivity(filteredEvents));
 	flags.push(
@@ -125,49 +116,16 @@ export function identify({
 	flags.push(...detectBountyRepoPRs(filteredEvents));
 	flags.push(...detectBountyLabelInfrastructure(filteredEvents));
 	flags.push(...detectAIAgentBranchPrefix(filteredEvents));
+
 	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
-	const isGitHubApp = isGitHubAppAccount(user, events);
+	const isGitHubApp =
+		account.isApp === true || events.some((e) => e.actorIsApp === true);
 
-	const organicBonus = detectOrganicSignals(filteredEvents, accountName);
-
-	const filteredCommits = commits.filter(
-		(commit) =>
-			!commit.repo || !excludeReposLower.includes(commit.repo.toLowerCase()),
-	);
-
-	const commitMetadata = analyzeCommitMetadata(filteredCommits);
-	const aiMultiplier = getAiMultiplier(commitMetadata) ?? 1;
-
-	const hasAmplifiable = flags.some((f) => f.amplifiable && f.points > 0);
-
-	if (aiMultiplier > 1) {
-		const { ratio, aiCommits, totalCommits } = commitMetadata;
-		const pct = Math.round(ratio * 100);
-		const detail = hasAmplifiable
-			? `${aiCommits}/${totalCommits} commits (${pct}%) are credited to an AI tool, so a ${aiMultiplier}x multiplier applied to automation signals`
-			: `${aiCommits}/${totalCommits} commits (${pct}%) are credited to an AI tool, but there are no automation signals to amplify`;
-
-		flags.push({
-			label: "Predominantly AI-attributed commits",
-			points: 0,
-			group: "ai-attribution",
-			detail,
-			data: [
-				{ label: "AI-attributed commits", value: commitMetadata.aiCommits },
-				{ label: "Total commits", value: commitMetadata.totalCommits },
-				{
-					label: "AI commit ratio",
-					value: `${Math.round(commitMetadata.ratio * 100)}%`,
-				},
-				{ label: "Score multiplier", value: aiMultiplier },
-			],
-			events: [],
-		});
-	}
+	const organicBonus = detectOrganicSignals(filteredEvents);
 
 	// Invert score: 100 = human, 0 = bot
 	const bountyMultiplier = getBountyMultiplier(filteredEvents) ?? 1;
-	const scored = scoreFlags(flags, { aiMultiplier, bountyMultiplier });
+	const scored = scoreFlags(flags, { bountyMultiplier });
 
 	const humanScore = Math.min(
 		100,
@@ -176,7 +134,7 @@ export function identify({
 
 	const confidence = calculateConfidence(window);
 
-	let classification: IdentityClassification = "automation";
+	let classification: ClassificationLabel = "automation";
 	if (humanScore >= CONFIG.THRESHOLD_HUMAN) {
 		classification = "organic";
 	} else if (humanScore >= CONFIG.THRESHOLD_SUSPICIOUS) {
@@ -200,7 +158,8 @@ export function identify({
 		confidence,
 		isBountyHunter,
 		isGitHubApp,
-		flags: scored.flags,
+		// The flags point at the events we were given, so their source type holds.
+		flags: scored.flags as Flag<Source>[],
 		groups: scored.groups,
 		window,
 		timezone,

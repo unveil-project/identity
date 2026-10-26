@@ -7,7 +7,9 @@ import type { WindowInfo } from "./types";
  * It goes up when we see more events, and when those events cover more days.
  */
 export function calculateConfidence(window: WindowInfo): number {
-	if (window.eventCount === 0) return 0;
+	if (window.eventCount === 0) {
+		return 0;
+	}
 
 	const countConfidence = Math.min(
 		1,

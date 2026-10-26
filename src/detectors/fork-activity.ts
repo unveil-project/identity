@@ -1,13 +1,8 @@
-import dayjs from "dayjs";
-import minMax from "dayjs/plugin/minMax";
-import utc from "dayjs/plugin/utc";
 import { CONFIG } from "../config";
-import { toLocal } from "../timezone";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { daysBetween, hoursBetween, toTime } from "../time";
+import { localDay } from "../timezone";
+import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
-
-dayjs.extend(utc);
-dayjs.extend(minMax);
 
 /** Points for forks in a 24 hour window, sliding between the steps below. */
 const FORK_24H_RAMP: readonly RampAnchor[] = [
@@ -18,14 +13,14 @@ const FORK_24H_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectForkActivity(
-	events: GitHubEvent[],
+	events: ActivityEvent[],
 	tzOffsetHours = 0,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// Fork surge - applies uniformly to all accounts (detects time-based spike in forking)
 	// Elevated fork frequency applies uniformly regardless of account age
-	const forkEvents = events.filter((e) => e.type === "ForkEvent");
+	const forkEvents = events.filter((e) => e.type === "fork");
 
 	if (forkEvents.length < CONFIG.FORKS_HIGH) {
 		return flags;
@@ -33,8 +28,8 @@ export function detectForkActivity(
 
 	// Sort events and timestamps together so indices stay in sync
 	const sortedForkEntries = [...forkEvents]
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 	const forkTimestamps = sortedForkEntries.map((e) => e.time);
 
 	// Helper to find the densest window: returns count and the window's start/end indices
@@ -52,12 +47,15 @@ export function detectForkActivity(
 			windowEndIdx++
 		) {
 			const windowEnd = forkTimestamps[windowEndIdx];
+			let windowStart = forkTimestamps[windowStartIdx];
 
 			while (
+				windowStart !== undefined &&
 				windowEnd &&
-				windowEnd.diff(forkTimestamps[windowStartIdx], "hour", true) > hours
+				hoursBetween(windowStart, windowEnd) > hours
 			) {
 				windowStartIdx++;
+				windowStart = forkTimestamps[windowStartIdx];
 			}
 
 			const forksInWindow = windowEndIdx - windowStartIdx + 1;
@@ -82,7 +80,7 @@ export function detectForkActivity(
 	// Evaluate all qualifying windows as candidates, then pick the most severe by points.
 	// Using independent if-blocks for 48h/72h prevents a weaker 24h match from hiding
 	// a stronger multi-day surge.
-	const forkSpikeCandidates: IdentifyFlag[] = [];
+	const forkSpikeCandidates: Flag[] = [];
 	const forks24hPoints = rampPoints(maxForksIn24h, FORK_24H_RAMP);
 
 	// 24h window — descending severity, at most one candidate added
@@ -90,80 +88,52 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
-			label: "Extreme fork automation",
+			id: "fork-extreme",
 			points: forks24hPoints,
 			group: "fork",
 			amplifiable: true,
-			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
-			data: [
-				{
-					label: "Forks in 24h window",
-					value: maxForksIn24h,
-					threshold: CONFIG.FORKS_SURGE_EXTREME_HIGH,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn24h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_SURGE_SEVERE) {
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
-			label: "Severe fork surge",
+			id: "fork-severe",
 			points: forks24hPoints,
 			group: "fork",
 			amplifiable: true,
-			detail: `${maxForksIn24h} repositories forked in rapid succession (within 24 hours)`,
-			data: [
-				{
-					label: "Forks in 24h window",
-					value: maxForksIn24h,
-					threshold: CONFIG.FORKS_SURGE_SEVERE,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn24h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_EXTREME) {
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
-			label: "Fork spike detected",
+			id: "fork-spike",
 			points: forks24hPoints,
 			group: "fork",
 			amplifiable: true,
-			detail: `Burst of ${maxForksIn24h} fork events in a single 24-hour window`,
-			data: [
-				{
-					label: "Forks in 24h window",
-					value: maxForksIn24h,
-					threshold: CONFIG.FORKS_EXTREME,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn24h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	} else if (maxForksIn24h >= CONFIG.FORKS_HIGH) {
 		const windowEvents = sortedForkEntries
 			.slice(window24h.startIdx, window24h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
-			label: "Multiple forks",
+			id: "fork-multiple",
 			points: forks24hPoints,
 			group: "fork",
 			amplifiable: true,
-			detail: `${maxForksIn24h} repositories forked in a single 24-hour window`,
-			data: [
-				{
-					label: "Forks in 24h window",
-					value: maxForksIn24h,
-					threshold: CONFIG.FORKS_HIGH,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn24h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	}
@@ -173,20 +143,13 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window48h.startIdx, window48h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
-			label: "Multi-day fork surge",
+			id: "fork-surge-48h",
 			points: CONFIG.POINTS_FORK_SURGE_48H,
 			group: "fork",
 			amplifiable: true,
-			detail: `Concentrated burst: ${maxForksIn48h} repositories forked over 2 days`,
-			data: [
-				{
-					label: "Forks in 48h window",
-					value: maxForksIn48h,
-					threshold: CONFIG.FORKS_SURGE_48H,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn48h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	}
@@ -196,25 +159,18 @@ export function detectForkActivity(
 		const windowEvents = sortedForkEntries
 			.slice(window72h.startIdx, window72h.endIdx + 1)
 			.map((e) => e.event);
+
 		forkSpikeCandidates.push({
-			label: "Severe multi-day fork surge",
+			id: "fork-surge-72h",
 			points: CONFIG.POINTS_FORK_SURGE_72H,
 			group: "fork",
 			amplifiable: true,
-			detail: `Rapid burst: ${maxForksIn72h} repositories forked over 72 hours`,
-			data: [
-				{
-					label: "Forks in 72h window",
-					value: maxForksIn72h,
-					threshold: CONFIG.FORKS_SURGE_72H,
-				},
-				{ label: "Total forks observed", value: forkEvents.length },
-			],
+			facts: { forks: maxForksIn72h, totalForks: forkEvents.length },
 			events: windowEvents,
 		});
 	}
 
-	const forkSpikeFlag = forkSpikeCandidates.reduce<IdentifyFlag | null>(
+	const forkSpikeFlag = forkSpikeCandidates.reduce<Flag | null>(
 		(best, c) => (!best || c.points > best.points ? c : best),
 		null,
 	);
@@ -232,26 +188,24 @@ export function detectForkActivity(
 		const newestFork = forkTimestamps[forkTimestamps.length - 1];
 
 		if (oldestFork && newestFork) {
-			const forkSpanDays = Math.max(1, newestFork.diff(oldestFork, "day"));
+			const forkSpanDays = Math.max(
+				1,
+				Math.trunc(daysBetween(oldestFork, newestFork)),
+			);
 			const forksPerDay = forkEvents.length / forkSpanDays;
 
 			// Only flag as "sustained" if activity spans 3+ days (not single-day bursts)
 			if (forksPerDay >= CONFIG.FORKS_PER_DAY_HIGH && forkSpanDays >= 3) {
 				flags.push({
-					label: "Sustained fork rate",
+					id: "fork-rate",
 					points: CONFIG.POINTS_FORKS_PER_DAY_HIGH,
 					group: "fork",
 					amplifiable: true,
-					detail: `Average of ${forksPerDay.toFixed(1)} forks per day over ${forkSpanDays} days (${forkEvents.length} total)`,
-					data: [
-						{
-							label: "Forks per day",
-							value: parseFloat(forksPerDay.toFixed(1)),
-							threshold: CONFIG.FORKS_PER_DAY_HIGH,
-						},
-						{ label: "Activity span (days)", value: forkSpanDays },
-						{ label: "Total forks", value: forkEvents.length },
-					],
+					facts: {
+						perDay: forksPerDay,
+						spanDays: forkSpanDays,
+						totalForks: forkEvents.length,
+					},
 					events: forkEvents,
 				});
 			}
@@ -266,15 +220,18 @@ export function detectForkActivity(
 	// and a placeholder key would inflate the day count and break the streak sort
 	const forkDays = new Set<string>();
 	forkEvents.forEach((e) => {
-		const local = toLocal(e.created_at, tzOffsetHours);
-		if (!local.isValid()) return;
-		forkDays.add(local.format("YYYY-MM-DD"));
+		const day = localDay(e.at, tzOffsetHours);
+		if (!day) {
+			return;
+		}
+
+		forkDays.add(day);
 	});
 
 	if (forkDays.size >= CONFIG.CONSECUTIVE_FORK_DAYS && !forkSpikeFlag) {
 		const sortedForkDays = Array.from(forkDays)
-			.map((d) => dayjs(d, "YYYY-MM-DD"))
-			.sort((a, b) => a.valueOf() - b.valueOf());
+			.map((day) => toTime(day))
+			.sort((a, b) => a - b);
 
 		let maxConsecutiveForkDays = 1;
 		let currentStreak = 1;
@@ -284,8 +241,11 @@ export function detectForkActivity(
 		for (let i = 1; i < sortedForkDays.length; i++) {
 			const prev = sortedForkDays[i - 1];
 			const curr = sortedForkDays[i];
+			if (prev === undefined || curr === undefined) {
+				continue;
+			}
 
-			if (curr && prev && curr.diff(prev, "day") === 1) {
+			if (daysBetween(prev, curr) === 1) {
 				currentStreak++;
 				streakEnd = i;
 				if (currentStreak > maxConsecutiveForkDays) {
@@ -298,37 +258,33 @@ export function detectForkActivity(
 			}
 		}
 
-		if (maxConsecutiveForkDays >= CONFIG.CONSECUTIVE_FORK_DAYS) {
-			const streakStartDay =
-				sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
-			const streakEndDay = sortedForkDays[maxStreakEnd];
+		const streakStartDay =
+			sortedForkDays[maxStreakEnd - maxConsecutiveForkDays + 1];
+		const streakEndDay = sortedForkDays[maxStreakEnd];
+
+		if (
+			maxConsecutiveForkDays >= CONFIG.CONSECUTIVE_FORK_DAYS &&
+			streakStartDay !== undefined &&
+			streakEndDay !== undefined
+		) {
 			const streakEvents = forkEvents.filter((e) => {
-				const local = toLocal(e.created_at, tzOffsetHours);
-				if (!local.isValid()) return false;
-				const day = local.format("YYYY-MM-DD");
-				return (
-					streakStartDay &&
-					streakEndDay &&
-					!dayjs(day).isBefore(streakStartDay) &&
-					!dayjs(day).isAfter(streakEndDay)
-				);
+				const day = toTime(localDay(e.at, tzOffsetHours));
+
+				return day >= streakStartDay && day <= streakEndDay;
 			});
+
 			const totalDays = forkDays.size;
+
 			flags.push({
-				label: "Extended forking pattern",
+				id: "fork-streak",
 				points: CONFIG.POINTS_CONSECUTIVE_FORK_DAYS,
 				group: "fork",
 				amplifiable: true,
-				detail: `Forking activity on ${totalDays} days (${maxConsecutiveForkDays} consecutive), ${forkEvents.length} repositories total`,
-				data: [
-					{
-						label: "Consecutive fork days",
-						value: maxConsecutiveForkDays,
-						threshold: CONFIG.CONSECUTIVE_FORK_DAYS,
-					},
-					{ label: "Total active days", value: totalDays },
-					{ label: "Total forks", value: forkEvents.length },
-				],
+				facts: {
+					streakDays: maxConsecutiveForkDays,
+					activeDays: totalDays,
+					totalForks: forkEvents.length,
+				},
 				events: streakEvents,
 			});
 		}
@@ -336,38 +292,26 @@ export function detectForkActivity(
 
 	// Fork repository diversity (spreading across many different repos)
 	// Skip if we already flagged a spike (spike detection is more severe and already covers the attack)
-	const forkedRepos = new Set<string>(
-		forkEvents.map((e) => e.repo?.name).filter((name) => name !== undefined),
-	);
+	const forkedRepos = new Set<string>(forkEvents.map((e) => e.repo));
 
 	if (forkedRepos.size >= CONFIG.FORK_REPO_DIVERSITY_HIGH && !forkSpikeFlag) {
-		let timeSpanDetail = "";
 		let spanDaysValue = 0;
-		if (forkTimestamps.length > 1) {
-			const earliestFork = forkTimestamps[0];
-			const latestFork = forkTimestamps[forkTimestamps.length - 1];
-			spanDaysValue = latestFork.diff(earliestFork, "day");
-			timeSpanDetail =
-				spanDaysValue > 0
-					? ` over ${spanDaysValue} days`
-					: " in a short timeframe";
+		const earliestFork = forkTimestamps[0];
+		const latestFork = forkTimestamps[forkTimestamps.length - 1];
+		if (earliestFork !== undefined && latestFork !== undefined) {
+			spanDaysValue = Math.trunc(daysBetween(earliestFork, latestFork));
 		}
 
 		flags.push({
-			label: "Fork scatter pattern",
+			id: "fork-scatter",
 			points: CONFIG.POINTS_FORK_DIVERSITY,
 			group: "fork",
 			amplifiable: true,
-			detail: `Forks spread across ${forkedRepos.size} different repositories${timeSpanDetail}`,
-			data: [
-				{
-					label: "Distinct repos forked",
-					value: forkedRepos.size,
-					threshold: CONFIG.FORK_REPO_DIVERSITY_HIGH,
-				},
-				{ label: "Total forks", value: forkEvents.length },
-				{ label: "Activity span (days)", value: spanDaysValue },
-			],
+			facts: {
+				repos: forkedRepos.size,
+				totalForks: forkEvents.length,
+				spanDays: spanDaysValue,
+			},
 			events: forkEvents,
 		});
 	}
@@ -375,14 +319,12 @@ export function detectForkActivity(
 	return flags;
 }
 
-export function detectForkCombinedActivity(
-	events: GitHubEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectForkCombinedActivity(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	// Fork + coordinated activity combo (forks + branches + PRs = chained automation)
 	// Verify actual chaining: branches in forked repos, PRs targeting forked repos, temporal order
-	const forkEvents = events.filter((e) => e.type === "ForkEvent");
+	const forkEvents = events.filter((e) => e.type === "fork");
 
 	if (
 		forkEvents.length < CONFIG.FORK_COMBINED_ACTIVITY_MIN ||
@@ -392,24 +334,22 @@ export function detectForkCombinedActivity(
 	}
 
 	// Get repos that were forked
-	const forkedRepoNames = new Set(
-		forkEvents.map((e) => e.repo?.name).filter((name) => name !== undefined),
-	);
+	const forkedRepoNames = new Set(forkEvents.map((e) => e.repo));
 
 	// Find branches created in forked repos
 	const branchCreateEvents = events.filter(
-		(e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
+		(e) => e.type === "create" && e.ref?.type === "branch",
 	);
 	const branchesInForkedRepos = branchCreateEvents.filter((e) =>
-		forkedRepoNames.has(e.repo?.name || ""),
+		forkedRepoNames.has(e.repo),
 	);
 
 	// Find PRs targeting forked repos
 	const allPREvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 	const prsInForkedRepos = allPREvents.filter((e) =>
-		forkedRepoNames.has(e.repo?.name || ""),
+		forkedRepoNames.has(e.repo),
 	);
 
 	// Verify temporal chaining: forks → branches → PRs
@@ -417,46 +357,32 @@ export function detectForkCombinedActivity(
 		branchesInForkedRepos.length >= CONFIG.FORK_COMBINED_BRANCHES &&
 		prsInForkedRepos.length >= CONFIG.FORK_COMBINED_PRS
 	) {
-		const forkTimestamps = forkEvents.map((e) => dayjs(e.created_at));
-		const branchTimestamps = branchesInForkedRepos.map((e) =>
-			dayjs(e.created_at),
-		);
-		const prTimestamps = prsInForkedRepos.map((e) => dayjs(e.created_at));
+		const forkTimestamps = forkEvents.map((e) => toTime(e.at));
+		const branchTimestamps = branchesInForkedRepos.map((e) => toTime(e.at));
+		const prTimestamps = prsInForkedRepos.map((e) => toTime(e.at));
 
-		const latestFork = dayjs.max(forkTimestamps);
-		const earliestBranch = dayjs.min(branchTimestamps);
-		const earliestPR = dayjs.min(prTimestamps);
+		const latestFork = Math.max(...forkTimestamps);
+		const earliestBranch = Math.min(...branchTimestamps);
+		const earliestPR = Math.min(...prTimestamps);
 
 		// Check if there's a temporal sequence: forks before branches before PRs
 		// Relaxed ratio check (2.0x tolerance) to account for potential incomplete event history
 		const isChainingEvident =
-			latestFork &&
-			earliestBranch &&
-			earliestPR &&
-			latestFork.isBefore(earliestBranch) &&
-			earliestBranch.isBefore(earliestPR) &&
+			latestFork < earliestBranch &&
+			earliestBranch < earliestPR &&
 			prsInForkedRepos.length <= branchesInForkedRepos.length * 2.0;
 
 		if (isChainingEvident) {
-			const totalOps =
-				forkEvents.length +
-				branchesInForkedRepos.length +
-				prsInForkedRepos.length;
 			flags.push({
-				label: "Chained automation pattern",
+				id: "fork-chain",
 				points: CONFIG.POINTS_FORK_COMBINED_ACTIVITY,
 				group: "fork",
 				amplifiable: true,
-				detail: `${totalOps} steps in the same order every time: ${forkEvents.length} forks, then ${branchesInForkedRepos.length} branches, then ${prsInForkedRepos.length} pull requests`,
-				data: [
-					{ label: "Fork events", value: forkEvents.length },
-					{
-						label: "Branch creates in forked repos",
-						value: branchesInForkedRepos.length,
-					},
-					{ label: "PRs from forked repos", value: prsInForkedRepos.length },
-					{ label: "Total chained operations", value: totalOps },
-				],
+				facts: {
+					forks: forkEvents.length,
+					branches: branchesInForkedRepos.length,
+					prs: prsInForkedRepos.length,
+				},
 				events: [...forkEvents, ...branchesInForkedRepos, ...prsInForkedRepos],
 			});
 		}

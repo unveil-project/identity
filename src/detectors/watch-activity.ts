@@ -1,25 +1,25 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
-import { formatWindowDuration, type RampAnchor, rampPoints } from "../utils";
+import { hoursBetween, minutesBetween, toTime } from "../time";
+import type { ActivityEvent, Flag } from "../types";
+import { type RampAnchor, rampPoints } from "../utils";
 
 const WATCH_RAMP: readonly RampAnchor[] = [
 	[CONFIG.WATCH_SPAM_REPOS_HIGH, CONFIG.POINTS_WATCH_SPAM_HIGH],
 	[CONFIG.WATCH_SPAM_REPOS_EXTREME, CONFIG.POINTS_WATCH_SPAM_EXTREME],
 ];
 
-export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectWatchActivity(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
-	const watchEvents = events.filter((e) => e.type === "WatchEvent");
+	const watchEvents = events.filter((e) => e.type === "star");
 
 	if (watchEvents.length < CONFIG.WATCH_SPAM_MIN_EVENTS) {
 		return flags;
 	}
 
 	const watchTimestamps = watchEvents
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 
 	let maxReposInWindow = 0;
 	let maxWindowStartIdx = 0;
@@ -32,21 +32,21 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 		windowEndIdx++
 	) {
 		const windowEnd = watchTimestamps[windowEndIdx]?.time;
+		let windowStart = watchTimestamps[windowStartIdx]?.time;
 
 		while (
-			watchTimestamps[windowStartIdx] &&
+			windowStart !== undefined &&
 			windowEnd &&
-			windowEnd.diff(watchTimestamps[windowStartIdx].time, "hour", true) >
-				CONFIG.WATCH_SPAM_WINDOW_HOURS
+			hoursBetween(windowStart, windowEnd) > CONFIG.WATCH_SPAM_WINDOW_HOURS
 		) {
 			windowStartIdx++;
+			windowStart = watchTimestamps[windowStartIdx]?.time;
 		}
 
 		const reposInWindow = new Set(
 			watchTimestamps
 				.slice(windowStartIdx, windowEndIdx + 1)
-				.map((item) => item.event.repo?.name)
-				.filter((name) => name !== undefined),
+				.map((item) => item.event.repo),
 		);
 
 		if (reposInWindow.size > maxReposInWindow) {
@@ -62,7 +62,12 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 
 	const windowStart = watchTimestamps[maxWindowStartIdx]?.time;
 	const windowEnd = watchTimestamps[maxWindowEndIdx]?.time;
-	const spanLabel = formatWindowDuration(windowStart, windowEnd);
+
+	if (windowStart === undefined || windowEnd === undefined) {
+		return flags;
+	}
+
+	const windowMinutes = minutesBetween(windowStart, windowEnd);
 
 	const windowEvents = watchTimestamps
 		.slice(maxWindowStartIdx, maxWindowEndIdx + 1)
@@ -72,38 +77,28 @@ export function detectWatchActivity(events: GitHubEvent[]): IdentifyFlag[] {
 
 	if (maxReposInWindow >= CONFIG.WATCH_SPAM_REPOS_EXTREME) {
 		flags.push({
-			label: "Very high starring rate",
+			id: "star-spray-extreme",
 			points: watchPoints,
 			group: "watch",
 			amplifiable: true,
-			detail: `${maxReposInWindow} repositories starred within ${spanLabel}`,
-			data: [
-				{
-					label: "Repos starred in window",
-					value: maxReposInWindow,
-					threshold: CONFIG.WATCH_SPAM_REPOS_EXTREME,
-				},
-				{ label: "Window duration", value: spanLabel },
-				{ label: "Total star events", value: watchEvents.length },
-			],
+			facts: {
+				repos: maxReposInWindow,
+				windowMinutes,
+				totalStars: watchEvents.length,
+			},
 			events: windowEvents,
 		});
 	} else {
 		flags.push({
-			label: "High starring rate",
+			id: "star-spray-high",
 			points: watchPoints,
 			group: "watch",
 			amplifiable: true,
-			detail: `${maxReposInWindow} repositories starred within ${spanLabel}`,
-			data: [
-				{
-					label: "Repos starred in window",
-					value: maxReposInWindow,
-					threshold: CONFIG.WATCH_SPAM_REPOS_HIGH,
-				},
-				{ label: "Window duration", value: spanLabel },
-				{ label: "Total star events", value: watchEvents.length },
-			],
+			facts: {
+				repos: maxReposInWindow,
+				windowMinutes,
+				totalStars: watchEvents.length,
+			},
 			events: windowEvents,
 		});
 	}

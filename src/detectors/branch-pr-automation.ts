@@ -1,13 +1,22 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { secondsBetween, toTime } from "../time";
+import type { ActivityEvent, EventConnection, Flag } from "../types";
+import { nameOf, ownerOf } from "../utils";
+
+/** Every branch event first, then every PR event. */
+function eventsOf(connections: EventConnection[]): ActivityEvent[] {
+	const branchEvents = connections.map((connection) => connection.from);
+	const prEvents = connections.map((connection) => connection.to);
+
+	return [...branchEvents, ...prEvents];
+}
 
 export function detectBranchPRAutomation(
-	events: GitHubEvent[],
+	events: ActivityEvent[],
 	isEstablished: boolean,
 	accountName: string,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// Looks for branches that turn into a pull request almost immediately, again and again.
 	// People can be this fast too (branch, push, `gh pr create`), so a match is a hint that
@@ -20,19 +29,19 @@ export function detectBranchPRAutomation(
 		: CONFIG.BRANCH_PR_PATTERN_RATIO_MIN;
 
 	const branchCreates = events.filter(
-		(e) => e.type === "CreateEvent" && e.payload?.ref_type === "branch",
+		(e) => e.type === "create" && e.ref?.type === "branch",
 	);
 	const prEvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
 	const branchTimes = branchCreates
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 
 	const prTimes = prEvents
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 
 	// First check: the branch and the PR are in the same repository, and the account
 	// owns it.
@@ -42,8 +51,8 @@ export function detectBranchPRAutomation(
 	// normal collaborators moving fast. An automation spraying PRs at repos it has
 	// no access to has to fork first, and the fork check further down catches that.
 	const accountNameLower = accountName.toLowerCase();
-	const ownsRepo = (event: GitHubEvent) =>
-		event.repo?.name?.split("/")[0]?.toLowerCase() === accountNameLower;
+	const ownsRepo = (event: ActivityEvent) =>
+		ownerOf(event.repo).toLowerCase() === accountNameLower;
 
 	const ownedBranchTimes = branchTimes.filter((b) => ownsRepo(b.event));
 	const ownedPrTimes = prTimes.filter((p) => ownsRepo(p.event));
@@ -57,11 +66,12 @@ export function detectBranchPRAutomation(
 		if (branchPRRatio >= CONFIG.BRANCH_PR_COUNT_RATIO_MIN) {
 			const prTimesByRepo = new Map<string, typeof prTimes>();
 			for (const prEntry of ownedPrTimes) {
-				const repoName = prEntry.event.repo?.name;
+				const repoName = prEntry.event.repo;
 				if (repoName) {
 					if (!prTimesByRepo.has(repoName)) {
 						prTimesByRepo.set(repoName, []);
 					}
+
 					prTimesByRepo.get(repoName)?.push(prEntry);
 				}
 			}
@@ -69,33 +79,34 @@ export function detectBranchPRAutomation(
 			let matchedPairs = 0;
 			let maxObservedTimeDiff = 0;
 			const prIdxByRepo = new Map<string, number>();
-			const matchedBranchEvents: GitHubEvent[] = [];
-			const matchedPREvents: GitHubEvent[] = [];
+			const matchedConnections: EventConnection[] = [];
 
 			for (const branchEntry of ownedBranchTimes) {
-				const repoName = branchEntry.event.repo?.name;
-				if (!repoName) continue;
+				const repoName = branchEntry.event.repo;
+				if (!repoName) {
+					continue;
+				}
 
 				const repoPrTimes = prTimesByRepo.get(repoName);
-				if (!repoPrTimes || repoPrTimes.length === 0) continue;
+				if (!repoPrTimes || repoPrTimes.length === 0) {
+					continue;
+				}
 
 				if (!prIdxByRepo.has(repoName)) {
 					prIdxByRepo.set(repoName, 0);
 				}
 
 				let prIdx = prIdxByRepo.get(repoName) ?? 0;
+				let prEntry = repoPrTimes[prIdx];
 
-				while (
-					prIdx < repoPrTimes.length &&
-					repoPrTimes[prIdx].time.valueOf() < branchEntry.time.valueOf()
-				) {
+				while (prEntry && prEntry.time < branchEntry.time) {
 					prIdx++;
+					prEntry = repoPrTimes[prIdx];
 				}
 
-				if (prIdx < repoPrTimes.length) {
-					const timeDiffSeconds = repoPrTimes[prIdx].time.diff(
-						branchEntry.time,
-						"second",
+				if (prEntry) {
+					const timeDiffSeconds = Math.trunc(
+						secondsBetween(branchEntry.time, prEntry.time),
 					);
 
 					if (
@@ -107,8 +118,10 @@ export function detectBranchPRAutomation(
 							maxObservedTimeDiff,
 							timeDiffSeconds,
 						);
-						matchedBranchEvents.push(branchEntry.event);
-						matchedPREvents.push(repoPrTimes[prIdx].event);
+						matchedConnections.push({
+							from: branchEntry.event,
+							to: prEntry.event,
+						});
 						prIdx++;
 					}
 				}
@@ -127,39 +140,23 @@ export function detectBranchPRAutomation(
 
 				if (automationRatio >= branchPRMinRatio) {
 					flags.push({
-						label: "Rapid branch→PR pattern",
+						id: "branch-pr-pattern",
 						points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
 						group: "branch-pr",
 						amplifiable: true,
-						detail: `${matchedPairs}/${branchCreates.length} branch creations followed by PRs within ${maxObservedTimeDiff}s, counting only the account's own repositories`,
-						data: [
-							{
-								label: "Matched branch→PR pairs",
-								value: matchedPairs,
-								threshold: branchPRMinPairs,
-							},
-							{ label: "Total branches", value: branchCreates.length },
-							{
-								label: "Branches in own repos",
-								value: ownedBranchTimes.length,
-							},
-							{
-								label: "Automation ratio",
-								value: `${Math.round(automationRatio * 100)}%`,
-								threshold: `${Math.round(branchPRMinRatio * 100)}%`,
-							},
-							{
-								label: "Max time branch→PR (s)",
-								value: maxObservedTimeDiff,
-								threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
-							},
-						],
-						events: [...matchedBranchEvents, ...matchedPREvents],
-						connections: matchedBranchEvents.map((event, i) => ({
-							from: event,
-							to: matchedPREvents[i],
-						})),
+						facts: {
+							pairs: matchedPairs,
+							minPairs: branchPRMinPairs,
+							branches: branchCreates.length,
+							ownBranches: ownedBranchTimes.length,
+							ratio: automationRatio,
+							minRatio: branchPRMinRatio,
+							maxGapSeconds: maxObservedTimeDiff,
+						},
+						events: eventsOf(matchedConnections),
+						connections: matchedConnections,
 					});
+
 					return flags;
 				}
 			}
@@ -176,48 +173,49 @@ export function detectBranchPRAutomation(
 	if (branchCreates.length >= forkMinPairs && prEvents.length >= forkMinPairs) {
 		let forkWorkflowMatches = 0;
 		let forkMaxTimeDiff = 0;
-		const matchedForkBranchEvents: GitHubEvent[] = [];
-		const matchedForkPREvents: GitHubEvent[] = [];
+		const matchedForkConnections: EventConnection[] = [];
 
 		const projectNames = new Set<string>();
 		for (const branch of branchTimes) {
-			const repo = branch.event.repo?.name;
+			const repo = branch.event.repo;
 			if (repo) {
-				const projectName = repo.split("/")[1];
-				if (projectName) projectNames.add(projectName);
+				const projectName = nameOf(repo);
+				if (projectName) {
+					projectNames.add(projectName);
+				}
 			}
 		}
 
 		for (const projectName of projectNames) {
 			const branchesForProject = branchTimes.filter((b) => {
-				const repoName = b.event.repo?.name;
-				return repoName && repoName.split("/")[1] === projectName;
+				const repoName = b.event.repo;
+
+				return repoName && nameOf(repoName) === projectName;
 			});
 
 			const prsForProject = prTimes.filter((p) => {
-				const repoName = p.event.repo?.name;
-				return repoName && repoName.split("/")[1] === projectName;
+				const repoName = p.event.repo;
+
+				return repoName && nameOf(repoName) === projectName;
 			});
 
 			if (branchesForProject.length > 0 && prsForProject.length > 0) {
 				let prIdx = 0;
 				for (const branchEntry of branchesForProject) {
-					while (
-						prIdx < prsForProject.length &&
-						prsForProject[prIdx].time.valueOf() < branchEntry.time.valueOf()
-					) {
+					let prEntry = prsForProject[prIdx];
+
+					while (prEntry && prEntry.time < branchEntry.time) {
 						prIdx++;
+						prEntry = prsForProject[prIdx];
 					}
 
-					if (prIdx < prsForProject.length) {
-						const timeDiffSeconds = prsForProject[prIdx].time.diff(
-							branchEntry.time,
-							"second",
+					if (prEntry) {
+						const timeDiffSeconds = Math.trunc(
+							secondsBetween(branchEntry.time, prEntry.time),
 						);
 
-						const branchOwner = branchEntry.event.repo?.name?.split("/")[0];
-						const prOwner =
-							prsForProject[prIdx].event.repo?.name?.split("/")[0];
+						const branchOwner = ownerOf(branchEntry.event.repo);
+						const prOwner = ownerOf(prEntry.event.repo);
 
 						if (
 							timeDiffSeconds >= 0 &&
@@ -229,8 +227,10 @@ export function detectBranchPRAutomation(
 						) {
 							forkWorkflowMatches++;
 							forkMaxTimeDiff = Math.max(forkMaxTimeDiff, timeDiffSeconds);
-							matchedForkBranchEvents.push(branchEntry.event);
-							matchedForkPREvents.push(prsForProject[prIdx].event);
+							matchedForkConnections.push({
+								from: branchEntry.event,
+								to: prEntry.event,
+							});
 							prIdx++;
 						}
 					}
@@ -243,34 +243,20 @@ export function detectBranchPRAutomation(
 
 			if (automationRatio >= branchPRMinRatio) {
 				flags.push({
-					label: "Rapid fork→PR pattern",
+					id: "fork-pr-pattern",
 					points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
 					group: "branch-pr",
 					amplifiable: true,
-					detail: `${forkWorkflowMatches}/${branchCreates.length} fork branches followed by upstream PRs within ${forkMaxTimeDiff}s`,
-					data: [
-						{
-							label: "Matched fork branch→PR pairs",
-							value: forkWorkflowMatches,
-							threshold: forkMinPairs,
-						},
-						{ label: "Total branches", value: branchCreates.length },
-						{
-							label: "Automation ratio",
-							value: `${Math.round(automationRatio * 100)}%`,
-							threshold: `${Math.round(branchPRMinRatio * 100)}%`,
-						},
-						{
-							label: "Max time branch→PR (s)",
-							value: forkMaxTimeDiff,
-							threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
-						},
-					],
-					events: [...matchedForkBranchEvents, ...matchedForkPREvents],
-					connections: matchedForkBranchEvents.map((event, i) => ({
-						from: event,
-						to: matchedForkPREvents[i],
-					})),
+					facts: {
+						pairs: forkWorkflowMatches,
+						minPairs: forkMinPairs,
+						branches: branchCreates.length,
+						ratio: automationRatio,
+						minRatio: branchPRMinRatio,
+						maxGapSeconds: forkMaxTimeDiff,
+					},
+					events: eventsOf(matchedForkConnections),
+					connections: matchedForkConnections,
 				});
 			}
 		}

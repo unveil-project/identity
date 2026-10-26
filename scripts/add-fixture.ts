@@ -3,8 +3,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { GitHubEvent, IdentityClassification } from "../src";
-import { identify } from "../src/identify";
+import type { ClassificationLabel } from "../src";
+import { classify } from "../src/classify";
+import {
+	fromGitHub,
+	type GitHubEvent,
+	type GitHubInput,
+} from "../src/providers/github";
 import {
 	FIXTURE_CATEGORIES,
 	type FixtureCategory,
@@ -19,10 +24,10 @@ const REGRESSION_CONFIG_PATH = path.join(
 	"../test/regression-config.ts",
 );
 
-const [, , username, categoryArg] = process.argv;
+const [, , usernameArg, categoryArg] = process.argv;
 
 if (
-	!username ||
+	!usernameArg ||
 	!categoryArg ||
 	!FIXTURE_CATEGORIES.includes(categoryArg as FixtureCategory)
 ) {
@@ -35,6 +40,7 @@ if (
 	process.exit(1);
 }
 
+const username = usernameArg;
 const category = categoryArg as FixtureCategory;
 
 let GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -43,7 +49,9 @@ if (!GITHUB_TOKEN) {
 	if (fs.existsSync(envPath)) {
 		const envContent = fs.readFileSync(envPath, "utf-8");
 		const match = envContent.match(/GITHUB_TOKEN\s*=\s*"?([^"\n%]+)"?/);
-		if (match) GITHUB_TOKEN = match[1].trim();
+		if (match?.[1]) {
+			GITHUB_TOKEN = match[1].trim();
+		}
 	}
 }
 
@@ -63,12 +71,14 @@ async function fetchUser(login: string): Promise<{
 	if (!res.ok) {
 		throw new Error(`Failed to fetch user: ${res.status} ${res.statusText}`);
 	}
+
 	const data = (await res.json()) as {
 		login: string;
 		created_at: string;
 		public_repos: number;
 		type: string;
 	};
+
 	return {
 		login: data.login,
 		created_at: data.created_at,
@@ -91,10 +101,15 @@ async function fetchEvents(login: string): Promise<GitHubEvent[]> {
 				`Failed to fetch events: ${res.status} ${res.statusText}`,
 			);
 		}
+
 		const pageEvents = (await res.json()) as GitHubEvent[];
-		if (pageEvents.length === 0) break;
+		if (pageEvents.length === 0) {
+			break;
+		}
+
 		events.push(...pageEvents);
 	}
+
 	return events;
 }
 
@@ -106,13 +121,11 @@ function nextFixtureName(kind: FixtureCategory): string {
 		.map((n) => Number(n.slice(kind.length + 1)))
 		.filter((n) => !Number.isNaN(n));
 	const next = existing.length > 0 ? Math.max(...existing) + 1 : 1;
+
 	return `${kind}_${next}`;
 }
 
-function addToRegressionConfig(
-	name: string,
-	kind: IdentityClassification,
-): void {
+function addToRegressionConfig(name: string, kind: ClassificationLabel): void {
 	let src = fs.readFileSync(REGRESSION_CONFIG_PATH, "utf-8");
 	src = src.replace(/(\n\} satisfies)/, `\n\t"${name}": "${kind}",$1`);
 	fs.writeFileSync(REGRESSION_CONFIG_PATH, src, "utf-8");
@@ -137,6 +150,7 @@ async function main(): Promise<void> {
 			`${username} is a GitHub App (type: "${user.type}") — add it as "github-app", not "${category}".`,
 		);
 	}
+
 	if (!isApp && category === "github-app") {
 		throw new Error(
 			`${username} is not a GitHub App (type: "${user.type}") — only apps are reported as "Bot".`,
@@ -160,16 +174,15 @@ async function main(): Promise<void> {
 	const data = obfuscated?.data ?? raw;
 
 	// Being an app is a fact, not a classification: the category pins
-	// `isGitHubApp`, while the entry still pins whatever identify() scores the
+	// `isGitHubApp`, while the entry still pins whatever classify() scores the
 	// app as, so a scoring change on apps shows up as a regression like any
 	// other. Score the stored snapshot — that is what gets replayed.
-	const expected: IdentityClassification =
+	const expected: ClassificationLabel =
 		category === "github-app"
 			? runAtCaptureTime(
 					capturedAt,
 					() =>
-						identify(data as unknown as Parameters<typeof identify>[0])
-							.classification,
+						classify(fromGitHub(data as unknown as GitHubInput)).classification,
 				)
 			: category;
 

@@ -1,123 +1,127 @@
 import { CONFIG } from "../config";
 import { BOUNTY_REPO_NAMES, BOUNTY_REPO_PATHS } from "../data/bounty-repos";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
+import { nameOf } from "../utils";
 
 function isBountyRepo(repoFullName: string): boolean {
 	const lower = repoFullName.toLowerCase();
-	if (BOUNTY_REPO_PATHS.has(lower)) return true;
-	const name = lower.split("/")[1];
+	if (BOUNTY_REPO_PATHS.has(lower)) {
+		return true;
+	}
+
+	const name = nameOf(lower);
+
 	return name !== undefined && BOUNTY_REPO_NAMES.has(name);
 }
 
-export function hasBountyRepoEngagement(events: GitHubEvent[]): boolean {
+export function hasBountyRepoEngagement(events: ActivityEvent[]): boolean {
 	const openedPRsInBountyRepos = events.filter(
 		(e) =>
-			e.type === "PullRequestEvent" &&
-			e.payload?.action === "opened" &&
-			e.repo?.name &&
-			isBountyRepo(e.repo.name),
+			e.type === "pull-request" &&
+			e.action === "opened" &&
+			e.repo &&
+			isBountyRepo(e.repo),
 	);
+
 	return openedPRsInBountyRepos.length >= CONFIG.BOUNTY_REPO_MIN_PRS;
 }
 
 export function getBountyPRSignal(
-	events: GitHubEvent[],
+	events: ActivityEvent[],
 ): "high" | "low" | null {
 	const openedPRs = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
-	if (openedPRs.length < CONFIG.BOUNTY_REPO_MIN_PRS) return null;
+	if (openedPRs.length < CONFIG.BOUNTY_REPO_MIN_PRS) {
+		return null;
+	}
 
 	const bountyPRs = openedPRs.filter((e) => {
-		const repo = e.repo?.name;
+		const repo = e.repo;
+
 		return repo ? isBountyRepo(repo) : false;
 	});
 
-	if (bountyPRs.length === 0) return null;
+	if (bountyPRs.length === 0) {
+		return null;
+	}
 
 	const ratio = bountyPRs.length / openedPRs.length;
-	if (ratio < CONFIG.BOUNTY_REPO_RATIO_LOW) return null;
+	if (ratio < CONFIG.BOUNTY_REPO_RATIO_LOW) {
+		return null;
+	}
 
 	const mergedBountyPRs = events.filter(
 		(e) =>
-			e.type === "PullRequestEvent" &&
-			e.payload?.action === "merged" &&
-			e.repo?.name &&
-			isBountyRepo(e.repo.name),
+			e.type === "pull-request" &&
+			e.action === "merged" &&
+			e.repo &&
+			isBountyRepo(e.repo),
 	);
 
 	const closedBountyPRs = events.filter(
 		(e) =>
-			e.type === "PullRequestEvent" &&
-			e.payload?.action === "closed" &&
-			e.repo?.name &&
-			isBountyRepo(e.repo.name),
+			e.type === "pull-request" &&
+			e.action === "closed" &&
+			e.repo &&
+			isBountyRepo(e.repo),
 	);
 
 	const resolvedCount = mergedBountyPRs.length + closedBountyPRs.length;
 	if (resolvedCount > 0) {
 		const mergeRate = mergedBountyPRs.length / resolvedCount;
-		if (mergeRate >= CONFIG.BOUNTY_REPO_MERGE_RATE_CLEAN) return null;
+		if (mergeRate >= CONFIG.BOUNTY_REPO_MERGE_RATE_CLEAN) {
+			return null;
+		}
 	}
 
 	return ratio >= CONFIG.BOUNTY_REPO_RATIO_HIGH ? "high" : "low";
 }
 
-export function detectBountyRepoPRs(events: GitHubEvent[]): IdentifyFlag[] {
+export function detectBountyRepoPRs(events: ActivityEvent[]): Flag[] {
 	const signal = getBountyPRSignal(events);
-	if (!signal) return [];
+	if (!signal) {
+		return [];
+	}
 
 	const openedPRs = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 	const bountyPRs = openedPRs.filter((e) => {
-		const repo = e.repo?.name;
+		const repo = e.repo;
+
 		return repo ? isBountyRepo(repo) : false;
 	});
 	const mergedBountyPRs = events.filter(
 		(e) =>
-			e.type === "PullRequestEvent" &&
-			e.payload?.action === "merged" &&
-			e.repo?.name &&
-			isBountyRepo(e.repo.name),
+			e.type === "pull-request" &&
+			e.action === "merged" &&
+			e.repo &&
+			isBountyRepo(e.repo),
 	);
 
 	const closedBountyPRs = events.filter(
 		(e) =>
-			e.type === "PullRequestEvent" &&
-			e.payload?.action === "closed" &&
-			e.repo?.name &&
-			isBountyRepo(e.repo.name),
+			e.type === "pull-request" &&
+			e.action === "closed" &&
+			e.repo &&
+			isBountyRepo(e.repo),
 	);
-
-	const ratio = bountyPRs.length / openedPRs.length;
-	const pct = Math.round(ratio * 100);
-
-	const detail =
-		mergedBountyPRs.length + closedBountyPRs.length > 0
-			? `${bountyPRs.length} of ${openedPRs.length} opened PRs (${pct}%) target known bounty program repositories; ${mergedBountyPRs.length} merged, ${closedBountyPRs.length} closed without merge`
-			: `${bountyPRs.length} of ${openedPRs.length} opened PRs (${pct}%) target known bounty program repositories`;
-
-	const label =
-		signal === "high"
-			? "PRs predominantly targeting known bounty program repositories"
-			: "PR activity in known bounty program repositories";
 
 	return [
 		{
-			label,
+			id: signal === "high" ? "bounty-prs-high" : "bounty-prs-low",
 			points: 0,
 			group: "bounty",
 			amplifiable: false,
-			detail,
-			data: [
-				{ label: "PRs to bounty repos", value: bountyPRs.length },
-				{ label: "Total PRs opened", value: openedPRs.length },
-				{ label: "Bounty PR ratio", value: `${pct}%` },
-				{ label: "Merged", value: mergedBountyPRs.length },
-				{ label: "Closed without merge", value: closedBountyPRs.length },
-			],
+			facts: {
+				bountyPRs: bountyPRs.length,
+				openedPRs: openedPRs.length,
+				ratio: bountyPRs.length / openedPRs.length,
+				merged: mergedBountyPRs.length,
+				closed: closedBountyPRs.length,
+			},
 			events: [...bountyPRs, ...mergedBountyPRs, ...closedBountyPRs],
 		},
 	];
