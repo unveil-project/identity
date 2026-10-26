@@ -1,10 +1,10 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { addHours, hoursBetween, isValidTime, toISO, toTime } from "../time";
+import type { ActivityEvent, Flag } from "../types";
 
 type RestWindow = {
-	start: dayjs.Dayjs;
-	end: dayjs.Dayjs;
+	start: number;
+	end: number;
 	hoursActive: number;
 	restGap: number;
 	eventCount: number;
@@ -17,19 +17,17 @@ type RestWindow = {
  * day. Calendar days depend on the timezone, so a busy night that runs over
  * midnight would be split in two and we would miss it.
  */
-export function detectInhumanActivityPattern(
-	events: GitHubEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectInhumanActivityPattern(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
 	}
 
 	const times = events
-		.map((event) => ({ event, time: dayjs(event.created_at) }))
-		.filter((entry) => entry.time.isValid())
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((event) => ({ event, time: toTime(event.at) }))
+		.filter((entry) => isValidTime(entry.time))
+		.sort((a, b) => a.time - b.time);
 
 	if (times.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
@@ -40,17 +38,23 @@ export function detectInhumanActivityPattern(
 
 	for (let start = 0; start < timeline.length; start++) {
 		const windowStart = timeline[start];
-		if (!windowStart) continue;
-		const windowEnd = windowStart.add(24, "hour");
+		if (!windowStart) {
+			continue;
+		}
+
+		const windowEnd = addHours(windowStart, 24);
 
 		let end = start;
-		while (end < timeline.length) {
-			if (!timeline[end]?.isBefore(windowEnd)) break;
+		let endTime = timeline[end];
+		while (endTime !== undefined && endTime < windowEnd) {
 			end++;
+			endTime = timeline[end];
 		}
 
 		const eventCount = end - start;
-		if (eventCount < CONFIG.MIN_EVENTS_FOR_ANALYSIS) continue;
+		if (eventCount < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+			continue;
+		}
 
 		// Count busy hours from the start of the window, not from midnight.
 		const activeSlots = new Set<number>();
@@ -59,20 +63,33 @@ export function detectInhumanActivityPattern(
 
 		for (let i = start; i < end; i++) {
 			const time = timeline[i];
-			if (!time) continue;
-			activeSlots.add(Math.floor(time.diff(windowStart, "hour", true)));
-			const gap = time.diff(previous, "hour", true);
-			if (gap > maxGap) maxGap = gap;
+			if (!time) {
+				continue;
+			}
+
+			activeSlots.add(Math.floor(hoursBetween(windowStart, time)));
+			const gap = hoursBetween(previous, time);
+			if (gap > maxGap) {
+				maxGap = gap;
+			}
+
 			previous = time;
 		}
 
 		// The quiet time after the last event is rest too.
-		const trailingGap = windowEnd.diff(previous, "hour", true);
-		if (trailingGap > maxGap) maxGap = trailingGap;
+		const trailingGap = hoursBetween(previous, windowEnd);
+		if (trailingGap > maxGap) {
+			maxGap = trailingGap;
+		}
 
 		const hoursActive = activeSlots.size;
-		if (hoursActive < CONFIG.HOURS_ACTIVE_EXTREME) continue;
-		if (eventCount / hoursActive < CONFIG.EVENTS_PER_HOUR_MIN) continue;
+		if (hoursActive < CONFIG.HOURS_ACTIVE_EXTREME) {
+			continue;
+		}
+
+		if (eventCount / hoursActive < CONFIG.EVENTS_PER_HOUR_MIN) {
+			continue;
+		}
 
 		if (!worst || maxGap < worst.restGap) {
 			worst = {
@@ -97,34 +114,20 @@ export function detectInhumanActivityPattern(
 	const windowStart = worst.start;
 	const windowEnd = worst.end;
 	const windowEvents = times
-		.filter(
-			(entry) =>
-				!entry.time.isBefore(windowStart) && entry.time.isBefore(windowEnd),
-		)
+		.filter((entry) => entry.time >= windowStart && entry.time < windowEnd)
 		.map((entry) => entry.event);
 
-	const restLabel = worst.restGap.toFixed(1);
-
 	flags.push({
-		label: "24/7 activity pattern",
+		id: "always-active",
 		points,
 		group: "timing",
 		amplifiable: true,
-		detail: `Active in ${worst.hoursActive} of 24 hours, with the longest break being only ${restLabel} hours`,
-		data: [
-			{ label: "Window start", value: windowStart.toISOString() },
-			{
-				label: "Hours active",
-				value: worst.hoursActive,
-				threshold: CONFIG.HOURS_ACTIVE_EXTREME,
-			},
-			{
-				label: "Longest rest (hours)",
-				value: parseFloat(restLabel),
-				threshold: CONFIG.REST_GAP_MIN_HOURS,
-			},
-			{ label: "Events in window", value: worst.eventCount },
-		],
+		facts: {
+			windowStart: toISO(windowStart),
+			hoursActive: worst.hoursActive,
+			longestRestHours: worst.restGap,
+			events: worst.eventCount,
+		},
 		events: windowEvents,
 	});
 

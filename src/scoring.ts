@@ -1,8 +1,7 @@
 import { CONFIG } from "./config";
-import type { EvidenceGroup, IdentifyFlag, ScoredGroup } from "./types";
+import type { EvidenceGroup, Flag, ScoredGroup } from "./types";
 
 export type ScoreOptions = {
-	aiMultiplier?: number;
 	bountyMultiplier?: number;
 };
 
@@ -12,7 +11,7 @@ export type ScoreResult = {
 	/** Per-group breakdown, ordered by contribution descending. */
 	groups: ScoredGroup[];
 	/** Input flags with `effectivePoints` populated. */
-	flags: IdentifyFlag[];
+	flags: Flag[];
 };
 
 /**
@@ -24,17 +23,17 @@ export type ScoreResult = {
  * things, so those we do add up.
  */
 export function scoreFlags(
-	flags: readonly IdentifyFlag[],
-	{ aiMultiplier = 1, bountyMultiplier = 1 }: ScoreOptions = {},
+	flags: readonly Flag[],
+	{ bountyMultiplier = 1 }: ScoreOptions = {},
 ): ScoreResult {
-	const scored: IdentifyFlag[] = flags.map((flag) => ({
+	const scored: Flag[] = flags.map((flag) => ({
 		...flag,
 		effectivePoints: flag.amplifiable
-			? Math.round(flag.points * aiMultiplier * bountyMultiplier)
+			? Math.round(flag.points * bountyMultiplier)
 			: flag.points,
 	}));
 
-	const byGroup = new Map<EvidenceGroup, IdentifyFlag[]>();
+	const byGroup = new Map<EvidenceGroup, Flag[]>();
 	for (const flag of scored) {
 		const existing = byGroup.get(flag.group);
 		if (existing) {
@@ -62,6 +61,7 @@ export function scoreFlags(
 			rawPoints,
 			points: groupPoints,
 		});
+
 		total += groupPoints;
 	}
 

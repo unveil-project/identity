@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import type { IdentityClassification } from "../src";
+import type { ClassificationLabel } from "../src";
 import {
 	expectsGitHubApp,
 	getCategory,
@@ -13,7 +13,7 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const CLASSIFICATIONS: IdentityClassification[] = [
+const CLASSIFICATIONS: ClassificationLabel[] = [
 	"organic",
 	"mixed",
 	"automation",
@@ -34,7 +34,7 @@ describe("regression config", () => {
 		expect(Object.keys(REGRESSION_FIXTURES).length).toBeGreaterThan(0);
 	});
 
-	it("only expects classifications identify() can return", () => {
+	it("only expects classifications classify() can return", () => {
 		for (const [name, entry] of Object.entries(REGRESSION_FIXTURES)) {
 			expect(CLASSIFICATIONS, `${name} expected`).toContain(
 				getExpected(entry),

@@ -1,12 +1,12 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { secondsBetween, toTime } from "../time";
+import type { ActivityEvent, Flag } from "../types";
 
 export function detectRapidPRSpam(
-	events: GitHubEvent[],
+	events: ActivityEvent[],
 	isEstablished: boolean,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// Rapid PRs to repository (fork contribution pattern)
 	// Detects: multiple PRs opened in rapid succession to same repo
@@ -16,7 +16,7 @@ export function detectRapidPRSpam(
 		: CONFIG.RAPID_PR_SPAM_MIN_PRS;
 
 	const prEvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
 	if (prEvents.length < minRapidPRs) {
@@ -24,16 +24,17 @@ export function detectRapidPRSpam(
 	}
 
 	const prTimes = prEvents
-		.map((e) => ({ event: e, time: dayjs(e.created_at) }))
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.map((e) => ({ event: e, time: toTime(e.at) }))
+		.sort((a, b) => a.time - b.time);
 
 	const prsByRepo = new Map<string, typeof prTimes>();
 	for (const prEntry of prTimes) {
-		const repoName = prEntry.event.repo?.name;
+		const repoName = prEntry.event.repo;
 		if (repoName) {
 			if (!prsByRepo.has(repoName)) {
 				prsByRepo.set(repoName, []);
 			}
+
 			prsByRepo.get(repoName)?.push(prEntry);
 		}
 	}
@@ -45,16 +46,23 @@ export function detectRapidPRSpam(
 	let maxStreakEndIdx = 0;
 
 	for (const [repoName, repoPRs] of prsByRepo.entries()) {
-		if (repoPRs.length < minRapidPRs) continue;
+		if (repoPRs.length < minRapidPRs) {
+			continue;
+		}
 
 		let streakStart = 0;
 		let streakPairs = 0;
 		let streakMaxTimeDiff = 0;
 
 		for (let i = 0; i < repoPRs.length - 1; i++) {
-			const timeDiffSeconds = repoPRs[i + 1].time.diff(
-				repoPRs[i].time,
-				"second",
+			const currentPR = repoPRs[i];
+			const nextPR = repoPRs[i + 1];
+			if (!currentPR || !nextPR) {
+				continue;
+			}
+
+			const timeDiffSeconds = Math.trunc(
+				secondsBetween(currentPR.time, nextPR.time),
 			);
 
 			if (timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS) {
@@ -81,25 +89,18 @@ export function detectRapidPRSpam(
 		const rapidRepoEvents = (prsByRepo.get(targetRepo) ?? [])
 			.slice(maxStreakStartIdx, maxStreakEndIdx + 1)
 			.map((entry) => entry.event);
+
 		flags.push({
-			label: "Rapid PRs to repository",
+			id: "rapid-prs",
 			points: CONFIG.POINTS_RAPID_PR_SPAM,
 			group: "branch-pr",
 			amplifiable: true,
-			detail: `${maxConsecutivePairs + 1} PRs opened to ${targetRepo} within ${maxConsecutiveTimeDiff}s intervals`,
-			data: [
-				{
-					label: "Rapid PRs to same repo",
-					value: maxConsecutivePairs + 1,
-					threshold: minRapidPRs,
-				},
-				{ label: "Target repository", value: targetRepo },
-				{
-					label: "Max interval between PRs (s)",
-					value: maxConsecutiveTimeDiff,
-					threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
-				},
-			],
+			facts: {
+				prs: maxConsecutivePairs + 1,
+				minPRs: minRapidPRs,
+				repo: targetRepo,
+				maxGapSeconds: maxConsecutiveTimeDiff,
+			},
 			events: rapidRepoEvents,
 		});
 	}

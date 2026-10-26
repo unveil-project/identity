@@ -1,56 +1,52 @@
 {
-	"name": "@unveil/identity",
-	"version": "2.1.1",
-	"type": "module",
-	"description": "Identify automation patterns in GitHub accounts through behavioral analysis",
-	"homepage": "https://github.com/unveil-project/identity#readme",
-	"bugs": {
-		"url": "https://github.com/unveil-project/identity/issues"
-	},
-	"license": "MIT",
-	"author": "Matteo Gabriele <m.gabriele.dev@gmail.com>",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/unveil-project/identity.git"
-	},
-	"exports": {
-		".": "./dist/index.mjs",
-		"./package.json": "./package.json"
-	},
-	"types": "./dist/index.d.mts",
-	"files": [
-		"dist"
-	],
-	"scripts": {
-		"build": "tsdown",
-		"dev": "tsdown --watch",
-		"test": "vitest",
-		"check": "biome check",
-		"check:fix": "biome check --fix",
-		"obfuscate:fixture": "tsx scripts/obfuscate-fixture.ts",
-		"add:fixture": "tsx scripts/add-fixture.ts",
-		"update-fixtures": "tsx scripts/fetch-regression-fixtures.ts",
-		"playground": "pnpm -F @unveil/identity-playground dev",
-		"regression-test": "tsx scripts/regression-test.ts",
-		"prepublishOnly": "vitest --run && pnpm run build && pnpm run regression-test"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.4.16",
-		"@faker-js/faker": "^10.3.0",
-		"@octokit/types": "^16.0.0",
-		"@types/node": "^25.0.3",
-		"bumpp": "^10.3.2",
-		"dayjs": "^1.11.20",
-		"mockdate": "^3.0.5",
-		"publint": "^0.3.17",
-		"tsdown": "^0.22.4",
-		"tsx": "^4.23.0",
-		"typescript": "^6.0.3",
-		"vitest": "^4.0.16"
-	},
-	"inlinedDependencies": {
-		"@octokit/openapi-types": "27.0.0",
-		"@octokit/types": "16.0.0",
-		"dayjs": "1.11.20"
-	}
+  "name": "@unveil/identity",
+  "version": "3.0.0-beta.5",
+  "type": "module",
+  "description": "Identify automation patterns in GitHub accounts through behavioral analysis",
+  "homepage": "https://github.com/unveil-project/identity#readme",
+  "bugs": {
+    "url": "https://github.com/unveil-project/identity/issues"
+  },
+  "license": "MIT",
+  "author": "Matteo Gabriele <m.gabriele.dev@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unveil-project/identity.git"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./providers/github": "./dist/providers/github.mjs",
+    "./report": "./dist/report.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest",
+    "check": "biome check",
+    "check:fix": "biome check --fix",
+    "obfuscate:fixture": "tsx scripts/obfuscate-fixture.ts",
+    "add:fixture": "tsx scripts/add-fixture.ts",
+    "update-fixtures": "tsx scripts/fetch-regression-fixtures.ts",
+    "playground": "pnpm -F @unveil/identity-playground dev",
+    "regression-test": "tsx scripts/regression-test.ts",
+    "prepublishOnly": "vitest --run && pnpm run build && pnpm run regression-test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
+    "@faker-js/faker": "^10.3.0",
+    "@octokit/types": "^16.0.0",
+    "@types/node": "^25.0.3",
+    "bumpp": "^10.3.2",
+    "mockdate": "^3.0.5",
+    "publint": "^0.3.17",
+    "tsdown": "^0.22.4",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.0.16"
+  }
 }

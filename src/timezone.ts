@@ -1,9 +1,6 @@
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { CONFIG } from "./config";
-import type { GitHubEvent, TimezoneEstimate } from "./types";
-
-dayjs.extend(utc);
+import { addHours, isValidTime, toDay, toTime } from "./time";
+import type { ActivityEvent, TimezoneEstimate } from "./types";
 
 const HOURS = 24;
 const RADIANS_PER_HOUR = (2 * Math.PI) / HOURS;
@@ -25,16 +22,20 @@ const RADIANS_PER_HOUR = (2 * Math.PI) / HOURS;
  * that case we give up and return an offset of 0.
  */
 export function estimateUtcOffset(
-	events: readonly GitHubEvent[],
+	events: readonly ActivityEvent[],
 ): TimezoneEstimate {
 	let cos = 0;
 	let sin = 0;
 	let total = 0;
 
 	for (const event of events) {
-		const time = dayjs.utc(event.created_at);
-		if (!time.isValid()) continue;
-		const hour = time.hour() + time.minute() / 60;
+		const time = toTime(event.at);
+		if (!isValidTime(time)) {
+			continue;
+		}
+
+		const date = new Date(time);
+		const hour = date.getUTCHours() + date.getUTCMinutes() / 60;
 		const angle = hour * RADIANS_PER_HOUR;
 		cos += Math.cos(angle);
 		sin += Math.sin(angle);
@@ -54,33 +55,43 @@ export function estimateUtcOffset(
 	}
 
 	let meanHourUtc = Math.atan2(sin, cos) / RADIANS_PER_HOUR;
-	if (meanHourUtc < 0) meanHourUtc += HOURS;
+	if (meanHourUtc < 0) {
+		meanHourUtc += HOURS;
+	}
 
 	let offset = Math.round(CONFIG.TZ_LOCAL_ACTIVITY_CENTER - meanHourUtc);
 
 	// Keep the offset inside the range that real timezones use
-	while (offset < -12) offset += HOURS;
-	while (offset > 14) offset -= HOURS;
+	while (offset < -12) {
+		offset += HOURS;
+	}
+
+	while (offset > 14) {
+		offset -= HOURS;
+	}
 
 	return { offsetHours: offset, confidence };
 }
 
 /** Move a timestamp into the account's own local time. */
-export function toLocal(
+function toLocalTime(
 	value: string | undefined | null,
 	offsetHours: number,
-): dayjs.Dayjs {
-	// A missing timestamp stays invalid: `undefined` would make Day.js fall back
-	// to "now", which silently turns missing data into today.
-	return dayjs.utc(value ?? null).add(offsetHours, "hour");
+): number {
+	return addHours(toTime(value), offsetHours);
 }
 
-/** The day in the account's own local time, as YYYY-MM-DD. */
+/**
+ * The day in the account's own local time, as YYYY-MM-DD.
+ * Empty when the timestamp cannot be read.
+ */
 export function localDay(
 	value: string | undefined | null,
 	offsetHours: number,
 ): string {
-	return toLocal(value, offsetHours).format("YYYY-MM-DD");
+	const time = toLocalTime(value, offsetHours);
+
+	return isValidTime(time) ? toDay(time) : "";
 }
 
 /** The hour (0–23) in the account's own local time. */
@@ -88,5 +99,5 @@ export function localHour(
 	value: string | undefined | null,
 	offsetHours: number,
 ): number {
-	return toLocal(value, offsetHours).hour();
+	return new Date(toLocalTime(value, offsetHours)).getUTCHours();
 }

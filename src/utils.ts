@@ -1,15 +1,19 @@
-import dayjs from "dayjs";
-import type { GitHubEvent } from "./types";
+import { hoursBetween, isValidTime, toTime } from "./time";
+import type { ActivityEvent } from "./types";
 
 /**
  * Measure how spread out a set of counts is.
  * Low = concentrated in a few buckets (bot-like). High = evenly spread.
  */
 function calculateShannonsEntropy(counts: number[]): number {
-	if (counts.length === 0) return 0;
+	if (counts.length === 0) {
+		return 0;
+	}
 
 	const total = counts.reduce((sum, count) => sum + count, 0);
-	if (total === 0) return 0;
+	if (total === 0) {
+		return 0;
+	}
 
 	let entropy = 0;
 	for (const count of counts) {
@@ -27,7 +31,9 @@ function calculateShannonsEntropy(counts: number[]): number {
  * 0 = all in one bucket, 1 = perfectly even.
  */
 export function calculateNormalizedShannonsEntropy(counts: number[]): number {
-	if (counts.length <= 1) return 0;
+	if (counts.length <= 1) {
+		return 0;
+	}
 
 	const entropy = calculateShannonsEntropy(counts);
 	const maxEntropy = Math.log2(counts.length);
@@ -49,49 +55,43 @@ export function rampPoints(
 	anchors: readonly RampAnchor[],
 ): number {
 	const first = anchors[0];
-	if (!first) return 0;
-	if (value <= first[0]) return first[1];
+	if (!first) {
+		return 0;
+	}
+
+	if (value <= first[0]) {
+		return first[1];
+	}
 
 	const last = anchors[anchors.length - 1];
-	if (!last) return 0;
-	if (value >= last[0]) return last[1];
+	if (!last) {
+		return 0;
+	}
+
+	if (value >= last[0]) {
+		return last[1];
+	}
 
 	for (let i = 1; i < anchors.length; i++) {
 		const lower = anchors[i - 1];
 		const upper = anchors[i];
-		if (!lower || !upper) continue;
+		if (!lower || !upper) {
+			continue;
+		}
+
 		if (value <= upper[0]) {
 			const span = upper[0] - lower[0];
-			if (span <= 0) return upper[1];
+			if (span <= 0) {
+				return upper[1];
+			}
+
 			const t = (value - lower[0]) / span;
+
 			return Math.round(lower[1] + t * (upper[1] - lower[1]));
 		}
 	}
 
 	return last[1];
-}
-
-/**
- * Describe how long a burst lasted, in words.
- *
- * Uses minutes for short bursts so we never report "0 hours" for something
- * like twenty stars in forty minutes.
- */
-export function formatWindowDuration(
-	start: dayjs.Dayjs | undefined,
-	end: dayjs.Dayjs | undefined,
-): string {
-	const minutes = start && end ? end.diff(start, "minute", true) : 0;
-
-	if (minutes < 1) return "under a minute";
-
-	if (minutes < 90) {
-		const rounded = Math.round(minutes);
-		return `${rounded} minute${rounded === 1 ? "" : "s"}`;
-	}
-
-	const hours = Math.round(minutes / 60);
-	return `${hours} hour${hours === 1 ? "" : "s"}`;
 }
 
 export type DensestWindow<T> = {
@@ -109,15 +109,17 @@ export type DensestWindow<T> = {
  */
 export function densestWindow<T>(
 	items: readonly T[],
-	getTime: (item: T) => dayjs.Dayjs,
+	getTime: (item: T) => number,
 	windowHours: number,
 ): DensestWindow<T> {
-	if (items.length === 0) return { count: 0, items: [] };
+	if (items.length === 0) {
+		return { count: 0, items: [] };
+	}
 
 	const sorted = [...items]
 		.map((item) => ({ item, time: getTime(item) }))
-		.filter((entry) => entry.time.isValid())
-		.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+		.filter((entry) => isValidTime(entry.time))
+		.sort((a, b) => a.time - b.time);
 
 	let best = 0;
 	let bestStart = 0;
@@ -126,13 +128,18 @@ export function densestWindow<T>(
 
 	for (let end = 0; end < sorted.length; end++) {
 		const endTime = sorted[end]?.time;
-		if (!endTime) continue;
+		if (!endTime) {
+			continue;
+		}
+
+		let startTime = sorted[start]?.time;
 
 		while (
-			sorted[start] &&
-			endTime.diff(sorted[start].time, "hour", true) > windowHours
+			startTime !== undefined &&
+			hoursBetween(startTime, endTime) > windowHours
 		) {
 			start++;
+			startTime = sorted[start]?.time;
 		}
 
 		const count = end - start + 1;
@@ -151,8 +158,22 @@ export function densestWindow<T>(
 
 /** Convenience wrapper around `densestWindow` for GitHub events. */
 export function densestEventWindow(
-	events: readonly GitHubEvent[],
+	events: readonly ActivityEvent[],
 	windowHours: number,
-): DensestWindow<GitHubEvent> {
-	return densestWindow(events, (e) => dayjs(e.created_at), windowHours);
+): DensestWindow<ActivityEvent> {
+	return densestWindow(events, (e) => toTime(e.at), windowHours);
+}
+
+/** The owner part of "owner/name": everything before the last slash. */
+export function ownerOf(repo: string): string {
+	const slash = repo.lastIndexOf("/");
+
+	return slash === -1 ? repo : repo.slice(0, slash);
+}
+
+/** The name part of "owner/name": everything after the last slash. */
+export function nameOf(repo: string): string | undefined {
+	const slash = repo.lastIndexOf("/");
+
+	return slash === -1 ? undefined : repo.slice(slash + 1);
 }

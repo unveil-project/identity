@@ -3,7 +3,7 @@ import MockDate from "mockdate";
 /**
  * Run something with the clock pinned to a fixed moment.
  *
- * Fixtures are snapshots, but identify() reads the wall clock to work out how
+ * Fixtures are snapshots, but classify() reads the wall clock to work out how
  * old an account is. That makes a stored fixture drift: an account captured at
  * 40 days old quietly turns 90 while the file sits in the repo, every
  * young-account check switches off, and the classification changes without

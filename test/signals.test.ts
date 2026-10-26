@@ -1,11 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { identify } from "../src/identify";
-import type { GitHubEvent } from "../src/types";
-import { event, user } from "./utils/events";
+import type { GitHubEvent } from "../src/providers/github";
+import { event, reportGitHub, user } from "./utils/events";
 
 const date = new Date(2026, 2, 10, 12);
 
-describe("identify - Account Age Flags", () => {
+describe("report - Account Age Flags", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -17,7 +16,7 @@ describe("identify - Account Age Flags", () => {
 
 	it("should flag recently created accounts (< 30 days old)", () => {
 		const recentDate = new Date(2026, 2, 5); // 5 days old
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "newuser", created_at: recentDate.toISOString(), public_repos: 5 }),
 			events: [],
 		});
@@ -29,7 +28,7 @@ describe("identify - Account Age Flags", () => {
 
 	it("should flag young accounts (30-90 days old)", () => {
 		const youngDate = new Date(2026, 0, 20); // ~50 days old
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "younguser", created_at: youngDate.toISOString(), public_repos: 5 }),
 			events: [],
 		});
@@ -41,7 +40,7 @@ describe("identify - Account Age Flags", () => {
 
 	it("should not flag established accounts (> 90 days old)", () => {
 		const establishedDate = new Date(2025, 11, 1); // > 100 days old
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "olduser", created_at: establishedDate.toISOString(), public_repos: 5 }),
 			events: [],
 		});
@@ -53,7 +52,7 @@ describe("identify - Account Age Flags", () => {
 	});
 });
 
-describe("identify - Zero Repos & External Activity", () => {
+describe("report - Zero Repos & External Activity", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -81,7 +80,7 @@ describe("identify - Zero Repos & External Activity", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "contributor", created_at: "2025-12-01T00:00:00Z", public_repos: 0 }),
 			events,
 		});
@@ -94,7 +93,7 @@ describe("identify - Zero Repos & External Activity", () => {
 	});
 });
 
-describe("identify - Fork Surge Detection", () => {
+describe("report - Fork Surge Detection", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -114,7 +113,7 @@ describe("identify - Fork Surge Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -132,7 +131,7 @@ describe("identify - Fork Surge Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -158,7 +157,7 @@ describe("identify - Fork Surge Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -188,7 +187,7 @@ describe("identify - Fork Surge Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -222,7 +221,7 @@ describe("identify - Fork Surge Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -258,7 +257,7 @@ describe("identify - Fork Surge Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -277,7 +276,7 @@ describe("identify - Fork Surge Detection", () => {
 	});
 });
 
-describe("identify - Repository Creation Patterns", () => {
+describe("report - Repository Creation Patterns", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -311,7 +310,7 @@ describe("identify - Repository Creation Patterns", () => {
 			repo: { name: "repo9" } as any,
 		} as any);
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 100 }),
 			events,
 		});
@@ -345,7 +344,7 @@ describe("identify - Repository Creation Patterns", () => {
 			repo: { name: "extra2" } as any,
 		} as any);
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 100 }),
 			events,
 		});
@@ -367,7 +366,7 @@ describe("identify - Repository Creation Patterns", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -380,7 +379,7 @@ describe("identify - Repository Creation Patterns", () => {
 	});
 });
 
-describe("identify - Activity Pattern Detection", () => {
+describe("report - Activity Pattern Detection", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -409,7 +408,7 @@ describe("identify - Activity Pattern Detection", () => {
 			}
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
@@ -432,7 +431,7 @@ describe("identify - Activity Pattern Detection", () => {
 			}
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
@@ -443,7 +442,7 @@ describe("identify - Activity Pattern Detection", () => {
 	});
 });
 
-describe("identify - Narrow Activity Focus", () => {
+describe("report - Narrow Activity Focus", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -463,7 +462,7 @@ describe("identify - Narrow Activity Focus", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
@@ -491,7 +490,7 @@ describe("identify - Narrow Activity Focus", () => {
 			repo: { name: "repo" } as any,
 		} as any);
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
@@ -502,7 +501,7 @@ describe("identify - Narrow Activity Focus", () => {
 	});
 });
 
-describe("identify - Score Calculation", () => {
+describe("report - Score Calculation", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -523,7 +522,7 @@ describe("identify - Score Calculation", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -555,7 +554,7 @@ describe("identify - Score Calculation", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -576,7 +575,7 @@ describe("identify - Score Calculation", () => {
 	});
 
 	it("should return score of 100 for account with no flags", () => {
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "established", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events: [],
 		});
@@ -603,7 +602,7 @@ describe("identify - Score Calculation", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			// very new account
 			user: user({ login: "bot", created_at: "2026-03-08T00:00:00Z", public_repos: 0 }),
 			events,
@@ -613,7 +612,7 @@ describe("identify - Score Calculation", () => {
 	});
 });
 
-describe("identify - Classification", () => {
+describe("report - Classification", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -639,7 +638,7 @@ describe("identify - Classification", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "established", created_at: "2025-01-01T00:00:00Z", public_repos: 100 }),
 			events,
 		});
@@ -649,7 +648,7 @@ describe("identify - Classification", () => {
 	});
 
 	it("should report insufficient-data rather than organic for an empty feed", () => {
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "established", created_at: "2025-01-01T00:00:00Z", public_repos: 100 }),
 			events: [],
 		});
@@ -669,7 +668,7 @@ describe("identify - Classification", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			// 14 days old (new account penalty: 20 points)
 			user: user({ created_at: "2026-04-15T00:00:00Z", public_repos: 100 }),
 			events,
@@ -699,7 +698,7 @@ describe("identify - Classification", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			// 52 days old (young account penalty: 10 points)
 			user: user({ login: "bot", created_at: "2026-03-08T00:00:00Z", public_repos: 0 }),
 			events,
@@ -711,7 +710,7 @@ describe("identify - Classification", () => {
 	});
 });
 
-describe("identify - Profile Information", () => {
+describe("report - Profile Information", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -723,7 +722,7 @@ describe("identify - Profile Information", () => {
 
 	it("should include correct account age in profile", () => {
 		const created_at = "2025-12-01T00:00:00Z"; // ~100 days ago
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ created_at, public_repos: 5 }),
 			events: [],
 		});
@@ -733,7 +732,7 @@ describe("identify - Profile Information", () => {
 	});
 
 	it("should include repos count in profile", () => {
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 42 }),
 			events: [],
 		});
@@ -742,7 +741,7 @@ describe("identify - Profile Information", () => {
 	});
 });
 
-describe("identify - Issue Comment Spam Detection", () => {
+describe("report - Issue Comment Spam Detection", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -771,7 +770,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
@@ -792,7 +791,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
@@ -821,7 +820,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			repo: { name: "owner/main" } as any,
 		} as any);
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
@@ -854,7 +853,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -879,7 +878,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -906,7 +905,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -937,7 +936,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
@@ -960,7 +959,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -984,7 +983,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1012,7 +1011,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1026,7 +1025,7 @@ describe("identify - Issue Comment Spam Detection", () => {
 	});
 });
 
-describe("identify - PR Comment Spam Detection", () => {
+describe("report - PR Comment Spam Detection", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -1055,7 +1054,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1082,7 +1081,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1109,7 +1108,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			repo: { name: "owner/main" } as any,
 		} as any);
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1142,7 +1141,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1175,7 +1174,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1210,7 +1209,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1247,7 +1246,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
@@ -1279,7 +1278,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 30 }),
 			events,
 		});
@@ -1308,7 +1307,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1340,7 +1339,7 @@ describe("identify - PR Comment Spam Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
 			events,
 		});
@@ -1352,7 +1351,7 @@ describe("identify - PR Comment Spam Detection", () => {
 	});
 });
 
-describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
+describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -1382,7 +1381,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 25 }),
 			events,
 		});
@@ -1419,7 +1418,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 5 }),
 			events,
 		});
@@ -1453,7 +1452,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -1494,7 +1493,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 35 }),
 			events,
 		});
@@ -1528,7 +1527,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
 			events,
 		});
@@ -1540,275 +1539,7 @@ describe("identify - Extreme PR Spam Detection (Time-Based)", () => {
 	});
 });
 
-describe("identify - Repository Exclusion Filter", () => {
-	beforeEach(() => {
-		vi.useFakeTimers();
-		vi.setSystemTime(date);
-	});
-
-	afterEach(() => {
-		vi.useRealTimers();
-	});
-
-	it("should exclude events from filtered repositories and not flag them", () => {
-		const events: GitHubEvent[] = [];
-		// Create 10 fork events on excluded repo and 2 on other repos
-		// FORKS_EXTREME: 8 (triggers at 8+), FORKS_HIGH: 5 (triggers at 5+)
-		// Without filter: 12 forks total >= 8 → flags. With filter: 2 forks < 5 → no flag
-		for (let i = 0; i < 10; i++) {
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
-				repo: { name: "excluded-owner/excluded-repo" } as any,
-			} as any);
-		}
-		for (let i = 0; i < 2; i++) {
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, 10 + i, 0, 0).toISOString(),
-				repo: { name: `other-owner/repo${i}` } as any,
-			} as any);
-		}
-
-		// Without filter - should flag because 12 forks within 24h triggers fork spike (>= FORKS_EXTREME: 8)
-		const resultWithoutFilter = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-		});
-
-		// With filter excluding the problematic repo - should not flag because only 2 forks remain (< FORKS_HIGH: 5)
-		const resultWithFilter = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-			excludeRepos: ["excluded-owner/excluded-repo"],
-		});
-
-		// Verify that fork spike flags are different
-		const withoutFilterHasForkFlag = resultWithoutFilter.flags.some(
-			(f) => f.label.includes("fork") || f.label.includes("Fork"),
-		);
-		const withFilterHasForkFlag = resultWithFilter.flags.some(
-			(f) => f.label.includes("fork") || f.label.includes("Fork"),
-		);
-
-		expect(withoutFilterHasForkFlag).toBe(true);
-		expect(withFilterHasForkFlag).toBe(false);
-		expect(resultWithFilter.score).toBeGreaterThan(resultWithoutFilter.score);
-	});
-
-	it("should handle case-insensitive repository name matching", () => {
-		const events: GitHubEvent[] = [];
-		// Create fork events with mixed case in repo names
-		for (let i = 0; i < 10; i++) {
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
-				repo: { name: "Owner/MyRepo" } as any, // Mixed case
-			} as any);
-		}
-
-		// Filter with different case - should still exclude them
-		const result = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-			excludeRepos: ["owner/myrepo"], // Lowercase
-		});
-
-		// Should not flag because all forks are excluded
-		const hasForkFlag = result.flags.some(
-			(f) => f.label.includes("fork") || f.label.includes("Fork"),
-		);
-		expect(hasForkFlag).toBe(false);
-		expect(result.score).toBe(100);
-	});
-
-	it("should filter multiple excluded repositories", () => {
-		const events: GitHubEvent[] = [];
-		// Create fork events across 3 repos
-		for (let i = 0; i < 4; i++) {
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
-				repo: { name: "owner/repo-a" } as any,
-			} as any);
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, i + 4, 0, 0).toISOString(),
-				repo: { name: "owner/repo-b" } as any,
-			} as any);
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, i + 8, 0, 0).toISOString(),
-				repo: { name: "owner/repo-c" } as any,
-			} as any);
-		}
-
-		// Exclude first two repos - should only see 4 forks from repo-c
-		const result = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-			excludeRepos: ["owner/repo-a", "owner/repo-b"],
-		});
-
-		// Should not flag because only 4 forks remain
-		const hasForkFlag = result.flags.some(
-			(f) => f.label.includes("fork") || f.label.includes("Fork"),
-		);
-		expect(hasForkFlag).toBe(false);
-	});
-
-	it("should work correctly when excludeRepos is empty array", () => {
-		const events: GitHubEvent[] = [];
-		for (let i = 0; i < 10; i++) {
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
-				repo: { name: `repo${i}` } as any,
-			} as any);
-		}
-
-		const result = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-			excludeRepos: [], // Empty array
-		});
-
-		// Should behave same as if excludeRepos was not provided
-		const hasForkFlag = result.flags.some(
-			(f) => f.label.includes("fork") || f.label.includes("Fork"),
-		);
-		expect(hasForkFlag).toBe(true);
-	});
-
-	it("should work correctly when excludeRepos is not provided (undefined)", () => {
-		const events: GitHubEvent[] = [];
-		for (let i = 0; i < 10; i++) {
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
-				repo: { name: `repo${i}` } as any,
-			} as any);
-		}
-
-		const result = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-			// excludeRepos not provided
-		});
-
-		// Should flag fork activity normally
-		const hasForkFlag = result.flags.some(
-			(f) => f.label.includes("fork") || f.label.includes("Fork"),
-		);
-		expect(hasForkFlag).toBe(true);
-	});
-
-	it("should exclude repos from all types of analysis (comment spam, bursts, etc)", () => {
-		const events: GitHubEvent[] = [];
-
-		// Add issue comment spam events to 12 different repos
-		for (let i = 0; i < 12; i++) {
-			events.push({
-				type: "IssueCommentEvent",
-				created_at: new Date(2026, 2, 10, 12, 0, i * 10).toISOString(),
-				repo: { name: `spam-owner/spam-repo${i}` } as any,
-			} as any);
-		}
-
-		const resultWithoutFilter = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-		});
-
-		const resultWithFilter = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-			excludeRepos: [
-				"spam-owner/spam-repo0",
-				"spam-owner/spam-repo1",
-				"spam-owner/spam-repo2",
-				"spam-owner/spam-repo3",
-				"spam-owner/spam-repo4",
-				"spam-owner/spam-repo5",
-				"spam-owner/spam-repo6",
-				"spam-owner/spam-repo7",
-				"spam-owner/spam-repo8",
-				"spam-owner/spam-repo9",
-				"spam-owner/spam-repo10",
-				"spam-owner/spam-repo11",
-			],
-		});
-
-		// Without filter should flag comment spam
-		expect(
-			resultWithoutFilter.flags.some(
-				(f) =>
-					f.label === "Rapid comments across repositories" ||
-					f.label === "High comment frequency across repos",
-			),
-		).toBe(true);
-
-		// With filter should not flag
-		expect(
-			resultWithFilter.flags.some(
-				(f) =>
-					f.label === "Rapid comments across repositories" ||
-					f.label === "High comment frequency across repos",
-			),
-		).toBe(false);
-
-		expect(resultWithFilter.score).toBeGreaterThan(resultWithoutFilter.score);
-	});
-
-	it("should partially filter when only some events match exclude list", () => {
-		const events: GitHubEvent[] = [];
-
-		// Add 8 forks to excluded repo (would trigger flag)
-		for (let i = 0; i < 8; i++) {
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, i, 0, 0).toISOString(),
-				repo: { name: "excluded-owner/excluded-repo" } as any,
-			} as any);
-		}
-
-		// Add 2 forks to non-excluded repo (not enough to flag alone)
-		for (let i = 0; i < 2; i++) {
-			events.push({
-				type: "ForkEvent",
-				created_at: new Date(2026, 2, 10, 10 + i, 0, 0).toISOString(),
-				repo: { name: "other/repo" } as any,
-			} as any);
-		}
-
-		const result = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-			excludeRepos: ["excluded-owner/excluded-repo"],
-		});
-
-		// Should only see 2 forks (not enough to flag)
-		expect(
-			result.flags.some(
-				(f) => f.label.includes("fork") || f.label.includes("Fork"),
-			),
-		).toBe(false);
-
-		// Now test without filter - should flag
-		const resultNoFilter = identify({
-			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 20 }),
-			events,
-		});
-
-		expect(
-			resultNoFilter.flags.some(
-				(f) => f.label.includes("fork") || f.label.includes("Fork"),
-			),
-		).toBe(true);
-	});
-});
-
-describe("identify - Star Burst Detection", () => {
+describe("report - Star Burst Detection", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -1829,7 +1560,7 @@ describe("identify - Star Burst Detection", () => {
 			} as any);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({
 				login: "user",
 				created_at: "2025-01-01T00:00:00Z",
@@ -1844,7 +1575,7 @@ describe("identify - Star Burst Detection", () => {
 	});
 });
 
-describe("identify - Rapid branch→PR pattern", () => {
+describe("report - Rapid branch→PR pattern", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(date);
@@ -1878,7 +1609,7 @@ describe("identify - Rapid branch→PR pattern", () => {
 	}
 
 	it("flags rapid branch→PR churn inside the account's own repositories", () => {
-		const result = identify({
+		const result = reportGitHub({
 			user: user({
 				login: "maintainer",
 				created_at: "2015-01-01T00:00:00Z",
@@ -1896,7 +1627,7 @@ describe("identify - Rapid branch→PR pattern", () => {
 		// Creating a branch in a repo the account does not own means it was granted
 		// push access, so this is a collaborator running `gh pr create` — not a bot,
 		// which would have to fork instead (covered by the fork→PR check).
-		const result = identify({
+		const result = reportGitHub({
 			user: user({
 				login: "maintainer",
 				created_at: "2015-01-01T00:00:00Z",
@@ -1925,7 +1656,7 @@ describe("identify - Rapid branch→PR pattern", () => {
 			);
 		}
 
-		const result = identify({
+		const result = reportGitHub({
 			user: user({
 				login: "maintainer",
 				created_at: "2015-01-01T00:00:00Z",
@@ -1964,7 +1695,7 @@ describe("identify - Rapid branch→PR pattern", () => {
 	}
 
 	it("flags rapid fork branch→upstream PR churn", () => {
-		const result = identify({
+		const result = reportGitHub({
 			user: user({
 				login: "maintainer",
 				created_at: "2015-01-01T00:00:00Z",
@@ -1983,7 +1714,7 @@ describe("identify - Rapid branch→PR pattern", () => {
 	});
 
 	it("matches the account's fork regardless of login casing", () => {
-		const result = identify({
+		const result = reportGitHub({
 			user: user({
 				login: "Maintainer",
 				created_at: "2015-01-01T00:00:00Z",
@@ -2005,7 +1736,7 @@ describe("identify - Rapid branch→PR pattern", () => {
 		// Branching in someone else's repo needs push access a maintainer granted,
 		// so pairing those branches with PRs that happen to land in another owner's
 		// repo of the same name is not the fork workflow this check looks for.
-		const result = identify({
+		const result = reportGitHub({
 			user: user({
 				login: "maintainer",
 				created_at: "2015-01-01T00:00:00Z",

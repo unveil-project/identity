@@ -1,33 +1,45 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { EventConnection, GitHubEvent, IdentifyFlag } from "../types";
+import { minutesBetween, secondsBetween, toTime } from "../time";
+import type { ActivityEvent, EventConnection, Flag } from "../types";
 
-type EventEntry = { event: GitHubEvent; time: dayjs.Dayjs };
+type EventEntry = { event: ActivityEvent; time: number };
 
-export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
-	const issueCommentEvents = events.filter(
-		(e) => e.type === "IssueCommentEvent",
-	);
+export function detectCommentBeforePR(events: ActivityEvent[]): Flag[] {
+	const issueCommentEvents = events.filter((e) => e.type === "issue-comment");
 	const prOpenEvents = events.filter(
-		(e) => e.type === "PullRequestEvent" && e.payload?.action === "opened",
+		(e) => e.type === "pull-request" && e.action === "opened",
 	);
 
-	if (issueCommentEvents.length === 0 || prOpenEvents.length === 0) return [];
+	if (issueCommentEvents.length === 0 || prOpenEvents.length === 0) {
+		return [];
+	}
 
 	const commentsByRepo = new Map<string, EventEntry[]>();
 	for (const e of issueCommentEvents) {
-		const repo = e.repo?.name;
-		if (!repo) continue;
-		if (!commentsByRepo.has(repo)) commentsByRepo.set(repo, []);
-		commentsByRepo.get(repo)?.push({ event: e, time: dayjs(e.created_at) });
+		const repo = e.repo;
+		if (!repo) {
+			continue;
+		}
+
+		if (!commentsByRepo.has(repo)) {
+			commentsByRepo.set(repo, []);
+		}
+
+		commentsByRepo.get(repo)?.push({ event: e, time: toTime(e.at) });
 	}
 
 	const prsByRepo = new Map<string, EventEntry[]>();
 	for (const e of prOpenEvents) {
-		const repo = e.repo?.name;
-		if (!repo) continue;
-		if (!prsByRepo.has(repo)) prsByRepo.set(repo, []);
-		prsByRepo.get(repo)?.push({ event: e, time: dayjs(e.created_at) });
+		const repo = e.repo;
+		if (!repo) {
+			continue;
+		}
+
+		if (!prsByRepo.has(repo)) {
+			prsByRepo.set(repo, []);
+		}
+
+		prsByRepo.get(repo)?.push({ event: e, time: toTime(e.at) });
 	}
 
 	const veryFastRepos = new Set<string>();
@@ -36,27 +48,25 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 
 	for (const [repo, commentEntries] of commentsByRepo) {
 		const prEntries = prsByRepo.get(repo);
-		if (!prEntries) continue;
+		if (!prEntries) {
+			continue;
+		}
 
 		for (const commentEntry of commentEntries) {
 			for (const prEntry of prEntries) {
-				const diffMinutes = prEntry.time.diff(
-					commentEntry.time,
-					"minute",
-					true,
-				);
+				const diffMinutes = minutesBetween(commentEntry.time, prEntry.time);
+
 				if (
 					diffMinutes > 0 &&
 					diffMinutes < CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES
 				) {
 					veryFastRepos.add(repo);
 					matchedPairs.push({ from: commentEntry.event, to: prEntry.event });
-					const diffSeconds = prEntry.time.diff(
-						commentEntry.time,
-						"second",
-						true,
-					);
-					if (diffSeconds < fastestSeconds) fastestSeconds = diffSeconds;
+					const diffSeconds = secondsBetween(commentEntry.time, prEntry.time);
+
+					if (diffSeconds < fastestSeconds) {
+						fastestSeconds = diffSeconds;
+					}
 				}
 			}
 		}
@@ -68,25 +78,14 @@ export function detectCommentBeforePR(events: GitHubEvent[]): IdentifyFlag[] {
 		const pairedEvents = [
 			...new Set(matchedPairs.flatMap((p) => [p.from, p.to])),
 		];
+
 		return [
 			{
-				label: "Issue comment and PR within minutes",
+				id: "comment-pr-fast",
 				points: CONFIG.POINTS_COMMENT_BEFORE_PR_VERY_FAST,
 				group: "comment-pr-timing",
 				amplifiable: true,
-				detail: `Commented on an issue and opened a PR to the same repo within ${CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES} minutes, in ${veryFastRepos.size} repositories (the fastest took ${fastest}s)`,
-				data: [
-					{
-						label: "Repos with fast comment→PR",
-						value: veryFastRepos.size,
-						threshold: CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MIN_REPOS,
-					},
-					{ label: "Shortest gap (s)", value: fastest },
-					{
-						label: "Window (min)",
-						value: CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES,
-					},
-				],
+				facts: { repos: veryFastRepos.size, fastestSeconds: fastest },
 				events: pairedEvents,
 				connections: matchedPairs,
 			},

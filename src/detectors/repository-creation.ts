@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { hoursBetween, toTime } from "../time";
+import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 const CREATE_BURST_RAMP: readonly RampAnchor[] = [
@@ -8,10 +8,8 @@ const CREATE_BURST_RAMP: readonly RampAnchor[] = [
 	[CONFIG.CREATE_BURST_EXTREME, CONFIG.POINTS_CREATE_BURST_EXTREME],
 ];
 
-export function detectRepositoryCreationBurst(
-	events: GitHubEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectRepositoryCreationBurst(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
@@ -19,15 +17,15 @@ export function detectRepositoryCreationBurst(
 
 	// Filter CreateEvent to only actual repository creations (not branch/tag creation)
 	const createEvents = events.filter((e) => {
-		return e.type === "CreateEvent" && e.payload?.ref_type === "repository";
+		return e.type === "create" && e.ref?.type === "repository";
 	});
 
 	// Rapid repo creation burst (real repository creation clustering)
 	if (createEvents.length >= CONFIG.CREATE_EVENTS_MIN) {
 		const sortedCreateEvents = [...createEvents].sort(
-			(a, b) => dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
+			(a, b) => toTime(a.at) - toTime(b.at),
 		);
-		const createTimestamps = sortedCreateEvents.map((e) => dayjs(e.created_at));
+		const createTimestamps = sortedCreateEvents.map((e) => toTime(e.at));
 
 		// Check for repo creation clustering (multiple repos in short time window)
 		let maxCreatesInWindow = 0;
@@ -37,13 +35,16 @@ export function detectRepositoryCreationBurst(
 
 		for (let endIdx = 0; endIdx < createTimestamps.length; endIdx++) {
 			const windowEnd = createTimestamps[endIdx];
+			let windowStart = createTimestamps[windowStartIdx];
 
 			// Slide window to include only events within 24 hours
 			while (
+				windowStart !== undefined &&
 				windowEnd &&
-				windowEnd.diff(createTimestamps[windowStartIdx], "hour", true) > 24
+				hoursBetween(windowStart, windowEnd) > 24
 			) {
 				windowStartIdx++;
+				windowStart = createTimestamps[windowStartIdx];
 			}
 
 			const createsInWindow = endIdx - windowStartIdx + 1;
@@ -63,36 +64,26 @@ export function detectRepositoryCreationBurst(
 
 		if (maxCreatesInWindow >= CONFIG.CREATE_BURST_EXTREME) {
 			flags.push({
-				label: "Concentrated repository creation",
+				id: "repo-creation-extreme",
 				points: burstPoints,
 				group: "repo-creation",
 				amplifiable: true,
-				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
-				data: [
-					{
-						label: "Repos created in 24h",
-						value: maxCreatesInWindow,
-						threshold: CONFIG.CREATE_BURST_EXTREME,
-					},
-					{ label: "Total repo creations", value: createEvents.length },
-				],
+				facts: {
+					created: maxCreatesInWindow,
+					totalCreated: createEvents.length,
+				},
 				events: burstEvents,
 			});
 		} else if (maxCreatesInWindow >= CONFIG.CREATE_BURST_HIGH) {
 			flags.push({
-				label: "Frequent repository creation",
+				id: "repo-creation-high",
 				points: burstPoints,
 				group: "repo-creation",
 				amplifiable: true,
-				detail: `${maxCreatesInWindow} repositories created in a short timeframe (within 24 hours)`,
-				data: [
-					{
-						label: "Repos created in 24h",
-						value: maxCreatesInWindow,
-						threshold: CONFIG.CREATE_BURST_HIGH,
-					},
-					{ label: "Total repo creations", value: createEvents.length },
-				],
+				facts: {
+					created: maxCreatesInWindow,
+					totalCreated: createEvents.length,
+				},
 				events: burstEvents,
 			});
 		}

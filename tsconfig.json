@@ -9,6 +9,7 @@
 		"types": ["node"],
 		"strict": true,
 		"noUnusedLocals": true,
+		"noUncheckedIndexedAccess": true,
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"esModuleInterop": true,

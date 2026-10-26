@@ -1,15 +1,13 @@
-import dayjs from "dayjs";
 import { CONFIG } from "../config";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import { secondsBetween, toTime } from "../time";
+import type { ActivityEvent, Flag } from "../types";
 
-export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectPushBurst(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	const pushEvents = events
-		.filter((e) => e.type === "PushEvent")
-		.sort(
-			(a, b) => dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
-		);
+		.filter((e) => e.type === "push")
+		.sort((a, b) => toTime(a.at) - toTime(b.at));
 
 	if (pushEvents.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
@@ -25,10 +23,12 @@ export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
 	for (let i = 1; i < pushEvents.length; i++) {
 		const prev = pushEvents[i - 1];
 		const curr = pushEvents[i];
-		if (!prev || !curr || prev.repo?.name !== curr.repo?.name) continue;
-		const diffSeconds = dayjs(curr.created_at).diff(
-			dayjs(prev.created_at),
-			"second",
+		if (!prev || !curr || prev.repo !== curr.repo) {
+			continue;
+		}
+
+		const diffSeconds = Math.trunc(
+			secondsBetween(toTime(prev.at), toTime(curr.at)),
 		);
 		if (diffSeconds <= CONFIG.TIGHT_COMMIT_SECONDS) {
 			tightBurstCount++;
@@ -38,25 +38,16 @@ export function detectPushBurst(events: GitHubEvent[]): IdentifyFlag[] {
 	}
 
 	if (tightBurstCount >= CONFIG.TIGHT_COMMIT_THRESHOLD_GLOBAL) {
-		const windowMinutes = Math.round(CONFIG.TIGHT_COMMIT_SECONDS / 60);
 		const burstPushEvents = pushEvents.filter((_, i) =>
 			tightPushIndices.has(i),
 		);
+
 		flags.push({
-			label: "High push frequency",
+			id: "push-burst",
 			points: CONFIG.POINTS_TIGHT_BURST,
 			group: "timing",
 			amplifiable: true,
-			detail: `${tightBurstCount} consecutive same-repo push pairs within ${windowMinutes} min of each other (${tightPushIndices.size} pushes involved)`,
-			data: [
-				{
-					label: "Rapid push pairs",
-					value: tightBurstCount,
-					threshold: CONFIG.TIGHT_COMMIT_THRESHOLD_GLOBAL,
-				},
-				{ label: "Pushes involved", value: tightPushIndices.size },
-				{ label: "Max interval (s)", value: CONFIG.TIGHT_COMMIT_SECONDS },
-			],
+			facts: { pairs: tightBurstCount, pushes: tightPushIndices.size },
 			events: burstPushEvents,
 		});
 	}

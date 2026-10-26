@@ -1,7 +1,15 @@
-import type { GitHubEvent, IdentifyFlag, IdentifyUser } from "../../src/types";
+import {
+	fromGitHub,
+	fromGitHubEvent,
+	type GitHubEvent,
+	type GitHubInput,
+	type GitHubUser,
+} from "../../src/providers/github";
+import { report } from "../../src/report";
+import type { ActivityEvent, Flag } from "../../src/types";
 
 /** Build a user, overriding only the fields a test cares about. */
-export function user(overrides: Partial<IdentifyUser> = {}): IdentifyUser {
+export function user(overrides: Partial<GitHubUser> = {}): GitHubUser {
 	return {
 		login: "user",
 		created_at: "2025-01-01T00:00:00Z",
@@ -22,14 +30,26 @@ export function event(
 		created_at: iso,
 		repo: { name: repo },
 		payload,
-	} as unknown as GitHubEvent;
+	} as GitHubEvent;
+}
+
+/** Turn GitHub test events into the shape `classify` reads. */
+export function toEvents(
+	events: GitHubEvent[],
+	login = "user",
+): ActivityEvent<GitHubEvent>[] {
+	return events.map((e) => fromGitHubEvent(e, login));
+}
+
+/**
+ * Run `report` on GitHub test data, the way a GitHub caller would, so tests
+ * can read the flags with their labels and details.
+ */
+export function reportGitHub(input: GitHubInput) {
+	return report(fromGitHub(input));
 }
 
 /** Build a minimal flag, for testing the scorer on its own. */
-export function flag(
-	group: IdentifyFlag["group"],
-	points: number,
-	label = `${group}-${points}`,
-): IdentifyFlag {
-	return { label, points, group, detail: "", data: [], events: [] };
+export function flag(group: Flag["group"], points: number): Flag {
+	return { id: "new-account", points, group, facts: { ageDays: 0 }, events: [] };
 }

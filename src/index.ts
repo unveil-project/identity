@@ -1,23 +1,10 @@
-export { getClassificationDetails } from "./classification";
-export { calculateConfidence } from "./confidence";
+export { classify } from "./classify";
 export { CONFIG as identityConfig } from "./config";
-export { isGitHubAppAccount } from "./github-app";
-export { identify } from "./identify";
-export { type ScoreOptions, type ScoreResult, scoreFlags } from "./scoring";
-export { estimateUtcOffset } from "./timezone";
 export type {
-	EventConnection,
-	EvidenceGroup,
-	FlagDataPoint,
-	GitHubEvent,
-	GitHubUser,
-	IdentifyFlag,
-	IdentifyOptions,
-	IdentifyResult,
-	IdentifyUser,
-	IdentityClassification,
-	ScoredGroup,
-	TimezoneEstimate,
-	WindowInfo,
+	Account,
+	AccountInput,
+	ActivityEvent,
+	ActivityEventType,
+	Classification,
+	ClassificationLabel,
 } from "./types";
-export { analyzeWindow } from "./window";

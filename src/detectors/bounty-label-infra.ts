@@ -1,49 +1,45 @@
 import { CONFIG } from "../config";
 import { BOUNTY_REPO_NAMES, BOUNTY_REPO_PATHS } from "../data/bounty-repos";
-import type { GitHubEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
+import { nameOf } from "../utils";
 
 const BOUNTY_LABEL_PATTERN = /\[\$\d+|\$\d+\s*(bounty|usd|usdc)/i;
 
 function isBountyRepo(repoFullName: string): boolean {
 	const lower = repoFullName.toLowerCase();
-	if (BOUNTY_REPO_PATHS.has(lower)) return true;
-	const name = lower.split("/")[1];
+	if (BOUNTY_REPO_PATHS.has(lower)) {
+		return true;
+	}
+
+	const name = nameOf(lower);
+
 	return name !== undefined && BOUNTY_REPO_NAMES.has(name);
 }
 
 export function detectBountyLabelInfrastructure(
-	events: GitHubEvent[],
-): IdentifyFlag[] {
+	events: ActivityEvent[],
+): Flag[] {
 	const bountyLabeledIssues = events.filter(
 		(e) =>
-			e.type === "IssuesEvent" &&
-			e.payload?.action === "labeled" &&
-			e.repo?.name !== undefined &&
-			isBountyRepo(e.repo.name) &&
-			BOUNTY_LABEL_PATTERN.test(e.payload?.issue?.title ?? ""),
+			e.type === "issue" &&
+			e.action === "labeled" &&
+			isBountyRepo(e.repo) &&
+			BOUNTY_LABEL_PATTERN.test(e.issue?.title ?? ""),
 	);
 
-	if (bountyLabeledIssues.length < CONFIG.BOUNTY_LABEL_MIN) return [];
+	if (bountyLabeledIssues.length < CONFIG.BOUNTY_LABEL_MIN) {
+		return [];
+	}
 
-	const repos = new Set(
-		bountyLabeledIssues.map((e) => e.repo?.name).filter(Boolean),
-	);
+	const repos = new Set(bountyLabeledIssues.map((e) => e.repo).filter(Boolean));
 
 	return [
 		{
-			label: "Bounty infrastructure activity",
+			id: "bounty-labels",
 			points: CONFIG.POINTS_BOUNTY_LABEL_INFRA,
 			group: "bounty",
 			amplifiable: true,
-			detail: `${bountyLabeledIssues.length} issues labeled with bounty amounts across ${repos.size} known bounty repo${repos.size !== 1 ? "s" : ""}`,
-			data: [
-				{
-					label: "Bounty-labeled issues",
-					value: bountyLabeledIssues.length,
-					threshold: CONFIG.BOUNTY_LABEL_MIN,
-				},
-				{ label: "Repos involved", value: repos.size },
-			],
+			facts: { issues: bountyLabeledIssues.length, repos: repos.size },
 			events: bountyLabeledIssues,
 		},
 	];

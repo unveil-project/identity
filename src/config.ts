@@ -7,9 +7,6 @@ export const CONFIG = {
 	// In one group the biggest flag counts fully, the other flags count this much
 	EXTRA_FLAG_WEIGHT: 0.25,
 
-	// GitHub never gives more events than this, and only goes back about 90 days
-	EVENTS_WINDOW_CAP: 300,
-
 	// How much activity we need before we trust a "looks fine" result
 	MIN_EVENTS_FOR_CLASSIFICATION: 10,
 	CONFIDENCE_FULL_EVENTS: 60, // this many events is as sure as we get
@@ -155,6 +152,8 @@ export const CONFIG = {
 	AGE_ESTABLISHED_ACCOUNT: 1000, // accounts older than this (days) can get softer checks
 
 	// Event type diversity (bots have narrow activity)
+	DIVERSITY_MAX_EVENT_TYPES: 3, // <= this many kinds of event...
+	DIVERSITY_MAX_ENTROPY: 0.8, // ...spread less evenly than this = narrow focus
 	POINTS_LOW_DIVERSITY: 20,
 
 	// Issue comment spam (multiple comments to different repos in short timeframe)
@@ -256,14 +255,4 @@ export const CONFIG = {
 	// Bounty label infrastructure detection
 	BOUNTY_LABEL_MIN: 3, // need at least this many bounty-labelled issues to flag
 	POINTS_BOUNTY_LABEL_INFRA: 25,
-
-	// AI commit metadata — multiplier, not a standalone signal
-	// Applies only to flags marked `amplifiable: true` (automation/spam signals).
-	// Tiers are evaluated highest-first; the first matching ratio wins.
-	AI_COMMIT_MIN_COMMITS: 5,
-	AI_COMMIT_TIERS: [
-		{ ratio: 0.9, multiplier: 1.5 },
-		{ ratio: 0.85, multiplier: 1.3 },
-		{ ratio: 0.75, multiplier: 1.15 },
-	],
 } as const;
