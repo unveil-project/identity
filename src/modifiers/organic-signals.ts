@@ -1,8 +1,8 @@
 import { CONFIG } from "../config";
 import { daysBetween, toTime } from "../time";
-import type { IdentifyEvent } from "../types";
+import type { ActivityEvent } from "../types";
 
-export function detectOrganicSignals(events: IdentifyEvent[]): number {
+export function detectOrganicSignals(events: ActivityEvent[]): number {
 	let bonus = 0;
 
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {

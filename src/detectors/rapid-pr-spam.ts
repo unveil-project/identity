@@ -1,12 +1,12 @@
 import { CONFIG } from "../config";
 import { secondsBetween, toTime } from "../time";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 
 export function detectRapidPRSpam(
-	events: IdentifyEvent[],
+	events: ActivityEvent[],
 	isEstablished: boolean,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// Rapid PRs to repository (fork contribution pattern)
 	// Detects: multiple PRs opened in rapid succession to same repo

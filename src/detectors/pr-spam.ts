@@ -1,6 +1,6 @@
 import { CONFIG } from "../config";
 import { daysBetween, toTime } from "../time";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { densestEventWindow, type RampAnchor, rampPoints } from "../utils";
 
 const PR_WEEK_RAMP: readonly RampAnchor[] = [
@@ -9,9 +9,9 @@ const PR_WEEK_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectExtremeAndDistributedPRSpam(
-	events: IdentifyEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+	events: ActivityEvent[],
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// High-volume PR detection - TIME-WINDOWED (applies to all accounts)
 	// Intensity/velocity is the signal, not total count

@@ -1,6 +1,6 @@
 import { CONFIG } from "../config";
 import { minutesBetween, toTime } from "../time";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 const ISSUE_COMMENT_RAMP: readonly RampAnchor[] = [
@@ -16,8 +16,8 @@ const PR_COMMENT_RAMP: readonly RampAnchor[] = [
 	[CONFIG.PR_COMMENT_SPRAY_EXTREME, CONFIG.POINTS_PR_COMMENT_SPRAY_EXTREME],
 ];
 
-export function detectCommentSpam(events: IdentifyEvent[]): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectCommentSpam(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;

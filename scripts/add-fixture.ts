@@ -3,8 +3,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { IdentityClassification } from "../src";
-import { identify } from "../src/identify";
+import type { ClassificationLabel } from "../src";
+import { classify } from "../src/classify";
 import {
 	fromGitHub,
 	type GitHubEvent,
@@ -125,10 +125,7 @@ function nextFixtureName(kind: FixtureCategory): string {
 	return `${kind}_${next}`;
 }
 
-function addToRegressionConfig(
-	name: string,
-	kind: IdentityClassification,
-): void {
+function addToRegressionConfig(name: string, kind: ClassificationLabel): void {
 	let src = fs.readFileSync(REGRESSION_CONFIG_PATH, "utf-8");
 	src = src.replace(/(\n\} satisfies)/, `\n\t"${name}": "${kind}",$1`);
 	fs.writeFileSync(REGRESSION_CONFIG_PATH, src, "utf-8");
@@ -177,15 +174,15 @@ async function main(): Promise<void> {
 	const data = obfuscated?.data ?? raw;
 
 	// Being an app is a fact, not a classification: the category pins
-	// `isGitHubApp`, while the entry still pins whatever identify() scores the
+	// `isGitHubApp`, while the entry still pins whatever classify() scores the
 	// app as, so a scoring change on apps shows up as a regression like any
 	// other. Score the stored snapshot — that is what gets replayed.
-	const expected: IdentityClassification =
+	const expected: ClassificationLabel =
 		category === "github-app"
 			? runAtCaptureTime(
 					capturedAt,
 					() =>
-						identify(fromGitHub(data as unknown as GitHubInput)).classification,
+						classify(fromGitHub(data as unknown as GitHubInput)).classification,
 				)
 			: category;
 

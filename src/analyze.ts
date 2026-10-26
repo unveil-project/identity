@@ -31,24 +31,24 @@ import { scoreFlags } from "./scoring";
 import { daysBetween, toTime } from "./time";
 import { estimateUtcOffset } from "./timezone";
 import type {
+	AccountInput,
 	Analysis,
-	IdentifyFlag,
-	IdentifyInput,
-	IdentityClassification,
+	ClassificationLabel,
+	Flag,
 } from "./types";
 import { ownerOf } from "./utils";
 import { analyzeWindow } from "./window";
 
 /**
- * Run every check on an account and score it. `identify` and `report` both
+ * Run every check on an account and score it. `classify` and `report` both
  * start from this, and each returns the part its caller asked for.
  */
 export function analyze<Source = unknown>({
 	account,
 	events,
 	eventCap,
-}: IdentifyInput<Source>): Analysis<Source> {
-	const flags: IdentifyFlag[] = [];
+}: AccountInput<Source>): Analysis<Source> {
+	const flags: Flag[] = [];
 
 	const accountName = account.login;
 	const reposCount = account.publicRepos;
@@ -134,7 +134,7 @@ export function analyze<Source = unknown>({
 
 	const confidence = calculateConfidence(window);
 
-	let classification: IdentityClassification = "automation";
+	let classification: ClassificationLabel = "automation";
 	if (humanScore >= CONFIG.THRESHOLD_HUMAN) {
 		classification = "organic";
 	} else if (humanScore >= CONFIG.THRESHOLD_SUSPICIOUS) {
@@ -159,7 +159,7 @@ export function analyze<Source = unknown>({
 		isBountyHunter,
 		isGitHubApp,
 		// The flags point at the events we were given, so their source type holds.
-		flags: scored.flags as IdentifyFlag<Source>[],
+		flags: scored.flags as Flag<Source>[],
 		groups: scored.groups,
 		window,
 		timezone,

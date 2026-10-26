@@ -1,8 +1,8 @@
 import { CONFIG } from "../config";
-import type { IdentifyEvent, IdentifyFlag, WindowInfo } from "../types";
+import type { ActivityEvent, Flag, WindowInfo } from "../types";
 
 export type DormancyResult = {
-	flags: IdentifyFlag[];
+	flags: Flag[];
 	/** True when the account's age is not backed by a matching activity history. */
 	isDormantReactivation: boolean;
 };
@@ -19,7 +19,7 @@ export type DormancyResult = {
  * everything we can see happened in one short recent burst.
  */
 export function detectDormancy(
-	events: IdentifyEvent[],
+	events: ActivityEvent[],
 	accountAge: number,
 	reposCount: number,
 	window: WindowInfo,

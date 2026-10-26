@@ -1,10 +1,10 @@
+export { classify } from "./classify";
 export { CONFIG as identityConfig } from "./config";
-export { identify } from "./identify";
 export type {
-	IdentifyAccount,
-	IdentifyEvent,
-	IdentifyEventType,
-	IdentifyInput,
-	IdentifyResult,
-	IdentityClassification,
+	Account,
+	AccountInput,
+	ActivityEvent,
+	ActivityEventType,
+	Classification,
+	ClassificationLabel,
 } from "./types";

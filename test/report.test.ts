@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { identify } from "../src/identify";
+import { classify } from "../src/classify";
 import { fromGitHub } from "../src/providers/github";
 import { describeFlag, report } from "../src/report";
 import {
@@ -7,7 +7,7 @@ import {
 	formatShortSpan,
 	formatWindowDuration,
 } from "../src/report/format";
-import type { IdentifyFlag } from "../src/types";
+import type { Flag } from "../src/types";
 import { event, user } from "./utils/events";
 
 // 12 forks in a day on a 10 day old account, and nothing else.
@@ -24,9 +24,9 @@ function forkingAccount() {
 	return fromGitHub({ user: user({ created_at: created.toISOString() }), events });
 }
 
-describe("identify", () => {
-	it("returns only the verdict", () => {
-		const result = identify(forkingAccount());
+describe("classify", () => {
+	it("returns only the classification", () => {
+		const result = classify(forkingAccount());
 
 		expect(Object.keys(result).sort()).toEqual([
 			"classification",
@@ -58,10 +58,10 @@ describe("report", () => {
 		});
 	});
 
-	it("gives the same verdict as identify", () => {
+	it("gives the same classification as classify", () => {
 		const input = forkingAccount();
 
-		expect(report(input)).toMatchObject(identify(input));
+		expect(report(input)).toMatchObject(classify(input));
 	});
 
 	it("keeps the original event on every flag event", () => {
@@ -76,7 +76,7 @@ describe("report", () => {
 	});
 
 	it("uses the threshold the check used, not a fixed one", () => {
-		const flag: IdentifyFlag = {
+		const flag: Flag = {
 			id: "rapid-prs",
 			points: 40,
 			group: "branch-pr",

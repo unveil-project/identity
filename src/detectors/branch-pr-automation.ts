@@ -1,10 +1,10 @@
 import { CONFIG } from "../config";
 import { secondsBetween, toTime } from "../time";
-import type { EventConnection, IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, EventConnection, Flag } from "../types";
 import { nameOf, ownerOf } from "../utils";
 
 /** Every branch event first, then every PR event. */
-function eventsOf(connections: EventConnection[]): IdentifyEvent[] {
+function eventsOf(connections: EventConnection[]): ActivityEvent[] {
 	const branchEvents = connections.map((connection) => connection.from);
 	const prEvents = connections.map((connection) => connection.to);
 
@@ -12,11 +12,11 @@ function eventsOf(connections: EventConnection[]): IdentifyEvent[] {
 }
 
 export function detectBranchPRAutomation(
-	events: IdentifyEvent[],
+	events: ActivityEvent[],
 	isEstablished: boolean,
 	accountName: string,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// Looks for branches that turn into a pull request almost immediately, again and again.
 	// People can be this fast too (branch, push, `gh pr create`), so a match is a hint that
@@ -51,7 +51,7 @@ export function detectBranchPRAutomation(
 	// normal collaborators moving fast. An automation spraying PRs at repos it has
 	// no access to has to fork first, and the fork check further down catches that.
 	const accountNameLower = accountName.toLowerCase();
-	const ownsRepo = (event: IdentifyEvent) =>
+	const ownsRepo = (event: ActivityEvent) =>
 		ownerOf(event.repo).toLowerCase() === accountNameLower;
 
 	const ownedBranchTimes = branchTimes.filter((b) => ownsRepo(b.event));

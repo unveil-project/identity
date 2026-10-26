@@ -1,8 +1,8 @@
 import { CONFIG } from "../config";
-import type { IdentifyFlag } from "../types";
+import type { Flag } from "../types";
 
-export function detectAccountAge(accountAge: number): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectAccountAge(accountAge: number): Flag[] {
+	const flags: Flag[] = [];
 
 	if (accountAge < CONFIG.AGE_NEW_ACCOUNT) {
 		flags.push({

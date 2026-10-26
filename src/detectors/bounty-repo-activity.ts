@@ -1,6 +1,6 @@
 import { CONFIG } from "../config";
 import { BOUNTY_REPO_NAMES, BOUNTY_REPO_PATHS } from "../data/bounty-repos";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { nameOf } from "../utils";
 
 function isBountyRepo(repoFullName: string): boolean {
@@ -14,7 +14,7 @@ function isBountyRepo(repoFullName: string): boolean {
 	return name !== undefined && BOUNTY_REPO_NAMES.has(name);
 }
 
-export function hasBountyRepoEngagement(events: IdentifyEvent[]): boolean {
+export function hasBountyRepoEngagement(events: ActivityEvent[]): boolean {
 	const openedPRsInBountyRepos = events.filter(
 		(e) =>
 			e.type === "pull-request" &&
@@ -27,7 +27,7 @@ export function hasBountyRepoEngagement(events: IdentifyEvent[]): boolean {
 }
 
 export function getBountyPRSignal(
-	events: IdentifyEvent[],
+	events: ActivityEvent[],
 ): "high" | "low" | null {
 	const openedPRs = events.filter(
 		(e) => e.type === "pull-request" && e.action === "opened",
@@ -79,7 +79,7 @@ export function getBountyPRSignal(
 	return ratio >= CONFIG.BOUNTY_REPO_RATIO_HIGH ? "high" : "low";
 }
 
-export function detectBountyRepoPRs(events: IdentifyEvent[]): IdentifyFlag[] {
+export function detectBountyRepoPRs(events: ActivityEvent[]): Flag[] {
 	const signal = getBountyPRSignal(events);
 	if (!signal) {
 		return [];

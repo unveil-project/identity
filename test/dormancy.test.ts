@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { GitHubEvent } from "../src/providers/github";
-import { event, identifyGitHub, user } from "./utils/events";
+import { event, reportGitHub, user } from "./utils/events";
 
 /** 15 events packed into a few days, including 5 fast PRs to one repo. */
 function recentBurst(): GitHubEvent[] {
@@ -44,7 +44,7 @@ describe("dormant accounts", () => {
 	});
 
 	it("flags an old account with no repos whose activity is all recent", () => {
-		const result = identifyGitHub({
+		const result = reportGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 0 }),
 			events: recentBurst(),
 		});
@@ -57,7 +57,7 @@ describe("dormant accounts", () => {
 	});
 
 	it("does not flag an old account that has a real repo history", () => {
-		const result = identifyGitHub({
+		const result = reportGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 40 }),
 			events: recentBurst(),
 		});
@@ -70,7 +70,7 @@ describe("dormant accounts", () => {
 	});
 
 	it("does not flag an old account whose activity is spread out", () => {
-		const result = identifyGitHub({
+		const result = reportGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 0 }),
 			events: spreadOut(),
 		});
@@ -83,7 +83,7 @@ describe("dormant accounts", () => {
 	});
 
 	it("does not flag a young account", () => {
-		const result = identifyGitHub({
+		const result = reportGitHub({
 			user: user({ created_at: "2026-05-01T00:00:00Z", public_repos: 0 }),
 			events: recentBurst(),
 		});
@@ -102,11 +102,11 @@ describe("dormant accounts", () => {
 		// keeps the softer limit.
 		const events = recentBurst();
 
-		const trusted = identifyGitHub({
+		const trusted = reportGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 40 }),
 			events,
 		});
-		const reactivated = identifyGitHub({
+		const reactivated = reportGitHub({
 			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 0 }),
 			events,
 		});

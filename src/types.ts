@@ -3,7 +3,7 @@
  * (see `fromGitHub`) maps its own event types onto them. A type the provider
  * does not know is passed through as-is, so it still counts as its own type.
  */
-export type IdentifyEventType =
+export type ActivityEventType =
 	| "push"
 	| "create"
 	| "delete"
@@ -24,8 +24,8 @@ export type IdentifyEventType =
 	| "sponsorship"
 	| (string & {});
 
-export type IdentifyEvent<Source = unknown> = {
-	type: IdentifyEventType;
+export type ActivityEvent<Source = unknown> = {
+	type: ActivityEventType;
 	at: string;
 	repo: string;
 	action?: string;
@@ -40,8 +40,8 @@ export type IdentifyEvent<Source = unknown> = {
 };
 
 export type EventConnection<Source = unknown> = {
-	from: IdentifyEvent<Source>;
-	to: IdentifyEvent<Source>;
+	from: ActivityEvent<Source>;
+	to: ActivityEvent<Source>;
 	label?: string;
 };
 
@@ -229,7 +229,7 @@ type FlagBase<Source> = {
 	/** Points after the AI and bounty multipliers. */
 	effectivePoints?: number;
 	group: EvidenceGroup;
-	events: IdentifyEvent<Source>[];
+	events: ActivityEvent<Source>[];
 	connections?: EventConnection<Source>[];
 	amplifiable?: boolean;
 };
@@ -240,7 +240,7 @@ type FlagBase<Source> = {
  * @example
  * if (flag.id === "fork-spike") flag.facts.forks;
  */
-export type IdentifyFlag<Source = unknown, Id extends FlagId = FlagId> = {
+export type Flag<Source = unknown, Id extends FlagId = FlagId> = {
 	[K in Id]: FlagBase<Source> & { id: K; facts: FlagFacts[K] };
 }[Id];
 
@@ -258,7 +258,7 @@ export type ScoredGroup = {
 };
 
 /** The account to analyse, in a shape that works for any platform. */
-export type IdentifyAccount = {
+export type Account = {
 	login: string;
 	/** When the account was created, as an ISO timestamp. */
 	createdAt: string;
@@ -278,12 +278,12 @@ export type IdentifyAccount = {
 };
 
 /**
- * What `identify` needs. Build it with a provider, like `fromGitHub`, or by
+ * What `classify` needs. Build it with a provider, like `fromGitHub`, or by
  * hand from your own data.
  */
-export type IdentifyInput<Source = unknown> = {
-	account: IdentifyAccount;
-	events: IdentifyEvent<Source>[];
+export type AccountInput<Source = unknown> = {
+	account: Account;
+	events: ActivityEvent<Source>[];
 	/**
 	 * The most events the platform ever returns. When we get this many, the
 	 * window is marked `saturated`. Leave it out if there is no such limit.
@@ -291,7 +291,7 @@ export type IdentifyInput<Source = unknown> = {
 	eventCap?: number;
 };
 
-export type IdentityClassification =
+export type ClassificationLabel =
 	| "organic"
 	| "mixed"
 	| "automation"
@@ -318,12 +318,12 @@ export type TimezoneEstimate = {
 };
 
 /**
- * The verdict on an account. For the flags and the numbers behind it, use
- * `report` from `@unveil/identity/report`.
+ * The classification of an account. For the flags and the numbers behind it,
+ * use `report` from `@unveil/identity/report`.
  */
-export type IdentifyResult = {
+export type Classification = {
 	score: number;
-	classification: IdentityClassification;
+	classification: ClassificationLabel;
 	/** How sure we are about the result, from 0 to 1. */
 	confidence: number;
 	isBountyHunter: boolean;
@@ -337,9 +337,9 @@ export type IdentifyResult = {
 	isGitHubApp: boolean;
 };
 
-/** The verdict plus everything that led to it. */
-export type Analysis<Source = unknown> = IdentifyResult & {
-	flags: IdentifyFlag<Source>[];
+/** The classification plus everything that led to it. */
+export type Analysis<Source = unknown> = Classification & {
+	flags: Flag<Source>[];
 	/** How much each group added to the score. */
 	groups: ScoredGroup[];
 	window: WindowInfo;
@@ -351,5 +351,5 @@ export type Analysis<Source = unknown> = IdentifyResult & {
 };
 
 export type FlagReturn = {
-	flags: IdentifyFlag[];
+	flags: Flag[];
 };

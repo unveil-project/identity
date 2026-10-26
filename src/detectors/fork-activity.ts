@@ -1,7 +1,7 @@
 import { CONFIG } from "../config";
 import { daysBetween, hoursBetween, toTime } from "../time";
 import { localDay } from "../timezone";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 /** Points for forks in a 24 hour window, sliding between the steps below. */
@@ -13,10 +13,10 @@ const FORK_24H_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectForkActivity(
-	events: IdentifyEvent[],
+	events: ActivityEvent[],
 	tzOffsetHours = 0,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// Fork surge - applies uniformly to all accounts (detects time-based spike in forking)
 	// Elevated fork frequency applies uniformly regardless of account age
@@ -80,7 +80,7 @@ export function detectForkActivity(
 	// Evaluate all qualifying windows as candidates, then pick the most severe by points.
 	// Using independent if-blocks for 48h/72h prevents a weaker 24h match from hiding
 	// a stronger multi-day surge.
-	const forkSpikeCandidates: IdentifyFlag[] = [];
+	const forkSpikeCandidates: Flag[] = [];
 	const forks24hPoints = rampPoints(maxForksIn24h, FORK_24H_RAMP);
 
 	// 24h window — descending severity, at most one candidate added
@@ -170,7 +170,7 @@ export function detectForkActivity(
 		});
 	}
 
-	const forkSpikeFlag = forkSpikeCandidates.reduce<IdentifyFlag | null>(
+	const forkSpikeFlag = forkSpikeCandidates.reduce<Flag | null>(
 		(best, c) => (!best || c.points > best.points ? c : best),
 		null,
 	);
@@ -319,10 +319,8 @@ export function detectForkActivity(
 	return flags;
 }
 
-export function detectForkCombinedActivity(
-	events: IdentifyEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectForkCombinedActivity(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	// Fork + coordinated activity combo (forks + branches + PRs = chained automation)
 	// Verify actual chaining: branches in forked repos, PRs targeting forked repos, temporal order

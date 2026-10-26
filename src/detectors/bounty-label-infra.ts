@@ -1,6 +1,6 @@
 import { CONFIG } from "../config";
 import { BOUNTY_REPO_NAMES, BOUNTY_REPO_PATHS } from "../data/bounty-repos";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { nameOf } from "../utils";
 
 const BOUNTY_LABEL_PATTERN = /\[\$\d+|\$\d+\s*(bounty|usd|usdc)/i;
@@ -17,8 +17,8 @@ function isBountyRepo(repoFullName: string): boolean {
 }
 
 export function detectBountyLabelInfrastructure(
-	events: IdentifyEvent[],
-): IdentifyFlag[] {
+	events: ActivityEvent[],
+): Flag[] {
 	const bountyLabeledIssues = events.filter(
 		(e) =>
 			e.type === "issue" &&

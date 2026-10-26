@@ -8,7 +8,7 @@ import {
 	type GitHubUser,
 } from "../src/providers/github";
 import { report } from "../src/report";
-import type { IdentifyEvent } from "../src/types";
+import type { ActivityEvent } from "../src/types";
 import { event, user } from "./utils/events";
 
 // Whole API responses must be accepted as they are. `tsc` fails here if the
@@ -180,7 +180,7 @@ describe("fromGitHub", () => {
 describe("report without a provider", () => {
 	it("treats everything before the last slash as the owner", () => {
 		// A nested group path: "team/sub" owns "team/sub/project".
-		const events: IdentifyEvent[] = Array.from({ length: 25 }, (_, i) => ({
+		const events: ActivityEvent[] = Array.from({ length: 25 }, (_, i) => ({
 			type: "push",
 			at: new Date(Date.UTC(2026, 0, 1, i)).toISOString(),
 			repo: "team/sub/project",

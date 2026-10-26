@@ -1,5 +1,5 @@
 import { CONFIG } from "../config";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 
 const AI_AGENT_PREFIXES = [
 	"codex/",
@@ -16,9 +16,7 @@ function isAIAgentBranch(ref: string): boolean {
 	return AI_AGENT_PREFIXES.some((prefix) => lower.startsWith(prefix));
 }
 
-export function detectAIAgentBranchPrefix(
-	events: IdentifyEvent[],
-): IdentifyFlag[] {
+export function detectAIAgentBranchPrefix(events: ActivityEvent[]): Flag[] {
 	const branchCreations = events.filter(
 		(e) => e.type === "create" && e.ref?.type === "branch",
 	);

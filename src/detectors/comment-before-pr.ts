@@ -1,10 +1,10 @@
 import { CONFIG } from "../config";
 import { minutesBetween, secondsBetween, toTime } from "../time";
-import type { EventConnection, IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, EventConnection, Flag } from "../types";
 
-type EventEntry = { event: IdentifyEvent; time: number };
+type EventEntry = { event: ActivityEvent; time: number };
 
-export function detectCommentBeforePR(events: IdentifyEvent[]): IdentifyFlag[] {
+export function detectCommentBeforePR(events: ActivityEvent[]): Flag[] {
 	const issueCommentEvents = events.filter((e) => e.type === "issue-comment");
 	const prOpenEvents = events.filter(
 		(e) => e.type === "pull-request" && e.action === "opened",

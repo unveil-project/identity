@@ -1,16 +1,16 @@
 import { analyze } from "./analyze";
-import type { IdentifyInput, IdentifyResult } from "./types";
+import type { AccountInput, Classification } from "./types";
 
 /**
  * Score an account. Build the input with a provider, like `fromGitHub`.
  *
- * Returns only the verdict. Use `report` from `@unveil/identity/report` to see
+ * Returns only the classification. Use `report` from `@unveil/identity/report` to see
  * the flags behind it.
  *
  * @example
- * identify(fromGitHub({ user, events }));
+ * classify(fromGitHub({ user, events }));
  */
-export function identify(options: IdentifyInput): IdentifyResult {
+export function classify(options: AccountInput): Classification {
 	const { score, classification, confidence, isBountyHunter, isGitHubApp } =
 		analyze(options);
 

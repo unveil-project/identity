@@ -1,11 +1,9 @@
 import { CONFIG } from "../config";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { calculateNormalizedShannonsEntropy } from "../utils";
 
-export function detectNarrowActivityFocus(
-	events: IdentifyEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectNarrowActivityFocus(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;

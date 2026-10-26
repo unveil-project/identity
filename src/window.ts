@@ -1,5 +1,5 @@
 import { daysBetween, isValidTime, toISO, toTime } from "./time";
-import type { IdentifyEvent, WindowInfo } from "./types";
+import type { ActivityEvent, WindowInfo } from "./types";
 
 /**
  * Describe the list of events we were given.
@@ -9,7 +9,7 @@ import type { IdentifyEvent, WindowInfo } from "./types";
  * count we make from this list is a minimum, not the real number.
  */
 export function analyzeWindow(
-	events: readonly IdentifyEvent[],
+	events: readonly ActivityEvent[],
 	eventCap?: number,
 ): WindowInfo {
 	const times = events

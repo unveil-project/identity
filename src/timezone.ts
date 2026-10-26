@@ -1,6 +1,6 @@
 import { CONFIG } from "./config";
 import { addHours, isValidTime, toDay, toTime } from "./time";
-import type { IdentifyEvent, TimezoneEstimate } from "./types";
+import type { ActivityEvent, TimezoneEstimate } from "./types";
 
 const HOURS = 24;
 const RADIANS_PER_HOUR = (2 * Math.PI) / HOURS;
@@ -22,7 +22,7 @@ const RADIANS_PER_HOUR = (2 * Math.PI) / HOURS;
  * that case we give up and return an offset of 0.
  */
 export function estimateUtcOffset(
-	events: readonly IdentifyEvent[],
+	events: readonly ActivityEvent[],
 ): TimezoneEstimate {
 	let cos = 0;
 	let sin = 0;

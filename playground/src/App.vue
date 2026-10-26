@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { IdentifyAccount, IdentifyEvent } from "@unveil/identity";
-import { type IdentityReport, report } from "@unveil/identity/report";
+import type { Account, ActivityEvent } from "@unveil/identity";
+import { type Report, report } from "@unveil/identity/report";
 import {
 	fromGitHub,
 	type GitHubEvent,
@@ -12,8 +12,8 @@ const username = ref("");
 const loading = ref(false);
 const loadingMessage = ref("");
 const error = ref("");
-const result = ref<IdentityReport<GitHubEvent> | null>(null);
-const account = ref<IdentifyAccount | null>(null);
+const result = ref<Report<GitHubEvent> | null>(null);
+const account = ref<Account | null>(null);
 const events = ref<GitHubEvent[]>([]);
 const openFlags = ref(new Set<number>());
 
@@ -120,7 +120,7 @@ function toggleEvidence(index: number) {
 
 // ─── Event formatting helpers ────────────────────────────────────────────────
 
-function formatEventType(event: IdentifyEvent): string {
+function formatEventType(event: ActivityEvent): string {
 	switch (event.type) {
 		case "create":
 			if (event.ref?.type === "branch") return "Branch";
@@ -147,7 +147,7 @@ function formatEventType(event: IdentifyEvent): string {
 	}
 }
 
-function getEventBadgeClass(event: IdentifyEvent): string {
+function getEventBadgeClass(event: ActivityEvent): string {
 	switch (event.type) {
 		case "create":
 			return "badge-create";
@@ -175,25 +175,25 @@ function shortRepo(fullName?: string | null): string {
 
 // ─── Time helpers ────────────────────────────────────────────────────────────
 
-function sortedEvents(evts: IdentifyEvent[]): IdentifyEvent[] {
+function sortedEvents(evts: ActivityEvent[]): ActivityEvent[] {
 	return [...evts].sort(
 		(a, b) => new Date(a.at).getTime() - new Date(b.at).getTime(),
 	);
 }
 
-function getDeltaSeconds(a: IdentifyEvent, b: IdentifyEvent): number {
+function getDeltaSeconds(a: ActivityEvent, b: ActivityEvent): number {
 	return Math.round(
 		(new Date(b.at).getTime() - new Date(a.at).getTime()) / 1000,
 	);
 }
 
-function getGapSeconds(sorted: IdentifyEvent[], index: number): number {
+function getGapSeconds(sorted: ActivityEvent[], index: number): number {
 	if (index === 0) return 0;
 	return getDeltaSeconds(sorted[index - 1], sorted[index]);
 }
 
 function getRapidBurst(
-	evts: IdentifyEvent[],
+	evts: ActivityEvent[],
 ): { count: number; spanSeconds: number } | null {
 	if (evts.length < 3) return null;
 	const sorted = sortedEvents(evts);

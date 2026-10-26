@@ -3,9 +3,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { identify } from "../src/identify";
+import { classify } from "../src/classify";
 import { fromGitHub } from "../src/providers/github";
-import type { IdentityClassification } from "../src/types";
+import type { ClassificationLabel } from "../src/types";
 import {
 	expectsGitHubApp,
 	getExpected,
@@ -19,9 +19,9 @@ const __dirname = path.dirname(__filename);
 
 interface RegressionResult {
 	fixture: string;
-	expected: IdentityClassification;
-	knownAs: IdentityClassification | undefined;
-	actual: IdentityClassification;
+	expected: ClassificationLabel;
+	knownAs: ClassificationLabel | undefined;
+	actual: ClassificationLabel;
 	/** True when the fixture is a real GitHub App (the "github-app" category). */
 	expectedGitHubApp: boolean;
 	actualGitHubApp: boolean;
@@ -55,7 +55,7 @@ function runRegressionTests(): RegressionResult[] {
 		// Replay the snapshot at the moment it was taken, so account age is what
 		// it was then and not however old the account has since become.
 		const result = runAtCaptureTime(capturedAt, () =>
-			identify(fromGitHub({ user, events: events || [] })),
+			classify(fromGitHub({ user, events: events || [] })),
 		);
 
 		const expected = getExpected(entry);

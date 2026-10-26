@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isGitHubAppAccount } from "../src/providers/github";
-import { event, identifyGitHub, user } from "./utils/events";
+import { event, reportGitHub, user } from "./utils/events";
 
 
 describe("isGitHubAppAccount", () => {
@@ -24,13 +24,13 @@ describe("isGitHubAppAccount", () => {
 			true,
 		);
 		expect(
-			identifyGitHub({ user: user({ login: "coderabbitai[bot]" }), events })
+			reportGitHub({ user: user({ login: "coderabbitai[bot]" }), events })
 				.isGitHubApp,
 		).toBe(true);
 	});
 });
 
-describe("identify - GitHub App flag", () => {
+describe("report - GitHub App flag", () => {
 	it("reports apps without changing the behavioural score", () => {
 		const events = [
 			event("PullRequestEvent", "2025-06-01T10:00:00Z", "acme/app", {
@@ -38,11 +38,11 @@ describe("identify - GitHub App flag", () => {
 			}),
 		];
 
-		const app = identifyGitHub({
+		const app = reportGitHub({
 			user: user({ login: "coderabbitai[bot]", type: "Bot" }),
 			events,
 		});
-		const human = identifyGitHub({ user: user({ login: "octocat" }), events });
+		const human = reportGitHub({ user: user({ login: "octocat" }), events });
 
 		expect(app.isGitHubApp).toBe(true);
 		expect(human.isGitHubApp).toBe(false);

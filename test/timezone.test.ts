@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CONFIG } from "../src/config";
 import { estimateUtcOffset } from "../src/timezone";
 import type { GitHubEvent } from "../src/providers/github";
-import { event, identifyGitHub, toEvents, user } from "./utils/events";
+import { event, reportGitHub, toEvents, user } from "./utils/events";
 
 function workingHours(fromHourUtc: number, toHourUtc: number): GitHubEvent[] {
 	const events: GitHubEvent[] = [];
@@ -77,7 +77,7 @@ describe("24/7 detection across timezones", () => {
 	it.each([0, 6, 18])(
 		"finds the same 24/7 pattern wherever UTC midnight falls (start %i)",
 		(startHour) => {
-			const result = identifyGitHub({
+			const result = reportGitHub({
 				user: user({ login: "user", created_at: "2020-01-01T00:00:00Z", public_repos: 5 }),
 				events: roundTheClockDay(startHour),
 			});

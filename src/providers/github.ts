@@ -1,4 +1,4 @@
-import type { IdentifyEvent, IdentifyEventType, IdentifyInput } from "../types";
+import type { AccountInput, ActivityEvent, ActivityEventType } from "../types";
 
 /** GitHub never gives more events than this, and only goes back about 90 days. */
 export const GITHUB_EVENT_CAP = 300;
@@ -49,7 +49,7 @@ export type GitHubInput = {
 	events: GitHubEvent[];
 };
 
-const TYPES = new Map<string, IdentifyEventType>([
+const TYPES = new Map<string, ActivityEventType>([
 	["PushEvent", "push"],
 	["CreateEvent", "create"],
 	["DeleteEvent", "delete"],
@@ -74,11 +74,11 @@ function isBotType(type: string | null | undefined): boolean {
 	return typeof type === "string" && type.toLowerCase() === "bot";
 }
 
-/** Turn one GitHub event into the shape `identify` reads. */
+/** Turn one GitHub event into the shape `classify` reads. */
 export function fromGitHubEvent(
 	event: GitHubEvent,
 	login: string,
-): IdentifyEvent<GitHubEvent> {
+): ActivityEvent<GitHubEvent> {
 	const type = event.type ?? "";
 	const payload = event.payload;
 	const pr = payload?.pull_request;
@@ -104,15 +104,15 @@ export function fromGitHubEvent(
 }
 
 /**
- * Turn GitHub API responses into the input `identify` takes.
+ * Turn GitHub API responses into the input `classify` takes.
  *
  * @example
- * identify(fromGitHub({ user, events }));
+ * classify(fromGitHub({ user, events }));
  */
 export function fromGitHub({
 	user,
 	events,
-}: GitHubInput): IdentifyInput<GitHubEvent> {
+}: GitHubInput): AccountInput<GitHubEvent> {
 	return {
 		account: {
 			login: user.login,

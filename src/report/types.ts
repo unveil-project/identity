@@ -1,4 +1,4 @@
-import type { Analysis, IdentifyFlag } from "../types";
+import type { Analysis, Flag } from "../types";
 
 export type FlagDataPoint = {
 	label: string;
@@ -13,12 +13,9 @@ export type FlagText = {
 	data: FlagDataPoint[];
 };
 
-export type ReportFlag<Source = unknown> = IdentifyFlag<Source> & FlagText;
+export type ReportFlag<Source = unknown> = Flag<Source> & FlagText;
 
-/** The verdict from `identify`, plus the flags and numbers that led to it. */
-export type IdentityReport<Source = unknown> = Omit<
-	Analysis<Source>,
-	"flags"
-> & {
+/** The classification from `classify`, plus the flags and numbers that led to it. */
+export type Report<Source = unknown> = Omit<Analysis<Source>, "flags"> & {
 	flags: ReportFlag<Source>[];
 };

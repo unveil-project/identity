@@ -1,5 +1,5 @@
 import { hoursBetween, isValidTime, toTime } from "./time";
-import type { IdentifyEvent } from "./types";
+import type { ActivityEvent } from "./types";
 
 /**
  * Measure how spread out a set of counts is.
@@ -158,9 +158,9 @@ export function densestWindow<T>(
 
 /** Convenience wrapper around `densestWindow` for GitHub events. */
 export function densestEventWindow(
-	events: readonly IdentifyEvent[],
+	events: readonly ActivityEvent[],
 	windowHours: number,
-): DensestWindow<IdentifyEvent> {
+): DensestWindow<ActivityEvent> {
 	return densestWindow(events, (e) => toTime(e.at), windowHours);
 }
 

@@ -1,6 +1,6 @@
 import { CONFIG } from "../config";
 import { hoursBetween, minutesBetween, toTime } from "../time";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 const WATCH_RAMP: readonly RampAnchor[] = [
@@ -8,8 +8,8 @@ const WATCH_RAMP: readonly RampAnchor[] = [
 	[CONFIG.WATCH_SPAM_REPOS_EXTREME, CONFIG.POINTS_WATCH_SPAM_EXTREME],
 ];
 
-export function detectWatchActivity(events: IdentifyEvent[]): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectWatchActivity(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	const watchEvents = events.filter((e) => e.type === "star");
 

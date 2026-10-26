@@ -1,12 +1,12 @@
 import { CONFIG } from "../config";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 
 export function detectZeroReposActivity(
 	reposCount: number,
-	foreignEvents: IdentifyEvent[],
-	events: IdentifyEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+	foreignEvents: ActivityEvent[],
+	events: ActivityEvent[],
+): Flag[] {
+	const flags: Flag[] = [];
 
 	const hasAllExternal =
 		reposCount === 0 && foreignEvents.length === events.length;

@@ -1,7 +1,7 @@
 import { CONFIG } from "../config";
 import { daysBetween, toTime } from "../time";
 import { localDay, localHour } from "../timezone";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import {
 	calculateNormalizedShannonsEntropy,
 	densestEventWindow,
@@ -9,13 +9,13 @@ import {
 } from "../utils";
 
 export function detectYoungAccountActivity(
-	events: IdentifyEvent[],
+	events: ActivityEvent[],
 	reposCount: number,
 	isNewOrYoungAccount: boolean,
 	accountName: string,
 	tzOffsetHours = 0,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	if (!isNewOrYoungAccount || events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;

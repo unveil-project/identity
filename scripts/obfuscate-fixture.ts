@@ -61,7 +61,7 @@ if (!entry) {
 }
 
 // Rename within the fixture's own category: a "github-app" fixture stays a
-// GitHub App even when identify() scores it as automation.
+// GitHub App even when classify() scores it as automation.
 const category = getCategory(fixtureName);
 
 if (!category) {

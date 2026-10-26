@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CONFIG } from "../src/config";
 import { GITHUB_EVENT_CAP } from "../src/providers/github";
 import { analyzeWindow } from "../src/window";
-import { event, identifyGitHub, toEvents, user } from "./utils/events";
+import { event, reportGitHub, toEvents, user } from "./utils/events";
 
 describe("analyzeWindow", () => {
 	it("marks a full event list as saturated", () => {
@@ -53,7 +53,7 @@ describe("confidence and insufficient data", () => {
 				"user/project",
 			),
 		);
-		const result = identifyGitHub({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2020-01-01T00:00:00Z", public_repos: 4 }),
 			events,
 		});
@@ -70,7 +70,7 @@ describe("confidence and insufficient data", () => {
 				`target/repo${i}`,
 			),
 		);
-		const result = identifyGitHub({
+		const result = reportGitHub({
 			user: user({ login: "user", created_at: "2026-05-25T00:00:00Z", public_repos: 0 }),
 			events,
 		});

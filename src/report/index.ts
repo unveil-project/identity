@@ -1,14 +1,14 @@
 import { analyze } from "../analyze";
-import type { FlagFacts, IdentifyFlag, IdentifyInput } from "../types";
+import type { AccountInput, Flag, FlagFacts } from "../types";
 import { FLAG_TEXT } from "./flag-text";
-import type { FlagText, IdentityReport, ReportFlag } from "./types";
+import type { FlagText, Report, ReportFlag } from "./types";
 
 export type {
 	EventConnection,
 	EvidenceGroup,
+	Flag,
 	FlagFacts,
 	FlagId,
-	IdentifyFlag,
 	ScoredGroup,
 	TimezoneEstimate,
 	WindowInfo,
@@ -17,25 +17,25 @@ export { getClassificationDetails } from "./classification";
 export type {
 	FlagDataPoint,
 	FlagText,
-	IdentityReport,
+	Report,
 	ReportFlag,
 } from "./types";
 
-export function describeFlag(flag: IdentifyFlag): FlagText {
+export function describeFlag(flag: Flag): FlagText {
 	const build = FLAG_TEXT[flag.id] as (
-		facts: FlagFacts[IdentifyFlag["id"]],
+		facts: FlagFacts[Flag["id"]],
 	) => FlagText;
 
 	return build(flag.facts);
 }
 
 /** Add a label, a sentence and a list of metrics to one flag. */
-function toReportFlag<Source>(flag: IdentifyFlag<Source>): ReportFlag<Source> {
+function toReportFlag<Source>(flag: Flag<Source>): ReportFlag<Source> {
 	return { ...flag, ...describeFlag(flag) };
 }
 
 /**
- * Score an account like `identify`, and also return every flag with its text,
+ * Score an account like `classify`, and also return every flag with its text,
  * the evidence groups, the event window and the timezone estimate.
  *
  * @example
@@ -45,8 +45,8 @@ function toReportFlag<Source>(flag: IdentifyFlag<Source>): ReportFlag<Source> {
  * flags[0].label; // "Fork spike detected"
  */
 export function report<Source = unknown>(
-	options: IdentifyInput<Source>,
-): IdentityReport<Source> {
+	options: AccountInput<Source>,
+): Report<Source> {
 	const analysis = analyze(options);
 
 	return {

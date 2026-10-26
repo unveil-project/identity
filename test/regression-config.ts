@@ -1,10 +1,10 @@
-import type { IdentityClassification } from "../src";
+import type { ClassificationLabel } from "../src";
 
 /**
  * What the account really is. Fixture files are named `<category>_<n>.json`,
  * so the category is part of the file name and never drifts from the data.
  *
- * "github-app" is not a classification: identify() still scores those accounts
+ * "github-app" is not a classification: classify() still scores those accounts
  * like any other, but GitHub itself reports them as `type: "Bot"`, so they are
  * additionally gated on `isGitHubApp`.
  */
@@ -29,7 +29,7 @@ export function getCategory(
 }
 
 /**
- * Whether identify() must report this fixture as a GitHub App. Fixtures in
+ * Whether classify() must report this fixture as a GitHub App. Fixtures in
  * every other category must report `false`, so a bot filed under the wrong
  * category fails just as loudly as a missed one.
  */
@@ -39,23 +39,23 @@ export function expectsGitHubApp(fixtureName: string): boolean {
 
 /**
  * A fixture where the system's current output differs from the known ground truth.
- * `expected` is what identify() produces (the test gate — fail if it changes).
+ * `expected` is what classify() produces (the test gate — fail if it changes).
  * `knownAs` is what the account truly is — warns if the system hasn't caught up yet.
  */
 export interface KnownMisclassification {
-	expected: IdentityClassification;
-	knownAs: IdentityClassification;
+	expected: ClassificationLabel;
+	knownAs: ClassificationLabel;
 }
 
-export type FixtureEntry = IdentityClassification | KnownMisclassification;
+export type FixtureEntry = ClassificationLabel | KnownMisclassification;
 
-export function getExpected(entry: FixtureEntry): IdentityClassification {
+export function getExpected(entry: FixtureEntry): ClassificationLabel {
 	return typeof entry === "string" ? entry : entry.expected;
 }
 
 export function getKnownAs(
 	entry: FixtureEntry,
-): IdentityClassification | undefined {
+): ClassificationLabel | undefined {
 	return typeof entry === "string" ? undefined : entry.knownAs;
 }
 

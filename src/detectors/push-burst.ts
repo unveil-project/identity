@@ -1,9 +1,9 @@
 import { CONFIG } from "../config";
 import { secondsBetween, toTime } from "../time";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 
-export function detectPushBurst(events: IdentifyEvent[]): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectPushBurst(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	const pushEvents = events
 		.filter((e) => e.type === "push")

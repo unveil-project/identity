@@ -1,6 +1,6 @@
 import { CONFIG } from "../config";
 import { addHours, hoursBetween, isValidTime, toISO, toTime } from "../time";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 
 type RestWindow = {
 	start: number;
@@ -17,10 +17,8 @@ type RestWindow = {
  * day. Calendar days depend on the timezone, so a busy night that runs over
  * midnight would be split in two and we would miss it.
  */
-export function detectInhumanActivityPattern(
-	events: IdentifyEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectInhumanActivityPattern(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;

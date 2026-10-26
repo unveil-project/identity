@@ -1,7 +1,7 @@
 import { CONFIG } from "../config";
 import { daysBetween, minutesBetween, toTime } from "../time";
 import { localDay } from "../timezone";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 const CLOSED_PR_RAMP: readonly RampAnchor[] = [
@@ -11,11 +11,11 @@ const CLOSED_PR_RAMP: readonly RampAnchor[] = [
 ];
 
 export function detectClosedPRSpam(
-	events: IdentifyEvent[],
+	events: ActivityEvent[],
 	isEstablished: boolean,
 	tzOffsetHours = 0,
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+): Flag[] {
+	const flags: Flag[] = [];
 
 	// Closed PR detection (closed contributions across many repos)
 	// Pattern 1: Spray scatter - account closes PRs across many different repos

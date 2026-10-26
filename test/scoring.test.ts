@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { scoreFlags } from "../src/scoring";
-import type { IdentifyFlag } from "../src/types";
+import type { Flag } from "../src/types";
 import { rampPoints } from "../src/utils";
 import { flag } from "./utils/events";
 
@@ -63,7 +63,7 @@ describe("scoreFlags", () => {
 	});
 
 	it("only multiplies flags marked as amplifiable", () => {
-		const amplifiable: IdentifyFlag = {
+		const amplifiable: Flag = {
 			...flag("fork", 40),
 			amplifiable: true,
 		};

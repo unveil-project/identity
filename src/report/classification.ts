@@ -1,7 +1,7 @@
-import type { IdentityClassification } from "../types";
+import type { ClassificationLabel } from "../types";
 
 export function getClassificationDetails(
-	classification: IdentityClassification | undefined,
+	classification: ClassificationLabel | undefined,
 ) {
 	if (!classification) {
 		return {

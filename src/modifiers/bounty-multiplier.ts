@@ -1,9 +1,9 @@
 import { CONFIG } from "../config";
 import { getBountyPRSignal } from "../detectors/bounty-repo-activity";
-import type { IdentifyEvent } from "../types";
+import type { ActivityEvent } from "../types";
 
 export function getBountyMultiplier(
-	events: IdentifyEvent[],
+	events: ActivityEvent[],
 ): number | undefined {
 	const prSignal = getBountyPRSignal(events);
 	if (!prSignal) {

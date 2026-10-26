@@ -16,8 +16,31 @@ npm install @unveil/identity
 
 ### Usage
 
+`classify` takes an `account` and a list of `events`:
+
 ```js
-import { identify } from "@unveil/identity";
+import { classify } from "@unveil/identity";
+
+const analysis = classify({
+  account: { login: "octocat", createdAt: "2020-01-01T00:00:00Z", publicRepos: 8 },
+  events: [
+    { type: "push", at: "2026-05-01T10:00:00Z", repo: "octocat/hello" },
+    {
+      type: "pull-request",
+      action: "opened",
+      at: "2026-05-01T10:05:00Z",
+      repo: "someone/project",
+      pullRequest: { number: 12, isAuthor: true },
+    },
+  ],
+});
+```
+
+You rarely build that by hand. A provider turns a platform's data into it. With
+the GitHub provider:
+
+```js
+import { classify } from "@unveil/identity";
 import { fromGitHub } from "@unveil/identity/providers/github";
 
 // Fetch user data from GitHub API
@@ -32,7 +55,7 @@ const eventsRes = await fetch(
 const events = await eventsRes.json();
 
 // Analyze the account
-const analysis = identify(fromGitHub({ user, events }));
+const analysis = classify(fromGitHub({ user, events }));
 
 console.log(analysis);
 // Output:
@@ -47,10 +70,10 @@ console.log(analysis);
 
 ### The full report
 
-`identify` only gives the verdict. To see why, use `report`. It takes the same
-input, runs the same checks, and returns the verdict plus every flag with its
-text and the numbers behind the score. It comes from its own entry, so the
-text is only in your bundle when you import it:
+`classify` only gives the classification. To see why, use `report`. It takes
+the same input, runs the same checks, and returns the classification plus every
+flag with its text and the numbers behind the score. It comes from its own
+entry, so the text is only in your bundle when you import it:
 
 ```js
 import { report, getClassificationDetails } from "@unveil/identity/report";
@@ -60,7 +83,7 @@ const analysis = report(fromGitHub({ user, events }));
 console.log(analysis);
 // Output:
 // {
-//   ...the same fields as identify,
+//   ...the same fields as classify,
 //   flags: [],
 //   groups: [],                  // how much each group took off the score
 //   window: {                    // the events we looked at
@@ -101,9 +124,9 @@ lists the facts of every flag id.
 
 ### Input
 
-`identify` and `report` do not depend on any platform. It takes an `account` and a list of
-`events` in its own small shape. A provider turns a platform's data into that
-shape. There is a provider for GitHub.
+`classify` and `report` do not depend on any platform. They take an `account`
+and a list of `events` in their own small shape. A provider turns a platform's
+data into that shape. There is a provider for GitHub.
 
 #### GitHub
 
@@ -124,25 +147,8 @@ original GitHub event in `source`.
 
 #### Your own data
 
-You can also build the input yourself:
-
-```js
-identify({
-  account: { login: "octocat", createdAt: "2020-01-01T00:00:00Z", publicRepos: 8 },
-  events: [
-    { type: "push", at: "2026-05-01T10:00:00Z", repo: "octocat/hello" },
-    {
-      type: "pull-request",
-      action: "opened",
-      at: "2026-05-01T10:05:00Z",
-      repo: "someone/project",
-      pullRequest: { number: 12, isAuthor: true },
-    },
-  ],
-});
-```
-
-See the `IdentifyEvent` type for every field. The scoring was tuned on GitHub
+When you build the input yourself, as in the first example, see the `Account`
+and `ActivityEvent` types for every field. The scoring was tuned on GitHub
 data, so results for other platforms are not calibrated yet.
 
 ### Issues and feature requests

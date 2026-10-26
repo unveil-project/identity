@@ -1,6 +1,6 @@
 import { CONFIG } from "../config";
 import { hoursBetween, toTime } from "../time";
-import type { IdentifyEvent, IdentifyFlag } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 
 const CREATE_BURST_RAMP: readonly RampAnchor[] = [
@@ -8,10 +8,8 @@ const CREATE_BURST_RAMP: readonly RampAnchor[] = [
 	[CONFIG.CREATE_BURST_EXTREME, CONFIG.POINTS_CREATE_BURST_EXTREME],
 ];
 
-export function detectRepositoryCreationBurst(
-	events: IdentifyEvent[],
-): IdentifyFlag[] {
-	const flags: IdentifyFlag[] = [];
+export function detectRepositoryCreationBurst(events: ActivityEvent[]): Flag[] {
+	const flags: Flag[] = [];
 
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return flags;
