@@ -1,12 +1,14 @@
 # identity
 
-Identify automation patterns in GitHub accounts through behavioral analysis
+Identify automation patterns in code forge accounts through behavioral analysis
 
-This is the core logic behind [AgentScan](https://agentscan.netlify.app), a tool for analyzing GitHub account behavior to detect potential AI agents and automated activity.
+This is the core logic behind [AgentScan](https://agentscan.netlify.app), a tool for analyzing account behavior to detect potential AI agents and automated activity.
 
 Built in response to [increasing reports](https://socket.dev/blog/ai-agent-lands-prs-in-major-oss-projects-targets-maintainers-via-cold-outreach) of AI agents targeting open source projects through automated contributions and cold outreach.
 
-It applies an opinionated scoring system to GitHub activity signals to classify accounts as organic, mixed, or automation. The results are indicators, not verdicts.
+It applies an opinionated scoring system to account activity signals to classify accounts as organic, mixed, or automation. The results are indicators, not verdicts.
+
+The library is platform-agnostic: providers transform platform-specific payloads into a common shape the scoring engine understands. A GitHub provider is included out of the box.
 
 ### Install
 
