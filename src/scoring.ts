@@ -67,5 +67,9 @@ export function scoreFlags(
 
 	groups.sort((a, b) => b.points - a.points);
 
-	return { total, groups, flags: scored };
+	return {
+		total,
+		groups,
+		flags: scored,
+	};
 }

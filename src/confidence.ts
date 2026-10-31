@@ -11,14 +11,11 @@ export function calculateConfidence(window: WindowInfo): number {
 		return 0;
 	}
 
-	const countConfidence = Math.min(
-		1,
-		window.eventCount / CONFIG.CONFIDENCE_FULL_EVENTS,
-	);
-	const spanConfidence = Math.min(
-		1,
-		window.spanDays / CONFIG.CONFIDENCE_FULL_SPAN_DAYS,
-	);
+	const countRatio = window.eventCount / CONFIG.CONFIDENCE_FULL_EVENTS;
+	const countConfidence = Math.min(1, countRatio);
+
+	const spanRatio = window.spanDays / CONFIG.CONFIDENCE_FULL_SPAN_DAYS;
+	const spanConfidence = Math.min(1, spanRatio);
 
 	// The number of events matters more than how long they cover.
 	const confidence = 0.7 * countConfidence + 0.3 * spanConfidence;

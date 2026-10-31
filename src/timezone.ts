@@ -6,20 +6,11 @@ const HOURS = 24;
 const RADIANS_PER_HOUR = (2 * Math.PI) / HOURS;
 
 /**
- * Guess the account's timezone by looking at what time of day it is active.
+ * Guess the account's UTC offset from the hours it is most active.
  *
- * We cannot just take a normal average of the hours, because hours go in a
- * circle: 23:00 and 00:00 are next to each other, but a normal average of them
- * gives 11:30, which is the opposite side of the day. So we put each hour on a
- * circle and average the positions instead.
- *
- * That gives us the time of day the account is usually busy. We assume that
- * time is early afternoon where the person lives, and work out the offset from
- * there.
- *
- * `confidence` tells us how clear the pattern is. It is close to 0 when the
- * account is busy at every hour, which means there is no pattern to find. In
- * that case we give up and return an offset of 0.
+ * Hours wrap around (23:00 is next to 00:00), so we average them on a circle
+ * and assume the peak is early afternoon local time. If activity is spread
+ * evenly, `confidence` is near 0 and the offset is 0.
  */
 export function estimateUtcOffset(
 	events: readonly ActivityEvent[],
@@ -43,7 +34,10 @@ export function estimateUtcOffset(
 	}
 
 	if (total < CONFIG.TZ_MIN_EVENTS) {
-		return { offsetHours: 0, confidence: 0 };
+		return {
+			offsetHours: 0,
+			confidence: 0,
+		};
 	}
 
 	const resultantLength = Math.sqrt(cos * cos + sin * sin) / total;
@@ -51,7 +45,10 @@ export function estimateUtcOffset(
 		Math.round(Math.min(1, Math.max(0, resultantLength)) * 100) / 100;
 
 	if (confidence < CONFIG.TZ_MIN_CONFIDENCE) {
-		return { offsetHours: 0, confidence };
+		return {
+			offsetHours: 0,
+			confidence,
+		};
 	}
 
 	let meanHourUtc = Math.atan2(sin, cos) / RADIANS_PER_HOUR;
@@ -70,7 +67,10 @@ export function estimateUtcOffset(
 		offset -= HOURS;
 	}
 
-	return { offsetHours: offset, confidence };
+	return {
+		offsetHours: offset,
+		confidence,
+	};
 }
 
 /** Move a timestamp into the account's own local time. */
