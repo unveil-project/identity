@@ -1,4 +1,17 @@
-# identity
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./.github/assets/logo-dark.svg">
+    <img src="./.github/assets/logo-light.svg" alt="identity logo" width="120">
+  </picture>
+</p>
+
+<h1 align="center">Identity</h1>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@unveil/identity"><img src="https://img.shields.io/npm/v/@unveil/identity?color=8b5cf6" alt="npm version"></a>
+  <img src="https://img.shields.io/badge/dependencies-0-339933" alt="Zero dependencies">
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+</p>
 
 Identify automation patterns in code forge accounts through behavioral analysis
 
