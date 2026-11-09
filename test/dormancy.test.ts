@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { GitHubEvent } from "../src/providers/github";
+import { GITHUB_EVENT_CAP, type GitHubEvent } from "../src/providers/github";
 import { event, reportGitHub, user } from "./utils/events";
 
 /** 15 events packed into a few days, including 5 fast PRs to one repo. */
@@ -93,6 +93,35 @@ describe("dormant accounts", () => {
 				(f) => f.label === "Activity inconsistent with account age",
 			),
 		).toBe(false);
+	});
+
+	it("does not flag a busy account whose feed hit the platform limit", () => {
+		// 300 events in four days is the most GitHub ever sends. The short span
+		// only means the account is busy: its older activity is cut off, not
+		// missing. People who work in their company's repos often have almost no
+		// repos of their own.
+		const busy = Array.from({ length: GITHUB_EVENT_CAP }, (_, i) =>
+			event(
+				"PushEvent",
+				new Date(Date.UTC(2026, 5, 26, 8) + i * 20 * 60_000).toISOString(),
+				"company/service",
+			),
+		);
+
+		const saturated = reportGitHub({
+			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 1 }),
+			events: busy,
+		});
+		const quiet = reportGitHub({
+			user: user({ created_at: "2018-01-01T00:00:00Z", public_repos: 1 }),
+			events: busy.slice(0, 50),
+		});
+
+		const isDormant = (result: typeof saturated) =>
+			result.flags.some((f) => f.id === "dormant-reactivation");
+		expect(saturated.window.saturated).toBe(true);
+		expect(isDormant(saturated)).toBe(false);
+		expect(isDormant(quiet)).toBe(true);
 	});
 
 	it("removes the softer checks from a reactivated account", () => {

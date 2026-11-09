@@ -1,7 +1,7 @@
 export const CONFIG = {
 	// Classification thresholds (inverted score: 100 = human, 0 = bot)
-	THRESHOLD_HUMAN: 70, // >= this = "human"
-	THRESHOLD_SUSPICIOUS: 50, // >= this = "suspicious", below = "likely_bot"
+	THRESHOLD_HUMAN: 70, // >= this = "organic"
+	THRESHOLD_SUSPICIOUS: 50, // >= this = "mixed", below = "automation"
 
 	// Flag groups
 	// In one group the biggest flag counts fully, the other flags count this much
@@ -32,14 +32,6 @@ export const CONFIG = {
 	DORMANCY_INFERRED_MAX_REPOS: 2, // ...and it has almost no repos
 	POINTS_DORMANT_REACTIVATION: 30,
 
-	// Profile checks (from GET /users/{username})
-	POINTS_NO_IDENTITY: 15,
-	FOLLOW_RATIO_FOLLOWING_MIN: 50, // following > this AND followers < FOLLOW_RATIO_FOLLOWERS_MAX
-	FOLLOW_RATIO_FOLLOWERS_MAX: 5,
-	POINTS_FOLLOW_RATIO: 15,
-	POINTS_ZERO_FOLLOWERS: 10,
-	ZERO_FOLLOWERS_MIN_AGE_DAYS: 90, // new accounts need time, so only check older ones
-
 	// Minimum events required for activity analysis
 	MIN_EVENTS_FOR_ANALYSIS: 10,
 
@@ -61,6 +53,7 @@ export const CONFIG = {
 
 	// Fork rate metrics (average forks per day)
 	FORKS_PER_DAY_HIGH: 8, // >= this forks/day average = sustained high fork rate
+	FORK_RATE_MIN_SPAN_DAYS: 3, // the forks must cover this many days, or it is a burst, not a rate
 	POINTS_FORKS_PER_DAY_HIGH: 55,
 
 	// Consecutive days of forking
@@ -71,6 +64,7 @@ export const CONFIG = {
 	FORK_COMBINED_ACTIVITY_MIN: 12, // >= this forks
 	FORK_COMBINED_BRANCHES: 6, // + >= this branch creations
 	FORK_COMBINED_PRS: 8, // + >= this PRs = coordinated automation
+	FORK_COMBINED_MAX_PRS_PER_BRANCH: 2, // more PRs per branch than this is not one PR per fork
 	POINTS_FORK_COMBINED_ACTIVITY: 60,
 
 	// Fork repository diversity
@@ -79,6 +73,7 @@ export const CONFIG = {
 
 	// Inhuman daily activity
 	HOURS_PER_DAY_INHUMAN: 16, // >= this unique hours in a day = inhuman
+	MARATHON_HOUR_EVENNESS_MIN: 0.8, // ...spread this evenly over those hours (0 = one hour, 1 = perfectly even)
 	CONSECUTIVE_INHUMAN_DAYS_EXTREME: 3, // consecutive days with 16+ hours
 	FREQUENT_MARATHON_DAYS: 5, // non-consecutive days with 16+ hours
 	POINTS_NONSTOP_ACTIVITY: 40,
@@ -125,16 +120,18 @@ export const CONFIG = {
 
 	// Zero repos with activity
 	ZERO_REPOS_MIN_EVENTS: 20, // 0 repos but this many events = suspicious
+	HOME_OWNER_MIN_SHARE: 0.5, // this share of external activity under one owner = that owner is the account's home
 	POINTS_ZERO_REPOS_ACTIVE: 20,
 
-	// Activity density (events per day)
-	ACTIVITY_DENSITY_HIGH: 8, // >= this events/day average
-	ACTIVITY_DENSITY_EXTREME: 15, // >= this events/day average
-	POINTS_HIGH_ACTIVITY_DENSITY: 15,
-	POINTS_EXTREME_ACTIVITY_DENSITY: 25,
+	// PRs per day for young accounts (average over the days the PRs cover)
+	YOUNG_PRS_PER_DAY_HIGH: 4,
+	YOUNG_PRS_PER_DAY_EXTREME: 7.5,
+	POINTS_YOUNG_PR_VOLUME_HIGH: 20,
+	POINTS_YOUNG_PR_VOLUME_EXTREME: 35,
 
-	TIGHT_COMMIT_SECONDS: 60 * 10,
-	TIGHT_COMMIT_THRESHOLD_GLOBAL: 70,
+	// Pushes to the same repository in quick succession
+	TIGHT_COMMIT_SECONDS: 60 * 10, // two pushes this close count as a pair
+	TIGHT_COMMIT_THRESHOLD_GLOBAL: 70, // >= this many pairs = push burst
 	POINTS_TIGHT_BURST: 25,
 
 	// Rapid repo creation (filters CreateEvent by ref_type === "repository" only)
@@ -148,7 +145,9 @@ export const CONFIG = {
 	HOURS_ACTIVE_EXTREME: 21, // busy in 21+ different hours = suspicious
 	EVENTS_PER_HOUR_MIN: 2.0, // each busy hour needs at least this many events
 	REST_GAP_MIN_HOURS: 3, // longest quiet gap under this = no time to sleep
+	REST_GAP_NONE_HOURS: 1, // longest quiet gap under this = no rest at all
 	POINTS_24_7_ACTIVITY: 25,
+	POINTS_24_7_NO_REST: 38,
 	AGE_ESTABLISHED_ACCOUNT: 1000, // accounts older than this (days) can get softer checks
 
 	// Event type diversity (bots have narrow activity)
@@ -183,6 +182,7 @@ export const CONFIG = {
 	POINTS_BRANCH_PR_AUTOMATION: 35, // suspicious timing pattern; can also occur with fast manual workflows
 
 	// Rapid PR spam (multiple PRs to same repo in rapid succession - fork spam pattern)
+	RAPID_PR_MAX_GAP_SECONDS: 90, // PRs this close to the previous one keep a run going
 	RAPID_PR_SPAM_MIN_PRS: 4, // need at least this many rapid successive PRs to flag (young accounts)
 	RAPID_PR_SPAM_MIN_PRS_ESTABLISHED: 6, // stricter threshold for established accounts
 	POINTS_RAPID_PR_SPAM: 40, // fork spam attack indicator
@@ -192,6 +192,8 @@ export const CONFIG = {
 	CLOSED_PR_SPAM_MIN_ESTABLISHED: 8, // stricter threshold for established accounts
 	CLOSED_PR_REPO_SPREAD: 3, // minimum different repos for spray detection
 	CLOSED_PR_TIME_WINDOW_MINUTES: 60, // PRs closed within this window = concentrated spray
+	CLOSED_PR_BURST_MIN_REPOS: 2, // a concentrated spray needs at least this many repos
+	CLOSED_PR_SPIKE_DAY_MIN: 10, // a day with this many closures is listed as a spike day
 	CLOSED_PR_MIN_DENSITY: 1, // minimum PRs per day average to flag spray pattern
 	CLOSED_PR_VOLUME_HIGH: 25, // 25+ closed PRs = high volume rejected submissions
 	CLOSED_PR_VOLUME_EXTREME: 100, // 100+ closed PRs = ecosystem-wide spam
@@ -201,6 +203,7 @@ export const CONFIG = {
 	POINTS_CLOSED_PR_SPAM_BURST_EXTREME: 80, // 100+ closed PRs in burst = coordinated attack
 
 	// Limited community engagement (young accounts with zero engagement event types)
+	LIMITED_ENGAGEMENT_MIN_PRS: 3, // one or two PRs from a newcomer are too few to call it a pattern
 	POINTS_LIMITED_ENGAGEMENT: 25,
 
 	// Organic signals (reduce score — genuine engagement patterns bots rarely exhibit)
@@ -238,8 +241,8 @@ export const CONFIG = {
 
 	// Bounty repository PR farming
 	// Detects accounts whose opened PRs predominantly target known bounty program repos.
-	// Matched against BOUNTY_REPO_PATHS (full owner/repo) and BOUNTY_REPO_NAMES (name-only,
-	// to catch forks of known fake campaign repos not yet in the list).
+	// Repositories are matched by `isBountyRepo` in src/data/bounty-repos.ts.
+	BOUNTY_CAMPAIGN_MIN_OWNERS: 3, // a repo name listed under this many owners is a campaign copied across accounts
 	BOUNTY_REPO_MIN_PRS: 3, // need at least this many opened PRs to analyze
 	BOUNTY_REPO_RATIO_HIGH: 0.75, // >= 75% of PRs to bounty repos = strong signal
 	BOUNTY_REPO_RATIO_LOW: 0.4, // >= 40% of PRs to bounty repos = moderate signal

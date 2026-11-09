@@ -1,109 +1,105 @@
 import { CONFIG } from "../config";
-import { secondsBetween, toTime } from "../time";
+import { isOpenedPR, type TimedEvent, toTimeline } from "../events";
+import { secondsBetween } from "../time";
 import type { ActivityEvent, Flag } from "../types";
+import { groupBy } from "../utils";
 
+type RapidRun = {
+	/** Back-to-back PR pairs in the run: a run of 5 PRs has 4 pairs. */
+	pairs: number;
+	/** The longest wait between two PRs in the run. */
+	maxGapSeconds: number;
+	/** Index of the first PR in the run. */
+	start: number;
+	/** Index of the last PR in the run. */
+	end: number;
+};
+
+/**
+ * The longest run of PRs where each one came within RAPID_PR_MAX_GAP_SECONDS of
+ * the one before. The PRs must be sorted oldest first.
+ */
+function longestRapidRun(prs: TimedEvent[]): RapidRun {
+	let longest: RapidRun = { pairs: 0, maxGapSeconds: 0, start: 0, end: 0 };
+	let current: RapidRun = { ...longest };
+
+	for (let i = 1; i < prs.length; i++) {
+		const gapSeconds = Math.trunc(
+			secondsBetween(prs[i - 1]?.time ?? 0, prs[i]?.time ?? 0),
+		);
+
+		if (gapSeconds <= CONFIG.RAPID_PR_MAX_GAP_SECONDS) {
+			current = {
+				pairs: current.pairs + 1,
+				maxGapSeconds: Math.max(current.maxGapSeconds, gapSeconds),
+				start: current.start,
+				end: i,
+			};
+		} else {
+			current = { pairs: 0, maxGapSeconds: 0, start: i, end: i };
+		}
+
+		if (current.pairs > longest.pairs) {
+			longest = current;
+		}
+	}
+
+	return longest;
+}
+
+/**
+ * Several PRs to the same repository, each within a minute or so of the last:
+ * faster than anyone can write, test and describe a change.
+ */
 export function detectRapidPRSpam(
 	events: ActivityEvent[],
 	isEstablished: boolean,
 ): Flag[] {
-	const flags: Flag[] = [];
-
-	// Rapid PRs to repository (fork contribution pattern)
-	// Detects: multiple PRs opened in rapid succession to same repo
-	// Catches rapid patterns that don't correlate with branch creation
-	const minRapidPRs = isEstablished
+	const minPRs = isEstablished
 		? CONFIG.RAPID_PR_SPAM_MIN_PRS_ESTABLISHED
 		: CONFIG.RAPID_PR_SPAM_MIN_PRS;
 
-	const prEvents = events.filter(
-		(e) => e.type === "pull-request" && e.action === "opened",
-	);
-
-	if (prEvents.length < minRapidPRs) {
-		return flags;
+	const prs = events.filter(isOpenedPR);
+	if (prs.length < minPRs) {
+		return [];
 	}
 
-	const prTimes = prEvents
-		.map((e) => ({ event: e, time: toTime(e.at) }))
-		.sort((a, b) => a.time - b.time);
+	const prsByRepo = groupBy(toTimeline(prs), (pr) => pr.event.repo);
+	let fastest: (RapidRun & { repo: string; prs: TimedEvent[] }) | undefined;
 
-	const prsByRepo = new Map<string, typeof prTimes>();
-	for (const prEntry of prTimes) {
-		const repoName = prEntry.event.repo;
-		if (repoName) {
-			if (!prsByRepo.has(repoName)) {
-				prsByRepo.set(repoName, []);
-			}
-
-			prsByRepo.get(repoName)?.push(prEntry);
-		}
-	}
-
-	let maxConsecutivePairs = 0;
-	let maxConsecutiveTimeDiff = 0;
-	let targetRepo = "";
-	let maxStreakStartIdx = 0;
-	let maxStreakEndIdx = 0;
-
-	for (const [repoName, repoPRs] of prsByRepo.entries()) {
-		if (repoPRs.length < minRapidPRs) {
+	for (const [repo, repoPRs] of prsByRepo) {
+		if (repoPRs.length < minPRs) {
 			continue;
 		}
 
-		let streakStart = 0;
-		let streakPairs = 0;
-		let streakMaxTimeDiff = 0;
-
-		for (let i = 0; i < repoPRs.length - 1; i++) {
-			const currentPR = repoPRs[i];
-			const nextPR = repoPRs[i + 1];
-			if (!currentPR || !nextPR) {
-				continue;
-			}
-
-			const timeDiffSeconds = Math.trunc(
-				secondsBetween(currentPR.time, nextPR.time),
-			);
-
-			if (timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS) {
-				streakPairs++;
-				streakMaxTimeDiff = Math.max(streakMaxTimeDiff, timeDiffSeconds);
-			} else {
-				streakStart = i + 1;
-				streakPairs = 0;
-				streakMaxTimeDiff = 0;
-			}
-
-			if (streakPairs > maxConsecutivePairs) {
-				maxConsecutivePairs = streakPairs;
-				maxConsecutiveTimeDiff = streakMaxTimeDiff;
-				targetRepo = repoName;
-				maxStreakStartIdx = streakStart;
-				maxStreakEndIdx = i + 1;
-			}
+		const run = longestRapidRun(repoPRs);
+		if (!fastest || run.pairs > fastest.pairs) {
+			fastest = { ...run, repo, prs: repoPRs };
 		}
 	}
 
-	// Compare pairs to PR count - 1 (minRapidPRs represents number of PRs, which is pairs + 1)
-	if (maxConsecutivePairs >= minRapidPRs - 1) {
-		const rapidRepoEvents = (prsByRepo.get(targetRepo) ?? [])
-			.slice(maxStreakStartIdx, maxStreakEndIdx + 1)
-			.map((entry) => entry.event);
+	// A run of N PRs has N - 1 pairs.
+	if (!fastest || fastest.pairs < minPRs - 1) {
+		return [];
+	}
 
-		flags.push({
+	const runPRs = fastest.prs
+		.slice(fastest.start, fastest.end + 1)
+		.map((pr) => pr.event);
+
+	return [
+		{
 			id: "rapid-prs",
 			points: CONFIG.POINTS_RAPID_PR_SPAM,
 			group: "branch-pr",
 			amplifiable: true,
 			facts: {
-				prs: maxConsecutivePairs + 1,
-				minPRs: minRapidPRs,
-				repo: targetRepo,
-				maxGapSeconds: maxConsecutiveTimeDiff,
+				prs: fastest.pairs + 1,
+				minPRs,
+				repo: fastest.repo,
+				maxGapSeconds: fastest.maxGapSeconds,
 			},
-			events: rapidRepoEvents,
-		});
-	}
-
-	return flags;
+			events: runPRs,
+		},
+	];
 }

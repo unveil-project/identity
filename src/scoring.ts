@@ -1,5 +1,6 @@
 import { CONFIG } from "./config";
-import type { EvidenceGroup, Flag, ScoredGroup } from "./types";
+import type { Flag, ScoredGroup } from "./types";
+import { groupBy } from "./utils";
 
 export type ScoreOptions = {
 	bountyMultiplier?: number;
@@ -33,20 +34,10 @@ export function scoreFlags(
 			: flag.points,
 	}));
 
-	const byGroup = new Map<EvidenceGroup, Flag[]>();
-	for (const flag of scored) {
-		const existing = byGroup.get(flag.group);
-		if (existing) {
-			existing.push(flag);
-		} else {
-			byGroup.set(flag.group, [flag]);
-		}
-	}
-
 	const groups: ScoredGroup[] = [];
 	let total = 0;
 
-	for (const [group, groupFlags] of byGroup) {
+	for (const [group, groupFlags] of groupBy(scored, (flag) => flag.group)) {
 		const points = groupFlags.map((flag) => flag.effectivePoints ?? 0);
 		const rawPoints = points.reduce((sum, value) => sum + value, 0);
 		const strongest = points.reduce((max, value) => Math.max(max, value), 0);
@@ -72,4 +63,24 @@ export function scoreFlags(
 		groups,
 		flags: scored,
 	};
+}
+
+/**
+ * Turn the flags' penalty and the organic bonus into the score, from 100
+ * (human) to 0 (automation).
+ *
+ * Signs of a real person, like merged PRs, can make up for weak flags, so the
+ * bonus counts in full while the flags alone keep the account out of
+ * automation. Past that point the flags are strong evidence, and bots get PRs
+ * merged too, so the bonus fades until it is gone at a penalty of 100. A good
+ * sign can soften the result, but never pull an account the flags call
+ * automation back to looking human.
+ */
+export function humanScore(penalty: number, organicBonus: number): number {
+	const fadeStart = 100 - CONFIG.THRESHOLD_SUSPICIOUS;
+	const fadeProgress = (penalty - fadeStart) / (100 - fadeStart);
+	const bonusWeight = Math.min(1, Math.max(0, 1 - fadeProgress));
+	const bonus = Math.round(organicBonus * bonusWeight);
+
+	return Math.min(100, Math.max(0, 100 - penalty + bonus));
 }

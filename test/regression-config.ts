@@ -79,10 +79,7 @@ export const REGRESSION_FIXTURES = {
 	"automation_8": "automation",
 	"automation_5": "automation",
 	"automation_6": "automation",
-	"automation_4": {
-		"expected": "mixed",
-		"knownAs": "automation",
-	},
+	"automation_4": "automation",
 	"automation_10": "automation",
 	"automation_9": "automation",
 	"automation_7": "automation",
@@ -95,10 +92,7 @@ export const REGRESSION_FIXTURES = {
 	"automation_15": "automation",
 	"automation_16": "automation",
 	"automation_17": "automation",
-	"automation_18": {
-		"expected": "mixed",
-		"knownAs": "automation",
-	},
+	"automation_18": "automation",
 	"automation_19": "automation",
 	"automation_20": "automation",
 	"organic_15": "organic",

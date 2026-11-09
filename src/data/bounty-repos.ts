@@ -1,6 +1,10 @@
+import { CONFIG } from "../config";
+import { nameOf, ownerOf } from "../repos";
+import { groupBy } from "../utils";
+
 /**
  * Known bounty program repositories, sourced from agentscan.
- * Format: "owner/repo" — matched case-insensitively against PR event repo names.
+ * Format: "owner/repo", matched without letter case.
  */
 export const BOUNTY_REPOS: readonly string[] = [
 	"0106hyh/hammer-and-nail",
@@ -116,12 +120,44 @@ export const BOUNTY_REPOS: readonly string[] = [
 	"charles-openclaw/charles-microbounties",
 ] as const;
 
-export const BOUNTY_REPO_NAMES: ReadonlySet<string> = new Set(
-	BOUNTY_REPOS.map((r) => r.split("/")[1]?.toLowerCase()).filter(
-		Boolean,
-	) as string[],
+const BOUNTY_REPO_PATHS: ReadonlySet<string> = new Set(
+	BOUNTY_REPOS.map((repo) => repo.toLowerCase()),
 );
 
-export const BOUNTY_REPO_PATHS: ReadonlySet<string> = new Set(
-	BOUNTY_REPOS.map((r) => r.toLowerCase()),
-);
+/**
+ * Bounty campaigns copy the same repository under many throwaway accounts,
+ * like "zeroeye". Once a name shows up under several owners in the list, any
+ * repository with that name counts, so a new copy is caught before it is
+ * listed.
+ *
+ * Names seen under fewer owners only count with their owner. Campaigns also
+ * copy the names of real projects ("Vault", "Gitea", "Traefik"), and matching
+ * those by name alone would flag everyone who contributes to the real project.
+ */
+function campaignNamesOf(paths: Iterable<string>): ReadonlySet<string> {
+	const pathsByName = groupBy(paths, (path) => nameOf(path));
+	const campaignNames = new Set<string>();
+
+	for (const [name, namePaths] of pathsByName) {
+		const owners = new Set(namePaths.map(ownerOf));
+		if (name && owners.size >= CONFIG.BOUNTY_CAMPAIGN_MIN_OWNERS) {
+			campaignNames.add(name);
+		}
+	}
+
+	return campaignNames;
+}
+
+const BOUNTY_CAMPAIGN_NAMES = campaignNamesOf(BOUNTY_REPO_PATHS);
+
+/** True when activity in this repository counts as bounty program activity. */
+export function isBountyRepo(repo: string): boolean {
+	const lower = repo.toLowerCase();
+	if (BOUNTY_REPO_PATHS.has(lower)) {
+		return true;
+	}
+
+	const name = nameOf(lower);
+
+	return name !== undefined && BOUNTY_CAMPAIGN_NAMES.has(name);
+}

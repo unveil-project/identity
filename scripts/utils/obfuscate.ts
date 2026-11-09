@@ -1,8 +1,5 @@
 import { createHash } from "node:crypto";
-import {
-	BOUNTY_REPO_NAMES,
-	BOUNTY_REPO_PATHS,
-} from "../../src/data/bounty-repos";
+import { isBountyRepo } from "../../src/data/bounty-repos";
 
 type JsonValue =
 	| string
@@ -42,12 +39,8 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 	function fakeRepo(fullName: string): string {
 		let cached = repoCache.get(fullName);
 		if (cached === undefined) {
-			const lower = fullName.toLowerCase();
-			const repoName = lower.split("/")[1];
-			if (
-				BOUNTY_REPO_PATHS.has(lower) ||
-				(repoName !== undefined && BOUNTY_REPO_NAMES.has(repoName))
-			) {
+			// Bounty repos stay readable: the bounty checks match them by name.
+			if (isBountyRepo(fullName)) {
 				cached = fullName;
 			} else {
 				const slash = fullName.indexOf("/");

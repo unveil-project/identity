@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { scoreFlags } from "../src/scoring";
+import { CONFIG } from "../src/config";
+import { humanScore, scoreFlags } from "../src/scoring";
 import type { Flag } from "../src/types";
 import { rampPoints } from "../src/utils";
 import { flag } from "./utils/events";
@@ -71,5 +72,35 @@ describe("scoreFlags", () => {
 		const result = scoreFlags([amplifiable, fixed], { bountyMultiplier: 1.5 });
 		expect(result.flags[0]?.effectivePoints).toBe(60);
 		expect(result.flags[1]?.effectivePoints).toBe(40);
+	});
+});
+
+describe("humanScore", () => {
+	it("is 100 minus the penalty without a bonus", () => {
+		expect(humanScore(30, 0)).toBe(70);
+	});
+
+	it("gives the full bonus while the flags alone are not automation", () => {
+		expect(humanScore(40, 10)).toBe(70);
+		expect(humanScore(50, 30)).toBe(80);
+	});
+
+	it("does not let a bonus pull a heavily flagged account out of automation", () => {
+		// Adding the bonus in full gave 100 - 80 + 30 = 50, which reads as "mixed".
+		expect(humanScore(80, 30)).toBeLessThan(CONFIG.THRESHOLD_SUSPICIOUS);
+	});
+
+	it("never goes up when the penalty grows", () => {
+		let previous = Number.POSITIVE_INFINITY;
+		for (let penalty = 0; penalty <= 120; penalty++) {
+			const score = humanScore(penalty, 45);
+			expect(score).toBeLessThanOrEqual(previous);
+			previous = score;
+		}
+	});
+
+	it("stays between 0 and 100", () => {
+		expect(humanScore(0, 45)).toBe(100);
+		expect(humanScore(150, 45)).toBe(0);
 	});
 });

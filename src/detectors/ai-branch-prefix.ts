@@ -1,4 +1,5 @@
 import { CONFIG } from "../config";
+import { isBranchCreation } from "../events";
 import type { ActivityEvent, Flag } from "../types";
 
 const AI_AGENT_PREFIXES = [
@@ -10,39 +11,32 @@ const AI_AGENT_PREFIXES = [
 	"swe-bench/",
 ];
 
-function isAIAgentBranch(ref: string): boolean {
-	const lower = ref.toLowerCase();
+/** The AI agent prefix a branch name starts with, if any. */
+function aiAgentPrefixOf(branch: ActivityEvent): string | undefined {
+	const name = (branch.ref?.name ?? "").toLowerCase();
 
-	return AI_AGENT_PREFIXES.some((prefix) => lower.startsWith(prefix));
+	return AI_AGENT_PREFIXES.find((prefix) => name.startsWith(prefix));
 }
 
 export function detectAIAgentBranchPrefix(events: ActivityEvent[]): Flag[] {
-	const branchCreations = events.filter(
-		(e) => e.type === "create" && e.ref?.type === "branch",
-	);
+	const branches = events.filter(isBranchCreation);
 
-	if (branchCreations.length < CONFIG.AI_BRANCH_MIN_CREATIONS) {
+	if (branches.length < CONFIG.AI_BRANCH_MIN_CREATIONS) {
 		return [];
 	}
 
-	const aiBranches = branchCreations.filter((e) =>
-		isAIAgentBranch(e.ref?.name ?? ""),
+	const aiBranches = branches.filter(
+		(branch) => aiAgentPrefixOf(branch) !== undefined,
 	);
-	const ratio = aiBranches.length / branchCreations.length;
+	const ratio = aiBranches.length / branches.length;
 
 	if (ratio < CONFIG.AI_BRANCH_RATIO_MIN) {
 		return [];
 	}
 
-	const detectedPrefixes = [
-		...new Set(
-			aiBranches.map((e) => {
-				const ref = (e.ref?.name ?? "").toLowerCase();
-
-				return AI_AGENT_PREFIXES.find((p) => ref.startsWith(p)) ?? "";
-			}),
-		),
-	].filter(Boolean);
+	const prefixes = new Set(
+		aiBranches.map(aiAgentPrefixOf).filter((prefix) => prefix !== undefined),
+	);
 
 	return [
 		{
@@ -52,9 +46,9 @@ export function detectAIAgentBranchPrefix(events: ActivityEvent[]): Flag[] {
 			amplifiable: true,
 			facts: {
 				aiBranches: aiBranches.length,
-				branches: branchCreations.length,
+				branches: branches.length,
 				ratio,
-				prefixes: detectedPrefixes,
+				prefixes: [...prefixes],
 			},
 			events: aiBranches,
 		},

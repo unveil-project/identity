@@ -371,7 +371,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			{
 				label: "Max interval between PRs (s)",
 				value: maxGapSeconds,
-				threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
+				threshold: CONFIG.RAPID_PR_MAX_GAP_SECONDS,
 			},
 		],
 	}),
@@ -559,7 +559,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			{
 				label: "PRs per day",
 				value: oneDecimal(perDay),
-				threshold: CONFIG.ACTIVITY_DENSITY_EXTREME / 2,
+				threshold: CONFIG.YOUNG_PRS_PER_DAY_EXTREME,
 			},
 		],
 	}),
@@ -572,7 +572,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			{
 				label: "PRs per day",
 				value: oneDecimal(perDay),
-				threshold: CONFIG.ACTIVITY_DENSITY_HIGH / 2,
+				threshold: CONFIG.YOUNG_PRS_PER_DAY_HIGH,
 			},
 		],
 	}),
@@ -721,7 +721,11 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		detail:
 			"Pushes code to other people's repos, but never opens an issue, comments, reviews, or stars anything",
 		data: [
-			{ label: "External PRs", value: externalPRs },
+			{
+				label: "External PRs",
+				value: externalPRs,
+				threshold: CONFIG.LIMITED_ENGAGEMENT_MIN_PRS,
+			},
 			{ label: "Has engagement events", value: false },
 		],
 	}),

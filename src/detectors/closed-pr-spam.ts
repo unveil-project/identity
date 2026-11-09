@@ -1,8 +1,9 @@
 import { CONFIG } from "../config";
-import { daysBetween, minutesBetween, toTime } from "../time";
+import { eventTime } from "../events";
+import { spanDays, spanMinutes } from "../time";
 import { localDay } from "../timezone";
 import type { ActivityEvent, Flag } from "../types";
-import { type RampAnchor, rampPoints } from "../utils";
+import { countBy, type RampAnchor, rampPoints } from "../utils";
 
 const CLOSED_PR_RAMP: readonly RampAnchor[] = [
 	[CONFIG.CLOSED_PR_SPAM_MIN, CONFIG.POINTS_CLOSED_PR_SPAM],
@@ -10,120 +11,105 @@ const CLOSED_PR_RAMP: readonly RampAnchor[] = [
 	[CONFIG.CLOSED_PR_VOLUME_EXTREME, CONFIG.POINTS_CLOSED_PR_SPAM_EXTREME],
 ];
 
+/**
+ * A PR the account wrote that was closed without a merge. Closing other
+ * people's PRs is maintainer work and does not count.
+ */
+function isOwnClosedPR(event: ActivityEvent): boolean {
+	return (
+		event.type === "pull-request" &&
+		event.action === "closed" &&
+		event.pullRequest?.isAuthor === true
+	);
+}
+
+/** How many PRs were closed on each busy day, in local time, busiest first. */
+function spikeDaysOf(closed: ActivityEvent[], tzOffsetHours: number): number[] {
+	const closedPerDay = countBy(closed, (event) =>
+		localDay(event.at, tzOffsetHours),
+	);
+	closedPerDay.delete("");
+
+	return [...closedPerDay.values()]
+		.filter((count) => count >= CONFIG.CLOSED_PR_SPIKE_DAY_MIN)
+		.sort((a, b) => b - a);
+}
+
+/**
+ * Many closed PRs, either scattered over several repositories at a steady
+ * pace, or all closed within an hour.
+ */
 export function detectClosedPRSpam(
 	events: ActivityEvent[],
 	isEstablished: boolean,
 	tzOffsetHours = 0,
 ): Flag[] {
-	const flags: Flag[] = [];
-
-	// Closed PR detection (closed contributions across many repos)
-	// Pattern 1: Spray scatter - account closes PRs across many different repos
-	//           Indicates: contributions being closed across a wide range of repositories
-	// Pattern 2: Concentrated closing - many closed PRs to varied repos in short time
-	//           Indicates: automated contribution pattern or concentrated closing activity
-	const minClosedPRs = isEstablished
+	const minClosed = isEstablished
 		? CONFIG.CLOSED_PR_SPAM_MIN_ESTABLISHED
 		: CONFIG.CLOSED_PR_SPAM_MIN;
 
-	// Only count PRs the user submitted. Excludes maintainer activity where the
-	// user closes other people's PRs.
-	const closedPREvents = events.filter(
-		(e) =>
-			e.type === "pull-request" &&
-			e.action === "closed" &&
-			e.pullRequest?.isAuthor === true,
-	);
-
-	if (closedPREvents.length < minClosedPRs) {
-		return flags;
+	const closed = events.filter(isOwnClosedPR);
+	if (closed.length < minClosed) {
+		return [];
 	}
 
-	// Count distinct repos targeted by closed PRs
-	const closedPRRepos = new Set<string>(closedPREvents.map((e) => e.repo));
+	const repos = new Set(closed.map((event) => event.repo));
+	const days = spanDays(closed.map(eventTime));
+	const minutes = Math.trunc(spanMinutes(closed.map(eventTime)));
+	const perDay = days > 0 ? closed.length / days : closed.length;
+	const points = rampPoints(closed.length, CLOSED_PR_RAMP);
 
-	// Calculate overall time span of closed PR activity
-	const closedPRTimestamps = closedPREvents.map((e) => toTime(e.at));
-	const earliestClosed = Math.min(...closedPRTimestamps);
-	const latestClosed = Math.max(...closedPRTimestamps);
-	const timeSpanMinutes = Math.trunc(
-		minutesBetween(earliestClosed, latestClosed),
-	);
-	const fractionalDays = daysBetween(earliestClosed, latestClosed);
-	const timeSpanDays = Math.trunc(fractionalDays);
+	const isSpray =
+		repos.size >= CONFIG.CLOSED_PR_REPO_SPREAD &&
+		perDay >= CONFIG.CLOSED_PR_MIN_DENSITY;
 
-	// Find days with a lot of closed PRs. Days use the account's own local time.
-	const prsByDay = new Map<string, number>();
-	closedPREvents.forEach((e) => {
-		if (!e.at) {
-			return;
-		}
-
-		const day = localDay(e.at, tzOffsetHours);
-		prsByDay.set(day, (prsByDay.get(day) || 0) + 1);
-	});
-
-	// Identify all days with significant activity (>= 10 PRs threshold)
-	const burstDays = Array.from(prsByDay.entries())
-		.filter(([_, count]) => count >= 10)
-		.sort((a, b) => b[1] - a[1])
-		.map(([_, count]) => count);
-
-	const points = rampPoints(closedPREvents.length, CLOSED_PR_RAMP);
-
-	// Pattern 1: Spray scatter - closed PRs across many repos at significant density
-	const prDensity =
-		fractionalDays > 0
-			? closedPREvents.length / fractionalDays
-			: closedPREvents.length;
-	const highDensity = prDensity >= CONFIG.CLOSED_PR_MIN_DENSITY;
-
-	if (closedPRRepos.size >= CONFIG.CLOSED_PR_REPO_SPREAD && highDensity) {
-		flags.push({
-			id: "closed-pr-spray",
-			points,
-			group: "pr-outcome",
-			amplifiable: true,
-			facts: {
-				closed: closedPREvents.length,
-				minClosed: minClosedPRs,
-				repos: closedPRRepos.size,
-				spanDays: timeSpanDays,
-				spanMinutes: timeSpanMinutes,
-				spikeDays: burstDays,
-				perDay: prDensity,
-			},
-			events: closedPREvents,
-		});
-
-		return flags;
-	}
-
-	// Pattern 2: Concentrated closing to few repos in short window
-	// (would be caught above if PRs are scattered, so this is secondary check)
-	if (closedPRRepos.size >= 2) {
-		if (timeSpanMinutes <= CONFIG.CLOSED_PR_TIME_WINDOW_MINUTES) {
-			// For burst patterns with extreme volume, boost points even higher
-			const burstPoints =
-				closedPREvents.length >= CONFIG.CLOSED_PR_VOLUME_EXTREME
-					? CONFIG.POINTS_CLOSED_PR_SPAM_BURST_EXTREME
-					: points;
-
-			flags.push({
-				id: "closed-pr-burst",
-				points: burstPoints,
+	if (isSpray) {
+		return [
+			{
+				id: "closed-pr-spray",
+				points,
 				group: "pr-outcome",
 				amplifiable: true,
 				facts: {
-					closed: closedPREvents.length,
-					minClosed: minClosedPRs,
-					repos: closedPRRepos.size,
-					spanMinutes: timeSpanMinutes,
+					closed: closed.length,
+					minClosed,
+					repos: repos.size,
+					spanDays: Math.trunc(days),
+					spanMinutes: minutes,
+					spikeDays: spikeDaysOf(closed, tzOffsetHours),
+					perDay,
 				},
-				events: closedPREvents,
-			});
-		}
+				events: closed,
+			},
+		];
 	}
 
-	return flags;
+	const isBurst =
+		repos.size >= CONFIG.CLOSED_PR_BURST_MIN_REPOS &&
+		minutes <= CONFIG.CLOSED_PR_TIME_WINDOW_MINUTES;
+
+	if (!isBurst) {
+		return [];
+	}
+
+	let burstPoints = points;
+	if (closed.length >= CONFIG.CLOSED_PR_VOLUME_EXTREME) {
+		burstPoints = CONFIG.POINTS_CLOSED_PR_SPAM_BURST_EXTREME;
+	}
+
+	return [
+		{
+			id: "closed-pr-burst",
+			points: burstPoints,
+			group: "pr-outcome",
+			amplifiable: true,
+			facts: {
+				closed: closed.length,
+				minClosed,
+				repos: repos.size,
+				spanMinutes: minutes,
+			},
+			events: closed,
+		},
+	];
 }
