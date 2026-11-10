@@ -31,6 +31,7 @@
 		"check:fix": "biome check --fix",
 		"obfuscate:fixture": "tsx scripts/obfuscate-fixture.ts",
 		"add:fixture": "tsx scripts/add-fixture.ts",
+		"collect:fixtures": "tsx scripts/collect-fixtures.ts",
 		"update-fixtures": "tsx scripts/fetch-regression-fixtures.ts",
 		"playground": "pnpm -F @unveil/identity-playground dev",
 		"regression-test": "tsx scripts/regression-test.ts",

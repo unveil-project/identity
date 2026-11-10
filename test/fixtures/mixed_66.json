@@ -1,0 +1,1531 @@
+{
+	"capturedAt": "2026-11-10T22:43:20.936Z",
+	"user": {
+		"login": "user-43c0b0bf",
+		"created_at": "2021-12-25T22:26:37Z",
+		"public_repos": 7,
+		"type": "User"
+	},
+	"events": [
+		{
+			"id": "19710735126",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 49619,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/49619",
+					"id": 4278123218,
+					"number": 49619,
+					"head": {
+						"ref": "gdn-oot-fused-decode",
+						"sha": "403bad99c172306682f780627977ac57c94cefaf",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "946cc59d11fe7a0a1b2f6f71082bde85443b0bd4",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T20:47:50Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "19410344322",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 38749,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/38749",
+					"id": 810309670,
+					"number": 38749,
+					"head": {
+						"ref": "vincent/gated-rmsnorm-oot",
+						"sha": "9fb06eb1c8eff3ddd70ec43e648b804e8ec9e27e",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "abfa0b0850f40471ae7d4c83e8071698e9ebbd56",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-07T07:59:20Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "26401610774",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 2113626711,
+				"ref": "refs/heads/vincent/gated-rmsnorm-oot",
+				"head": "214c4c08c4a2bdd5afec0e6477e7445f4b6effd2",
+				"before": "6c6c47caeb04b2ae2f2e05ecc9d97a2b4749faf4"
+			},
+			"public": true,
+			"created_at": "2026-11-06T04:32:36Z"
+		},
+		{
+			"id": "26337725783",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 2326048785,
+				"ref": "refs/heads/compile-safe-deprecated-parallel-getters",
+				"head": "0b7447b3f85bd8bde537890d98f2d18dff7a8981",
+				"before": "418508d63c4a939adac84dd276fc5abaf9eda70c"
+			},
+			"public": true,
+			"created_at": "2026-11-06T04:52:47Z"
+		},
+		{
+			"id": "26329997637",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 4128142563,
+				"ref": "refs/heads/vincent/causal-conv1d-oot",
+				"head": "a7b5ba19a0a9be51bae002c8791844858c54440e",
+				"before": "3bc6d2c2fd7ab1161469e27c022e26041f8469c7"
+			},
+			"public": true,
+			"created_at": "2026-11-06T04:52:43Z"
+		},
+		{
+			"id": "26329046525",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 1159179252,
+				"ref": "refs/heads/vincent/gated-rmsnorm-oot",
+				"head": "9fb06eb1c8eff3ddd70ec43e648b804e8ec9e27e",
+				"before": "214c4c08c4a2bdd5afec0e6477e7445f4b6effd2"
+			},
+			"public": true,
+			"created_at": "2026-11-06T04:52:19Z"
+		},
+		{
+			"id": "26323383851",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 3070507697,
+				"ref": "refs/heads/compile-safe-deprecated-parallel-getters",
+				"head": "418508d63c4a939adac84dd276fc5abaf9eda70c",
+				"before": "14151f24f93d13cc305aa27348b503e2d6c2aa3c"
+			},
+			"public": true,
+			"created_at": "2026-11-06T04:43:33Z"
+		},
+		{
+			"id": "19189704467",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/38751",
+					"repository_url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+					"labels_url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/38751/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/38751/comments",
+					"events_url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/38751/events",
+					"html_url": "https://github.com/user-2a289e32/repo-6e5a3e3c/pull/38751",
+					"id": 2161699653,
+					"node_id": "0437ad6703d31a9d34de33cc",
+					"number": 38751,
+					"title": "[Feat] kernels: Add out-of-tree dispatch for causal Conv1D",
+					"user": {
+						"login": "user-43c0b0bf",
+						"id": 1095373190,
+						"node_id": "7245c113d69065d5bbb8e9df",
+						"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-43c0b0bf",
+						"html_url": "https://github.com/user-43c0b0bf",
+						"followers_url": "https://api.github.com/users/user-43c0b0bf/followers",
+						"following_url": "https://api.github.com/users/user-43c0b0bf/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-43c0b0bf/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-43c0b0bf/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-43c0b0bf/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-43c0b0bf/orgs",
+						"repos_url": "https://api.github.com/users/user-43c0b0bf/repos",
+						"events_url": "https://api.github.com/users/user-43c0b0bf/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-43c0b0bf/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 1214278114,
+							"node_id": "119a87d6fde34c9a5869c791",
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/labels/run-ci",
+							"name": "repo-6e5a3e3c",
+							"color": "9FE30D",
+							"default": false,
+							"description": "CI: run the baseline test suite on this PR",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 3162946459,
+							"node_id": "390e093dd6e8221d0850f087",
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/labels/jit-kernel",
+							"name": "repo-6e5a3e3c",
+							"color": "ededed",
+							"default": false,
+							"description": null,
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 15,
+					"created_at": "2026-09-09T23:31:43Z",
+					"updated_at": "2026-11-06T06:33:16Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/38751",
+						"html_url": "https://github.com/user-2a289e32/repo-6e5a3e3c/pull/38751",
+						"diff_url": "https://github.com/user-2a289e32/repo-6e5a3e3c/pull/38751.diff",
+						"patch_url": "https://github.com/user-2a289e32/repo-6e5a3e3c/pull/38751.patch",
+						"merged_at": null
+					},
+					"body": "## Motivation\n\nOut-of-tree platforms need a supported causal Conv1D extension point without replacing module globals at runtime.\n\n## Modifications\n\n- Wrap the existing variable-length Triton implementation in `BaseFusedOp`.\n- Preserve the public `causal_conv1d_fn` signature and existing `mamba.causal_conv1d_fn` registry key.\n- Keep Triton as the only built-in implementation while allowing out-of-tree platforms to register their own forward method.\n- Add focused coverage for out-of-tree dispatch.\n\nThis PR does not add a Torch reference backend: `forward_native` intentionally raises `NotImplementedError`, and the new test covers only out-of-tree dispatch.\n\n## Accuracy Tests\n\nThe existing numerical tests are unchanged. The added test verifies that an out-of-tree implementation is selected through `BaseFusedOp`.\n\n## Speed Tests and Profiling\n\nThe Triton kernel is unchanged. Dispatch is resolved once and cached by `BaseFusedOp`.\n\n<!-- pr-states:start -->\n---\n### CI States\n\nLatest PR Test (Base): <!-- slot:pr-test:start -->:x: [Run #42165079786](https://github.com/sgl-project/sglang/actions/runs/42165079786)<!-- slot:pr-test:end -->\nLatest PR Test (Extra): <!-- slot:pr-test-extra:start -->:x: [Run #42165079558](https://github.com/sgl-project/sglang/actions/runs/42165079558)<!-- slot:pr-test-extra:end -->\nLatest PR Test (AMD ROCm 10): <!-- slot:pr-test-amd:start -->:x: [Run #42165079698](https://github.com/sgl-project/sglang/actions/runs/42165079698)<!-- slot:pr-test-amd:end -->\n\n> [!TIP]\n> Base CI only covers the core cases, and its workload may not exercise your change. Use `/rerun-test` to run the tests your change touches, or copy this prompt for an agent:\n>\n> ```text\n> Find the registered tests this PR affects and run them with /rerun-test, following https://github.com/sgl-project/sglang/blob/main/.agents/skills/rerun-test/SKILL.md\n> ```\n<!-- pr-states:end -->\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/38751/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/38751/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/comments/6648710939",
+					"html_url": "https://github.com/user-2a289e32/repo-6e5a3e3c/pull/38751#issuecomment-6648710939",
+					"issue_url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/38751",
+					"id": 629520094,
+					"node_id": "61764900945bf1f959505dc0",
+					"user": {
+						"login": "user-43c0b0bf",
+						"id": 1095373190,
+						"node_id": "7245c113d69065d5bbb8e9df",
+						"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-43c0b0bf",
+						"html_url": "https://github.com/user-43c0b0bf",
+						"followers_url": "https://api.github.com/users/user-43c0b0bf/followers",
+						"following_url": "https://api.github.com/users/user-43c0b0bf/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-43c0b0bf/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-43c0b0bf/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-43c0b0bf/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-43c0b0bf/orgs",
+						"repos_url": "https://api.github.com/users/user-43c0b0bf/repos",
+						"events_url": "https://api.github.com/users/user-43c0b0bf/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-43c0b0bf/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-05T03:16:25Z",
+					"updated_at": "2026-11-05T03:18:16Z",
+					"body": "> [BBuf Review Agent] Could you rebase this onto the latest main? It conflicts with main now.\r\n\r\nsounds good, just rebased, conflict was in test_causal_conv1d.py where a deduplicated-window test was added where the OOT dispatch test was inserted",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/issues/comments/6648710939/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T03:16:25Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18916670007",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "closed",
+				"number": 47233,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47233",
+					"id": 1303140800,
+					"number": 47233,
+					"head": {
+						"ref": "vincent/mamba-state-slot-ops-v2",
+						"sha": "84070c55064c3f415f6ed7f7a634eb080cdd2cfb",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "7df65d970df80235ecda9862ea67fa210bc6d7b9",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T08:54:23Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18854911228",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 47234,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47234",
+					"id": 4032629121,
+					"number": 47234,
+					"head": {
+						"ref": "vincent/linear-attn-oot-v2",
+						"sha": "ee9d0972c7836f2a3a5af3d4459c4316985932a8",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "f18d5e6c19cb0f0890782d98a13206c2af9c6938",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-02T05:33:36Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "25862006210",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 4104967086,
+				"ref": "refs/heads/compile-safe-deprecated-parallel-getters",
+				"head": "14151f24f93d13cc305aa27348b503e2d6c2aa3c",
+				"before": "4d0735fa3bd579e1da42e0f63e113f0983bb4fb3"
+			},
+			"public": true,
+			"created_at": "2026-10-31T00:30:25Z"
+		},
+		{
+			"id": "25827233783",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 3301811963,
+				"ref": "refs/heads/oot-mla-latent-write-through-pool",
+				"head": "1d4a52b09c9ada9329622912a9f8c8a69134ae6b",
+				"before": "1ed5a5b5ffa884949157ad80aa12dd8f7b21d5b4"
+			},
+			"public": true,
+			"created_at": "2026-10-30T00:37:39Z"
+		},
+		{
+			"id": "25827232209",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 630766958,
+				"ref": "refs/heads/swa-free-triton-capable-platforms",
+				"head": "713541fcca29a35442961fdf2c7fc4fd6acae11c",
+				"before": "ac35a406d37ae7743a68f1960665b04bc3562fb7"
+			},
+			"public": true,
+			"created_at": "2026-10-30T00:37:38Z"
+		},
+		{
+			"id": "25735659956",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "skip-unread-nonspec-future-publish",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/skip-unread-nonspec-future-publish",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:56Z"
+		},
+		{
+			"id": "25735639649",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "compile-safe-deprecated-parallel-getters",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/compile-safe-deprecated-parallel-getters",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:39Z"
+		},
+		{
+			"id": "25724107019",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "vincent/linear-attn-oot-v2",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/vincent/linear-attn-oot-v2",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T08:53:24Z"
+		},
+		{
+			"id": "25719856373",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "pad-tensor-to-size-noop",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/pad-tensor-to-size-noop",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:49Z"
+		},
+		{
+			"id": "25719852546",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "swa-free-triton-capable-platforms",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/swa-free-triton-capable-platforms",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:46Z"
+		},
+		{
+			"id": "18746350142",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "closed",
+				"number": 47351,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47351",
+					"id": 1127152212,
+					"number": 47351,
+					"head": {
+						"ref": "skip-unread-nonspec-future-publish",
+						"sha": "01b989034064ca275d9930391ee822660bf5c8a6",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "add6f6d093351e24aaa0ba5e1f46b74d4a100af3",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-31T02:52:03Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18746348229",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "closed",
+				"number": 47350,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47350",
+					"id": 994295489,
+					"number": 47350,
+					"head": {
+						"ref": "compact-json-separators",
+						"sha": "642d5e17a7c8e60890e4f7013b86bf95d66f1b0a",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "add6f6d093351e24aaa0ba5e1f46b74d4a100af3",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-30T00:37:41Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "25709806910",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "mla-value-bmm-under-torch-compile",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/mla-value-bmm-under-torch-compile",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:43Z"
+		},
+		{
+			"id": "25708905313",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "oot-mla-latent-write-through-pool",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/oot-mla-latent-write-through-pool",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:59Z"
+		},
+		{
+			"id": "25708211532",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "compact-json-separators",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/compact-json-separators",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:52Z"
+		},
+		{
+			"id": "25682525935",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 1807428475,
+				"ref": "refs/heads/vincent/causal-conv1d-oot",
+				"head": "7602859f5e6de65d9a0a088ee2eeb69aa09c61c1",
+				"before": "09662330009dd41675081b5d127c6856a9cac1ef"
+			},
+			"public": true,
+			"created_at": "2026-10-29T00:25:46Z"
+		},
+		{
+			"id": "25677991480",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 12562279,
+				"ref": "refs/heads/vincent/linear-attn-oot-v2",
+				"head": "ee9d0972c7836f2a3a5af3d4459c4316985932a8",
+				"before": "3cf11570bc0c17bb6bb096b7b68edc1620b06942"
+			},
+			"public": true,
+			"created_at": "2026-10-29T18:17:16Z"
+		},
+		{
+			"id": "25662933291",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"repository_id": 2682135877,
+				"push_id": 3999347524,
+				"ref": "refs/heads/vincent/gated-rmsnorm-oot",
+				"head": "6c6c47caeb04b2ae2f2e05ecc9d97a2b4749faf4",
+				"before": "c06671aa0f090d2e2f8bdcde38ffa47dc0465872"
+			},
+			"public": true,
+			"created_at": "2026-10-29T00:25:47Z"
+		},
+		{
+			"id": "25639942655",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2682135877,
+				"name": "user-43c0b0bf/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c"
+			},
+			"payload": {
+				"ref": "vincent/mamba-state-slot-ops-v2",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/vincent/mamba-state-slot-ops-v2",
+				"master_branch": "main",
+				"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-29T08:53:20Z"
+		},
+		{
+			"id": "18615919653",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47352,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47352",
+					"id": 3545376504,
+					"number": 47352,
+					"head": {
+						"ref": "oot-mla-latent-write-through-pool",
+						"sha": "1d4a52b09c9ada9329622912a9f8c8a69134ae6b",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "add6f6d093351e24aaa0ba5e1f46b74d4a100af3",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:53:00Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18615915118",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47351,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47351",
+					"id": 1127152212,
+					"number": 47351,
+					"head": {
+						"ref": "skip-unread-nonspec-future-publish",
+						"sha": "01b989034064ca275d9930391ee822660bf5c8a6",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "add6f6d093351e24aaa0ba5e1f46b74d4a100af3",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:56Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18615911461",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47350,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47350",
+					"id": 994295489,
+					"number": 47350,
+					"head": {
+						"ref": "compact-json-separators",
+						"sha": "642d5e17a7c8e60890e4f7013b86bf95d66f1b0a",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "add6f6d093351e24aaa0ba5e1f46b74d4a100af3",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:53Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18615907799",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47349,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47349",
+					"id": 1697608649,
+					"number": 47349,
+					"head": {
+						"ref": "pad-tensor-to-size-noop",
+						"sha": "ed51e80536002fa910f357e614dde786f5d97c7b",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "add6f6d093351e24aaa0ba5e1f46b74d4a100af3",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:50Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18615904296",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47348,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47348",
+					"id": 3089848431,
+					"number": 47348,
+					"head": {
+						"ref": "swa-free-triton-capable-platforms",
+						"sha": "713541fcca29a35442961fdf2c7fc4fd6acae11c",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "add6f6d093351e24aaa0ba5e1f46b74d4a100af3",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:47Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18615900715",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47347,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47347",
+					"id": 52939049,
+					"number": 47347,
+					"head": {
+						"ref": "mla-value-bmm-under-torch-compile",
+						"sha": "745ba3e68aa7f4f3749228d0ff32795fdc80ec53",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "add6f6d093351e24aaa0ba5e1f46b74d4a100af3",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:43Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18615896992",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47346,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47346",
+					"id": 2578879637,
+					"number": 47346,
+					"head": {
+						"ref": "compile-safe-deprecated-parallel-getters",
+						"sha": "0b7447b3f85bd8bde537890d98f2d18dff7a8981",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "abfa0b0850f40471ae7d4c83e8071698e9ebbd56",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:52:40Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18540857049",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47234,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47234",
+					"id": 4032629121,
+					"number": 47234,
+					"head": {
+						"ref": "vincent/linear-attn-oot-v2",
+						"sha": "ee9d0972c7836f2a3a5af3d4459c4316985932a8",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "f18d5e6c19cb0f0890782d98a13206c2af9c6938",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T08:53:26Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "18540845329",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 47233,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c/pulls/47233",
+					"id": 1303140800,
+					"number": 47233,
+					"head": {
+						"ref": "vincent/mamba-state-slot-ops-v2",
+						"sha": "84070c55064c3f415f6ed7f7a634eb080cdd2cfb",
+						"repo": {
+							"id": 2682135877,
+							"url": "https://api.github.com/repos/user-43c0b0bf/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "7df65d970df80235ecda9862ea67fa210bc6d7b9",
+						"repo": {
+							"id": 749476664,
+							"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c",
+							"name": "repo-6e5a3e3c"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-29T08:53:21Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "17768923332",
+			"type": "WatchEvent",
+			"actor": {
+				"id": 1095373190,
+				"login": "user-43c0b0bf",
+				"display_login": "user-43c0b0bf",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-43c0b0bf",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1095373190?"
+			},
+			"repo": {
+				"id": 2757313124,
+				"name": "user-4ef442fd/repo-1f11478d",
+				"url": "https://api.github.com/repos/user-4ef442fd/repo-1f11478d"
+			},
+			"payload": {
+				"action": "started"
+			},
+			"public": true,
+			"created_at": "2026-10-21T01:50:09Z",
+			"org": {
+				"id": 3881656632,
+				"login": "user-4ef442fd",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4ef442fd",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3881656632?"
+			}
+		}
+	]
+}

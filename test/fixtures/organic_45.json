@@ -1,0 +1,1771 @@
+{
+	"capturedAt": "2026-11-10T22:32:49.669Z",
+	"user": {
+		"login": "user-864a46cb",
+		"created_at": "2021-07-18T03:17:51Z",
+		"public_repos": 26,
+		"type": "User"
+	},
+	"events": [
+		{
+			"id": "19718616435",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26059",
+					"repository_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+					"labels_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26059/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26059/comments",
+					"events_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26059/events",
+					"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/issues/26059",
+					"id": 2564118035,
+					"node_id": "05721b3b3222ae85147cb7da",
+					"number": 26059,
+					"title": "Hiding a shadow-casting point light leaks its six shadow views (they keep rendering every frame)",
+					"user": {
+						"login": "user-f6ab775a",
+						"id": 699487258,
+						"node_id": "f913686df930597df90d28ce",
+						"avatar_url": "https://avatars.githubusercontent.com/u/699487258?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-f6ab775a",
+						"html_url": "https://github.com/user-f6ab775a",
+						"followers_url": "https://api.github.com/users/user-f6ab775a/followers",
+						"following_url": "https://api.github.com/users/user-f6ab775a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-f6ab775a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-f6ab775a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-f6ab775a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-f6ab775a/orgs",
+						"repos_url": "https://api.github.com/users/user-f6ab775a/repos",
+						"events_url": "https://api.github.com/users/user-f6ab775a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-f6ab775a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 1262224885,
+							"node_id": "bbee6c7c4856ec7ed3d38ad2",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/C-Bug",
+							"name": "repo-8f0115f9",
+							"color": "d73a4a",
+							"default": false,
+							"description": "An unexpected or incorrect behavior",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 3466546272,
+							"node_id": "ce24f0ea69020a81a1546f05",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/A-Rendering",
+							"name": "repo-8f0115f9",
+							"color": "C6A751",
+							"default": false,
+							"description": "Drawing game state to the screen",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 3788846439,
+							"node_id": "6d66a12b24fd335324ed5dfa",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/C-Performance",
+							"name": "repo-8f0115f9",
+							"color": "B8B8B8",
+							"default": false,
+							"description": "A change motivated by improving speed, memory usage or compile times",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 973865800,
+							"node_id": "9cba19bfc85218d4130561c1",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/S-Ready-For-Implementation",
+							"name": "repo-8f0115f9",
+							"color": "D876E3",
+							"default": false,
+							"description": "This issue is ready for an implementation PR. Go for it!",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 2451119767,
+							"node_id": "92418f35ad5fe83ba10a2a23",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/X-Uncontroversial",
+							"name": "repo-8f0115f9",
+							"color": "d93f0b",
+							"default": false,
+							"description": "This work is generally agreed upon",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 1842042025,
+							"node_id": "ec0002f8e5ec92491314ff33",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/D-Straightforward",
+							"name": "repo-8f0115f9",
+							"color": "008672",
+							"default": false,
+							"description": "Simple bug fixes and API improvements, docs, test and examples",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 1,
+					"created_at": "2026-10-08T00:20:18Z",
+					"updated_at": "2026-11-10T18:43:14Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "## Bevy version and features\n\n- Bevy 0.19.1 (crates.io), `default-features = false, features = [\"2d\", \"3d\", \"ui\"]`\n\n## Relevant system information\n\n- Rust 1.95.0, Windows 11 (10.0.26200), Vulkan\n- `AdapterInfo { name: \"AMD Radeon(TM) Graphics\", vendor: 4098, device: 5708, device_type: IntegratedGpu, driver: \"AMD proprietary driver\", driver_info: \"22.20.44\", backend: Vulkan }`\n\n## What you did\n\nA `PointLight` with `shadow_maps_enabled: true` renders for 30 frames. On frame 30 the same system sets `shadow_maps_enabled = false` **and** `Visibility::Hidden`. A render-world system counts `ExtractedView`s before and after. With `-- staged`, shadows go off on frame 30 and the light is hidden on frame 31 instead.\n\n`src/main.rs`:\n\n```rust\n//! Bevy 0.19.1: hiding a shadow-casting point light in the same frame its shadows are turned\n//! off leaves its six cube-face shadow views alive in the render world.\n//!\n//!     cargo run --bin point_shadow_leak            # hide and disable shadows together: leaks\n//!     cargo run --bin point_shadow_leak -- staged  # disable shadows, hide one frame later: fine\n//!\n//! Prints how many `ExtractedView`s the render world has before and after.\n\nuse bevy::prelude::*;\nuse bevy::render::view::ExtractedView;\nuse bevy::render::{Render, RenderApp, RenderSystems};\nuse std::sync::atomic::{AtomicU32, Ordering};\n\nstatic FRAME: AtomicU32 = AtomicU32::new(0);\n\n#[derive(Component)]\nstruct Lamp;\n\nfn main() {\n    let mut app = App::new();\n    app.add_plugins(DefaultPlugins).add_systems(Startup, setup).add_systems(Update, drive);\n    app.sub_app_mut(RenderApp).add_systems(Render, count_views.in_set(RenderSystems::Queue));\n    app.run();\n}\n\nfn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<StandardMaterial>>) {\n    let grey = materials.add(Color::srgb(0.6, 0.6, 0.6));\n    commands.spawn((Mesh3d(meshes.add(Plane3d::default().mesh().size(10.0, 10.0))), MeshMaterial3d(grey.clone())));\n    commands.spawn((Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))), MeshMaterial3d(grey), Transform::from_xyz(1.0, 0.5, 0.0)));\n    commands.spawn((PointLight { shadow_maps_enabled: true, range: 10.0, ..default() }, Transform::from_xyz(0.0, 2.0, 0.0), Lamp));\n    commands.spawn((Camera3d::default(), Transform::from_xyz(0.0, 6.0, 8.0).looking_at(Vec3::ZERO, Vec3::Y)));\n}\n\nfn drive(mut lamp: Query<(&mut PointLight, &mut Visibility), With<Lamp>>, mut exit: MessageWriter<AppExit>) {\n    let frame = FRAME.fetch_add(1, Ordering::Relaxed) + 1;\n    let staged = std::env::args().any(|a| a == \"staged\");\n    let Ok((mut light, mut vis)) = lamp.single_mut() else { return };\n    if frame == 30 {\n        light.shadow_maps_enabled = false;\n        if !staged {\n            *vis = Visibility::Hidden;\n        }\n    }\n    if frame == 31 && staged {\n        *vis = Visibility::Hidden;\n    }\n    if frame == 90 {\n        exit.write(AppExit::Success);\n    }\n}\n\nfn count_views(views: Query<&ExtractedView>) {\n    let frame = FRAME.load(Ordering::Relaxed);\n    if frame == 29 || frame == 60 || frame == 89 {\n        println!(\"frame {frame}: {} extracted views in the render world\", views.iter().count());\n    }\n}\n```\n\n## What went wrong\n\n```\n$ cargo run --release\nframe 29: 8 extracted views in the render world\nframe 60: 8 extracted views in the render world\nframe 89: 8 extracted views in the render world\n\n$ cargo run --release -- staged\nframe 29: 8 extracted views in the render world\nframe 60: 2 extracted views in the render world\nframe 89: 2 extracted views in the render world\n```\n\nHiding the light while (or in the same frame as) turning its shadows off leaves its six cube-face shadow views alive, and they keep being rendered every frame. In our game scene that was a permanent 2.8 ms a frame on an integrated GPU after the light was gone (each point/spot shadow view runs a full Core3d schedule, see #25576).\n\nI expected the six views to be despawned once the light no longer casts shadows or is no longer visible, as happens in the staged case.\n\n## Additional information\n\n- From reading the 0.19.1 source: in `bevy_pbr/src/render/light.rs`, `prepare_lights` despawns a point light's view entities in `if !light.shadow_maps_enabled { despawn_entities(...) }`, but that loop only visits lights extracted this frame (`point_light_entities`). A light that stops being extracted while it still owns view entities never reaches the branch, so the views stay in the retained render world. Despawning the light entity outright may leak the same way (not tested).\n- Workaround: turn shadows off for one frame while the light is still visible, then hide it.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26059/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26059/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null,
+					"pinned_comment": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/comments/6776074491",
+					"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/issues/26059#issuecomment-6776074491",
+					"issue_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26059",
+					"id": 2191501627,
+					"node_id": "83241729e40c7cfa2824bb3e",
+					"user": {
+						"login": "user-864a46cb",
+						"id": 393159728,
+						"node_id": "e3bd3fd60dec45cf19a35f51",
+						"avatar_url": "https://avatars.githubusercontent.com/u/393159728?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-864a46cb",
+						"html_url": "https://github.com/user-864a46cb",
+						"followers_url": "https://api.github.com/users/user-864a46cb/followers",
+						"following_url": "https://api.github.com/users/user-864a46cb/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-864a46cb/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-864a46cb/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-864a46cb/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-864a46cb/orgs",
+						"repos_url": "https://api.github.com/users/user-864a46cb/repos",
+						"events_url": "https://api.github.com/users/user-864a46cb/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-864a46cb/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T18:43:14Z",
+					"updated_at": "2026-11-10T18:43:14Z",
+					"body": "How did this not get caught earlier 😂 ",
+					"pin": null,
+					"reactions": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/comments/6776074491/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T18:43:14Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "19700225120",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 26480,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/26480",
+					"id": 4130708664,
+					"number": 26480,
+					"head": {
+						"ref": "fix-hidden-light-shadow-view-leak",
+						"sha": "9f7c5dad035e84f5cd7d59010f2c7bcaa52bfacf",
+						"repo": {
+							"id": 2232852207,
+							"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "7a3fe4a1bef9706b92716fa92062bdaf0ee451b5",
+						"repo": {
+							"id": 3152438717,
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T19:06:05Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "19700037870",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 26459,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/26459",
+					"id": 2693155682,
+					"number": 26459,
+					"head": {
+						"ref": "fix-world-instance-reload-dead-parent",
+						"sha": "9a87e74010df8e21d07fcb87857a56cbf90fffb1",
+						"repo": {
+							"id": 2232852207,
+							"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "526f9e40253348a52a0d0380db98e287e4b5e0b3",
+						"repo": {
+							"id": 3152438717,
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T19:04:17Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "26686871460",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 1615195514,
+				"ref": "refs/heads/fix-world-instance-reload-dead-parent",
+				"head": "6951836d0b3ba42c5d4fda4531c1cc4cf807cfa3",
+				"before": "9298832f9d508a112022b8eea3bff9fee22e9a5d"
+			},
+			"public": true,
+			"created_at": "2026-11-08T07:35:55Z"
+		},
+		{
+			"id": "26618390192",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"ref": "fix-light-clustering-flicker",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/fix-light-clustering-flicker",
+				"master_branch": "main",
+				"description": "A refreshingly simple data-driven game engine built in Rust",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-09T03:33:35Z"
+		},
+		{
+			"id": "19517339905",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 26463,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/26463",
+					"id": 3291602053,
+					"number": 26463,
+					"head": {
+						"ref": "fix-light-clustering-flicker",
+						"sha": "c95ddc426dadecfc0fc6ede35d5f47b7282ec259",
+						"repo": {
+							"id": 2232852207,
+							"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "76295a0d268e5a72079e4c2d7ba7db18bcf259ff",
+						"repo": {
+							"id": 3152438717,
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T03:38:50Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "26564614948",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 1183635596,
+				"ref": "refs/heads/main",
+				"head": "4da185e50639e6f64fb1664b4a370beec48a5221",
+				"before": "5b48dace0be722dc8ccca897839632815a47312e"
+			},
+			"public": true,
+			"created_at": "2026-11-08T05:54:23Z"
+		},
+		{
+			"id": "26553439268",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"ref": "release-0.19.1",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/release-0.19.1",
+				"master_branch": "main",
+				"description": "A refreshingly simple data-driven game engine built in Rust",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-08T05:58:21Z"
+		},
+		{
+			"id": "26550941477",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 3385880721,
+				"ref": "refs/heads/fix-world-instance-reload-dead-parent",
+				"head": "fddb19d34636c0a0d39ed005e76c520efe00591d",
+				"before": "bc089e20ef7dcc0b5f21d98973c6a475e15b83c9"
+			},
+			"public": true,
+			"created_at": "2026-11-08T08:03:11Z"
+		},
+		{
+			"id": "26545436277",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"ref": "fix-world-instance-reload-dead-parent",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/fix-world-instance-reload-dead-parent",
+				"master_branch": "main",
+				"description": "A refreshingly simple data-driven game engine built in Rust",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-08T07:33:02Z"
+		},
+		{
+			"id": "26534995006",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 219040709,
+				"ref": "refs/heads/Speed-up-Mesh-write_packed_vertex_buffer_data",
+				"head": "dfefbe9c7936c48ecf6b4e47e4782bd063b298d9",
+				"before": "b90d8e5d22566049d0d08753222141496ecebc6a"
+			},
+			"public": true,
+			"created_at": "2026-11-08T05:50:55Z"
+		},
+		{
+			"id": "26531639457",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 738928366,
+				"ref": "refs/heads/main",
+				"head": "5b48dace0be722dc8ccca897839632815a47312e",
+				"before": "33aa33dbf1b09bdbbb59616e27a917e02cd8ca4e"
+			},
+			"public": true,
+			"created_at": "2026-11-08T05:50:32Z"
+		},
+		{
+			"id": "26527661293",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 1758333639,
+				"ref": "refs/heads/fix-world-instance-reload-dead-parent",
+				"head": "bc089e20ef7dcc0b5f21d98973c6a475e15b83c9",
+				"before": "6951836d0b3ba42c5d4fda4531c1cc4cf807cfa3"
+			},
+			"public": true,
+			"created_at": "2026-11-08T07:37:35Z"
+		},
+		{
+			"id": "19465333975",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26455",
+					"repository_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+					"labels_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26455/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26455/comments",
+					"events_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26455/events",
+					"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/issues/26455",
+					"id": 4154558479,
+					"node_id": "ffafa5f9cb1730d63f2b4a41",
+					"number": 26455,
+					"title": "Panic reloading a world asset whose instance contains another instance's root",
+					"user": {
+						"login": "user-f741f5ac",
+						"id": 771518135,
+						"node_id": "b7f8a01486ed7ee809ead7d4",
+						"avatar_url": "https://avatars.githubusercontent.com/u/771518135?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-f741f5ac",
+						"html_url": "https://github.com/user-f741f5ac",
+						"followers_url": "https://api.github.com/users/user-f741f5ac/followers",
+						"following_url": "https://api.github.com/users/user-f741f5ac/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-f741f5ac/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-f741f5ac/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-f741f5ac/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-f741f5ac/orgs",
+						"repos_url": "https://api.github.com/users/user-f741f5ac/repos",
+						"events_url": "https://api.github.com/users/user-f741f5ac/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-f741f5ac/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 1262224885,
+							"node_id": "bbee6c7c4856ec7ed3d38ad2",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/C-Bug",
+							"name": "repo-8f0115f9",
+							"color": "d73a4a",
+							"default": false,
+							"description": "An unexpected or incorrect behavior",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 4195536745,
+							"node_id": "beb5ffbbfa653486b7457e80",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/A-Assets",
+							"name": "repo-8f0115f9",
+							"color": "c6a751",
+							"default": false,
+							"description": "Load files from disk to use for things like images, models, and sounds",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 2845455886,
+							"node_id": "d3170a39fd92d6c23006de94",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/I-Crash",
+							"name": "repo-8f0115f9",
+							"color": "FF7b00",
+							"default": false,
+							"description": "A sudden unexpected crash",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 1194158939,
+							"node_id": "690f365abb1eeda777141305",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/A-Scenes",
+							"name": "repo-8f0115f9",
+							"color": "C6a751",
+							"default": false,
+							"description": "Composing and serializing ECS objects",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 2017284234,
+							"node_id": "b0671f44f2842e7e6afb65c7",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/S-Needs-Review",
+							"name": "repo-8f0115f9",
+							"color": "D876E3",
+							"default": false,
+							"description": "Needs reviewer attention (from anyone!) to move forward",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "closed",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 1,
+					"created_at": "2026-11-07T21:14:39Z",
+					"updated_at": "2026-11-10T19:04:18Z",
+					"closed_at": "2026-11-10T19:04:18Z",
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "## Bevy version and features\n\n0.20-dev\n\n## What you did\n\nThis happened while hot reloading a character who had a weapon attached to the bone.\n\n## What went wrong\n\nThe panic occurs in `World::entity_mut(parent)` on a despawned parent, in `set_instance_parent_sync` - `wss/world_asset_spawner.rs:517`\n\nA comment at the panic site says dead entities are skipped, but the check covers the instance's own entities, not `parent` - `wss/world_asset_spawner.rs:508-517`\n\n## Additional information\n\nBacktrace log:\n```\n   2: <bevy_ecs::world::World>::entity_mut::panic_on_err\n             at .../784b85d/crates/bevy_ecs/src/world/mod.rs:882:13\n   3: <bevy_ecs::world::World>::entity_mut::<bevy_ecs::entity::Entity>\n             at .../784b85d/crates/bevy_ecs/src/world/mod.rs:887:23\n   4: <bevy_world_serialization::world_asset_spawner::WorldInstanceSpawner>::set_instance_parent_sync\n             at .../784b85d/crates/bevy_world_serialization/src/world_asset_spawner.rs:517:23\n   5: <bevy_world_serialization::world_asset_spawner::WorldInstanceSpawner>::update_spawned_instances\n             at .../784b85d/crates/bevy_world_serialization/src/world_asset_spawner.rs:372:25\n   6: bevy_world_serialization::world_asset_spawner::world_instance_spawner_system::{closure#0}\n             at .../784b85d/crates/bevy_world_serialization/src/world_asset_spawner.rs:637:14\n   7: <bevy_ecs::world::World>::try_resource_scope::<bevy_world_serialization::world_asset_spawner::WorldInstanceSpawner, (), ...>\n             at .../784b85d/crates/bevy_ecs/src/world/mod.rs:3030:22\n   8: <bevy_ecs::world::World>::resource_scope::<bevy_world_serialization::world_asset_spawner::WorldInstanceSpawner, (), ...>\n             at .../784b85d/crates/bevy_ecs/src/world/mod.rs:2875:14\n   9: bevy_world_serialization::world_asset_spawner::world_instance_spawner_system\n             at .../784b85d/crates/bevy_world_serialization/src/world_asset_spawner.rs:566:11\n```\n\nRepro available upon request.",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26455/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26455/timeline",
+					"performed_via_github_app": null,
+					"state_reason": "completed",
+					"pinned_comment": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/comments/6718783778",
+					"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/issues/26455#issuecomment-6718783778",
+					"issue_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26455",
+					"id": 2924297061,
+					"node_id": "920dda42487ef41dbce1a6b6",
+					"user": {
+						"login": "user-864a46cb",
+						"id": 393159728,
+						"node_id": "e3bd3fd60dec45cf19a35f51",
+						"avatar_url": "https://avatars.githubusercontent.com/u/393159728?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-864a46cb",
+						"html_url": "https://github.com/user-864a46cb",
+						"followers_url": "https://api.github.com/users/user-864a46cb/followers",
+						"following_url": "https://api.github.com/users/user-864a46cb/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-864a46cb/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-864a46cb/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-864a46cb/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-864a46cb/orgs",
+						"repos_url": "https://api.github.com/users/user-864a46cb/repos",
+						"events_url": "https://api.github.com/users/user-864a46cb/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-864a46cb/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-08T07:33:08Z",
+					"updated_at": "2026-11-08T07:33:08Z",
+					"body": "Fix: #26459",
+					"pin": null,
+					"reactions": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/comments/6718783778/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-08T07:33:08Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "19465329969",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 26459,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/26459",
+					"id": 2693155682,
+					"number": 26459,
+					"head": {
+						"ref": "fix-world-instance-reload-dead-parent",
+						"sha": "9a87e74010df8e21d07fcb87857a56cbf90fffb1",
+						"repo": {
+							"id": 2232852207,
+							"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "526f9e40253348a52a0d0380db98e287e4b5e0b3",
+						"repo": {
+							"id": 3152438717,
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-08T07:33:03Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "26431507206",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 3880376109,
+				"ref": "refs/heads/Speed-up-Mesh-write_packed_vertex_buffer_data",
+				"head": "b90d8e5d22566049d0d08753222141496ecebc6a",
+				"before": "99d5e3533a52bdca8b8e6c94426de697b0ce5d3f"
+			},
+			"public": true,
+			"created_at": "2026-11-06T21:36:57Z"
+		},
+		{
+			"id": "26385915511",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"ref": "ci-macos-15-runners",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/ci-macos-15-runners",
+				"master_branch": "main",
+				"description": "A refreshingly simple data-driven game engine built in Rust",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-06T18:16:30Z"
+		},
+		{
+			"id": "26378021381",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 23216158,
+				"ref": "refs/heads/ci-macos-15-runners",
+				"head": "a4e2d1e24b9b70e630581d7a6e9e486a4851f29e",
+				"before": "97742c6ce8cf975b7c3132fa5b94f6f872bdb92d"
+			},
+			"public": true,
+			"created_at": "2026-11-06T18:24:19Z"
+		},
+		{
+			"id": "19377617739",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 26443,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/26443",
+					"id": 379646075,
+					"number": 26443,
+					"head": {
+						"ref": "ci-macos-15-runners",
+						"sha": "a4e2d1e24b9b70e630581d7a6e9e486a4851f29e",
+						"repo": {
+							"id": 2232852207,
+							"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "159fa8d8e5e11ba0d40f55e39986992520635f4f",
+						"repo": {
+							"id": 3152438717,
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-06T20:57:58Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "19374227482",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26443",
+					"repository_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+					"labels_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26443/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26443/comments",
+					"events_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26443/events",
+					"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/pull/26443",
+					"id": 424598222,
+					"node_id": "029b9c6dc5a739652ab5a8c0",
+					"number": 26443,
+					"title": "Bump macOS CI runners from macos-14 to macos-26",
+					"user": {
+						"login": "user-864a46cb",
+						"id": 393159728,
+						"node_id": "e3bd3fd60dec45cf19a35f51",
+						"avatar_url": "https://avatars.githubusercontent.com/u/393159728?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-864a46cb",
+						"html_url": "https://github.com/user-864a46cb",
+						"followers_url": "https://api.github.com/users/user-864a46cb/followers",
+						"following_url": "https://api.github.com/users/user-864a46cb/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-864a46cb/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-864a46cb/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-864a46cb/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-864a46cb/orgs",
+						"repos_url": "https://api.github.com/users/user-864a46cb/repos",
+						"events_url": "https://api.github.com/users/user-864a46cb/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-864a46cb/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 1436812292,
+							"node_id": "eafc561bee3fc9e3fb30a4d7",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/M-Deliberate-Rendering-Change",
+							"name": "repo-8f0115f9",
+							"color": "006B75",
+							"default": false,
+							"description": "An intentional change to how tests and examples are rendered",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "closed",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 4,
+					"created_at": "2026-11-06T18:17:08Z",
+					"updated_at": "2026-11-06T20:57:58Z",
+					"closed_at": "2026-11-06T20:57:58Z",
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/26443",
+						"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/pull/26443",
+						"diff_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/pull/26443.diff",
+						"patch_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/pull/26443.patch",
+						"merged_at": "2026-11-06T20:57:58Z"
+					},
+					"body": "# Objective\n\nEvery pipeline is currently blocked cause of a stale image. \n\n## Solution\n\nBump stale image. \n\n## Testing\n\nno\n\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26443/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26443/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/comments/6692414150",
+					"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/pull/26443#issuecomment-6692414150",
+					"issue_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/26443",
+					"id": 2192500164,
+					"node_id": "da1a98273ffaf8497d386f5c",
+					"user": {
+						"login": "user-864a46cb",
+						"id": 393159728,
+						"node_id": "e3bd3fd60dec45cf19a35f51",
+						"avatar_url": "https://avatars.githubusercontent.com/u/393159728?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-864a46cb",
+						"html_url": "https://github.com/user-864a46cb",
+						"followers_url": "https://api.github.com/users/user-864a46cb/followers",
+						"following_url": "https://api.github.com/users/user-864a46cb/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-864a46cb/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-864a46cb/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-864a46cb/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-864a46cb/orgs",
+						"repos_url": "https://api.github.com/users/user-864a46cb/repos",
+						"events_url": "https://api.github.com/users/user-864a46cb/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-864a46cb/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-06T18:33:10Z",
+					"updated_at": "2026-11-06T18:33:10Z",
+					"body": "Graphical change expected because of large metal change.",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/comments/6692414150/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-06T18:33:10Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "19363248509",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 26443,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/26443",
+					"id": 379646075,
+					"number": 26443,
+					"head": {
+						"ref": "ci-macos-15-runners",
+						"sha": "a4e2d1e24b9b70e630581d7a6e9e486a4851f29e",
+						"repo": {
+							"id": 2232852207,
+							"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "159fa8d8e5e11ba0d40f55e39986992520635f4f",
+						"repo": {
+							"id": 3152438717,
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-06T18:17:08Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "26346375581",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 3465507016,
+				"ref": "refs/heads/Speed-up-Mesh-write_packed_vertex_buffer_data",
+				"head": "99d5e3533a52bdca8b8e6c94426de697b0ce5d3f",
+				"before": "1c12932d94f16bf9e41d2074b1a21af135fbc2f4"
+			},
+			"public": true,
+			"created_at": "2026-11-06T08:21:14Z"
+		},
+		{
+			"id": "26337156693",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 1105532069,
+				"ref": "refs/heads/Speed-up-Mesh-write_packed_vertex_buffer_data",
+				"head": "1c12932d94f16bf9e41d2074b1a21af135fbc2f4",
+				"before": "150eb211d45ab97895a64365f800539bbfc90013"
+			},
+			"public": true,
+			"created_at": "2026-11-06T08:10:26Z"
+		},
+		{
+			"id": "26336403258",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"ref": "Speed-up-Mesh-write_packed_vertex_buffer_data",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/Speed-up-Mesh-write_packed_vertex_buffer_data",
+				"master_branch": "main",
+				"description": "A refreshingly simple data-driven game engine built in Rust",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-06T08:01:22Z"
+		},
+		{
+			"id": "19314280334",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 26439,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/26439",
+					"id": 4211134420,
+					"number": 26439,
+					"head": {
+						"ref": "Speed-up-Mesh-write_packed_vertex_buffer_data",
+						"sha": "dfefbe9c7936c48ecf6b4e47e4782bd063b298d9",
+						"repo": {
+							"id": 2232852207,
+							"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "526f9e40253348a52a0d0380db98e287e4b5e0b3",
+						"repo": {
+							"id": 3152438717,
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-06T08:12:34Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "18301662390",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 25336,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/pulls/25336",
+					"id": 3403152086,
+					"number": 25336,
+					"head": {
+						"ref": "main",
+						"sha": "33aa33dbf1b09bdbbb59616e27a917e02cd8ca4e",
+						"repo": {
+							"id": 2232852207,
+							"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "7a7302494b9706a533446fb16a7b7de3fd6adefe",
+						"repo": {
+							"id": 3152438717,
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+							"name": "repo-8f0115f9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-27T02:57:01Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "17740213261",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3515481543,
+				"name": "user-80b4119d/repo-4f188c1f",
+				"url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/4654",
+					"repository_url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f",
+					"labels_url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/4654/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/4654/comments",
+					"events_url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/4654/events",
+					"html_url": "https://github.com/user-80b4119d/repo-4f188c1f/pull/4654",
+					"id": 541731100,
+					"node_id": "f19b3bbd26b1000b7afb9890",
+					"number": 4654,
+					"title": "fix(windows): release cursor clip on focus loss",
+					"user": {
+						"login": "user-864a46cb",
+						"id": 393159728,
+						"node_id": "e3bd3fd60dec45cf19a35f51",
+						"avatar_url": "https://avatars.githubusercontent.com/u/393159728?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-864a46cb",
+						"html_url": "https://github.com/user-864a46cb",
+						"followers_url": "https://api.github.com/users/user-864a46cb/followers",
+						"following_url": "https://api.github.com/users/user-864a46cb/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-864a46cb/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-864a46cb/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-864a46cb/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-864a46cb/orgs",
+						"repos_url": "https://api.github.com/users/user-864a46cb/repos",
+						"events_url": "https://api.github.com/users/user-864a46cb/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-864a46cb/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 2,
+					"created_at": "2026-08-01T22:42:12Z",
+					"updated_at": "2026-10-20T18:51:49Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/pulls/4654",
+						"html_url": "https://github.com/user-80b4119d/repo-4f188c1f/pull/4654",
+						"diff_url": "https://github.com/user-80b4119d/repo-4f188c1f/pull/4654.diff",
+						"patch_url": "https://github.com/user-80b4119d/repo-4f188c1f/pull/4654.patch",
+						"merged_at": null
+					},
+					"body": "## Problem\n\n`ClipCursor` is global OS state that Windows does not reset when a window loses focus. A clip rect applied while the window was focused therefore stays active after focus loss, keeping the cursor trapped in the unfocused window. Applications cannot release it either: `Window::set_cursor_grab(CursorGrabMode::None)` has no effect while unfocused, because `refresh_os_cursor` skips all `ClipCursor` updates when the window is not focused.\n\nReported downstream in bevyengine/bevy#22750 (confine on focus gain, `None` on focus loss — the cursor stays trapped after pressing the Windows key).\n\n## Fix\n\n- `refresh_os_cursor`: when the window is unfocused, release the active clip if it lies within the window's client area — i.e. it is the clip this window applied (`Confined` = client rect, `Locked` = 1px rect inside it). A clip set by the now-active application elsewhere is left untouched, which is why the focused-only gate existed in the first place.\n- `WM_KILLFOCUS` / `WM_SETFOCUS`: refresh cursor flags so the clip is released on focus loss and reapplied on focus gain even if the application never changes the grab mode, matching grab behavior on other platforms.\n\nNote: during `WM_KILLFOCUS`, `GetActiveWindow()` may in some message orderings still return the window; in that case the release happens on the next cursor-flag refresh (e.g. the application's own `set_cursor_grab` call or a cursor move) instead of immediately.\n\nVerified with the bevy reproduction from the linked issue on Windows 11: the cursor now frees on focus loss and re-confines on focus gain. A backport to `v0.30.x` is available at https://github.com/Saratii/winit/tree/fix/win32-release-cursor-clip-on-focus-loss-v0.30.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/4654/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/4654/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/comments/6298644982",
+					"html_url": "https://github.com/user-80b4119d/repo-4f188c1f/pull/4654#issuecomment-6298644982",
+					"issue_url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/4654",
+					"id": 1343881409,
+					"node_id": "666a87e5931912465db4f931",
+					"user": {
+						"login": "user-864a46cb",
+						"id": 393159728,
+						"node_id": "e3bd3fd60dec45cf19a35f51",
+						"avatar_url": "https://avatars.githubusercontent.com/u/393159728?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-864a46cb",
+						"html_url": "https://github.com/user-864a46cb",
+						"followers_url": "https://api.github.com/users/user-864a46cb/followers",
+						"following_url": "https://api.github.com/users/user-864a46cb/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-864a46cb/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-864a46cb/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-864a46cb/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-864a46cb/orgs",
+						"repos_url": "https://api.github.com/users/user-864a46cb/repos",
+						"events_url": "https://api.github.com/users/user-864a46cb/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-864a46cb/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-10-20T18:51:49Z",
+					"updated_at": "2026-10-20T18:51:49Z",
+					"body": "Can you please maintain your repo or mark it as archived.",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-80b4119d/repo-4f188c1f/issues/comments/6298644982/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-20T18:51:49Z",
+			"org": {
+				"id": 1825500387,
+				"login": "user-80b4119d",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-80b4119d",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1825500387?"
+			}
+		},
+		{
+			"id": "17649717709",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 3152438717,
+				"name": "user-1aa3ec94/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/24374",
+					"repository_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9",
+					"labels_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/24374/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/24374/comments",
+					"events_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/24374/events",
+					"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/issues/24374",
+					"id": 3116488359,
+					"node_id": "e565f98cdd17067e9a9bec97",
+					"number": 24374,
+					"title": "`contiguous_iter` should be a compile error if not using table storage strategy",
+					"user": {
+						"login": "user-0ee22560",
+						"id": 3964884292,
+						"node_id": "af120a5b3923f1fd9566592c",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3964884292?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-0ee22560",
+						"html_url": "https://github.com/user-0ee22560",
+						"followers_url": "https://api.github.com/users/user-0ee22560/followers",
+						"following_url": "https://api.github.com/users/user-0ee22560/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-0ee22560/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-0ee22560/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-0ee22560/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-0ee22560/orgs",
+						"repos_url": "https://api.github.com/users/user-0ee22560/repos",
+						"events_url": "https://api.github.com/users/user-0ee22560/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-0ee22560/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 3662071880,
+							"node_id": "554c487fd73caf12c93de9c0",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/A-ECS",
+							"name": "repo-8f0115f9",
+							"color": "c6a751",
+							"default": false,
+							"description": "Entities, components, systems, and events",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 3868005610,
+							"node_id": "77978ba274bb8c3e024868a9",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/C-Usability",
+							"name": "repo-8f0115f9",
+							"color": "b8b8b8",
+							"default": false,
+							"description": "A targeted quality-of-life change that makes Bevy easier to use",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 973865800,
+							"node_id": "9cba19bfc85218d4130561c1",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/S-Ready-For-Implementation",
+							"name": "repo-8f0115f9",
+							"color": "D876E3",
+							"default": false,
+							"description": "This issue is ready for an implementation PR. Go for it!",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 1842042025,
+							"node_id": "ec0002f8e5ec92491314ff33",
+							"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/labels/D-Straightforward",
+							"name": "repo-8f0115f9",
+							"color": "008672",
+							"default": false,
+							"description": "Simple bug fixes and API improvements, docs, test and examples",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 3,
+					"created_at": "2026-05-21T09:59:09Z",
+					"updated_at": "2026-10-19T19:29:06Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "## What problem does this solve or what need does it fill?\n\nUsing the wrong storage and attempting to use these methods results in a runtime error, which is suboptimal.\n\n## What solution would you like?\n\nWe can improve the API by making these iteration methods not return a result and instead gate the trait implementation on the GAT.\n\n## What alternative(s) have you considered?\n\nN/A\n\n## Additional context\n\nThis is a new feature in 0.19, so if this is fixed in the RC, that would be cool.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/24374/reactions",
+						"total_count": 1,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 1,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/24374/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null,
+					"pinned_comment": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/comments/6275303790",
+					"html_url": "https://github.com/user-1aa3ec94/repo-8f0115f9/issues/24374#issuecomment-6275303790",
+					"issue_url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/24374",
+					"id": 2197016156,
+					"node_id": "fdbcb3499db7758ac5e9e984",
+					"user": {
+						"login": "user-864a46cb",
+						"id": 393159728,
+						"node_id": "e3bd3fd60dec45cf19a35f51",
+						"avatar_url": "https://avatars.githubusercontent.com/u/393159728?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-864a46cb",
+						"html_url": "https://github.com/user-864a46cb",
+						"followers_url": "https://api.github.com/users/user-864a46cb/followers",
+						"following_url": "https://api.github.com/users/user-864a46cb/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-864a46cb/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-864a46cb/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-864a46cb/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-864a46cb/orgs",
+						"repos_url": "https://api.github.com/users/user-864a46cb/repos",
+						"events_url": "https://api.github.com/users/user-864a46cb/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-864a46cb/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-10-19T19:18:57Z",
+					"updated_at": "2026-10-19T19:18:57Z",
+					"body": "@BenjaminBrienen  If you can add more info to the issue like example code id be happy to implement this. ",
+					"pin": null,
+					"reactions": {
+						"url": "https://api.github.com/repos/user-1aa3ec94/repo-8f0115f9/issues/comments/6275303790/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-19T19:18:57Z",
+			"org": {
+				"id": 4201642042,
+				"login": "user-1aa3ec94",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-1aa3ec94",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4201642042?"
+			}
+		},
+		{
+			"id": "24518919020",
+			"type": "PushEvent",
+			"actor": {
+				"id": 393159728,
+				"login": "user-864a46cb",
+				"display_login": "user-864a46cb",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-864a46cb",
+				"avatar_url": "https://avatars.githubusercontent.com/u/393159728?"
+			},
+			"repo": {
+				"id": 2232852207,
+				"name": "user-864a46cb/repo-8f0115f9",
+				"url": "https://api.github.com/repos/user-864a46cb/repo-8f0115f9"
+			},
+			"payload": {
+				"repository_id": 2232852207,
+				"push_id": 522461114,
+				"ref": "refs/heads/main",
+				"head": "33aa33dbf1b09bdbbb59616e27a917e02cd8ca4e",
+				"before": "dc2cf4ecf68d99021a62ebc2767021f0e27adfae"
+			},
+			"public": true,
+			"created_at": "2026-10-18T23:51:10Z"
+		}
+	]
+}

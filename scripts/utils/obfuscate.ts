@@ -14,6 +14,14 @@ function sha256(s: string | number): string {
 	return createHash("sha256").update(String(s)).digest("hex");
 }
 
+export function obfuscatedLogin(real: string): string {
+	// Keep the "[bot]" suffix: it is not identifying, and it keeps a
+	// GitHub App fixture readable as one.
+	const suffix = real.endsWith("[bot]") ? "[bot]" : "";
+
+	return `user-${sha256(`login:${real}`).slice(0, 8)}${suffix}`;
+}
+
 export interface ObfuscateResult {
 	data: JsonObject;
 	stats: { logins: number; repos: number };
@@ -27,10 +35,7 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 	function fakeLogin(real: string): string {
 		let cached = loginCache.get(real);
 		if (cached === undefined) {
-			// Keep the "[bot]" suffix: it is not identifying, and it keeps a
-			// GitHub App fixture readable as one.
-			const suffix = real.endsWith("[bot]") ? "[bot]" : "";
-			cached = `user-${sha256(`login:${real}`).slice(0, 8)}${suffix}`;
+			cached = obfuscatedLogin(real);
 			loginCache.set(real, cached);
 		}
 		return cached;

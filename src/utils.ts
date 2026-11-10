@@ -227,7 +227,10 @@ export function densestWindow<T>(
 		.slice(busiest.start, busiest.end + 1)
 		.map((entry) => entry.item);
 
-	return { count: busiestItems.length, items: busiestItems };
+	return {
+		count: busiestItems.length,
+		items: busiestItems,
+	};
 }
 
 export type DistinctWindow<T> = {
@@ -266,5 +269,8 @@ export function densestDistinctWindow<T>(
 		.slice(busiest.start, busiest.end + 1)
 		.map((entry) => entry.item);
 
-	return { distinct: mostKeys, items: busiestItems };
+	return {
+		distinct: mostKeys,
+		items: busiestItems,
+	};
 }

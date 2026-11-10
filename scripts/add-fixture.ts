@@ -1,28 +1,20 @@
 #!/usr/bin/env tsx
 
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { ClassificationLabel } from "../src";
 import { classify } from "../src/classify";
-import {
-	fromGitHub,
-	type GitHubEvent,
-	type GitHubInput,
-} from "../src/providers/github";
+import { fromGitHub, type GitHubInput } from "../src/providers/github";
 import {
 	FIXTURE_CATEGORIES,
 	type FixtureCategory,
 } from "../test/regression-config";
 import { runAtCaptureTime } from "../test/utils/frozen-clock";
+import {
+	addToRegressionConfig,
+	nextFixtureName,
+	writeFixture,
+} from "./utils/fixtures";
+import { createGitHubClient, loadGitHubToken } from "./utils/github";
 import { obfuscateFixture } from "./utils/obfuscate";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const FIXTURES_DIR = path.join(__dirname, "../test/fixtures");
-const REGRESSION_CONFIG_PATH = path.join(
-	__dirname,
-	"../test/regression-config.ts",
-);
 
 const [, , usernameArg, categoryArg] = process.argv;
 
@@ -43,93 +35,8 @@ if (
 const username = usernameArg;
 const category = categoryArg as FixtureCategory;
 
-let GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-if (!GITHUB_TOKEN) {
-	const envPath = path.join(__dirname, "../.env");
-	if (fs.existsSync(envPath)) {
-		const envContent = fs.readFileSync(envPath, "utf-8");
-		const match = envContent.match(/GITHUB_TOKEN\s*=\s*"?([^"\n%]+)"?/);
-		if (match?.[1]) {
-			GITHUB_TOKEN = match[1].trim();
-		}
-	}
-}
-
-const headers: Record<string, string> = GITHUB_TOKEN
-	? { Authorization: `token ${GITHUB_TOKEN}` }
-	: {};
-
-async function fetchUser(login: string): Promise<{
-	login: string;
-	created_at: string;
-	public_repos: number;
-	type: string;
-}> {
-	const res = await fetch(`https://api.github.com/users/${login}`, {
-		headers,
-	});
-	if (!res.ok) {
-		throw new Error(`Failed to fetch user: ${res.status} ${res.statusText}`);
-	}
-
-	const data = (await res.json()) as {
-		login: string;
-		created_at: string;
-		public_repos: number;
-		type: string;
-	};
-
-	return {
-		login: data.login,
-		created_at: data.created_at,
-		public_repos: data.public_repos,
-		// GitHub reports "Bot" for GitHub Apps. Keeping it is the whole point of
-		// the github-app category: without it the snapshot loses what it is.
-		type: data.type,
-	};
-}
-
-async function fetchEvents(login: string): Promise<GitHubEvent[]> {
-	const events: GitHubEvent[] = [];
-	for (let page = 1; page <= 3; page++) {
-		const res = await fetch(
-			`https://api.github.com/users/${login}/events?per_page=100&page=${page}`,
-			{ headers },
-		);
-		if (!res.ok) {
-			throw new Error(
-				`Failed to fetch events: ${res.status} ${res.statusText}`,
-			);
-		}
-
-		const pageEvents = (await res.json()) as GitHubEvent[];
-		if (pageEvents.length === 0) {
-			break;
-		}
-
-		events.push(...pageEvents);
-	}
-
-	return events;
-}
-
-function nextFixtureName(kind: FixtureCategory): string {
-	const existing = fs
-		.readdirSync(FIXTURES_DIR)
-		.map((f) => path.basename(f, ".json"))
-		.filter((n) => n.startsWith(`${kind}_`))
-		.map((n) => Number(n.slice(kind.length + 1)))
-		.filter((n) => !Number.isNaN(n));
-	const next = existing.length > 0 ? Math.max(...existing) + 1 : 1;
-
-	return `${kind}_${next}`;
-}
-
-function addToRegressionConfig(name: string, kind: ClassificationLabel): void {
-	let src = fs.readFileSync(REGRESSION_CONFIG_PATH, "utf-8");
-	src = src.replace(/(\n\} satisfies)/, `\n\t"${name}": "${kind}",$1`);
-	fs.writeFileSync(REGRESSION_CONFIG_PATH, src, "utf-8");
-}
+const GITHUB_TOKEN = loadGitHubToken();
+const github = createGitHubClient(GITHUB_TOKEN);
 
 async function main(): Promise<void> {
 	if (!GITHUB_TOKEN) {
@@ -140,7 +47,7 @@ async function main(): Promise<void> {
 
 	console.log(`Fetching ${username}...`);
 	const capturedAt = new Date().toISOString();
-	const user = await fetchUser(username);
+	const user = await github.fetchUser(username);
 
 	// GitHub is the authority on what an account is, so a fixture can never be
 	// filed under a category the API disagrees with.
@@ -158,7 +65,7 @@ async function main(): Promise<void> {
 	}
 
 	await new Promise((r) => setTimeout(r, 500));
-	const events = await fetchEvents(username);
+	const events = await github.fetchEvents(username);
 
 	// Round-trip through JSON to get a plain JsonObject for obfuscation
 	const raw = JSON.parse(JSON.stringify({ user, events })) as {
@@ -187,15 +94,7 @@ async function main(): Promise<void> {
 			: category;
 
 	const fixtureName = nextFixtureName(category);
-	const outputPath = path.join(FIXTURES_DIR, `${fixtureName}.json`);
-
-	fs.mkdirSync(FIXTURES_DIR, { recursive: true });
-	// capturedAt first: it pins the clock the fixture is replayed against.
-	fs.writeFileSync(
-		outputPath,
-		JSON.stringify({ capturedAt, ...data }, null, "\t"),
-	);
-
+	writeFixture(fixtureName, capturedAt, data);
 	addToRegressionConfig(fixtureName, expected);
 
 	console.log(`✅ ${username} → ${fixtureName} (${category} → ${expected})`);
