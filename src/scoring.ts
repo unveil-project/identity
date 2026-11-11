@@ -66,15 +66,13 @@ export function scoreFlags(
 }
 
 /**
- * Turn the flags' penalty and the organic bonus into the score, from 100
- * (human) to 0 (automation).
+ * Make the final score from the penalty and the organic bonus.
+ * 100 means human, 0 means automation.
  *
- * Signs of a real person, like merged PRs, can make up for weak flags, so the
- * bonus counts in full while the flags alone keep the account out of
- * automation. Past that point the flags are strong evidence, and bots get PRs
- * merged too, so the bonus fades until it is gone at a penalty of 100. A good
- * sign can soften the result, but never pull an account the flags call
- * automation back to looking human.
+ * When the penalty alone is not automation, we add the full bonus.
+ * When it is, we add less bonus as the penalty grows, and none at 100.
+ * So if the penalty is only a little too high, a big bonus can still move
+ * the account out of automation.
  */
 export function humanScore(penalty: number, organicBonus: number): number {
 	const fadeStart = 100 - CONFIG.THRESHOLD_SUSPICIOUS;
