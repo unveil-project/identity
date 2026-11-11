@@ -9,15 +9,11 @@ import {
 } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-	type FixtureCategory,
-	getCategory,
-	REGRESSION_FIXTURES,
-} from "../test/regression-config";
+import { getCategory, REGRESSION_FIXTURES } from "../test/regression-config";
+import { FIXTURES_DIR, nextFixtureName } from "./utils/fixtures";
 import { obfuscateFixture } from "./utils/obfuscate";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const FIXTURES_DIR = resolve(__dirname, "../test/fixtures");
 const REGRESSION_CONFIG_PATH = resolve(
 	__dirname,
 	"../test/regression-config.ts",
@@ -69,17 +65,6 @@ if (!category) {
 		`"${fixtureName}" does not start with a known category (<category>_<n>).`,
 	);
 	process.exit(1);
-}
-
-function nextFixtureName(kind: FixtureCategory): string {
-	const existing = readdirSync(FIXTURES_DIR)
-		.map((f) => basename(f, ".json"))
-		.filter((n) => n.startsWith(`${kind}_`))
-		.map((n) => Number(n.slice(kind.length + 1)))
-		.filter((n) => !Number.isNaN(n));
-	const next = existing.length > 0 ? Math.max(...existing) + 1 : 1;
-
-	return `${kind}_${next}`;
 }
 
 const newName = nextFixtureName(category);

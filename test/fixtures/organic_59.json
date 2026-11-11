@@ -1,0 +1,3200 @@
+{
+	"capturedAt": "2026-11-10T22:42:03.832Z",
+	"user": {
+		"login": "user-243774c6",
+		"created_at": "2024-08-06T10:18:16Z",
+		"public_repos": 0,
+		"type": "User"
+	},
+	"events": [
+		{
+			"id": "19707367924",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786",
+					"repository_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+					"labels_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/comments",
+					"events_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/events",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786",
+					"id": 1090829523,
+					"node_id": "46fa2c40c49977e68d4a0806",
+					"number": 74786,
+					"title": "Fix Cloud Composer system test external task sensors",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 2709605030,
+							"node_id": "fcf96d6c1ea3b22c4baa1ca3",
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/labels/provider:google",
+							"name": "repo-2cce738a",
+							"color": "bfd4f2",
+							"default": false,
+							"description": "Google (including GCP) related issues",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 51094044,
+							"node_id": "138c47b00c53ea1231674d28",
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/labels/area:providers",
+							"name": "repo-2cce738a",
+							"color": "d4c5f9",
+							"default": false,
+							"description": "",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 3,
+					"created_at": "2026-10-15T09:12:50Z",
+					"updated_at": "2026-11-10T15:03:17Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786",
+						"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786",
+						"diff_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786.diff",
+						"patch_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786.patch",
+						"merged_at": null
+					},
+					"body": "Revert the 'execution_range' change from #72194: timedelta(days=1) is relative to the logical date, so the sensors never find the airflow_monitoring runs and wait until timeout. 'execution_range' is not a template field, so datetime.now() does not change the dag version.\n\nMore context: https://github.com/apache/airflow/pull/72194#issuecomment-6147156052\n\n <!-- SPDX-License-Identifier: Apache-2.0\n      https://www.apache.org/licenses/LICENSE-2.0 -->\n\n<!--\nThank you for contributing!\n\nPlease provide above a brief description of the changes made in this pull request.\nWrite a good git commit message following this guide: https://chris.beams.io/posts/git-commit/\n\nPlease make sure that your code changes are covered with tests.\nAnd in case of new features or big changes remember to adjust the documentation.\n\nFor user-facing UI changes, please attach before/after screenshots (or a short\nscreen recording) so reviewers can assess the visual impact.\n\nFeel free to ping (in general) for the review if you do not see reaction for a few days\n(72 Hours is the minimum reaction time you can expect from volunteers) - we sometimes miss notifications.\n\nIn case of an existing issue, reference it using one of the following:\n\n* closes: #ISSUE\n* related: #ISSUE\n-->\n\n---\n\n##### Was generative AI tooling used to co-author this PR?\n\n<!--\nIf generative AI tooling has been used in the process of authoring this PR, please\nchange below checkbox to `[X]` followed by the name of the tool, uncomment the \"Generated-by\".\n-->\n\n- [ ] Yes (please specify the tool below)\n\n<!--\nGenerated-by: [Tool Name] following [the guidelines](https://github.com/apache/airflow/blob/main/contributing-docs/05_pull_requests.rst#gen-ai-assisted-contributions)\n-->\n\n---\n\n* Read the **[Pull Request Guidelines](https://github.com/apache/airflow/blob/main/contributing-docs/05_pull_requests.rst#pull-request-guidelines)** for more information. Note: commit author/co-author name and email in commits become permanently public when merged.\n* For fundamental code changes, an Airflow Improvement Proposal ([AIP](https://cwiki.apache.org/confluence/display/AIRFLOW/Airflow+Improvement+Proposals)) is needed.\n* When adding dependency, check compliance with the [ASF 3rd Party License Policy](https://www.apache.org/legal/resolved.html#category-x).\n* For significant user-facing changes create newsfragment: `{pr_number}.significant.rst`, in [airflow-core/newsfragments](https://github.com/apache/airflow/tree/main/airflow-core/newsfragments). You can add this file in a follow-up commit after the PR is created so you know the PR number.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/comments/6770797485",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786#issuecomment-6770797485",
+					"issue_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786",
+					"id": 295191526,
+					"node_id": "a373df6c7fd2a612ab5b04fe",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T15:03:09Z",
+					"updated_at": "2026-11-10T15:03:09Z",
+					"body": "@shahar1 thank you for the review, I've changed the window dates range to recommended values. \r\n\r\nRe-run updated version, it works well too: \r\n\r\n<img width=\"2658\" height=\"1308\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ad35abcc-14ad-4078-8374-ae15e058a763\" />\r\n\r\n\r\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/comments/6770797485/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T15:03:09Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "19665400526",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 76832,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/76832",
+					"id": 2434081533,
+					"number": 76832,
+					"head": {
+						"ref": "sqladmin_deletion_handler",
+						"sha": "7723d4fda5b60a54bd2a3bba5f093ad887628eb1",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2b59699b0fe9683c418806a334b47077513bde5a",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T12:37:35Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "19665361370",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"action": "closed",
+				"number": 362,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a/pulls/362",
+					"id": 2004125989,
+					"number": 362,
+					"head": {
+						"ref": "sqladmin_deletion_handler",
+						"sha": "47f04ef9bc10d7d3716bf62aeb009e7aab56e958",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "959a74083628532112101acdc5d7e0e15f219fdc",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-12T15:16:05Z"
+		},
+		{
+			"id": "19665272096",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 76830,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/76830",
+					"id": 4143005294,
+					"number": 76830,
+					"head": {
+						"ref": "bigtable_deletion_handler",
+						"sha": "d92b72c0c524db6a77b3828f16a1077d18e48ba5",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2b59699b0fe9683c418806a334b47077513bde5a",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T12:35:56Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "19665249064",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"action": "closed",
+				"number": 361,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a/pulls/361",
+					"id": 1094314404,
+					"number": 361,
+					"head": {
+						"ref": "bigtable_deletion_handler",
+						"sha": "b5034ea76547e42bb9f60be4d667398b55050524",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "959a74083628532112101acdc5d7e0e15f219fdc",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-12T15:26:12Z"
+		},
+		{
+			"id": "19665100930",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 76829,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/76829",
+					"id": 3872561909,
+					"number": 76829,
+					"head": {
+						"ref": "cloudbuild_deletion_handler",
+						"sha": "30b66b08b2edc31c5002fae7777ea7e8b8c4b658",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2b59699b0fe9683c418806a334b47077513bde5a",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T12:33:39Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "19665021078",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"action": "closed",
+				"number": 370,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a/pulls/370",
+					"id": 474568568,
+					"number": 370,
+					"head": {
+						"ref": "cloudbuild_deletion_handler",
+						"sha": "bbf36c9fbb6d50cbae49739b304d89738db04cd5",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "270b2abfc258c512a0b931af425904321360d043",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-12T14:50:05Z"
+		},
+		{
+			"id": "19221692115",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786",
+					"repository_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+					"labels_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/comments",
+					"events_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/events",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786",
+					"id": 1090829523,
+					"node_id": "46fa2c40c49977e68d4a0806",
+					"number": 74786,
+					"title": "Fix Cloud Composer system test external task sensors",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 2709605030,
+							"node_id": "fcf96d6c1ea3b22c4baa1ca3",
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/labels/provider:google",
+							"name": "repo-2cce738a",
+							"color": "bfd4f2",
+							"default": false,
+							"description": "Google (including GCP) related issues",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 51094044,
+							"node_id": "138c47b00c53ea1231674d28",
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/labels/area:providers",
+							"name": "repo-2cce738a",
+							"color": "d4c5f9",
+							"default": false,
+							"description": "",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 3,
+					"created_at": "2026-10-15T09:12:50Z",
+					"updated_at": "2026-11-10T15:03:17Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786",
+						"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786",
+						"diff_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786.diff",
+						"patch_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786.patch",
+						"merged_at": null
+					},
+					"body": "Revert the 'execution_range' change from #72194: timedelta(days=1) is relative to the logical date, so the sensors never find the airflow_monitoring runs and wait until timeout. 'execution_range' is not a template field, so datetime.now() does not change the dag version.\n\nMore context: https://github.com/apache/airflow/pull/72194#issuecomment-6147156052\n\n <!-- SPDX-License-Identifier: Apache-2.0\n      https://www.apache.org/licenses/LICENSE-2.0 -->\n\n<!--\nThank you for contributing!\n\nPlease provide above a brief description of the changes made in this pull request.\nWrite a good git commit message following this guide: https://chris.beams.io/posts/git-commit/\n\nPlease make sure that your code changes are covered with tests.\nAnd in case of new features or big changes remember to adjust the documentation.\n\nFor user-facing UI changes, please attach before/after screenshots (or a short\nscreen recording) so reviewers can assess the visual impact.\n\nFeel free to ping (in general) for the review if you do not see reaction for a few days\n(72 Hours is the minimum reaction time you can expect from volunteers) - we sometimes miss notifications.\n\nIn case of an existing issue, reference it using one of the following:\n\n* closes: #ISSUE\n* related: #ISSUE\n-->\n\n---\n\n##### Was generative AI tooling used to co-author this PR?\n\n<!--\nIf generative AI tooling has been used in the process of authoring this PR, please\nchange below checkbox to `[X]` followed by the name of the tool, uncomment the \"Generated-by\".\n-->\n\n- [ ] Yes (please specify the tool below)\n\n<!--\nGenerated-by: [Tool Name] following [the guidelines](https://github.com/apache/airflow/blob/main/contributing-docs/05_pull_requests.rst#gen-ai-assisted-contributions)\n-->\n\n---\n\n* Read the **[Pull Request Guidelines](https://github.com/apache/airflow/blob/main/contributing-docs/05_pull_requests.rst#pull-request-guidelines)** for more information. Note: commit author/co-author name and email in commits become permanently public when merged.\n* For fundamental code changes, an Airflow Improvement Proposal ([AIP](https://cwiki.apache.org/confluence/display/AIRFLOW/Airflow+Improvement+Proposals)) is needed.\n* When adding dependency, check compliance with the [ASF 3rd Party License Policy](https://www.apache.org/legal/resolved.html#category-x).\n* For significant user-facing changes create newsfragment: `{pr_number}.significant.rst`, in [airflow-core/newsfragments](https://github.com/apache/airflow/tree/main/airflow-core/newsfragments). You can add this file in a follow-up commit after the PR is created so you know the PR number.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/comments/6657577558",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786#issuecomment-6657577558",
+					"issue_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786",
+					"id": 4016251510,
+					"node_id": "096c2816f5224bdc3b69a5c7",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-05T12:07:37Z",
+					"updated_at": "2026-11-05T12:07:37Z",
+					"body": "@shahar1 May I kindly ask for the review?",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/comments/6657577558/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:07:37Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17910386439",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 444409665,
+					"node_id": "b70867bdf7efa4d49e3fbd16",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "LGTM 👍 \nThank you!",
+					"commit_id": "8698aba19624797e69b89d75ebe461d6edcdbb79",
+					"state": "approved",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74910#pullrequestreview-5613905264",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74910#pullrequestreview-5613905264"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910"
+						}
+					},
+					"submitted_at": "2026-10-22T12:10:32Z",
+					"updated_at": "2026-10-22T12:10:32Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910",
+					"id": 3471230505,
+					"number": 74910,
+					"head": {
+						"ref": "dataproc-multi-zone",
+						"sha": "98ba177a8288f44f89a059ca4da9d4ee5aec703f",
+						"repo": {
+							"id": 4137940776,
+							"url": "https://api.github.com/repos/user-f4d3a253/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "312cf28019103f047e912667ff3c92c04f927902",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-22T12:13:06Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17908610222",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 882452995,
+					"node_id": "024358b1a9fe3dc54d2a296d",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "LGTM, thank you!",
+					"commit_id": "ab058ab9ffbc2c71c11eab74671dc1832d74fa91",
+					"state": "approved",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5612383357",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5612383357"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"submitted_at": "2026-10-22T09:55:18Z",
+					"updated_at": "2026-10-23T06:41:45Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-22T11:42:12Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17830055356",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 3066117818,
+					"node_id": "8963bc1f564df394566dab79",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Thank you for the contribution! A few suggestions:\n\n- **Version bump is enough:** with `google-cloud-dataproc>=5.32.0`, `DataprocCreateClusterOperator` already passes `cluster_config` to the API as is, so `{\"gce_cluster_config\": {\"multi_zone_config\": {\"target_shape\": \"ANY\"}}}` (or a native `dataproc_v1.MultiZoneConfig`) works without operator changes. The `MultiZoneConfig` dataclass and the conversion in `__init__` can be removed.\n- **Docs:** a short feature description and config example in `docs/operators/cloud/dataproc.rst`, with a link to the official Dataproc docs, would be very welcome.\n- **System test result:** could you please share the result of a system test run with the cluster config modified to use `multi_zone_config` (e.g. `example_dataproc_cluster_deferrable.py`)?\n- **Rebase:** please rebase on the latest `main` and regenerate `uv.lock` to resolve the conflict. \n\nThanks!",
+					"commit_id": "b79df18fe6c32b3d50af1d0f35c6033fc069627b",
+					"state": "changes_requested",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74910#pullrequestreview-5602329537",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74910#pullrequestreview-5602329537"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910"
+						}
+					},
+					"submitted_at": "2026-10-21T15:45:24Z",
+					"updated_at": "2026-10-21T15:45:24Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910",
+					"id": 3471230505,
+					"number": 74910,
+					"head": {
+						"ref": "dataproc-multi-zone",
+						"sha": "98ba177a8288f44f89a059ca4da9d4ee5aec703f",
+						"repo": {
+							"id": 4137940776,
+							"url": "https://api.github.com/repos/user-f4d3a253/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "312cf28019103f047e912667ff3c92c04f927902",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-21T15:45:44Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17828891140",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 1877994609,
+					"node_id": "667eaa6036db2b835217a178",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "b79df18fe6c32b3d50af1d0f35c6033fc069627b",
+					"state": "commented",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74910#pullrequestreview-5602164189",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74910#pullrequestreview-5602164189"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910"
+						}
+					},
+					"submitted_at": "2026-10-21T15:33:04Z",
+					"updated_at": "2026-10-21T15:33:04Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910",
+					"id": 3471230505,
+					"number": 74910,
+					"head": {
+						"ref": "dataproc-multi-zone",
+						"sha": "98ba177a8288f44f89a059ca4da9d4ee5aec703f",
+						"repo": {
+							"id": 4137940776,
+							"url": "https://api.github.com/repos/user-f4d3a253/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "312cf28019103f047e912667ff3c92c04f927902",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-21T15:33:08Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17828886095",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4338717747",
+					"pull_request_review_id": 1877994609,
+					"id": 3056648698,
+					"node_id": "35b13e485221851113e4e6c7",
+					"diff_hunk": "@@ -742,6 +755,18 @@ def __init__(\n         super().__init__(**kwargs)\n         if deferrable and polling_interval_seconds <= 0:\n             raise ValueError(\"Invalid value for polling_interval_seconds. Expected value greater than 0\")\n+        if isinstance(cluster_config, dict) and \"gce_cluster_config\" in cluster_config:",
+					"path": "providers/google/src/airflow/providers/google/cloud/operators/dataproc.py",
+					"commit_id": "b79df18fe6c32b3d50af1d0f35c6033fc069627b",
+					"original_commit_id": "b79df18fe6c32b3d50af1d0f35c6033fc069627b",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "If we pass config just as dict will it fail? Is there strong reason for additional transformation code? \n\n",
+					"created_at": "2026-10-21T15:33:04Z",
+					"updated_at": "2026-10-21T15:33:04Z",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74910#discussion_r4338717747",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4338717747"
+						},
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74910#discussion_r4338717747"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4338717747/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 24,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74910",
+					"id": 3471230505,
+					"number": 74910,
+					"head": {
+						"ref": "dataproc-multi-zone",
+						"sha": "98ba177a8288f44f89a059ca4da9d4ee5aec703f",
+						"repo": {
+							"id": 4137940776,
+							"url": "https://api.github.com/repos/user-f4d3a253/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "312cf28019103f047e912667ff3c92c04f927902",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-21T15:33:04Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17827060341",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 4155979477,
+					"node_id": "e5de52cf0d5a2fa69aac70ba",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "LGTM, thank you!",
+					"commit_id": "fdb49469511b7d7bf35f6a3f172edbd45ebfd508",
+					"state": "approved",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74926#pullrequestreview-5601905097",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74926",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74926#pullrequestreview-5601905097"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74926"
+						}
+					},
+					"submitted_at": "2026-10-21T15:12:57Z",
+					"updated_at": "2026-10-21T15:12:57Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74926",
+					"id": 3686173189,
+					"number": 74926,
+					"head": {
+						"ref": "fix-cloud-logging-log-outside-base-folder",
+						"sha": "fdb49469511b7d7bf35f6a3f172edbd45ebfd508",
+						"repo": {
+							"id": 3057623438,
+							"url": "https://api.github.com/repos/user-8bdcbdd9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "dba55d8728a996328b4d0567aed057eb1b567fcc",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-21T15:12:59Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17826124401",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 894766293,
+					"node_id": "14a2d8bf35205eaf73413e40",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Looks good, thank you! (please address the comment)",
+					"commit_id": "8d02887fd2f560c05c9bc5864677d9de7d7329f3",
+					"state": "commented",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74930#pullrequestreview-5601769416",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74930",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74930#pullrequestreview-5601769416"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74930"
+						}
+					},
+					"submitted_at": "2026-10-21T15:02:34Z",
+					"updated_at": "2026-10-21T15:02:34Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74930",
+					"id": 2785335344,
+					"number": 74930,
+					"head": {
+						"ref": "fix/gcp-field-validator-api-version-warning",
+						"sha": "8d02887fd2f560c05c9bc5864677d9de7d7329f3",
+						"repo": {
+							"id": 3303353619,
+							"url": "https://api.github.com/repos/user-ed861447/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "3fbf0134fde572b75f074660a6b35bc1790c0e35",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-21T15:02:36Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17817353140",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 194717067,
+					"node_id": "7a47ef98671138e5e7b4f70e",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Thanks for the updates, the PR looks much cleaner now!\n\nA few thoughts on `test_dataproc_high_obtainability.py`:\n\n- `TestProtoClusterFlexibleConfig` tests the `google-cloud-dataproc` client rather than the Airflow operator, so I don't think it should be unit tested here.\n- `DataprocCreateClusterOperator` accepts any valid `ClusterConfig` and passes it to the API as is, and the validation happens on the API side.\n- We usually don't write unit tests for system tests (e.g. TestExampleDag).\n- These tests depend on the `google-cloud-dataproc` version rather than on the operator code, so they could fail with older client versions even though the operator code is unchanged.\n\nI'd suggest removing this file completely. The `example_dataproc_cluster_high_obtainability.py` system test already covers this feature end to end. \n\nThanks again for your work on this!",
+					"commit_id": "dc230709c89452a378971d4749b5b2b49eb597d2",
+					"state": "changes_requested",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5600476966",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5600476966"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"submitted_at": "2026-10-21T13:29:10Z",
+					"updated_at": "2026-10-21T13:29:10Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-21T13:29:11Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17725615635",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 1043673733,
+					"node_id": "c27d902dc43b2552bc65a706",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "LGTM 👍",
+					"commit_id": "d84a257638e87c05a286ce8421c0b3d2a5acc77d",
+					"state": "approved",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/75101#pullrequestreview-5587886785",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/75101",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/75101#pullrequestreview-5587886785"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/75101"
+						}
+					},
+					"submitted_at": "2026-10-20T16:02:13Z",
+					"updated_at": "2026-10-20T16:02:13Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/75101",
+					"id": 1407244071,
+					"number": 75101,
+					"head": {
+						"ref": "bigquery-to-bigquery-cancel-on-kill",
+						"sha": "d84a257638e87c05a286ce8421c0b3d2a5acc77d",
+						"repo": {
+							"id": 2066839654,
+							"url": "https://api.github.com/repos/user-6f591acd/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "1d66775efcbc2b31ecb476bef3198ca51ef7b4e3",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-20T16:02:14Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17714856269",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 3990143260,
+					"node_id": "f41d233b426a2a87b82a608d",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Please take a look at the comments.\r\n\r\nOverall, I think the cleanest way to introduce this feature is to provide docs, an example DAG and the dependency upgrade.\r\n\r\nI don't think we should duplicate the API validation here.",
+					"commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"state": "changes_requested",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5584700039",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5584700039"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"submitted_at": "2026-10-20T14:06:30Z",
+					"updated_at": "2026-10-20T14:07:58Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "updated"
+			},
+			"public": true,
+			"created_at": "2026-10-20T14:07:59Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17714736150",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 3990143260,
+					"node_id": "f41d233b426a2a87b82a608d",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Please take a look at the comments.\r\n\r\nOverall, I think the cleanest way to introduce this feature is to provide docs, an example DAG and the dependency upgrade.\r\n\r\nI don't think we should duplicate the API validation here.",
+					"commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"state": "changes_requested",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5584700039",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5584700039"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"submitted_at": "2026-10-20T14:06:30Z",
+					"updated_at": "2026-10-20T14:07:58Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "updated"
+			},
+			"public": true,
+			"created_at": "2026-10-20T14:06:43Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17714732905",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 3990143260,
+					"node_id": "f41d233b426a2a87b82a608d",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Please take a look at the comments.\r\n\r\nOverall, I think the cleanest way to introduce this feature is to provide docs, an example DAG and the dependency upgrade.\r\n\r\nI don't think we should duplicate the API validation here.",
+					"commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"state": "changes_requested",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5584700039",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#pullrequestreview-5584700039"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"submitted_at": "2026-10-20T14:06:30Z",
+					"updated_at": "2026-10-20T14:07:58Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-20T14:06:41Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17714654871",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325898330",
+					"pull_request_review_id": 3990143260,
+					"id": 1611213648,
+					"node_id": "4fe24bbf9b92ac42982050a3",
+					"diff_hunk": "@@ -0,0 +1,172 @@\n+#\n+# Licensed to the Apache Software Foundation (ASF) under one\n+# or more contributor license agreements.  See the NOTICE file\n+# distributed with this work for additional information\n+# regarding copyright ownership.  The ASF licenses this file\n+# to you under the Apache License, Version 2.0 (the\n+# \"License\"); you may not use this file except in compliance\n+# with the License.  You may obtain a copy of the License at\n+#\n+#   http://www.apache.org/licenses/LICENSE-2.0\n+#\n+# Unless required by applicable law or agreed to in writing,\n+# software distributed under the License is distributed on an\n+# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n+# KIND, either express or implied.  See the License for the\n+# specific language governing permissions and limitations\n+# under the License.\n+\"\"\"Example Airflow DAG for a Dataproc High Obtainability (HO) mode cluster.\n+\n+In High Obtainability mode node groups are described by abstract requirements\n+(``FlexibleInstanceGroupConfig``: number of instances, core count and hardware\n+class) instead of concrete machine types. Dataproc resolves them into a ranked\n+list of widely available machine families to minimize stockouts. HO clusters\n+are always auto-zoned.\n+\n+The DAG creates an HO cluster, scales its primary workers through the\n+authoritative ``config.worker_flexible_config.num_instances`` update path,\n+scales the secondary workers through the legacy\n+``config.secondary_worker_config.num_instances`` compatibility path (which the\n+API keeps accepting for HO clusters), submits a Spark job and deletes the\n+cluster.\n+\"\"\"\n+\n+from __future__ import annotations\n+\n+import os\n+from datetime import datetime\n+\n+from airflow.models.dag import DAG\n+from airflow.providers.google.cloud.operators.dataproc import (\n+    DataprocCreateClusterOperator,\n+    DataprocDeleteClusterOperator,\n+    DataprocSubmitJobOperator,\n+    DataprocUpdateClusterOperator,\n+    FlexibleInstanceGroupConfig,\n+    flexible_scale_cluster_update,\n+)\n+\n+try:\n+    from airflow.sdk import TriggerRule\n+except ImportError:\n+    # Compatibility for Airflow < 3.1\n+    from airflow.utils.trigger_rule import TriggerRule  # type: ignore[no-redef,attr-defined]\n+\n+from system.google import DEFAULT_GCP_SYSTEM_TEST_PROJECT_ID\n+\n+ENV_ID = os.environ.get(\"SYSTEM_TESTS_ENV_ID\", \"default\")\n+DAG_ID = \"dataproc_cluster_high_obtainability\"\n+PROJECT_ID = os.environ.get(\"SYSTEM_TESTS_GCP_PROJECT\") or DEFAULT_GCP_SYSTEM_TEST_PROJECT_ID\n+\n+CLUSTER_NAME_BASE = f\"cluster-{DAG_ID}\".replace(\"_\", \"-\")\n+CLUSTER_NAME_FULL = CLUSTER_NAME_BASE + f\"-{ENV_ID}\".replace(\"_\", \"-\")\n+CLUSTER_NAME = CLUSTER_NAME_BASE if len(CLUSTER_NAME_FULL) >= 33 else CLUSTER_NAME_FULL\n+REGION = \"us-central1\"\n+\n+# [START how_to_cloud_dataproc_create_ho_cluster_config]\n+# Note: no machine types, disk types or zone are specified. HO clusters are\n+# cluster-wide: master and primary workers must both use a flexible config.\n+HO_CLUSTER_CONFIG = {",
+					"path": "providers/google/tests/system/google/cloud/dataproc/example_dataproc_cluster_high_obtainability.py",
+					"commit_id": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+					"original_commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Can we minimize resources needed to demonstrate functionality?  \n\nIt will be a positive thing for a community members to run, and for regular tests suite CI runs as well. \n\nFor example: \n\n```\nHO_CLUSTER_CONFIG = {\n    \"master_flexible_config\": {\n        \"num_instances\": 1,\n        \"core_count\": 2,\n        \"hardware_class\": \"STANDARD\",\n        \"boot_disk_size_gb\": 32,\n    },\n    \"worker_flexible_config\": {\n        \"num_instances\": 2,\n        \"core_count\": 2,\n        \"hardware_class\": \"STANDARD\",\n        \"boot_disk_size_gb\": 32,\n    },\n    \"secondary_worker_flexible_config\": {\n        \"num_instances\": 1,\n        \"core_count\": 2,\n        \"hardware_class\": \"STANDARD\",\n        \"boot_disk_size_gb\": 32,\n    },\n}\n```\n\nAnd for the update:\n\n```\ncluster={\n    \"config\": {\n        \"worker_flexible_config\": {\"num_instances\": 3},\n        \"secondary_worker_flexible_config\": {\"num_instances\": 0},\n    }\n},\nupdate_mask={\n    \"paths\": [\n        \"config.worker_flexible_config.num_instances\",\n        \"config.secondary_worker_flexible_config.num_instances\",\n    ]\n},\n```\n\n\n",
+					"created_at": "2026-10-20T14:05:54Z",
+					"updated_at": "2026-10-20T14:06:30Z",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4325898330",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325898330"
+						},
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4325898330"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325898330/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 69,
+					"position": 63,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-20T14:05:54Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17713884294",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325805873",
+					"pull_request_review_id": 3990143260,
+					"id": 2553941843,
+					"node_id": "a53acdb0d2bd81c030bbb00d",
+					"diff_hunk": "@@ -0,0 +1,172 @@\n+#\n+# Licensed to the Apache Software Foundation (ASF) under one\n+# or more contributor license agreements.  See the NOTICE file\n+# distributed with this work for additional information\n+# regarding copyright ownership.  The ASF licenses this file\n+# to you under the Apache License, Version 2.0 (the\n+# \"License\"); you may not use this file except in compliance\n+# with the License.  You may obtain a copy of the License at\n+#\n+#   http://www.apache.org/licenses/LICENSE-2.0\n+#\n+# Unless required by applicable law or agreed to in writing,\n+# software distributed under the License is distributed on an\n+# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n+# KIND, either express or implied.  See the License for the\n+# specific language governing permissions and limitations\n+# under the License.\n+\"\"\"Example Airflow DAG for a Dataproc High Obtainability (HO) mode cluster.\n+\n+In High Obtainability mode node groups are described by abstract requirements\n+(``FlexibleInstanceGroupConfig``: number of instances, core count and hardware\n+class) instead of concrete machine types. Dataproc resolves them into a ranked\n+list of widely available machine families to minimize stockouts. HO clusters\n+are always auto-zoned.\n+\n+The DAG creates an HO cluster, scales its primary workers through the\n+authoritative ``config.worker_flexible_config.num_instances`` update path,\n+scales the secondary workers through the legacy\n+``config.secondary_worker_config.num_instances`` compatibility path (which the\n+API keeps accepting for HO clusters), submits a Spark job and deletes the\n+cluster.\n+\"\"\"\n+\n+from __future__ import annotations\n+\n+import os\n+from datetime import datetime\n+\n+from airflow.models.dag import DAG\n+from airflow.providers.google.cloud.operators.dataproc import (\n+    DataprocCreateClusterOperator,\n+    DataprocDeleteClusterOperator,\n+    DataprocSubmitJobOperator,\n+    DataprocUpdateClusterOperator,\n+    FlexibleInstanceGroupConfig,\n+    flexible_scale_cluster_update,\n+)\n+\n+try:\n+    from airflow.sdk import TriggerRule\n+except ImportError:\n+    # Compatibility for Airflow < 3.1\n+    from airflow.utils.trigger_rule import TriggerRule  # type: ignore[no-redef,attr-defined]\n+\n+from system.google import DEFAULT_GCP_SYSTEM_TEST_PROJECT_ID\n+\n+ENV_ID = os.environ.get(\"SYSTEM_TESTS_ENV_ID\", \"default\")\n+DAG_ID = \"dataproc_cluster_high_obtainability\"\n+PROJECT_ID = os.environ.get(\"SYSTEM_TESTS_GCP_PROJECT\") or DEFAULT_GCP_SYSTEM_TEST_PROJECT_ID\n+\n+CLUSTER_NAME_BASE = f\"cluster-{DAG_ID}\".replace(\"_\", \"-\")\n+CLUSTER_NAME_FULL = CLUSTER_NAME_BASE + f\"-{ENV_ID}\".replace(\"_\", \"-\")\n+CLUSTER_NAME = CLUSTER_NAME_BASE if len(CLUSTER_NAME_FULL) >= 33 else CLUSTER_NAME_FULL\n+REGION = \"us-central1\"\n+\n+# [START how_to_cloud_dataproc_create_ho_cluster_config]\n+# Note: no machine types, disk types or zone are specified. HO clusters are\n+# cluster-wide: master and primary workers must both use a flexible config.\n+HO_CLUSTER_CONFIG = {\n+    \"master_flexible_config\": FlexibleInstanceGroupConfig(\n+        num_instances=1, core_count=4, hardware_class=\"STANDARD\"\n+    ),\n+    # A plain dict with the same keys is accepted as well.\n+    \"worker_flexible_config\": {\n+        \"num_instances\": 2,\n+        \"core_count\": 8,\n+        \"hardware_class\": \"PERFORMANCE\",\n+        \"boot_disk_size_gb\": 500,\n+    },\n+    \"secondary_worker_flexible_config\": {\n+        \"num_instances\": 1,\n+        \"core_count\": 8,\n+        \"hardware_class\": \"PERFORMANCE\",\n+    },\n+    \"software_config\": {\n+        \"image_version\": \"2.2\",\n+    },\n+}\n+# [END how_to_cloud_dataproc_create_ho_cluster_config]\n+\n+SPARK_PI_JOB = {\n+    \"reference\": {\"project_id\": PROJECT_ID},\n+    \"placement\": {\"cluster_name\": CLUSTER_NAME},\n+    \"spark_job\": {\n+        \"main_class\": \"org.apache.spark.examples.SparkPi\",\n+        \"jar_file_uris\": [\"file:///usr/lib/spark/examples/jars/spark-examples.jar\"],\n+        \"args\": [\"10\"],\n+    },\n+}\n+\n+with DAG(",
+					"path": "providers/google/tests/system/google/cloud/dataproc/example_dataproc_cluster_high_obtainability.py",
+					"commit_id": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+					"original_commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Can you please share the result of the DAG execution?",
+					"created_at": "2026-10-20T13:57:16Z",
+					"updated_at": "2026-10-20T14:06:30Z",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4325805873",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325805873"
+						},
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4325805873"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325805873/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 101,
+					"position": 98,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-20T13:57:16Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17712224135",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325613989",
+					"pull_request_review_id": 3990143260,
+					"id": 30072866,
+					"node_id": "9cf69c00751f5488ba9e7a0d",
+					"diff_hunk": "@@ -104,7 +104,7 @@ dependencies = [\n     \"google-cloud-dataflow-client>=0.12.0\",\n     \"google-cloud-dataform>=0.10.0\",\n     \"google-cloud-dataplex>=2.18.0\",\n-    \"google-cloud-dataproc>=5.27.0\",\n+    \"google-cloud-dataproc>=5.32.0\",",
+					"path": "providers/google/pyproject.toml",
+					"commit_id": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+					"original_commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "I think the uv.lock update should follow on the version bump.",
+					"created_at": "2026-10-20T13:39:25Z",
+					"updated_at": "2026-10-20T14:06:30Z",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4325613989",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325613989"
+						},
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4325613989"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4325613989/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 5,
+					"position": 5,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-20T13:39:25Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17705969194",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324901823",
+					"pull_request_review_id": 3990143260,
+					"id": 4222844100,
+					"node_id": "cee16b6a3fe4046389a204ef",
+					"diff_hunk": "@@ -186,6 +186,44 @@ You can use deferrable mode for this action in order to run the operator asynchr\n     :start-after: [START how_to_cloud_dataproc_create_cluster_operator_async]\n     :end-before: [END how_to_cloud_dataproc_create_cluster_operator_async]\n \n+High Obtainability (HO) mode clusters\n+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n+\n+High Obtainability (HO) mode enables creating Dataproc clusters using abstract hardware requirements",
+					"path": "providers/google/docs/operators/cloud/dataproc.rst",
+					"commit_id": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+					"original_commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Id' love to see the link to the official google docs as well (if available).",
+					"created_at": "2026-10-20T12:27:22Z",
+					"updated_at": "2026-10-20T14:06:30Z",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4324901823",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324901823"
+						},
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4324901823"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324901823/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 7,
+					"position": 7,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-20T12:27:22Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17704589494",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324755649",
+					"pull_request_review_id": 3990143260,
+					"id": 1575420581,
+					"node_id": "f3306fb8c28f01465a6fe8d5",
+					"diff_hunk": "@@ -117,6 +118,204 @@ class InstanceFlexibilityPolicy:\n     instance_selection_list: list[InstanceSelection]\n \n \n+class HardwareClass(Enum):\n+    \"\"\"\n+    Hardware class of a High Obtainability (HO) mode instance group.\n+\n+    Representation for\n+    google.cloud.dataproc.v1#google.cloud.dataproc.v1.FlexibleInstanceGroupConfig.HardwareClass.\n+    \"\"\"\n+\n+    STANDARD = \"STANDARD\"\n+    PERFORMANCE = \"PERFORMANCE\"\n+\n+\n+FLEXIBLE_CONFIG_ALLOWED_CORE_COUNTS = (2, 4, 8, 16, 32)\n+\n+\n+@dataclass\n+class FlexibleInstanceGroupConfig:",
+					"path": "providers/google/src/airflow/providers/google/cloud/operators/dataproc.py",
+					"commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"original_commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Why don't we use just the native google.cloud.dataproc.v1#google.cloud.dataproc.v1.FlexibleInstanceGroupConfig type? It seems it has all the functionality and validation needed? ",
+					"created_at": "2026-10-20T12:10:02Z",
+					"updated_at": "2026-10-20T14:06:30Z",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4324755649",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324755649"
+						},
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4324755649"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324755649/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 28,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-20T12:10:02Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17704008148",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324695451",
+					"pull_request_review_id": 3990143260,
+					"id": 1650013940,
+					"node_id": "c654c0bd183667ad8837a259",
+					"diff_hunk": "@@ -652,7 +851,24 @@ class DataprocCreateClusterOperator(GoogleCloudBaseOperator):\n         values to parameter of DataprocCreateCluster operator.\n     :param cluster_config: Required. The cluster config to create.\n         If a dict is provided, it must be of the same form as the protobuf message\n-        :class:`~google.cloud.dataproc_v1.types.ClusterConfig`\n+        :class:`~google.cloud.dataproc_v1.types.ClusterConfig`.",
+					"path": "providers/google/src/airflow/providers/google/cloud/operators/dataproc.py",
+					"commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"original_commit_id": "e50fc657d6ee4437b3afdcb8af6dbdb35ce8b079",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "I don't think it's a good place for this text here, since ClusterConfig has a lot of ways to be specified (and expanding), and all of them are referenced in the proto and docs).",
+					"created_at": "2026-10-20T12:02:35Z",
+					"updated_at": "2026-10-20T14:06:30Z",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4324695451",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324695451"
+						},
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74753#discussion_r4324695451"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4324695451/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 218,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74753",
+					"id": 3014444284,
+					"number": 74753,
+					"head": {
+						"ref": "dataproc-ho-support",
+						"sha": "0f5a8a900afe19b49df44829283b0758a5ba2a2d",
+						"repo": {
+							"id": 3315077369,
+							"url": "https://api.github.com/repos/user-ec3dabaf/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "2a3ee7ffe25f2751e181638e2964dcdb06e0d6f0",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-20T12:02:35Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "24568712910",
+			"type": "PushEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"repository_id": 4287320746,
+				"push_id": 2863138921,
+				"ref": "refs/heads/fix_composer_system_tests",
+				"head": "3f895493bb9c6bde284827fb0932aaf435894712",
+				"before": "612adfcdba07c8ce384dd9573990d37aa6ccc77a"
+			},
+			"public": true,
+			"created_at": "2026-10-19T12:05:40Z"
+		},
+		{
+			"id": "24529295031",
+			"type": "DeleteEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"ref": "deprecate_dataproc_create_cluster",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/deprecate_dataproc_create_cluster",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-19T13:00:01Z"
+		},
+		{
+			"id": "24211290394",
+			"type": "PushEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"repository_id": 4287320746,
+				"push_id": 3683130258,
+				"ref": "refs/heads/fix_composer_system_tests",
+				"head": "e1d6b0598c671417fc7c9f3e70d9599e4060d1f1",
+				"before": "3698ea765feba64931ea12a12cbbee4d2749da24"
+			},
+			"public": true,
+			"created_at": "2026-10-15T13:23:04Z"
+		},
+		{
+			"id": "24127573436",
+			"type": "PushEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"repository_id": 4287320746,
+				"push_id": 1272606808,
+				"ref": "refs/heads/fix_composer_system_tests",
+				"head": "612adfcdba07c8ce384dd9573990d37aa6ccc77a",
+				"before": "e1d6b0598c671417fc7c9f3e70d9599e4060d1f1"
+			},
+			"public": true,
+			"created_at": "2026-10-15T13:24:22Z"
+		},
+		{
+			"id": "17339037708",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786",
+					"repository_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+					"labels_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/comments",
+					"events_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/events",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786",
+					"id": 1090829523,
+					"node_id": "46fa2c40c49977e68d4a0806",
+					"number": 74786,
+					"title": "Fix Cloud Composer system test external task sensors",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 2709605030,
+							"node_id": "fcf96d6c1ea3b22c4baa1ca3",
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/labels/provider:google",
+							"name": "repo-2cce738a",
+							"color": "bfd4f2",
+							"default": false,
+							"description": "Google (including GCP) related issues",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 51094044,
+							"node_id": "138c47b00c53ea1231674d28",
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/labels/area:providers",
+							"name": "repo-2cce738a",
+							"color": "d4c5f9",
+							"default": false,
+							"description": "",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 3,
+					"created_at": "2026-10-15T09:12:50Z",
+					"updated_at": "2026-11-10T15:03:17Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786",
+						"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786",
+						"diff_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786.diff",
+						"patch_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786.patch",
+						"merged_at": null
+					},
+					"body": "Revert the 'execution_range' change from #72194: timedelta(days=1) is relative to the logical date, so the sensors never find the airflow_monitoring runs and wait until timeout. 'execution_range' is not a template field, so datetime.now() does not change the dag version.\n\nMore context: https://github.com/apache/airflow/pull/72194#issuecomment-6147156052\n\n <!-- SPDX-License-Identifier: Apache-2.0\n      https://www.apache.org/licenses/LICENSE-2.0 -->\n\n<!--\nThank you for contributing!\n\nPlease provide above a brief description of the changes made in this pull request.\nWrite a good git commit message following this guide: https://chris.beams.io/posts/git-commit/\n\nPlease make sure that your code changes are covered with tests.\nAnd in case of new features or big changes remember to adjust the documentation.\n\nFor user-facing UI changes, please attach before/after screenshots (or a short\nscreen recording) so reviewers can assess the visual impact.\n\nFeel free to ping (in general) for the review if you do not see reaction for a few days\n(72 Hours is the minimum reaction time you can expect from volunteers) - we sometimes miss notifications.\n\nIn case of an existing issue, reference it using one of the following:\n\n* closes: #ISSUE\n* related: #ISSUE\n-->\n\n---\n\n##### Was generative AI tooling used to co-author this PR?\n\n<!--\nIf generative AI tooling has been used in the process of authoring this PR, please\nchange below checkbox to `[X]` followed by the name of the tool, uncomment the \"Generated-by\".\n-->\n\n- [ ] Yes (please specify the tool below)\n\n<!--\nGenerated-by: [Tool Name] following [the guidelines](https://github.com/apache/airflow/blob/main/contributing-docs/05_pull_requests.rst#gen-ai-assisted-contributions)\n-->\n\n---\n\n* Read the **[Pull Request Guidelines](https://github.com/apache/airflow/blob/main/contributing-docs/05_pull_requests.rst#pull-request-guidelines)** for more information. Note: commit author/co-author name and email in commits become permanently public when merged.\n* For fundamental code changes, an Airflow Improvement Proposal ([AIP](https://cwiki.apache.org/confluence/display/AIRFLOW/Airflow+Improvement+Proposals)) is needed.\n* When adding dependency, check compliance with the [ASF 3rd Party License Policy](https://www.apache.org/legal/resolved.html#category-x).\n* For significant user-facing changes create newsfragment: `{pr_number}.significant.rst`, in [airflow-core/newsfragments](https://github.com/apache/airflow/tree/main/airflow-core/newsfragments). You can add this file in a follow-up commit after the PR is created so you know the PR number.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/comments/6188686894",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786#issuecomment-6188686894",
+					"issue_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/74786",
+					"id": 2582227837,
+					"node_id": "a2588ab6da9c15ab4c817add",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-10-15T09:15:49Z",
+					"updated_at": "2026-10-15T09:15:49Z",
+					"body": "The updated test run well (no stuck on sensors)\r\n<img width=\"1437\" height=\"653\" alt=\"Screenshot 2026-10-15 at 11 10 34\" src=\"https://github.com/user-attachments/assets/a29731c7-0237-422c-96eb-1c45b6a7aca2\" />\r\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/issues/comments/6188686894/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-15T09:15:49Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "24106380641",
+			"type": "PushEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"repository_id": 4287320746,
+				"push_id": 2302543437,
+				"ref": "refs/heads/fix_composer_system_tests",
+				"head": "3698ea765feba64931ea12a12cbbee4d2749da24",
+				"before": "345ec1f6e7718a013918554d28441feb7402d1ce"
+			},
+			"public": true,
+			"created_at": "2026-10-15T09:13:07Z"
+		},
+		{
+			"id": "17307000647",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 919639323,
+					"node_id": "436948997c9e9b02c1ce6230",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "3698ea765feba64931ea12a12cbbee4d2749da24",
+					"state": "commented",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786#pullrequestreview-5533807900",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786#pullrequestreview-5533807900"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786"
+						}
+					},
+					"submitted_at": "2026-10-15T13:24:09Z",
+					"updated_at": "2026-10-15T13:24:09Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786",
+					"id": 3581087853,
+					"number": 74786,
+					"head": {
+						"ref": "fix_composer_system_tests",
+						"sha": "7ff331ff6846d0d630cc23e3fde5b37c7404f343",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "057f009928112df519ed6fc80f54d675857c4b9d",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-15T15:08:15Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17299326442",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4283509243",
+					"pull_request_review_id": 919639323,
+					"id": 2427957063,
+					"node_id": "7a193d607ab653ba442828ba",
+					"diff_hunk": "@@ -310,7 +310,7 @@ def cleanup_failed_environment_before_retry(context: dict[str, Any]) -> None:\n         composer_external_dag_id=\"airflow_monitoring\",\n         composer_external_task_id=\"echo\",\n         allowed_states=[\"success\"],\n-        execution_range=timedelta(days=1),\n+        execution_range=[datetime.now() - timedelta(1), datetime.now()],",
+					"path": "providers/google/tests/system/google/cloud/composer/example_cloud_composer.py",
+					"commit_id": "3698ea765feba64931ea12a12cbbee4d2749da24",
+					"original_commit_id": "3698ea765feba64931ea12a12cbbee4d2749da24",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Thank you for the review, good point, updated.",
+					"created_at": "2026-10-15T13:24:09Z",
+					"updated_at": "2026-10-15T13:24:10Z",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786#discussion_r4283509243",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4283509243"
+						},
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74786#discussion_r4283509243"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/comments/4283509243/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"in_reply_to_id": 1928658033,
+					"original_position": 5,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786",
+					"id": 3581087853,
+					"number": 74786,
+					"head": {
+						"ref": "fix_composer_system_tests",
+						"sha": "7ff331ff6846d0d630cc23e3fde5b37c7404f343",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "057f009928112df519ed6fc80f54d675857c4b9d",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-15T13:24:09Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17284340387",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 74786,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74786",
+					"id": 3581087853,
+					"number": 74786,
+					"head": {
+						"ref": "fix_composer_system_tests",
+						"sha": "7ff331ff6846d0d630cc23e3fde5b37c7404f343",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "057f009928112df519ed6fc80f54d675857c4b9d",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-15T09:12:50Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "23999755729",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"ref": "fix_composer_system_tests",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/fix_composer_system_tests",
+				"master_branch": "main",
+				"description": "Apache Airflow - A platform to programmatically author, schedule, and monitor workflows",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-14T16:37:23Z"
+		},
+		{
+			"id": "17097128239",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 2758419575,
+				"name": "user-f7a1a273/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a"
+			},
+			"payload": {
+				"review": {
+					"id": 2601838019,
+					"node_id": "4bd5311a17d3967eff4657e0",
+					"user": {
+						"login": "user-243774c6",
+						"id": 2957439609,
+						"node_id": "60e7ebbd286cda421e47ba7e",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-243774c6",
+						"html_url": "https://github.com/user-243774c6",
+						"followers_url": "https://api.github.com/users/user-243774c6/followers",
+						"following_url": "https://api.github.com/users/user-243774c6/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-243774c6/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-243774c6/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-243774c6/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-243774c6/orgs",
+						"repos_url": "https://api.github.com/users/user-243774c6/repos",
+						"events_url": "https://api.github.com/users/user-243774c6/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-243774c6/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "LGTM 👍\n\n",
+					"commit_id": "90df140d7376a7f85b061cfa9ddb6c972e568418",
+					"state": "approved",
+					"html_url": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74564#pullrequestreview-5502833165",
+					"pull_request_url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74564",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-f7a1a273/repo-2cce738a/pull/74564#pullrequestreview-5502833165"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74564"
+						}
+					},
+					"submitted_at": "2026-10-13T11:31:50Z",
+					"updated_at": "2026-10-13T11:31:50Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a/pulls/74564",
+					"id": 1070239177,
+					"number": 74564,
+					"head": {
+						"ref": "bigquery-to-gcs-cancel-on-kill",
+						"sha": "05dc9fee79d4ecebb635d415bd877371aadd2a48",
+						"repo": {
+							"id": 2066839654,
+							"url": "https://api.github.com/repos/user-6f591acd/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "06e7e284e323fd8e7787b54e62aa38db3e236db3",
+						"repo": {
+							"id": 2758419575,
+							"url": "https://api.github.com/repos/user-f7a1a273/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-13T12:25:24Z",
+			"org": {
+				"id": 3398410811,
+				"login": "user-f7a1a273",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-f7a1a273",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3398410811?"
+			}
+		},
+		{
+			"id": "17016907235",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 370,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a/pulls/370",
+					"id": 474568568,
+					"number": 370,
+					"head": {
+						"ref": "cloudbuild_deletion_handler",
+						"sha": "bbf36c9fbb6d50cbae49739b304d89738db04cd5",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "270b2abfc258c512a0b931af425904321360d043",
+						"repo": {
+							"id": 4287320746,
+							"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a",
+							"name": "repo-2cce738a"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-12T14:47:50Z"
+		},
+		{
+			"id": "23784411621",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 2957439609,
+				"login": "user-243774c6",
+				"display_login": "user-243774c6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-243774c6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2957439609?"
+			},
+			"repo": {
+				"id": 4287320746,
+				"name": "user-e8973de9/repo-2cce738a",
+				"url": "https://api.github.com/repos/user-e8973de9/repo-2cce738a"
+			},
+			"payload": {
+				"ref": "cloudbuild_deletion_handler",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/cloudbuild_deletion_handler",
+				"master_branch": "main",
+				"description": "Apache Airflow - A platform to programmatically author, schedule, and monitor workflows",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-12T14:46:35Z"
+		}
+	]
+}

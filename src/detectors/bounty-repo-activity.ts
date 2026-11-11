@@ -1,113 +1,91 @@
 import { CONFIG } from "../config";
-import { BOUNTY_REPO_NAMES, BOUNTY_REPO_PATHS } from "../data/bounty-repos";
+import { isBountyRepo } from "../data/bounty-repos";
+import { isOpenedPR } from "../events";
 import type { ActivityEvent, Flag } from "../types";
-import { nameOf } from "../utils";
 
-function isBountyRepo(repoFullName: string): boolean {
-	const lower = repoFullName.toLowerCase();
-	if (BOUNTY_REPO_PATHS.has(lower)) {
-		return true;
-	}
+type BountyPRs = {
+	/** Every PR the account opened. */
+	opened: ActivityEvent[];
+	/** The opened PRs that target bounty repos. */
+	toBountyRepos: ActivityEvent[];
+	/** PRs merged in bounty repos. */
+	merged: ActivityEvent[];
+	/** PRs closed without a merge in bounty repos. */
+	closed: ActivityEvent[];
+};
 
-	const name = nameOf(lower);
+export type BountyPRSignal = "high" | "low";
 
-	return name !== undefined && BOUNTY_REPO_NAMES.has(name);
+function bountyPROutcome(event: ActivityEvent, action: string): boolean {
+	return (
+		event.type === "pull-request" &&
+		event.action === action &&
+		isBountyRepo(event.repo)
+	);
 }
 
-export function hasBountyRepoEngagement(events: ActivityEvent[]): boolean {
-	const openedPRsInBountyRepos = events.filter(
-		(e) =>
-			e.type === "pull-request" &&
-			e.action === "opened" &&
-			e.repo &&
-			isBountyRepo(e.repo),
-	);
+function collectBountyPRs(events: ActivityEvent[]): BountyPRs {
+	const opened = events.filter(isOpenedPR);
 
-	return openedPRsInBountyRepos.length >= CONFIG.BOUNTY_REPO_MIN_PRS;
+	return {
+		opened,
+		toBountyRepos: opened.filter((event) => isBountyRepo(event.repo)),
+		merged: events.filter((event) => bountyPROutcome(event, "merged")),
+		closed: events.filter((event) => bountyPROutcome(event, "closed")),
+	};
 }
 
-export function getBountyPRSignal(
-	events: ActivityEvent[],
-): "high" | "low" | null {
-	const openedPRs = events.filter(
-		(e) => e.type === "pull-request" && e.action === "opened",
-	);
-
-	if (openedPRs.length < CONFIG.BOUNTY_REPO_MIN_PRS) {
+/**
+ * How strongly the account's PRs lean towards bounty repos, or null when they
+ * do not. Contributors who get most of their bounty PRs merged are doing real
+ * work, so they get no signal.
+ */
+function bountySignalOf(prs: BountyPRs): BountyPRSignal | null {
+	if (
+		prs.opened.length < CONFIG.BOUNTY_REPO_MIN_PRS ||
+		prs.toBountyRepos.length === 0
+	) {
 		return null;
 	}
 
-	const bountyPRs = openedPRs.filter((e) => {
-		const repo = e.repo;
-
-		return repo ? isBountyRepo(repo) : false;
-	});
-
-	if (bountyPRs.length === 0) {
-		return null;
-	}
-
-	const ratio = bountyPRs.length / openedPRs.length;
+	const ratio = prs.toBountyRepos.length / prs.opened.length;
 	if (ratio < CONFIG.BOUNTY_REPO_RATIO_LOW) {
 		return null;
 	}
 
-	const mergedBountyPRs = events.filter(
-		(e) =>
-			e.type === "pull-request" &&
-			e.action === "merged" &&
-			e.repo &&
-			isBountyRepo(e.repo),
-	);
-
-	const closedBountyPRs = events.filter(
-		(e) =>
-			e.type === "pull-request" &&
-			e.action === "closed" &&
-			e.repo &&
-			isBountyRepo(e.repo),
-	);
-
-	const resolvedCount = mergedBountyPRs.length + closedBountyPRs.length;
-	if (resolvedCount > 0) {
-		const mergeRate = mergedBountyPRs.length / resolvedCount;
+	const resolved = prs.merged.length + prs.closed.length;
+	if (resolved > 0) {
+		const mergeRate = prs.merged.length / resolved;
 		if (mergeRate >= CONFIG.BOUNTY_REPO_MERGE_RATE_CLEAN) {
 			return null;
 		}
 	}
 
-	return ratio >= CONFIG.BOUNTY_REPO_RATIO_HIGH ? "high" : "low";
+	if (ratio >= CONFIG.BOUNTY_REPO_RATIO_HIGH) {
+		return "high";
+	}
+
+	return "low";
+}
+
+export function hasBountyRepoEngagement(events: ActivityEvent[]): boolean {
+	const prs = collectBountyPRs(events);
+
+	return prs.toBountyRepos.length >= CONFIG.BOUNTY_REPO_MIN_PRS;
+}
+
+export function getBountyPRSignal(
+	events: ActivityEvent[],
+): BountyPRSignal | null {
+	return bountySignalOf(collectBountyPRs(events));
 }
 
 export function detectBountyRepoPRs(events: ActivityEvent[]): Flag[] {
-	const signal = getBountyPRSignal(events);
+	const prs = collectBountyPRs(events);
+	const signal = bountySignalOf(prs);
 	if (!signal) {
 		return [];
 	}
-
-	const openedPRs = events.filter(
-		(e) => e.type === "pull-request" && e.action === "opened",
-	);
-	const bountyPRs = openedPRs.filter((e) => {
-		const repo = e.repo;
-
-		return repo ? isBountyRepo(repo) : false;
-	});
-	const mergedBountyPRs = events.filter(
-		(e) =>
-			e.type === "pull-request" &&
-			e.action === "merged" &&
-			e.repo &&
-			isBountyRepo(e.repo),
-	);
-
-	const closedBountyPRs = events.filter(
-		(e) =>
-			e.type === "pull-request" &&
-			e.action === "closed" &&
-			e.repo &&
-			isBountyRepo(e.repo),
-	);
 
 	return [
 		{
@@ -116,13 +94,13 @@ export function detectBountyRepoPRs(events: ActivityEvent[]): Flag[] {
 			group: "bounty",
 			amplifiable: false,
 			facts: {
-				bountyPRs: bountyPRs.length,
-				openedPRs: openedPRs.length,
-				ratio: bountyPRs.length / openedPRs.length,
-				merged: mergedBountyPRs.length,
-				closed: closedBountyPRs.length,
+				bountyPRs: prs.toBountyRepos.length,
+				openedPRs: prs.opened.length,
+				ratio: prs.toBountyRepos.length / prs.opened.length,
+				merged: prs.merged.length,
+				closed: prs.closed.length,
 			},
-			events: [...bountyPRs, ...mergedBountyPRs, ...closedBountyPRs],
+			events: [...prs.toBountyRepos, ...prs.merged, ...prs.closed],
 		},
 	];
 }

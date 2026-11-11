@@ -17,6 +17,10 @@ export type DormancyResult = {
  * We only have the user and the last 90 days of events, so this is a careful
  * guess rather than a certainty: an old account with almost no repos, where
  * everything we can see happened in one short recent burst.
+ *
+ * A saturated window is left alone. When the platform sends as many events as
+ * it ever sends, a short span only means the account is very busy: there is
+ * older activity, we just cannot see it.
  */
 export function detectDormancy(
 	events: ActivityEvent[],
@@ -25,6 +29,7 @@ export function detectDormancy(
 	window: WindowInfo,
 ): DormancyResult {
 	const looksReactivated =
+		!window.saturated &&
 		accountAge >= CONFIG.DORMANCY_INFERRED_MIN_AGE_DAYS &&
 		reposCount <= CONFIG.DORMANCY_INFERRED_MAX_REPOS &&
 		window.eventCount >= CONFIG.MIN_EVENTS_FOR_ANALYSIS &&

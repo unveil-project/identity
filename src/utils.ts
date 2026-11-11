@@ -1,5 +1,4 @@
-import { hoursBetween, isValidTime, toTime } from "./time";
-import type { ActivityEvent } from "./types";
+import { hoursBetween, isValidTime } from "./time";
 
 /**
  * Measure how spread out a set of counts is.
@@ -94,6 +93,108 @@ export function rampPoints(
 	return last[1];
 }
 
+/**
+ * The highest level a value reaches, or undefined when it is below all of
+ * them. Levels must go from the lowest `min` to the highest.
+ *
+ * @example
+ * levelFor(12, [{ min: 10, id: "high" }, { min: 15, id: "extreme" }]); // { min: 10, id: "high" }
+ */
+export function levelFor<Level extends { min: number }>(
+	value: number,
+	levels: readonly Level[],
+): Level | undefined {
+	let reached: Level | undefined;
+
+	for (const level of levels) {
+		if (value >= level.min) {
+			reached = level;
+		}
+	}
+
+	return reached;
+}
+
+/** Put items into lists by key. Keys and items keep the order they came in. */
+export function groupBy<Item, Key>(
+	items: Iterable<Item>,
+	keyOf: (item: Item) => Key,
+): Map<Key, Item[]> {
+	const groups = new Map<Key, Item[]>();
+
+	for (const item of items) {
+		const key = keyOf(item);
+		const group = groups.get(key);
+		if (group) {
+			group.push(item);
+		} else {
+			groups.set(key, [item]);
+		}
+	}
+
+	return groups;
+}
+
+/** Count items by key. */
+export function countBy<Item, Key>(
+	items: Iterable<Item>,
+	keyOf: (item: Item) => Key,
+): Map<Key, number> {
+	const counts = new Map<Key, number>();
+
+	for (const item of items) {
+		const key = keyOf(item);
+		counts.set(key, (counts.get(key) ?? 0) + 1);
+	}
+
+	return counts;
+}
+
+type TimedItem<T> = {
+	item: T;
+	time: number;
+};
+
+function sortByTime<T>(
+	items: readonly T[],
+	getTime: (item: T) => number,
+): TimedItem<T>[] {
+	return items
+		.map((item) => ({ item, time: getTime(item) }))
+		.filter((entry) => isValidTime(entry.time))
+		.sort((a, b) => a.time - b.time);
+}
+
+type WindowBounds = {
+	/** Index of the first item in the window. */
+	start: number;
+	/** Index of the last item in the window. */
+	end: number;
+};
+
+/**
+ * Slide a window of `windowHours` along a list sorted oldest first, and yield
+ * the window that ends at each item. The window keeps every earlier item that
+ * is at most `windowHours` older than that last item.
+ */
+function* slidingWindows(
+	timeline: readonly TimedItem<unknown>[],
+	windowHours: number,
+): Generator<WindowBounds> {
+	let start = 0;
+
+	for (const [end, entry] of timeline.entries()) {
+		while (
+			hoursBetween(timeline[start]?.time ?? entry.time, entry.time) >
+			windowHours
+		) {
+			start++;
+		}
+
+		yield { start, end };
+	}
+}
+
 export type DensestWindow<T> = {
 	/** How many items landed in the busiest window. */
 	count: number;
@@ -112,68 +213,64 @@ export function densestWindow<T>(
 	getTime: (item: T) => number,
 	windowHours: number,
 ): DensestWindow<T> {
-	if (items.length === 0) {
-		return { count: 0, items: [] };
-	}
+	const timeline = sortByTime(items, getTime);
+	let busiest: WindowBounds = { start: 0, end: -1 };
 
-	const sorted = [...items]
-		.map((item) => ({ item, time: getTime(item) }))
-		.filter((entry) => isValidTime(entry.time))
-		.sort((a, b) => a.time - b.time);
-
-	let best = 0;
-	let bestStart = 0;
-	let bestEnd = 0;
-	let start = 0;
-
-	for (let end = 0; end < sorted.length; end++) {
-		const endTime = sorted[end]?.time;
-		if (!endTime) {
-			continue;
-		}
-
-		let startTime = sorted[start]?.time;
-
-		while (
-			startTime !== undefined &&
-			hoursBetween(startTime, endTime) > windowHours
-		) {
-			start++;
-			startTime = sorted[start]?.time;
-		}
-
-		const count = end - start + 1;
-		if (count > best) {
-			best = count;
-			bestStart = start;
-			bestEnd = end;
+	for (const window of slidingWindows(timeline, windowHours)) {
+		const size = window.end - window.start;
+		if (size > busiest.end - busiest.start) {
+			busiest = window;
 		}
 	}
+
+	const busiestItems = timeline
+		.slice(busiest.start, busiest.end + 1)
+		.map((entry) => entry.item);
 
 	return {
-		count: best,
-		items: sorted.slice(bestStart, bestEnd + 1).map((entry) => entry.item),
+		count: busiestItems.length,
+		items: busiestItems,
 	};
 }
 
-/** Convenience wrapper around `densestWindow` for GitHub events. */
-export function densestEventWindow(
-	events: readonly ActivityEvent[],
+export type DistinctWindow<T> = {
+	/** How many different keys the busiest window holds. */
+	distinct: number;
+	/** The items in that window. */
+	items: T[];
+};
+
+/**
+ * Like `densestWindow`, but counts different keys instead of items: ten
+ * comments on one repository count once. Use it to find bursts that spray
+ * over many repositories or pull requests.
+ */
+export function densestDistinctWindow<T>(
+	items: readonly T[],
+	getTime: (item: T) => number,
+	getKey: (item: T) => string,
 	windowHours: number,
-): DensestWindow<ActivityEvent> {
-	return densestWindow(events, (e) => toTime(e.at), windowHours);
-}
+): DistinctWindow<T> {
+	const timeline = sortByTime(items, getTime);
+	let busiest: WindowBounds = { start: 0, end: -1 };
+	let mostKeys = 0;
 
-/** The owner part of "owner/name": everything before the last slash. */
-export function ownerOf(repo: string): string {
-	const slash = repo.lastIndexOf("/");
+	for (const window of slidingWindows(timeline, windowHours)) {
+		const windowItems = timeline.slice(window.start, window.end + 1);
+		const keys = new Set(windowItems.map((entry) => getKey(entry.item)));
 
-	return slash === -1 ? repo : repo.slice(0, slash);
-}
+		if (keys.size > mostKeys) {
+			mostKeys = keys.size;
+			busiest = window;
+		}
+	}
 
-/** The name part of "owner/name": everything after the last slash. */
-export function nameOf(repo: string): string | undefined {
-	const slash = repo.lastIndexOf("/");
+	const busiestItems = timeline
+		.slice(busiest.start, busiest.end + 1)
+		.map((entry) => entry.item);
 
-	return slash === -1 ? undefined : repo.slice(slash + 1);
+	return {
+		distinct: mostKeys,
+		items: busiestItems,
+	};
 }

@@ -1,8 +1,5 @@
 import { createHash } from "node:crypto";
-import {
-	BOUNTY_REPO_NAMES,
-	BOUNTY_REPO_PATHS,
-} from "../../src/data/bounty-repos";
+import { isBountyRepo } from "../../src/data/bounty-repos";
 
 type JsonValue =
 	| string
@@ -15,6 +12,14 @@ type JsonObject = { [key: string]: JsonValue };
 
 function sha256(s: string | number): string {
 	return createHash("sha256").update(String(s)).digest("hex");
+}
+
+export function obfuscatedLogin(real: string): string {
+	// Keep the "[bot]" suffix: it is not identifying, and it keeps a
+	// GitHub App fixture readable as one.
+	const suffix = real.endsWith("[bot]") ? "[bot]" : "";
+
+	return `user-${sha256(`login:${real}`).slice(0, 8)}${suffix}`;
 }
 
 export interface ObfuscateResult {
@@ -30,10 +35,7 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 	function fakeLogin(real: string): string {
 		let cached = loginCache.get(real);
 		if (cached === undefined) {
-			// Keep the "[bot]" suffix: it is not identifying, and it keeps a
-			// GitHub App fixture readable as one.
-			const suffix = real.endsWith("[bot]") ? "[bot]" : "";
-			cached = `user-${sha256(`login:${real}`).slice(0, 8)}${suffix}`;
+			cached = obfuscatedLogin(real);
 			loginCache.set(real, cached);
 		}
 		return cached;
@@ -42,12 +44,8 @@ export function obfuscateFixture(raw: JsonObject): ObfuscateResult {
 	function fakeRepo(fullName: string): string {
 		let cached = repoCache.get(fullName);
 		if (cached === undefined) {
-			const lower = fullName.toLowerCase();
-			const repoName = lower.split("/")[1];
-			if (
-				BOUNTY_REPO_PATHS.has(lower) ||
-				(repoName !== undefined && BOUNTY_REPO_NAMES.has(repoName))
-			) {
+			// Bounty repos stay readable: the bounty checks match them by name.
+			if (isBountyRepo(fullName)) {
 				cached = fullName;
 			} else {
 				const slash = fullName.indexOf("/");

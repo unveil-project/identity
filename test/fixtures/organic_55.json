@@ -1,0 +1,4427 @@
+{
+	"capturedAt": "2026-11-10T22:37:03.696Z",
+	"user": {
+		"login": "user-940429f3",
+		"created_at": "2015-05-07T02:41:02Z",
+		"public_repos": 0,
+		"type": "User"
+	},
+	"events": [
+		{
+			"id": "19706604650",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4520528951",
+					"pull_request_review_id": 3549048416,
+					"id": 2917042294,
+					"node_id": "1cc903a881c5dd21b446afd2",
+					"diff_hunk": "@@ -73,9 +84,95 @@ func ReadSmtpSettings(iniFile *ini.File, instanceName string) (SmtpSettings, err\n \t}\n \tsmtpSetts.StaticHeaders = staticHeaders\n \tsmtpSetts.EnableTracing = smtpSection.Key(\"enable_tracing\").MustBool(false)\n+\n+\tsecuritySection := iniFile.Section(\"security.smtp\")\n+\tsmtpSetts.HostAllowList, err = parseSmtpHostList(\"host_allow_list\", securitySection.Key(\"host_allow_list\").String())\n+\tif err != nil {\n+\t\treturn SmtpSettings{}, err\n+\t}\n+\tsmtpSetts.HostDenyList, err = parseSmtpHostList(\"host_deny_list\", securitySection.Key(\"host_deny_list\").String())\n+\tif err != nil {\n+\t\treturn SmtpSettings{}, err\n+\t}\n \treturn smtpSetts, nil\n }\n \n+func parseSmtpHostList(key string, value string) (SmtpHostList, error) {\n+\t// A malformed value must be an error: util.SplitString would return an empty\n+\t// list and silently disable the check.\n+\tentries, err := util.SplitStringWithError(value)\n+\tif err != nil {\n+\t\treturn SmtpHostList{}, fmt.Errorf(\"invalid [security.smtp] %s: %w\", key, err)\n+\t}\n+\n+\tvar list SmtpHostList\n+\tfor _, entry := range entries {\n+\t\tentry = strings.TrimSpace(entry)\n+\t\tprefix, hostname, err := parseSmtpHostEntry(entry)\n+\t\tif err != nil {\n+\t\t\treturn SmtpHostList{}, fmt.Errorf(\"invalid entry %q in [security.smtp] %s: %w\", entry, key, err)\n+\t\t}\n+\t\tif prefix.IsValid() {\n+\t\t\tlist.Prefixes = append(list.Prefixes, prefix)\n+\t\t} else {\n+\t\t\tlist.Hostnames = append(list.Hostnames, hostname)\n+\t\t}\n+\t}\n+\treturn list, nil\n+}\n+\n+// parseSmtpHostEntry parses a trimmed entry. It returns a valid prefix for an\n+// IP or CIDR entry, otherwise a normalized hostname, or why the entry is invalid.\n+func parseSmtpHostEntry(entry string) (netip.Prefix, string, error) {",
+					"path": "pkg/setting/setting_smtp.go",
+					"commit_id": "6c126750455dd44a3949448de4867c7c926ea7fa",
+					"original_commit_id": "96ef73dc7aba3771071bbe279410a8c01b24eb92",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "That's a good point. I'll explore that a bit to see if we can extract these to a utility (if none exists already and I missed it)",
+					"created_at": "2026-11-10T02:39:11Z",
+					"updated_at": "2026-11-10T02:39:12Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#discussion_r4520528951",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4520528951"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#discussion_r4520528951"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4520528951/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"in_reply_to_id": 2321230659,
+					"original_position": 70,
+					"position": 70,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T02:39:11Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19705892889",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 137379,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T20:00:37Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19698758772",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4527820070",
+					"pull_request_review_id": 2106767045,
+					"id": 1807224258,
+					"node_id": "09dc5409673212a61125a1d3",
+					"diff_hunk": "@@ -73,9 +84,95 @@ func ReadSmtpSettings(iniFile *ini.File, instanceName string) (SmtpSettings, err\n \t}\n \tsmtpSetts.StaticHeaders = staticHeaders\n \tsmtpSetts.EnableTracing = smtpSection.Key(\"enable_tracing\").MustBool(false)\n+\n+\tsecuritySection := iniFile.Section(\"security.smtp\")\n+\tsmtpSetts.HostAllowList, err = parseSmtpHostList(\"host_allow_list\", securitySection.Key(\"host_allow_list\").String())\n+\tif err != nil {\n+\t\treturn SmtpSettings{}, err\n+\t}\n+\tsmtpSetts.HostDenyList, err = parseSmtpHostList(\"host_deny_list\", securitySection.Key(\"host_deny_list\").String())\n+\tif err != nil {\n+\t\treturn SmtpSettings{}, err\n+\t}\n \treturn smtpSetts, nil\n }\n \n+func parseSmtpHostList(key string, value string) (SmtpHostList, error) {\n+\t// A malformed value must be an error: util.SplitString would return an empty\n+\t// list and silently disable the check.\n+\tentries, err := util.SplitStringWithError(value)\n+\tif err != nil {\n+\t\treturn SmtpHostList{}, fmt.Errorf(\"invalid [security.smtp] %s: %w\", key, err)\n+\t}\n+",
+					"path": "pkg/setting/setting_smtp.go",
+					"commit_id": "6c126750455dd44a3949448de4867c7c926ea7fa",
+					"original_commit_id": "96ef73dc7aba3771071bbe279410a8c01b24eb92",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Leaving this as is. A value with no entries produces the same result as the default empty list, so it cannot bypass an entry the operator actually configured. Rejecting it would only catch a cosmetic typo",
+					"created_at": "2026-11-10T16:52:28Z",
+					"updated_at": "2026-11-10T16:52:29Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#discussion_r4527820070",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4527820070"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#discussion_r4527820070"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4527820070/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"in_reply_to_id": 1949145433,
+					"original_position": 51,
+					"position": 51,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T16:52:28Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19689611277",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 2379705900,
+					"node_id": "b5a1ade4a7d359353f2a5d35",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "6c126750455dd44a3949448de4867c7c926ea7fa",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5846280829",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5846280829"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379"
+						}
+					},
+					"submitted_at": "2026-11-10T17:22:39Z",
+					"updated_at": "2026-11-10T17:22:39Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-10T17:22:42Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19686535150",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 2106767045,
+					"node_id": "223c49e18b88cf8f802643a2",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "96ef73dc7aba3771071bbe279410a8c01b24eb92",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5845846938",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5845846938"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379"
+						}
+					},
+					"submitted_at": "2026-11-10T16:52:29Z",
+					"updated_at": "2026-11-10T16:52:29Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-10T16:52:31Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19686437148",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 4033161314,
+					"node_id": "9ea3a30073f4433c27609f52",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "96ef73dc7aba3771071bbe279410a8c01b24eb92",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5845832609",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5845832609"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379"
+						}
+					},
+					"submitted_at": "2026-11-10T16:51:35Z",
+					"updated_at": "2026-11-10T16:51:35Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-10T16:51:37Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19682681133",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 3338812799,
+					"node_id": "56fbb222c54dc322a0aa08a2",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "dc96537fa36f47a41543a9cdc6b3fd8e44ccb1b8",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137462#pullrequestreview-5845171500",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137462",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137462#pullrequestreview-5845171500"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137462"
+						}
+					},
+					"submitted_at": "2026-11-10T16:10:19Z",
+					"updated_at": "2026-11-10T16:10:19Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137462",
+					"id": 2002259679,
+					"number": 137462,
+					"head": {
+						"ref": "annotations-migrator-strip-nul-bytes",
+						"sha": "dc96537fa36f47a41543a9cdc6b3fd8e44ccb1b8",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ecd69e39313d778f65728e9120959a4e40c99f68",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-10T16:14:22Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19630284888",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4520553118",
+					"pull_request_review_id": 1114147140,
+					"id": 4208420635,
+					"node_id": "269a2262b52b8b2d78f41375",
+					"diff_hunk": "@@ -73,9 +84,95 @@ func ReadSmtpSettings(iniFile *ini.File, instanceName string) (SmtpSettings, err\n \t}\n \tsmtpSetts.StaticHeaders = staticHeaders\n \tsmtpSetts.EnableTracing = smtpSection.Key(\"enable_tracing\").MustBool(false)\n+\n+\tsecuritySection := iniFile.Section(\"security.smtp\")\n+\tsmtpSetts.HostAllowList, err = parseSmtpHostList(\"host_allow_list\", securitySection.Key(\"host_allow_list\").String())",
+					"path": "pkg/setting/setting_smtp.go",
+					"commit_id": "6c126750455dd44a3949448de4867c7c926ea7fa",
+					"original_commit_id": "96ef73dc7aba3771071bbe279410a8c01b24eb92",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Correct, we'll probably tackle alerting separately ",
+					"created_at": "2026-11-10T02:43:43Z",
+					"updated_at": "2026-11-10T02:43:44Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#discussion_r4520553118",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4520553118"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#discussion_r4520553118"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4520553118/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"in_reply_to_id": 68714274,
+					"original_position": 33,
+					"position": 33,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T02:43:43Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19623023526",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 1114147140,
+					"node_id": "36aa5898b43dfc25d490bb69",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "96ef73dc7aba3771071bbe279410a8c01b24eb92",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5836029145",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5836029145"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379"
+						}
+					},
+					"submitted_at": "2026-11-10T02:43:43Z",
+					"updated_at": "2026-11-10T02:43:43Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-10T02:43:45Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19622737856",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 3549048416,
+					"node_id": "e54b834ba8eb1597d591bab9",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "96ef73dc7aba3771071bbe279410a8c01b24eb92",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5835999947",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137379#pullrequestreview-5835999947"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379"
+						}
+					},
+					"submitted_at": "2026-11-10T02:39:12Z",
+					"updated_at": "2026-11-10T02:39:12Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-10T02:39:14Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19596224237",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 137379,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137379",
+					"id": 809796368,
+					"number": 137379,
+					"head": {
+						"ref": "janthoe/smtp-add-allow-deny-host-config",
+						"sha": "6c126750455dd44a3949448de4867c7c926ea7fa",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "ec39d4d1b9e47e61fdf8f78e18fe549db2ab1681",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T21:05:13Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19366704088",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 82177704,
+					"node_id": "ffb94d5104f8bc4894ccffa5",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "dceba4fd1fb81934a3cb01c0dab86ffe14991820",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136682#pullrequestreview-5805329671",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136682",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136682#pullrequestreview-5805329671"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136682"
+						}
+					},
+					"submitted_at": "2026-11-06T18:53:28Z",
+					"updated_at": "2026-11-06T18:53:28Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136682",
+					"id": 1996794376,
+					"number": 136682,
+					"head": {
+						"ref": "hairyhenderson/legacyapi-dashboard-read",
+						"sha": "dceba4fd1fb81934a3cb01c0dab86ffe14991820",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "a9c678d21d62f9d12f3f900f3a1604a03d63d518",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-06T18:53:29Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19163296727",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 2076633587,
+					"node_id": "44202764933da201e8350d4d",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "871ff89dc9e3817214a6ce79afe558cc1566cef4",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137047#pullrequestreview-5776614893",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137047",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137047#pullrequestreview-5776614893"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137047"
+						}
+					},
+					"submitted_at": "2026-11-04T22:12:18Z",
+					"updated_at": "2026-11-04T22:12:18Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137047",
+					"id": 3615276427,
+					"number": 137047,
+					"head": {
+						"ref": "cbo/fix-frontend-lint-openapi-detection",
+						"sha": "871ff89dc9e3817214a6ce79afe558cc1566cef4",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "3ef59eccd78f65a63c0a697877dbeba3f71e9443",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-04T22:12:20Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19157569740",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 2041360153,
+					"node_id": "ab84d958238c662745ded3f0",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "4dbdd82150000216cd9015717941da97018cbaa4",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/137043#pullrequestreview-5775790984",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137043",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/137043#pullrequestreview-5775790984"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137043"
+						}
+					},
+					"submitted_at": "2026-11-04T21:05:48Z",
+					"updated_at": "2026-11-04T21:05:48Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/137043",
+					"id": 190594598,
+					"number": 137043,
+					"head": {
+						"ref": "cbo/generate-annotation-openapi-spec",
+						"sha": "4dbdd82150000216cd9015717941da97018cbaa4",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "af0a912af5e4af0def56ecb4c1ed2a1ddb1b2e28",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-04T21:05:51Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "26164574487",
+			"type": "DeleteEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"ref": "janthoe/settings-client-retry-list-page-on-connection-error",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/janthoe/settings-client-retry-list-page-on-connection-error",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-02T21:27:57Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19067047693",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4461070248",
+					"pull_request_review_id": 3436904899,
+					"id": 1579800331,
+					"node_id": "c2ced6b1398acbf8a1f38ab5",
+					"diff_hunk": "@@ -172,6 +172,16 @@ All listed commands apply to the Grafana default repositories and directories. Y\n grafana cli plugins list-remote\n ```\n \n+### List available versions of a plugin\n+\n+To list the versions of a plugin that are available in the plugin repository, run:\n+\n+```sh\n+grafana cli plugins list-versions <PLUGIN_ID>",
+					"path": "docs/sources/administration/cli.md",
+					"commit_id": "0509172d485d06f615205a4ad85bf17cfff873a0",
+					"original_commit_id": "0509172d485d06f615205a4ad85bf17cfff873a0",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "nit: we should use `<plugin-id>` for consistency, ie:\n\nhttps://github.com/grafana/grafana/blob/6361dc6adcb28f05bcb759c13143cd5e5bdf4478/docs/sources/administration/cli.md?plain=1#L96",
+					"created_at": "2026-11-03T22:13:04Z",
+					"updated_at": "2026-11-03T22:15:12Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136703#discussion_r4461070248",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4461070248"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136703#discussion_r4461070248"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4461070248/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 60,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703",
+					"id": 1551739404,
+					"number": 136703,
+					"head": {
+						"ref": "docs/cli-reference-current-flags",
+						"sha": "a042590c03414d24d5085b3e8a39213acda6bca9",
+						"repo": {
+							"id": 469840663,
+							"url": "https://api.github.com/repos/user-c17b8915/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "a7c265f91c48d83f97d5849c4e4842983d8ab535",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-03T22:13:04Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19064497374",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 1634738297,
+					"node_id": "6e4006194d43dc9745940479",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "a042590c03414d24d5085b3e8a39213acda6bca9",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136703#pullrequestreview-5761981247",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136703#pullrequestreview-5761981247"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703"
+						}
+					},
+					"submitted_at": "2026-11-04T01:35:42Z",
+					"updated_at": "2026-11-04T01:35:42Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703",
+					"id": 1551739404,
+					"number": 136703,
+					"head": {
+						"ref": "docs/cli-reference-current-flags",
+						"sha": "a042590c03414d24d5085b3e8a39213acda6bca9",
+						"repo": {
+							"id": 469840663,
+							"url": "https://api.github.com/repos/user-c17b8915/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "a7c265f91c48d83f97d5849c4e4842983d8ab535",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-04T01:35:44Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19056112810",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 136912,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136912",
+					"id": 2804204352,
+					"number": 136912,
+					"head": {
+						"ref": "janthoe/provisioning-integration-test-fixup",
+						"sha": "c2ca281bf15f0676ae07f3f5e6c850fd880ab914",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "5a20151fa4b6abc292bdecc826d342477801e473",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-03T23:35:39Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19054055895",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 136912,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136912",
+					"id": 2804204352,
+					"number": 136912,
+					"head": {
+						"ref": "janthoe/provisioning-integration-test-fixup",
+						"sha": "c2ca281bf15f0676ae07f3f5e6c850fd880ab914",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "5a20151fa4b6abc292bdecc826d342477801e473",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-03T23:07:56Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19049898535",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 3436904899,
+					"node_id": "383b4a92e58d4c1b01daf2a2",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "LGTM, one nit tho.\nThanks for your contribution 🙇 ",
+					"commit_id": "0509172d485d06f615205a4ad85bf17cfff873a0",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136703#pullrequestreview-5760223792",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136703#pullrequestreview-5760223792"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703"
+						}
+					},
+					"submitted_at": "2026-11-03T22:15:12Z",
+					"updated_at": "2026-11-03T22:15:12Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703",
+					"id": 1551739404,
+					"number": 136703,
+					"head": {
+						"ref": "docs/cli-reference-current-flags",
+						"sha": "a042590c03414d24d5085b3e8a39213acda6bca9",
+						"repo": {
+							"id": 469840663,
+							"url": "https://api.github.com/repos/user-c17b8915/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "a7c265f91c48d83f97d5849c4e4842983d8ab535",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "updated"
+			},
+			"public": true,
+			"created_at": "2026-11-03T22:15:14Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19049898525",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 3436904899,
+					"node_id": "383b4a92e58d4c1b01daf2a2",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "LGTM, one nit tho.\nThanks for your contribution 🙇 ",
+					"commit_id": "0509172d485d06f615205a4ad85bf17cfff873a0",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136703#pullrequestreview-5760223792",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136703#pullrequestreview-5760223792"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703"
+						}
+					},
+					"submitted_at": "2026-11-03T22:15:12Z",
+					"updated_at": "2026-11-03T22:15:12Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136703",
+					"id": 1551739404,
+					"number": 136703,
+					"head": {
+						"ref": "docs/cli-reference-current-flags",
+						"sha": "a042590c03414d24d5085b3e8a39213acda6bca9",
+						"repo": {
+							"id": 469840663,
+							"url": "https://api.github.com/repos/user-c17b8915/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "a7c265f91c48d83f97d5849c4e4842983d8ab535",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-03T22:15:14Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "26073296950",
+			"type": "PushEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"repository_id": 452982638,
+				"push_id": 704812338,
+				"ref": "refs/heads/main",
+				"head": "831cf6b28a9331f18f3a04e0fd927ee32d6ef69b",
+				"before": "f7c38e959a321b37b73570b6c9a842d2f19dc3df"
+			},
+			"public": true,
+			"created_at": "2026-11-03T14:26:31Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "19006287909",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 136810,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136810",
+					"id": 1480337704,
+					"number": 136810,
+					"head": {
+						"ref": "janthoe/settings-client-retry-list-page-on-connection-refused",
+						"sha": "041da8e82b8b1a1d9cc5d44581df1f68d45d456e",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "d278f6b70cf3cb17be7087076ff88ad8affdbcfd",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-03T14:26:29Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18957250707",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 136810,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136810",
+					"id": 1480337704,
+					"number": 136810,
+					"head": {
+						"ref": "janthoe/settings-client-retry-list-page-on-connection-refused",
+						"sha": "041da8e82b8b1a1d9cc5d44581df1f68d45d456e",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "d278f6b70cf3cb17be7087076ff88ad8affdbcfd",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-03T03:08:35Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18933156004",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 136794,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136794",
+					"id": 3591025606,
+					"number": 136794,
+					"head": {
+						"ref": "janthoe/settings-client-retry-list-page-on-connection-error",
+						"sha": "48f924294e5807af58f8e27bc9847079bc63fee6",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "37e5f02ddb0c252afc8e8e5fe62f84ccea483a01",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-02T21:27:54Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18930569295",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 136794,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136794",
+					"id": 3591025606,
+					"number": 136794,
+					"head": {
+						"ref": "janthoe/settings-client-retry-list-page-on-connection-error",
+						"sha": "48f924294e5807af58f8e27bc9847079bc63fee6",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "37e5f02ddb0c252afc8e8e5fe62f84ccea483a01",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-02T20:57:52Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18898775538",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 2775348980,
+				"name": "user-6906060a/repo-baff7649",
+				"url": "https://api.github.com/repos/user-6906060a/repo-baff7649"
+			},
+			"payload": {
+				"review": {
+					"id": 3351329730,
+					"node_id": "0375c2c0ad2689afabc6db2e",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "0625b92eaf59888d37434761fe23101d18b8563f",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-baff7649/pull/258#pullrequestreview-5738571555",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-baff7649/pulls/258",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-baff7649/pull/258#pullrequestreview-5738571555"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-baff7649/pulls/258"
+						}
+					},
+					"submitted_at": "2026-11-02T15:03:46Z",
+					"updated_at": "2026-11-02T15:03:47Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-baff7649/pulls/258",
+					"id": 1534890872,
+					"number": 258,
+					"head": {
+						"ref": "arve/backport-file-mode-safety",
+						"sha": "0625b92eaf59888d37434761fe23101d18b8563f",
+						"repo": {
+							"id": 2775348980,
+							"url": "https://api.github.com/repos/user-6906060a/repo-baff7649",
+							"name": "repo-baff7649"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "a1614cf7381c17d9adf49960f113ffb33096133f",
+						"repo": {
+							"id": 2775348980,
+							"url": "https://api.github.com/repos/user-6906060a/repo-baff7649",
+							"name": "repo-baff7649"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-11-02T15:07:59Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "25902516134",
+			"type": "PushEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"repository_id": 452982638,
+				"push_id": 3613611816,
+				"ref": "refs/heads/main",
+				"head": "2996a4ba73101e583db1c804168a05e7bfa6ea97",
+				"before": "bd47f691ecbd9fee726386a62051cafbbef1f1a2"
+			},
+			"public": true,
+			"created_at": "2026-10-30T14:07:28Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "25861034438",
+			"type": "DeleteEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"ref": "renovate/github.com-golangci-canonicalheader-digest",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/renovate/github.com-golangci-canonicalheader-digest",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-30T14:07:30Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18718591960",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 111872827,
+					"node_id": "b9b472b3f65115b2847a4e45",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "",
+					"commit_id": "ee1d0b509175b7b45957e647008ce2b511824027",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/134768#pullrequestreview-5719875060",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134768",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/134768#pullrequestreview-5719875060"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134768"
+						}
+					},
+					"submitted_at": "2026-10-30T23:47:34Z",
+					"updated_at": "2026-11-02T10:05:01Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134768",
+					"id": 1028306087,
+					"number": 134768,
+					"head": {
+						"ref": "papagian/setting-nats-watch",
+						"sha": "ee1d0b509175b7b45957e647008ce2b511824027",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "c5b1bcb92e726afcf1093438ed1b7efefbdb4eff",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-30T23:47:35Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18702435466",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4425010476",
+					"pull_request_review_id": 1738048460,
+					"id": 2826668083,
+					"node_id": "2282851c63a0358a20bc9de7",
+					"diff_hunk": "@@ -0,0 +1,64 @@\n+package dashboard\n+\n+import (\n+\t\"context\"\n+\t\"strings\"\n+\n+\tmetav1 \"k8s.io/apimachinery/pkg/apis/meta/v1\"\n+\trequestcontext \"k8s.io/apiserver/pkg/endpoints/request\"\n+\n+\t\"github.com/grafana/grafana-app-sdk/logging\"\n+\t\"github.com/grafana/grafana-plugin-sdk-go/backend/gtime\"\n+)\n+\n+// Keep in sync with min_refresh_interval in the [dashboards] section of conf/defaults.ini.\n+const defaultMinRefreshInterval = \"5s\"\n+\n+var minRefreshIntervalSelector = metav1.LabelSelector{\n+\tMatchLabels: map[string]string{",
+					"path": "pkg/registry/apis/dashboard/min_refresh_interval.go",
+					"commit_id": "976654fea6bac37dc15be9cba6aeefa39f301880",
+					"original_commit_id": "672e5ea52c6fe74948d7993fa307146419f721ca",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "if we know what the default should be, we could add `source:us` so that only overrides are fetched which is significantly faster",
+					"created_at": "2026-10-30T14:58:11Z",
+					"updated_at": "2026-10-30T14:58:11Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136548#discussion_r4425010476",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4425010476"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136548#discussion_r4425010476"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4425010476/reactions",
+						"total_count": 1,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 1
+					},
+					"original_position": 18,
+					"position": 20,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548",
+					"id": 524084402,
+					"number": 136548,
+					"head": {
+						"ref": "jess/dashboard-min-refresh-interval",
+						"sha": "976654fea6bac37dc15be9cba6aeefa39f301880",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "92e66e9d631e869bb161f609b7eb956bfdbd82bc",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-30T14:58:11Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18700058915",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 2330401945,
+					"node_id": "c7ac967e4d7e9db5ca089bc3",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "976654fea6bac37dc15be9cba6aeefa39f301880",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136548#pullrequestreview-5717650218",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136548#pullrequestreview-5717650218"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548"
+						}
+					},
+					"submitted_at": "2026-10-30T19:26:07Z",
+					"updated_at": "2026-10-30T19:26:07Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548",
+					"id": 524084402,
+					"number": 136548,
+					"head": {
+						"ref": "jess/dashboard-min-refresh-interval",
+						"sha": "976654fea6bac37dc15be9cba6aeefa39f301880",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "92e66e9d631e869bb161f609b7eb956bfdbd82bc",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-30T19:26:09Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18681679155",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 1497793970,
+					"node_id": "2c7d800f6169bddbdca99563",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "fbc3a2cd6f2b24eaf840f9684fabac97ce8c89d2",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136631#pullrequestreview-5714875638",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136631",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136631#pullrequestreview-5714875638"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136631"
+						}
+					},
+					"submitted_at": "2026-10-30T15:50:07Z",
+					"updated_at": "2026-10-30T15:50:07Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136631",
+					"id": 3563663631,
+					"number": 136631,
+					"head": {
+						"ref": "hairyhenderson/renovate-go-groups",
+						"sha": "fbc3a2cd6f2b24eaf840f9684fabac97ce8c89d2",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "19bc795dedf196c2b933e633ed7bd2a44e1b7be4",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-30T15:50:13Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18676767468",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 1738048460,
+					"node_id": "e6c035160bc77fd82b5b3379",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "672e5ea52c6fe74948d7993fa307146419f721ca",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136548#pullrequestreview-5714160672",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136548#pullrequestreview-5714160672"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548"
+						}
+					},
+					"submitted_at": "2026-10-30T14:58:11Z",
+					"updated_at": "2026-10-30T14:58:11Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136548",
+					"id": 524084402,
+					"number": 136548,
+					"head": {
+						"ref": "jess/dashboard-min-refresh-interval",
+						"sha": "976654fea6bac37dc15be9cba6aeefa39f301880",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "92e66e9d631e869bb161f609b7eb956bfdbd82bc",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-30T14:58:14Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18672630652",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 888067677,
+					"node_id": "037138bb19f0b6ed42739fa5",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "0fae438b18b36524985d324b57b47550d4a0610b",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136553#pullrequestreview-5713514259",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136553",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136553#pullrequestreview-5713514259"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136553"
+						}
+					},
+					"submitted_at": "2026-10-30T14:08:26Z",
+					"updated_at": "2026-10-30T14:08:26Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136553",
+					"id": 1072685610,
+					"number": 136553,
+					"head": {
+						"ref": "hairyhenderson/legacy-dashboard-golden-tests",
+						"sha": "0fae438b18b36524985d324b57b47550d4a0610b",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "92e66e9d631e869bb161f609b7eb956bfdbd82bc",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-30T14:08:27Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18672524454",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 2629406363,
+					"node_id": "169b1d8673740c3fe78c6fb7",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "66e71419710ee12f05234d8a148055a20fa39acb",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/135537#pullrequestreview-5713495070",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135537",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/135537#pullrequestreview-5713495070"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135537"
+						}
+					},
+					"submitted_at": "2026-10-30T14:07:10Z",
+					"updated_at": "2026-10-30T14:07:10Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135537",
+					"id": 263168908,
+					"number": 135537,
+					"head": {
+						"ref": "renovate/github.com-golangci-canonicalheader-digest",
+						"sha": "66e71419710ee12f05234d8a148055a20fa39acb",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "4cf34624d269220ad678fb32901dd600e17d86de",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-30T14:07:14Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18615313067",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 310998490,
+					"node_id": "454c426f2bb84d72a1e0fc48",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "",
+					"commit_id": "9a694b0ef124d1742f94a344c9c057cf3bc35db7",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136547#pullrequestreview-5706389528",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136547",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136547#pullrequestreview-5706389528"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136547"
+						}
+					},
+					"submitted_at": "2026-10-29T23:43:50Z",
+					"updated_at": "2026-10-29T23:43:50Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136547",
+					"id": 1637123053,
+					"number": 136547,
+					"head": {
+						"ref": "hairyhenderson/setting-delete-invalid-labels",
+						"sha": "9a694b0ef124d1742f94a344c9c057cf3bc35db7",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "92e66e9d631e869bb161f609b7eb956bfdbd82bc",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-29T23:43:52Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18604599994",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 680388343,
+					"node_id": "b9d43d862ed6f0b30942ef0a",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "48fcad25aaa2d38f31048534cd65e9e820fac13f",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136528#pullrequestreview-5705139312",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136528",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136528#pullrequestreview-5705139312"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136528"
+						}
+					},
+					"submitted_at": "2026-10-29T21:21:59Z",
+					"updated_at": "2026-10-29T21:21:59Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136528",
+					"id": 1654570089,
+					"number": 136528,
+					"head": {
+						"ref": "jessica.1029.disable-live-save-notices-flag",
+						"sha": "48fcad25aaa2d38f31048534cd65e9e820fac13f",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "31373e36828751e4f6555a321c031db87cd616a8",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-29T21:22:00Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18576242152",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 2255494761,
+					"node_id": "5c89842077321c6c6b70d537",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "61f874ab0559e547fd1deaaf040554bbeea097bb",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136463#pullrequestreview-5701122324",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136463",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136463#pullrequestreview-5701122324"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136463"
+						}
+					},
+					"submitted_at": "2026-10-29T16:17:26Z",
+					"updated_at": "2026-10-29T16:17:27Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136463",
+					"id": 1787883993,
+					"number": 136463,
+					"head": {
+						"ref": "cinaglia/setting-redact-zanzana-client-token",
+						"sha": "61f874ab0559e547fd1deaaf040554bbeea097bb",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "7346d040bcf0581e73666ea228b0f6dadc2a902b",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-29T16:17:29Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18465083839",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "labeled",
+				"number": 135550,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135550",
+					"id": 3889023408,
+					"number": 135550,
+					"head": {
+						"ref": "fix/annotations-loki-multiple-primary-134165",
+						"sha": "5fa91806d3ebae44344bc6dba7d44cc38be982de",
+						"repo": {
+							"id": 2471919824,
+							"url": "https://api.github.com/repos/user-ee253a51/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "99f3186c72c41b7123cf624de715ac2fb23df0f1",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"label": {
+					"id": 2186517748,
+					"node_id": "23137f1bd0f3f0d99ecf4fc2",
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/labels/pr/external",
+					"name": "user-099404c7/repo-84c5969e",
+					"color": "2fc4a4",
+					"default": false,
+					"description": "This PR is from external contributor",
+					"archived_at": null,
+					"archived_by": null
+				},
+				"labels": [
+					{
+						"id": 4170734013,
+						"node_id": "e33fbfc4963d3833fe9e3529",
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/labels/area/alerting",
+						"name": "user-3ef72433/repo-0d2dfa57",
+						"color": "c5def5",
+						"default": false,
+						"description": "Grafana Alerting",
+						"archived_at": null,
+						"archived_by": null
+					},
+					{
+						"id": 2681856168,
+						"node_id": "dcbafc04f92bafe5030da7e3",
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/labels/area/backend",
+						"name": "user-3ef72433/repo-45f5e86c",
+						"color": "c7def8",
+						"default": false,
+						"description": "",
+						"archived_at": null,
+						"archived_by": null
+					},
+					{
+						"id": 2186517748,
+						"node_id": "23137f1bd0f3f0d99ecf4fc2",
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/labels/pr/external",
+						"name": "user-099404c7/repo-84c5969e",
+						"color": "2fc4a4",
+						"default": false,
+						"description": "This PR is from external contributor",
+						"archived_at": null,
+						"archived_by": null
+					}
+				]
+			},
+			"public": true,
+			"created_at": "2026-10-21T04:55:54Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18263296780",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 42267216,
+					"node_id": "ceb4b4f51ec49bed4949ea7c",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": null,
+					"commit_id": "9fcc975e5aca226dd795357b183c2c799a017d0f",
+					"state": "approved",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/136042#pullrequestreview-5656757427",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136042",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/136042#pullrequestreview-5656757427"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136042"
+						}
+					},
+					"submitted_at": "2026-10-26T18:06:38Z",
+					"updated_at": "2026-10-26T18:06:38Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/136042",
+					"id": 3558524971,
+					"number": 136042,
+					"head": {
+						"ref": "macabu/util-unit-test-eventually-synctest",
+						"sha": "9fcc975e5aca226dd795357b183c2c799a017d0f",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "0a7a8caeddc20e08d970693eda0ddc174af662ef",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-26T18:12:04Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18065328221",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364557592",
+					"pull_request_review_id": 3790177786,
+					"id": 851247280,
+					"node_id": "214eb381fe439cc76a955540",
+					"diff_hunk": "@@ -111,14 +141,101 @@ func TestPublishWatchNotification(t *testing.T) {\n \t\tpub := &fakeEventPublisher{enabled: false}\n \t\tbackend := newTestKVStorageBackend(pub)\n \n-\t\tbackend.publishWatchNotification(context.Background(), event)\n+\t\tbackend.publishWatchNotification(context.Background(), event, nil)\n \n \t\tassert.Empty(t, pub.subjects)\n \t})\n \n \tt.Run(\"does nothing when no publisher is configured\", func(t *testing.T) {\n \t\tbackend := newTestKVStorageBackend(nil)\n \t\t// Must not panic on a nil publisher.\n-\t\tbackend.publishWatchNotification(context.Background(), event)\n+\t\tbackend.publishWatchNotification(context.Background(), event, nil)\n+\t})\n+}\n+\n+var (\n+\tsettingsGR   = schema.GroupResource{Group: \"setting.grafana.app\", Resource: \"settings\"}\n+\tsettingsSpec = watchNotificationSpecs[settingsGR]",
+					"path": "pkg/storage/unified/resource/watch_publisher_test.go",
+					"commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"original_commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "nit: use more general test data",
+					"created_at": "2026-10-23T21:54:42Z",
+					"updated_at": "2026-10-23T21:55:29Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#discussion_r4364557592",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364557592"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#discussion_r4364557592"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364557592/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 96,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"id": 2355506870,
+					"number": 135910,
+					"head": {
+						"ref": "papagian/watch-notification-metadata",
+						"sha": "54850ac864b08f2b99187537e771b097a06d70e3",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "72c31f1a155c896d1d8d4933e6d06bb11866b630",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-23T21:54:42Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18064544696",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364498105",
+					"pull_request_review_id": 3790177786,
+					"id": 2041029082,
+					"node_id": "afcca74629ebbbd7bf970e35",
+					"diff_hunk": "@@ -62,7 +62,7 @@ func TestIntegrationNatsWatchNotificationRoundTrip(t *testing.T) {\n \t\t// interest, so re-publish until one lands.\n \t\tvar got Event\n \t\trequire.Eventually(t, func() bool {\n-\t\t\tbackend.publishWatchNotification(ctx, event)\n+\t\t\tbackend.publishWatchNotification(ctx, event, nil)",
+					"path": "pkg/storage/unified/resource/notifier_nats_integration_test.go",
+					"commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"original_commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "nit: maybe include a test that has metadata",
+					"created_at": "2026-10-23T21:45:23Z",
+					"updated_at": "2026-10-23T21:55:29Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#discussion_r4364498105",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364498105"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#discussion_r4364498105"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364498105/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 5,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"id": 2355506870,
+					"number": 135910,
+					"head": {
+						"ref": "papagian/watch-notification-metadata",
+						"sha": "54850ac864b08f2b99187537e771b097a06d70e3",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "72c31f1a155c896d1d8d4933e6d06bb11866b630",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-23T21:45:23Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18061156243",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 3790177786,
+					"node_id": "2daa075ace56165d952f7697",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Looking good!\njust a couple questions/nits 🙇 ",
+					"commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#pullrequestreview-5634788917",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#pullrequestreview-5634788917"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910"
+						}
+					},
+					"submitted_at": "2026-10-23T21:55:29Z",
+					"updated_at": "2026-10-23T21:55:29Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"id": 2355506870,
+					"number": 135910,
+					"head": {
+						"ref": "papagian/watch-notification-metadata",
+						"sha": "54850ac864b08f2b99187537e771b097a06d70e3",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "72c31f1a155c896d1d8d4933e6d06bb11866b630",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "created"
+			},
+			"public": true,
+			"created_at": "2026-10-23T21:55:31Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18061156153",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 3790177786,
+					"node_id": "2daa075ace56165d952f7697",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "Looking good!\njust a couple questions/nits 🙇 ",
+					"commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"state": "commented",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#pullrequestreview-5634788917",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#pullrequestreview-5634788917"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910"
+						}
+					},
+					"submitted_at": "2026-10-23T21:55:29Z",
+					"updated_at": "2026-10-23T21:55:29Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"id": 2355506870,
+					"number": 135910,
+					"head": {
+						"ref": "papagian/watch-notification-metadata",
+						"sha": "54850ac864b08f2b99187537e771b097a06d70e3",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "72c31f1a155c896d1d8d4933e6d06bb11866b630",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "updated"
+			},
+			"public": true,
+			"created_at": "2026-10-23T21:55:31Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18060773789",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364531059",
+					"pull_request_review_id": 3790177786,
+					"id": 959634031,
+					"node_id": "f40656d7c70ac7438788b1a0",
+					"diff_hunk": "@@ -41,11 +44,99 @@ func actionToWatchNotificationType(action kv.DataAction) resourcepb.WatchNotific\n \t}\n }\n \n+// watchMetadataSpec lists what a resource's notifications carry beyond identity:\n+// the allowlisted label and annotation keys and finalizers, plus generation and\n+// the creation and deletion timestamps. Only allowlisted values are sent, to keep\n+// the payload small.\n+type watchMetadataSpec struct {\n+\tLabels      []string\n+\tAnnotations []string\n+\tFinalizers  []string\n+}\n+\n+// watchNotificationSpecs holds the resources whose notifications carry metadata.\n+// Resources not listed here send none; add an entry when a consumer needs it.\n+var watchNotificationSpecs = map[schema.GroupResource]watchMetadataSpec{\n+\t{Group: \"setting.grafana.app\", Resource: \"settings\"}: {\n+\t\tLabels:      []string{\"encrypted\", \"secureValueName\"},\n+\t\tAnnotations: []string{\"setting.grafana.app/pending-secret-cleanup\"},\n+\t\tFinalizers:  []string{\"setting.grafana.app/secret-cleanup\"},\n+\t},\n+}\n+\n+// watchMetadata is the object metadata a notification carries so consumers can\n+// filter without a GET. It is not part of the persisted Event.\n+type watchMetadata struct {\n+\tLabels            map[string]string // allowlisted keys only\n+\tPreviousLabels    map[string]string // allowlisted keys only\n+\tGeneration        int64\n+\tCreationTimestamp int64 // unix millis, 0 when unset\n+\tDeletionTimestamp int64 // unix millis, 0 when unset\n+\tFinalizers        []string\n+\tAnnotations       map[string]string // allowlisted keys only\n+}\n+\n+// newWatchMetadata returns the metadata for a write of the given resource, or nil\n+// when the resource has no entry in watchNotificationSpecs. previous may be nil.\n+func newWatchMetadata(gr schema.GroupResource, obj, previous utils.GrafanaMetaAccessor) *watchMetadata {\n+\tspec, ok := watchNotificationSpecs[gr]\n+\tif !ok || obj == nil {\n+\t\treturn nil\n+\t}\n+\tm := &watchMetadata{\n+\t\tLabels:            filterKeys(obj.GetLabels(), spec.Labels),\n+\t\tGeneration:        obj.GetGeneration(),\n+\t\tFinalizers:        filterFinalizers(obj.GetFinalizers(), spec.Finalizers),\n+\t\tAnnotations:       filterKeys(obj.GetAnnotations(), spec.Annotations),\n+\t\tCreationTimestamp: timeToMillis(obj.GetCreationTimestamp().Time),\n+\t}\n+\tif dt := obj.GetDeletionTimestamp(); dt != nil {\n+\t\tm.DeletionTimestamp = timeToMillis(dt.Time)\n+\t}\n+\tif previous != nil {\n+\t\tm.PreviousLabels = filterKeys(previous.GetLabels(), spec.Labels)\n+\t}\n+\treturn m\n+}\n+\n+// filterKeys keeps only the allowed keys, or nil when none are set.\n+func filterKeys(m map[string]string, allowed []string) map[string]string {\n+\tvar out map[string]string\n+\tfor _, key := range allowed {\n+\t\tif v, ok := m[key]; ok {\n+\t\t\tif out == nil {\n+\t\t\t\tout = make(map[string]string)",
+					"path": "pkg/storage/unified/resource/watch_publisher.go",
+					"commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"original_commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "should we set the size based on `len(allowed)` ? ",
+					"created_at": "2026-10-23T21:50:34Z",
+					"updated_at": "2026-10-23T21:55:29Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#discussion_r4364531059",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364531059"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#discussion_r4364531059"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364531059/reactions",
+						"total_count": 2,
+						"+1": 2,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 79,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"id": 2355506870,
+					"number": 135910,
+					"head": {
+						"ref": "papagian/watch-notification-metadata",
+						"sha": "54850ac864b08f2b99187537e771b097a06d70e3",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "72c31f1a155c896d1d8d4933e6d06bb11866b630",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-23T21:50:34Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "18060630927",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364520349",
+					"pull_request_review_id": 3790177786,
+					"id": 1683816103,
+					"node_id": "deaba0f4ef74fa5b4dfcf259",
+					"diff_hunk": "@@ -41,11 +44,99 @@ func actionToWatchNotificationType(action kv.DataAction) resourcepb.WatchNotific\n \t}\n }\n \n+// watchMetadataSpec lists what a resource's notifications carry beyond identity:\n+// the allowlisted label and annotation keys and finalizers, plus generation and\n+// the creation and deletion timestamps. Only allowlisted values are sent, to keep\n+// the payload small.\n+type watchMetadataSpec struct {\n+\tLabels      []string\n+\tAnnotations []string\n+\tFinalizers  []string\n+}\n+\n+// watchNotificationSpecs holds the resources whose notifications carry metadata.\n+// Resources not listed here send none; add an entry when a consumer needs it.\n+var watchNotificationSpecs = map[schema.GroupResource]watchMetadataSpec{",
+					"path": "pkg/storage/unified/resource/watch_publisher.go",
+					"commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"original_commit_id": "2751d6db804d183b71b5c5801806c30d0cba26cc",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "this seems a bit arbitrary, possibly violating OCP. Should we make this configurable instead?",
+					"created_at": "2026-10-23T21:48:44Z",
+					"updated_at": "2026-10-23T21:55:29Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#discussion_r4364520349",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364520349"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/135910#discussion_r4364520349"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4364520349/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 30,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135910",
+					"id": 2355506870,
+					"number": 135910,
+					"head": {
+						"ref": "papagian/watch-notification-metadata",
+						"sha": "54850ac864b08f2b99187537e771b097a06d70e3",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "72c31f1a155c896d1d8d4933e6d06bb11866b630",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-23T21:48:44Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "17426825940",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4298681672",
+					"pull_request_review_id": 3578337213,
+					"id": 3154833162,
+					"node_id": "0574e63c91eca4b7c93adb7a",
+					"diff_hunk": "@@ -46,59 +47,67 @@ func TestWorker_IsSupported(t *testing.T) {\n \n func TestWorker_Process(t *testing.T) {\n \tt.Run(\"sleeps for the duration then completes\", func(t *testing.T) {\n-\t\tprogress := jobs.NewMockJobProgressRecorder(t)\n-\t\t// 80ms can't deliver the default count without out-pacing the throttle, so\n-\t\t// the total is clamped to 1.\n-\t\tprogress.On(\"SetTotal\", mock.Anything, 1).Return()\n-\t\tprogress.On(\"Record\", mock.Anything, mock.Anything).Return().Maybe()\n-\t\tprogress.On(\"SetMessage\", mock.Anything, mock.Anything).Return().Maybe()\n-\t\tprogress.On(\"SetFinalMessage\", mock.Anything, mock.Anything).Return()\n-\n-\t\tstart := time.Now()\n-\t\terr := NewWorker(enabledFunc(true)).Process(context.Background(), nil, testJob(80*time.Millisecond, 0), progress)\n-\t\trequire.NoError(t, err)\n-\t\trequire.GreaterOrEqual(t, time.Since(start), 80*time.Millisecond)\n+\t\tsynctest.Test(t, func(t *testing.T) {\n+\t\t\tprogress := jobs.NewMockJobProgressRecorder(t)\n+\t\t\t// 80ms can't deliver the default count without out-pacing the throttle, so\n+\t\t\t// the total is clamped to 1.\n+\t\t\tprogress.On(\"SetTotal\", mock.Anything, 1).Return()\n+\t\t\tprogress.On(\"Record\", mock.Anything, mock.Anything).Return().Maybe()\n+\t\t\tprogress.On(\"SetMessage\", mock.Anything, mock.Anything).Return().Maybe()\n+\t\t\tprogress.On(\"SetFinalMessage\", mock.Anything, mock.Anything).Return()\n+\n+\t\t\tstart := time.Now()\n+\t\t\terr := NewWorker(enabledFunc(true)).Process(t.Context(), nil, testJob(80*time.Millisecond, 0), progress)\n+\t\t\trequire.NoError(t, err)\n+\t\t\trequire.GreaterOrEqual(t, time.Since(start), 80*time.Millisecond)\n+\t\t})\n \t})\n \n \tt.Run(\"caps progress updates that out-pace the throttle\", func(t *testing.T) {\n-\t\tprogress := jobs.NewMockJobProgressRecorder(t)\n-\t\t// 50ms / 3 is far tighter than the throttle, so the total is clamped to 1.\n-\t\tprogress.On(\"SetTotal\", mock.Anything, 1).Return()\n-\t\tprogress.On(\"Record\", mock.Anything, mock.Anything).Return().Maybe()\n-\t\tprogress.On(\"SetMessage\", mock.Anything, mock.Anything).Return().Maybe()\n-\t\tprogress.On(\"SetFinalMessage\", mock.Anything, mock.Anything).Return()\n-\n-\t\terr := NewWorker(enabledFunc(true)).Process(context.Background(), nil, testJob(50*time.Millisecond, 3), progress)\n-\t\trequire.NoError(t, err)\n+\t\tsynctest.Test(t, func(t *testing.T) {\n+\t\t\tprogress := jobs.NewMockJobProgressRecorder(t)\n+\t\t\t// 50ms / 3 is far tighter than the throttle, so the total is clamped to 1.\n+\t\t\tprogress.On(\"SetTotal\", mock.Anything, 1).Return()\n+\t\t\tprogress.On(\"Record\", mock.Anything, mock.Anything).Return().Maybe()\n+\t\t\tprogress.On(\"SetMessage\", mock.Anything, mock.Anything).Return().Maybe()\n+\t\t\tprogress.On(\"SetFinalMessage\", mock.Anything, mock.Anything).Return()\n+\n+\t\t\terr := NewWorker(enabledFunc(true)).Process(t.Context(), nil, testJob(50*time.Millisecond, 3), progress)\n+\t\t\trequire.NoError(t, err)\n+\t\t})\n \t})\n \n \tt.Run(\"honors configured progress updates when the duration allows\", func(t *testing.T) {\n-\t\tprogress := jobs.NewMockJobProgressRecorder(t)\n-\t\t// 2 updates over 4× the interval are deliverable, so the count is honored.\n-\t\t// Cancel early; SetTotal is recorded before the loop starts.\n-\t\tprogress.On(\"SetTotal\", mock.Anything, 2).Return()\n-\t\tprogress.On(\"Record\", mock.Anything, mock.Anything).Return().Maybe()\n-\t\tprogress.On(\"SetMessage\", mock.Anything, mock.Anything).Return().Maybe()\n-\n-\t\tduration := 4 * jobs.NotifyThrottleInterval\n-\t\tctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)\n-\t\tdefer cancel()\n-\n-\t\terr := NewWorker(enabledFunc(true)).Process(ctx, nil, testJob(duration, 2), progress)\n-\t\trequire.ErrorIs(t, err, context.DeadlineExceeded)\n+\t\tsynctest.Test(t, func(t *testing.T) {\n+\t\t\tprogress := jobs.NewMockJobProgressRecorder(t)\n+\t\t\t// 2 updates over 4× the interval are deliverable, so the count is honored.\n+\t\t\t// Cancel early; SetTotal is recorded before the loop starts.\n+\t\t\tprogress.On(\"SetTotal\", mock.Anything, 2).Return()\n+\t\t\tprogress.On(\"Record\", mock.Anything, mock.Anything).Return().Maybe()\n+\t\t\tprogress.On(\"SetMessage\", mock.Anything, mock.Anything).Return().Maybe()\n+\n+\t\t\tduration := 4 * jobs.NotifyThrottleInterval\n+\t\t\tctx, cancel := context.WithTimeout(t.Context(), 20*time.Millisecond)\n+\t\t\tdefer cancel()\n+\n+\t\t\terr := NewWorker(enabledFunc(true)).Process(ctx, nil, testJob(duration, 2), progress)\n+\t\t\trequire.ErrorIs(t, err, context.DeadlineExceeded)\n+\t\t})\n \t})\n \n \tt.Run(\"records results so progress advances\", func(t *testing.T) {\n-\t\tprogress := jobs.NewMockJobProgressRecorder(t)\n-\t\tprogress.On(\"SetTotal\", mock.Anything, 2).Return()\n-\t\t// Each tick must Record a result; without it JobStatus.Progress stays 0.\n-\t\tprogress.On(\"Record\", mock.Anything, mock.Anything).Return()\n-\t\tprogress.On(\"SetMessage\", mock.Anything, mock.Anything).Return().Maybe()\n-\t\tprogress.On(\"SetFinalMessage\", mock.Anything, mock.Anything).Return()\n-\n-\t\t// 2 updates over 4× the interval: both ticks fire before completion.\n-\t\terr := NewWorker(enabledFunc(true)).Process(context.Background(), nil, testJob(4*jobs.NotifyThrottleInterval, 2), progress)\n-\t\trequire.NoError(t, err)\n+\t\tsynctest.Test(t, func(t *testing.T) {\n+\t\t\tprogress := jobs.NewMockJobProgressRecorder(t)\n+\t\t\tprogress.On(\"SetTotal\", mock.Anything, 2).Return()\n+\t\t\t// Each tick must Record a result; without it JobStatus.Progress stays 0.\n+\t\t\tprogress.On(\"Record\", mock.Anything, mock.Anything).Return()\n+\t\t\tprogress.On(\"SetMessage\", mock.Anything, mock.Anything).Return().Maybe()\n+\t\t\tprogress.On(\"SetFinalMessage\", mock.Anything, mock.Anything).Return()\n+\n+\t\t\t// 2 updates over 4× the interval: both ticks fire before completion.\n+\t\t\terr := NewWorker(enabledFunc(true)).Process(t.Context(), nil, testJob(4*jobs.NotifyThrottleInterval, 2), progress)",
+					"path": "pkg/registry/apis/provisioning/jobs/perftest/worker_test.go",
+					"commit_id": "2a85d13cbbb07d8d3ebf64bf090e45e86d91d0ac",
+					"original_commit_id": "2a85d13cbbb07d8d3ebf64bf090e45e86d91d0ac",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "❤️ \n",
+					"created_at": "2026-10-16T19:49:44Z",
+					"updated_at": "2026-10-16T19:49:44Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/135234#discussion_r4298681672",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135234",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4298681672"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/135234#discussion_r4298681672"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135234"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4298681672/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 114,
+					"position": 114,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/135234",
+					"id": 4233419710,
+					"number": 135234,
+					"head": {
+						"ref": "hairyhenderson/synctest-provisioning-storage",
+						"sha": "2a85d13cbbb07d8d3ebf64bf090e45e86d91d0ac",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "8f292f0d5ef33e2bf4ff4e59827a3db357a2f730",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-16T19:49:44Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "17243813185",
+			"type": "PullRequestReviewEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"review": {
+					"id": 639879988,
+					"node_id": "280ae557d680f7176727a18e",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "LGTM, two minor nits",
+					"commit_id": "7eade7214c08963f61b03327772ecabf8149fa8e",
+					"state": "dismissed",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/134668#pullrequestreview-5524266363",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668",
+					"_links": {
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/134668#pullrequestreview-5524266363"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668"
+						}
+					},
+					"submitted_at": "2026-10-14T20:37:16Z",
+					"updated_at": "2026-10-14T21:20:06Z"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668",
+					"id": 597731598,
+					"number": 134668,
+					"head": {
+						"ref": "jessica.add-identity",
+						"sha": "a130d8890f0112a3cce25dbc21a23ff03c088aa5",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "d2fc22ee44eb903fe7780815224c5b9a85948e7c",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				},
+				"action": "updated"
+			},
+			"public": true,
+			"created_at": "2026-10-14T20:37:17Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "17243568726",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4275946597",
+					"pull_request_review_id": 639879988,
+					"id": 2117767243,
+					"node_id": "623e2c8311dc783c5194a448",
+					"diff_hunk": "@@ -0,0 +1,219 @@\n+package conversion\n+\n+import (\n+\t\"context\"\n+\t\"testing\"\n+\n+\tdashv0 \"github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v0alpha1\"\n+\tdashv1 \"github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v1\"\n+\tdashv2alpha1 \"github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v2alpha1\"\n+\t\"github.com/grafana/grafana/apps/dashboard/pkg/migration\"\n+\t\"github.com/grafana/grafana/apps/dashboard/pkg/migration/schemaversion\"\n+\tmigrationtestutil \"github.com/grafana/grafana/apps/dashboard/pkg/migration/testutil\"\n+\t\"github.com/grafana/grafana/pkg/apimachinery/identity\"\n+\t\"github.com/stretchr/testify/assert\"\n+\t\"github.com/stretchr/testify/require\"\n+\tmetav1 \"k8s.io/apimachinery/pkg/apis/meta/v1\"\n+\t\"k8s.io/apimachinery/pkg/runtime\"\n+\t\"k8s.io/apiserver/pkg/endpoints/request\"\n+)\n+\n+type identityRequiredDataSourceProvider struct {\n+\tschemaversion.DataSourceIndexProvider\n+}\n+\n+func (p identityRequiredDataSourceProvider) Index(ctx context.Context) *schemaversion.DatasourceIndex {\n+\tif _, err := identity.GetRequester(ctx); err != nil {\n+\t\treturn &schemaversion.DatasourceIndex{}\n+\t}\n+\treturn p.DataSourceIndexProvider.Index(ctx)\n+}\n+\n+type identityRequiredLibraryElementProvider struct {\n+\tschemaversion.LibraryElementIndexProvider\n+}\n+\n+func (p identityRequiredLibraryElementProvider) GetLibraryElementInfo(ctx context.Context) []schemaversion.LibraryElementInfo {\n+\tif _, err := identity.GetRequester(ctx); err != nil {\n+\t\treturn nil\n+\t}\n+\treturn p.LibraryElementIndexProvider.GetLibraryElementInfo(ctx)\n+}\n+\n+type requestContext struct {\n+\trequestNamespace  string\n+\tidentityNamespace string\n+\torgID             int64\n+\tservice           bool\n+}\n+\n+type identityRecordingDataSourceProvider struct {\n+\tschemaversion.DataSourceIndexProvider\n+\tcontext []requestContext\n+}\n+\n+func (p *identityRecordingDataSourceProvider) Index(ctx context.Context) *schemaversion.DatasourceIndex {\n+\treqContext := requestContext{\n+\t\trequestNamespace: request.NamespaceValue(ctx),\n+\t\tservice:          identity.IsServiceIdentity(ctx),\n+\t}\n+\tif requester, err := identity.GetRequester(ctx); err == nil {\n+\t\treqContext.identityNamespace = requester.GetNamespace()\n+\t\treqContext.orgID = requester.GetOrgID()\n+\t}\n+\tp.context = append(p.context, reqContext)\n+\treturn p.DataSourceIndexProvider.Index(ctx)\n+}\n+\n+func initIdentityRequiredMigrator(t *testing.T) (identityRequiredDataSourceProvider, identityRequiredLibraryElementProvider) {\n+\tt.Helper()\n+\n+\tdsProvider := identityRequiredDataSourceProvider{migrationtestutil.NewDataSourceProvider(migrationtestutil.StandardTestConfig)}\n+\tleProvider := identityRequiredLibraryElementProvider{migrationtestutil.NewTestLibraryElementProvider()}\n+\tmigration.ResetForTesting()\n+\tmigration.Initialize(dsProvider, leProvider, migration.DefaultCacheTTL)\n+\treturn dsProvider, leProvider\n+}\n+\n+func newIdentityRequiredScheme(t *testing.T) *runtime.Scheme {\n+\tt.Helper()\n+\n+\tdsProvider, leProvider := initIdentityRequiredMigrator(t)\n+\tscheme := runtime.NewScheme()\n+\trequire.NoError(t, RegisterConversions(scheme, dsProvider, leProvider))\n+\treturn scheme\n+}\n+\n+func newDatasourceByNameV0Dashboard(namespace string) *dashv0.Dashboard {\n+\treturn &dashv0.Dashboard{\n+\t\tObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: \"datasource-by-name\"},\n+\t\tSpec: dashv0.DashboardSpec{\n+\t\t\tObject: map[string]interface{}{\n+\t\t\t\t\"title\":         \"Datasource by name\",\n+\t\t\t\t\"schemaVersion\": 32,\n+\t\t\t\t\"panels\": []interface{}{\n+\t\t\t\t\tmap[string]interface{}{\n+\t\t\t\t\t\t\"id\":         1,\n+\t\t\t\t\t\t\"type\":       \"timeseries\",\n+\t\t\t\t\t\t\"datasource\": \"Non Default Test Datasource Name\",\n+\t\t\t\t\t\t\"targets\":    []interface{}{map[string]interface{}{\"refId\": \"A\"}},\n+\t\t\t\t\t},\n+\t\t\t\t},\n+\t\t\t},\n+\t\t},\n+\t}\n+}\n+\n+func TestMigrate_WithoutIdentityWritesNilDatasourceType(t *testing.T) {\n+\tinitIdentityRequiredMigrator(t)\n+\n+\tdash := map[string]interface{}{\n+\t\t\"title\":         \"Datasource by name\",\n+\t\t\"schemaVersion\": 32,\n+\t\t\"panels\": []interface{}{\n+\t\t\tmap[string]interface{}{\n+\t\t\t\t\"id\":         1,\n+\t\t\t\t\"type\":       \"timeseries\",\n+\t\t\t\t\"datasource\": \"Non Default Test Datasource Name\",\n+\t\t\t\t\"targets\":    []interface{}{map[string]interface{}{\"refId\": \"A\"}},\n+\t\t\t},\n+\t\t},\n+\t}\n+\n+\tctx := request.WithNamespace(context.Background(), \"org-2\")\n+\trequire.NoError(t, migration.Migrate(ctx, dash, schemaversion.LATEST_VERSION))\n+\n+\tpanels, ok := dash[\"panels\"].([]interface{})\n+\trequire.True(t, ok)\n+\trequire.Len(t, panels, 1)\n+\tpanel, ok := panels[0].(map[string]interface{})\n+\trequire.True(t, ok)\n+\tds, ok := panel[\"datasource\"].(map[string]interface{})\n+\trequire.True(t, ok, \"panel datasource should be a reference, got %v\", panel[\"datasource\"])\n+\tassert.Equal(t, \"Non Default Test Datasource Name\", ds[\"uid\"])\n+\tassert.Nil(t, ds[\"type\"])\n+}\n+\n+func TestConvertDashboard_V0_to_V1_ResolvesDatasourceNamesWithServiceIdentity(t *testing.T) {\n+\tscheme := newIdentityRequiredScheme(t)\n+\n+\tvar v1Dash dashv1.Dashboard\n+\trequire.NoError(t, scheme.Convert(newDatasourceByNameV0Dashboard(\"default\"), &v1Dash, nil))\n+\n+\tpanels, ok := v1Dash.Spec.Object[\"panels\"].([]interface{})\n+\trequire.True(t, ok)\n+\trequire.Len(t, panels, 1)\n+\tpanel, ok := panels[0].(map[string]interface{})\n+\trequire.True(t, ok)\n+\tds, ok := panel[\"datasource\"].(map[string]interface{})\n+\trequire.True(t, ok, \"panel datasource should be a reference, got %v\", panel[\"datasource\"])\n+\tassert.Equal(t, \"non-default-test-ds-uid\", ds[\"uid\"])\n+\tassert.Equal(t, \"loki\", ds[\"type\"])\n+}\n+\n+func TestConvertDashboard_V0_to_V1_DatasourceProviderGetsDashboardNamespaceAndServiceIdentity(t *testing.T) {",
+					"path": "apps/dashboard/pkg/migration/conversion/conversion_identity_test.go",
+					"commit_id": "a130d8890f0112a3cce25dbc21a23ff03c088aa5",
+					"original_commit_id": "7eade7214c08963f61b03327772ecabf8149fa8e",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "nit: can we use sub tests with test names that specify the condition and expected outcome",
+					"created_at": "2026-10-14T20:32:17Z",
+					"updated_at": "2026-10-14T20:37:16Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/134668#discussion_r4275946597",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4275946597"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/134668#discussion_r4275946597"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4275946597/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 154,
+					"position": 143,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668",
+					"id": 597731598,
+					"number": 134668,
+					"head": {
+						"ref": "jessica.add-identity",
+						"sha": "a130d8890f0112a3cce25dbc21a23ff03c088aa5",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "d2fc22ee44eb903fe7780815224c5b9a85948e7c",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-14T20:32:17Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		},
+		{
+			"id": "17243533115",
+			"type": "PullRequestReviewCommentEvent",
+			"actor": {
+				"id": 3972778949,
+				"login": "user-940429f3",
+				"display_login": "user-940429f3",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-940429f3",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?"
+			},
+			"repo": {
+				"id": 452982638,
+				"name": "user-6906060a/repo-25a59ddd",
+				"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd"
+			},
+			"payload": {
+				"action": "created",
+				"comment": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4275937763",
+					"pull_request_review_id": 639879988,
+					"id": 2510075843,
+					"node_id": "5a06f816c4233095e51542f0",
+					"diff_hunk": "@@ -0,0 +1,219 @@\n+package conversion\n+\n+import (\n+\t\"context\"\n+\t\"testing\"\n+\n+\tdashv0 \"github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v0alpha1\"\n+\tdashv1 \"github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v1\"\n+\tdashv2alpha1 \"github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v2alpha1\"\n+\t\"github.com/grafana/grafana/apps/dashboard/pkg/migration\"\n+\t\"github.com/grafana/grafana/apps/dashboard/pkg/migration/schemaversion\"\n+\tmigrationtestutil \"github.com/grafana/grafana/apps/dashboard/pkg/migration/testutil\"\n+\t\"github.com/grafana/grafana/pkg/apimachinery/identity\"\n+\t\"github.com/stretchr/testify/assert\"\n+\t\"github.com/stretchr/testify/require\"\n+\tmetav1 \"k8s.io/apimachinery/pkg/apis/meta/v1\"\n+\t\"k8s.io/apimachinery/pkg/runtime\"\n+\t\"k8s.io/apiserver/pkg/endpoints/request\"\n+)\n+\n+type identityRequiredDataSourceProvider struct {\n+\tschemaversion.DataSourceIndexProvider\n+}\n+\n+func (p identityRequiredDataSourceProvider) Index(ctx context.Context) *schemaversion.DatasourceIndex {\n+\tif _, err := identity.GetRequester(ctx); err != nil {\n+\t\treturn &schemaversion.DatasourceIndex{}\n+\t}\n+\treturn p.DataSourceIndexProvider.Index(ctx)\n+}\n+\n+type identityRequiredLibraryElementProvider struct {\n+\tschemaversion.LibraryElementIndexProvider\n+}\n+\n+func (p identityRequiredLibraryElementProvider) GetLibraryElementInfo(ctx context.Context) []schemaversion.LibraryElementInfo {\n+\tif _, err := identity.GetRequester(ctx); err != nil {\n+\t\treturn nil\n+\t}\n+\treturn p.LibraryElementIndexProvider.GetLibraryElementInfo(ctx)\n+}\n+\n+type requestContext struct {\n+\trequestNamespace  string\n+\tidentityNamespace string\n+\torgID             int64\n+\tservice           bool\n+}\n+\n+type identityRecordingDataSourceProvider struct {\n+\tschemaversion.DataSourceIndexProvider\n+\tcontext []requestContext\n+}\n+\n+func (p *identityRecordingDataSourceProvider) Index(ctx context.Context) *schemaversion.DatasourceIndex {\n+\treqContext := requestContext{\n+\t\trequestNamespace: request.NamespaceValue(ctx),\n+\t\tservice:          identity.IsServiceIdentity(ctx),\n+\t}\n+\tif requester, err := identity.GetRequester(ctx); err == nil {\n+\t\treqContext.identityNamespace = requester.GetNamespace()\n+\t\treqContext.orgID = requester.GetOrgID()\n+\t}\n+\tp.context = append(p.context, reqContext)\n+\treturn p.DataSourceIndexProvider.Index(ctx)\n+}\n+\n+func initIdentityRequiredMigrator(t *testing.T) (identityRequiredDataSourceProvider, identityRequiredLibraryElementProvider) {\n+\tt.Helper()\n+\n+\tdsProvider := identityRequiredDataSourceProvider{migrationtestutil.NewDataSourceProvider(migrationtestutil.StandardTestConfig)}\n+\tleProvider := identityRequiredLibraryElementProvider{migrationtestutil.NewTestLibraryElementProvider()}\n+\tmigration.ResetForTesting()\n+\tmigration.Initialize(dsProvider, leProvider, migration.DefaultCacheTTL)\n+\treturn dsProvider, leProvider\n+}\n+\n+func newIdentityRequiredScheme(t *testing.T) *runtime.Scheme {\n+\tt.Helper()\n+\n+\tdsProvider, leProvider := initIdentityRequiredMigrator(t)\n+\tscheme := runtime.NewScheme()\n+\trequire.NoError(t, RegisterConversions(scheme, dsProvider, leProvider))\n+\treturn scheme\n+}\n+\n+func newDatasourceByNameV0Dashboard(namespace string) *dashv0.Dashboard {\n+\treturn &dashv0.Dashboard{\n+\t\tObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: \"datasource-by-name\"},\n+\t\tSpec: dashv0.DashboardSpec{\n+\t\t\tObject: map[string]interface{}{\n+\t\t\t\t\"title\":         \"Datasource by name\",\n+\t\t\t\t\"schemaVersion\": 32,\n+\t\t\t\t\"panels\": []interface{}{\n+\t\t\t\t\tmap[string]interface{}{\n+\t\t\t\t\t\t\"id\":         1,\n+\t\t\t\t\t\t\"type\":       \"timeseries\",\n+\t\t\t\t\t\t\"datasource\": \"Non Default Test Datasource Name\",\n+\t\t\t\t\t\t\"targets\":    []interface{}{map[string]interface{}{\"refId\": \"A\"}},\n+\t\t\t\t\t},\n+\t\t\t\t},\n+\t\t\t},\n+\t\t},\n+\t}\n+}\n+\n+func TestMigrate_WithoutIdentityWritesNilDatasourceType(t *testing.T) {\n+\tinitIdentityRequiredMigrator(t)\n+\n+\tdash := map[string]interface{}{\n+\t\t\"title\":         \"Datasource by name\",\n+\t\t\"schemaVersion\": 32,\n+\t\t\"panels\": []interface{}{\n+\t\t\tmap[string]interface{}{\n+\t\t\t\t\"id\":         1,\n+\t\t\t\t\"type\":       \"timeseries\",\n+\t\t\t\t\"datasource\": \"Non Default Test Datasource Name\",\n+\t\t\t\t\"targets\":    []interface{}{map[string]interface{}{\"refId\": \"A\"}},\n+\t\t\t},\n+\t\t},\n+\t}\n+\n+\tctx := request.WithNamespace(context.Background(), \"org-2\")\n+\trequire.NoError(t, migration.Migrate(ctx, dash, schemaversion.LATEST_VERSION))\n+\n+\tpanels, ok := dash[\"panels\"].([]interface{})\n+\trequire.True(t, ok)\n+\trequire.Len(t, panels, 1)\n+\tpanel, ok := panels[0].(map[string]interface{})\n+\trequire.True(t, ok)\n+\tds, ok := panel[\"datasource\"].(map[string]interface{})\n+\trequire.True(t, ok, \"panel datasource should be a reference, got %v\", panel[\"datasource\"])\n+\tassert.Equal(t, \"Non Default Test Datasource Name\", ds[\"uid\"])\n+\tassert.Nil(t, ds[\"type\"])\n+}\n+\n+func TestConvertDashboard_V0_to_V1_ResolvesDatasourceNamesWithServiceIdentity(t *testing.T) {\n+\tscheme := newIdentityRequiredScheme(t)\n+\n+\tvar v1Dash dashv1.Dashboard\n+\trequire.NoError(t, scheme.Convert(newDatasourceByNameV0Dashboard(\"default\"), &v1Dash, nil))\n+\n+\tpanels, ok := v1Dash.Spec.Object[\"panels\"].([]interface{})\n+\trequire.True(t, ok)\n+\trequire.Len(t, panels, 1)\n+\tpanel, ok := panels[0].(map[string]interface{})\n+\trequire.True(t, ok)\n+\tds, ok := panel[\"datasource\"].(map[string]interface{})\n+\trequire.True(t, ok, \"panel datasource should be a reference, got %v\", panel[\"datasource\"])\n+\tassert.Equal(t, \"non-default-test-ds-uid\", ds[\"uid\"])\n+\tassert.Equal(t, \"loki\", ds[\"type\"])\n+}\n+\n+func TestConvertDashboard_V0_to_V1_DatasourceProviderGetsDashboardNamespaceAndServiceIdentity(t *testing.T) {\n+\ttests := []struct {\n+\t\tnamespace string\n+\t\texpected  requestContext\n+\t}{\n+\t\t{namespace: \"stacks-123\", expected: requestContext{requestNamespace: \"stacks-123\", identityNamespace: \"stacks-123\", orgID: 1, service: true}},\n+\t\t{namespace: \"org-2\", expected: requestContext{requestNamespace: \"org-2\", identityNamespace: \"org-2\", orgID: 2, service: true}},\n+\t}\n+\n+\tfor _, tt := range tests {\n+\t\tt.Run(tt.namespace, func(t *testing.T) {",
+					"path": "apps/dashboard/pkg/migration/conversion/conversion_identity_test.go",
+					"commit_id": "7eade7214c08963f61b03327772ecabf8149fa8e",
+					"original_commit_id": "7eade7214c08963f61b03327772ecabf8149fa8e",
+					"user": {
+						"login": "user-940429f3",
+						"id": 3972778949,
+						"node_id": "8236bb842c3fb09013319858",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3972778949?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-940429f3",
+						"html_url": "https://github.com/user-940429f3",
+						"followers_url": "https://api.github.com/users/user-940429f3/followers",
+						"following_url": "https://api.github.com/users/user-940429f3/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-940429f3/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-940429f3/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-940429f3/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-940429f3/orgs",
+						"repos_url": "https://api.github.com/users/user-940429f3/repos",
+						"events_url": "https://api.github.com/users/user-940429f3/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-940429f3/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"body": "nit: namespace is not a very descriptive test description, it may make reading test logs a bit confusing (at least locally)",
+					"created_at": "2026-10-14T20:31:21Z",
+					"updated_at": "2026-10-14T20:37:16Z",
+					"html_url": "https://github.com/user-6906060a/repo-25a59ddd/pull/134668#discussion_r4275937763",
+					"pull_request_url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668",
+					"_links": {
+						"self": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4275937763"
+						},
+						"html": {
+							"href": "https://github.com/user-6906060a/repo-25a59ddd/pull/134668#discussion_r4275937763"
+						},
+						"pull_request": {
+							"href": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668"
+						}
+					},
+					"reactions": {
+						"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/comments/4275937763/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"original_position": 164,
+					"position": 1,
+					"subject_type": "line"
+				},
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd/pulls/134668",
+					"id": 597731598,
+					"number": 134668,
+					"head": {
+						"ref": "jessica.add-identity",
+						"sha": "a130d8890f0112a3cce25dbc21a23ff03c088aa5",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "d2fc22ee44eb903fe7780815224c5b9a85948e7c",
+						"repo": {
+							"id": 452982638,
+							"url": "https://api.github.com/repos/user-6906060a/repo-25a59ddd",
+							"name": "repo-25a59ddd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-14T20:31:21Z",
+			"org": {
+				"id": 532713184,
+				"login": "user-6906060a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-6906060a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/532713184?"
+			}
+		}
+	]
+}

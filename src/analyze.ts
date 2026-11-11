@@ -10,6 +10,7 @@ import {
 } from "./detectors/bounty-repo-activity";
 import { detectBranchPRAutomation } from "./detectors/branch-pr-automation";
 import { detectClosedPRSpam } from "./detectors/closed-pr-spam";
+import { detectCodingMarathons } from "./detectors/coding-marathons";
 import { detectCommentBeforePR } from "./detectors/comment-before-pr";
 import { detectCommentSpam } from "./detectors/comment-spam";
 import { detectDormancy } from "./detectors/dormancy";
@@ -25,9 +26,10 @@ import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
 import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
+import { externalEventsOf } from "./events";
 import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
 import { detectOrganicSignals } from "./modifiers/organic-signals";
-import { scoreFlags } from "./scoring";
+import { humanScore, scoreFlags } from "./scoring";
 import { daysBetween, toTime } from "./time";
 import { estimateUtcOffset } from "./timezone";
 import type {
@@ -35,9 +37,36 @@ import type {
 	Analysis,
 	ClassificationLabel,
 	Flag,
+	WindowInfo,
 } from "./types";
-import { ownerOf } from "./utils";
 import { analyzeWindow } from "./window";
+
+function classificationFor(
+	score: number,
+	window: WindowInfo,
+	confidence: number,
+): ClassificationLabel {
+	if (score < CONFIG.THRESHOLD_SUSPICIOUS) {
+		return "automation";
+	}
+
+	if (score < CONFIG.THRESHOLD_HUMAN) {
+		return "mixed";
+	}
+
+	// Too little activity is not proof that an account is fine, so a good score
+	// needs enough events behind it. A bad score stands even with few events:
+	// the checks above found something real.
+	const hasEnoughEvidence =
+		window.eventCount >= CONFIG.MIN_EVENTS_FOR_CLASSIFICATION &&
+		confidence >= CONFIG.CONFIDENCE_MIN_FOR_RESULT;
+
+	if (!hasEnoughEvidence) {
+		return "insufficient-data";
+	}
+
+	return "organic";
+}
 
 /**
  * Run every check on an account and score it. `classify` and `report` both
@@ -48,35 +77,22 @@ export function analyze<Source = unknown>({
 	events,
 	eventCap,
 }: AccountInput<Source>): Analysis<Source> {
-	const flags: Flag[] = [];
-
-	const accountName = account.login;
+	const login = account.login;
 	const reposCount = account.publicRepos;
 
-	const filteredEvents = events.filter((e) => e.repo);
+	const repoEvents = events.filter((event) => event.repo);
+	const externalEvents = externalEventsOf(repoEvents, login);
 
 	const accountAge = Math.trunc(
 		daysBetween(toTime(account.createdAt), Date.now()),
 	);
+	const isYoung = accountAge < CONFIG.AGE_YOUNG_ACCOUNT;
 
-	const window = analyzeWindow(filteredEvents, eventCap);
-	const timezone = estimateUtcOffset(filteredEvents);
+	const window = analyzeWindow(repoEvents, eventCap);
+	const timezone = estimateUtcOffset(repoEvents);
 	const tzOffset = timezone.offsetHours;
 
-	const foreignEvents = filteredEvents.filter((e) => {
-		const repoOwner = ownerOf(e.repo).toLowerCase();
-
-		return repoOwner && repoOwner !== accountName.toLowerCase();
-	});
-
-	const isNewOrYoungAccount = accountAge < CONFIG.AGE_YOUNG_ACCOUNT;
-
-	const dormancy = detectDormancy(
-		filteredEvents,
-		accountAge,
-		reposCount,
-		window,
-	);
+	const dormancy = detectDormancy(repoEvents, accountAge, reposCount, window);
 
 	// Some checks are softer on old accounts. To get that, an account needs a
 	// history that matches its age, not just an old creation date.
@@ -84,80 +100,44 @@ export function analyze<Source = unknown>({
 		accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT &&
 		!dormancy.isDormantReactivation;
 
-	flags.push(...detectAccountAge(accountAge));
-	flags.push(...dormancy.flags);
-	flags.push(
-		...detectZeroReposActivity(reposCount, foreignEvents, filteredEvents),
-	);
-	flags.push(...detectRepositoryCreationBurst(filteredEvents));
-	flags.push(...detectInhumanActivityPattern(filteredEvents));
-	flags.push(...detectNarrowActivityFocus(filteredEvents));
-	flags.push(...detectCommentSpam(filteredEvents));
-	flags.push(...detectWatchActivity(filteredEvents));
-	flags.push(
-		...detectBranchPRAutomation(filteredEvents, isEstablished, accountName),
-	);
-	flags.push(...detectRapidPRSpam(filteredEvents, isEstablished));
-	flags.push(...detectClosedPRSpam(filteredEvents, isEstablished, tzOffset));
-	flags.push(...detectForkActivity(filteredEvents, tzOffset));
-	flags.push(...detectForkCombinedActivity(filteredEvents));
-	flags.push(
-		...detectYoungAccountActivity(
-			filteredEvents,
-			reposCount,
-			isNewOrYoungAccount,
-			accountName,
-			tzOffset,
-		),
-	);
-	flags.push(...detectPushBurst(filteredEvents));
-	flags.push(...detectExtremeAndDistributedPRSpam(filteredEvents));
-	flags.push(...detectCommentBeforePR(filteredEvents));
-	flags.push(...detectBountyRepoPRs(filteredEvents));
-	flags.push(...detectBountyLabelInfrastructure(filteredEvents));
-	flags.push(...detectAIAgentBranchPrefix(filteredEvents));
+	const flags: Flag[] = [
+		...detectAccountAge(accountAge),
+		...dormancy.flags,
+		...detectZeroReposActivity(reposCount, externalEvents, repoEvents),
+		...detectRepositoryCreationBurst(repoEvents),
+		...detectInhumanActivityPattern(repoEvents),
+		...detectNarrowActivityFocus(repoEvents),
+		...detectCommentSpam(repoEvents),
+		...detectWatchActivity(repoEvents),
+		...detectBranchPRAutomation(repoEvents, isEstablished, login),
+		...detectRapidPRSpam(repoEvents, isEstablished),
+		...detectClosedPRSpam(repoEvents, isEstablished, tzOffset),
+		...detectForkActivity(repoEvents, tzOffset),
+		...detectForkCombinedActivity(repoEvents),
+		...detectCodingMarathons(repoEvents, tzOffset),
+		...detectYoungAccountActivity(repoEvents, reposCount, isYoung, login),
+		...detectPushBurst(repoEvents),
+		...detectExtremeAndDistributedPRSpam(repoEvents),
+		...detectCommentBeforePR(repoEvents, login),
+		...detectBountyRepoPRs(repoEvents),
+		...detectBountyLabelInfrastructure(repoEvents),
+		...detectAIAgentBranchPrefix(repoEvents),
+	];
 
-	const isBountyHunter = hasBountyRepoEngagement(filteredEvents);
-	const isGitHubApp =
-		account.isApp === true || events.some((e) => e.actorIsApp === true);
-
-	const organicBonus = detectOrganicSignals(filteredEvents);
-
-	// Invert score: 100 = human, 0 = bot
-	const bountyMultiplier = getBountyMultiplier(filteredEvents) ?? 1;
-	const scored = scoreFlags(flags, { bountyMultiplier });
-
-	const humanScore = Math.min(
-		100,
-		Math.max(0, 100 - scored.total + organicBonus),
-	);
-
+	const scored = scoreFlags(flags, {
+		bountyMultiplier: getBountyMultiplier(repoEvents) ?? 1,
+	});
+	const score = humanScore(scored.total, detectOrganicSignals(repoEvents));
 	const confidence = calculateConfidence(window);
 
-	let classification: ClassificationLabel = "automation";
-	if (humanScore >= CONFIG.THRESHOLD_HUMAN) {
-		classification = "organic";
-	} else if (humanScore >= CONFIG.THRESHOLD_SUSPICIOUS) {
-		classification = "mixed";
-	}
-
-	// Too little activity is not proof that an account is fine.
-	// But if an account still triggers automation checks with
-	// only a few events, that result stands.
-	const hasInsufficientEvidence =
-		window.eventCount < CONFIG.MIN_EVENTS_FOR_CLASSIFICATION ||
-		confidence < CONFIG.CONFIDENCE_MIN_FOR_RESULT;
-
-	if (hasInsufficientEvidence && classification === "organic") {
-		classification = "insufficient-data";
-	}
-
 	return {
-		score: humanScore,
-		classification,
+		score,
+		classification: classificationFor(score, window, confidence),
 		confidence,
-		isBountyHunter,
-		isGitHubApp,
+		isBountyHunter: hasBountyRepoEngagement(repoEvents),
+		isGitHubApp:
+			account.isApp === true ||
+			events.some((event) => event.actorIsApp === true),
 		// The flags point at the events we were given, so their source type holds.
 		flags: scored.flags as Flag<Source>[],
 		groups: scored.groups,

@@ -1,271 +1,151 @@
 import { CONFIG } from "../config";
-import { daysBetween, toTime } from "../time";
-import { localDay, localHour } from "../timezone";
-import type { ActivityEvent, Flag } from "../types";
 import {
-	calculateNormalizedShannonsEntropy,
 	densestEventWindow,
-	ownerOf,
-} from "../utils";
+	eventTime,
+	externalEventsOf,
+	hasHomeOwner,
+	isOpenedPR,
+} from "../events";
+import { spanDays } from "../time";
+import type { ActivityEvent, ActivityEventType, Flag } from "../types";
+import { levelFor } from "../utils";
 
-export function detectYoungAccountActivity(
+const YOUNG_PR_VOLUME_LEVELS = [
+	{
+		min: CONFIG.YOUNG_PRS_PER_DAY_HIGH,
+		id: "young-pr-volume-high",
+		points: CONFIG.POINTS_YOUNG_PR_VOLUME_HIGH,
+	},
+	{
+		min: CONFIG.YOUNG_PRS_PER_DAY_EXTREME,
+		id: "young-pr-volume-extreme",
+		points: CONFIG.POINTS_YOUNG_PR_VOLUME_EXTREME,
+	},
+] as const;
+
+const REPO_SPREAD_LEVELS = [
+	{
+		min: CONFIG.REPO_SPREAD_HIGH,
+		id: "repo-spread-high",
+		points: CONFIG.POINTS_WIDE_REPO_SPREAD_YOUNG,
+	},
+	{
+		min: CONFIG.REPO_SPREAD_EXTREME,
+		id: "repo-spread-extreme",
+		points: CONFIG.POINTS_EXTREME_REPO_SPREAD_YOUNG,
+	},
+] as const;
+
+/** Event types where the account takes part in a project beyond its own code. */
+const ENGAGEMENT_TYPES: ReadonlySet<ActivityEventType> = new Set([
+	"issue",
+	"issue-comment",
+	"star",
+	"review",
+	"review-comment",
+	"commit-comment",
+]);
+
+/** Many PRs per day, on average, over the days the PRs cover. */
+function detectYoungPRVolume(prs: ActivityEvent[]): Flag[] {
+	if (prs.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+		return [];
+	}
+
+	const days = Math.max(1, Math.trunc(spanDays(prs.map(eventTime))));
+	const perDay = prs.length / days;
+	const level = levelFor(perDay, YOUNG_PR_VOLUME_LEVELS);
+	if (!level) {
+		return [];
+	}
+
+	return [
+		{
+			id: level.id,
+			points: level.points,
+			group: "pr-volume",
+			amplifiable: true,
+			facts: { prs: prs.length, spanDays: days, perDay },
+			events: prs,
+		},
+	];
+}
+
+/**
+ * Activity on many other people's repositories. Only young accounts are
+ * checked: established open source developers often contribute widely.
+ */
+function detectRepoSpread(external: ActivityEvent[]): Flag[] {
+	const repos = new Set(external.map((event) => event.repo));
+	const level = levelFor(repos.size, REPO_SPREAD_LEVELS);
+	if (!level) {
+		return [];
+	}
+
+	return [
+		{
+			id: level.id,
+			points: level.points,
+			group: "repo-spread",
+			amplifiable: true,
+			facts: { repos: repos.size, externalEvents: external.length },
+			events: external,
+		},
+	];
+}
+
+/** The busiest day, or else the busiest week, of PRs to other people's repos. */
+function detectExternalPRBursts(externalPRs: ActivityEvent[]): Flag[] {
+	const day = densestEventWindow(externalPRs, 24);
+	if (day.count >= CONFIG.PRS_TODAY_EXTREME) {
+		return [
+			{
+				id: "external-pr-day",
+				points: CONFIG.POINTS_PR_BURST,
+				group: "pr-volume",
+				amplifiable: true,
+				facts: { prs: day.count },
+				events: day.items,
+			},
+		];
+	}
+
+	const week = densestEventWindow(externalPRs, 24 * 7);
+	if (week.count >= CONFIG.PRS_WEEK_HIGH) {
+		return [
+			{
+				id: "external-pr-week",
+				points: CONFIG.POINTS_HIGH_PR_FREQUENCY,
+				group: "pr-volume",
+				amplifiable: true,
+				facts: { prs: week.count },
+				events: week.items,
+			},
+		];
+	}
+
+	return [];
+}
+
+/**
+ * Nearly everything happens on other people's repos, with few of its own.
+ * A new account that works mostly in one organization's repos is a new team
+ * member, not a drive-by, so it is left alone.
+ */
+function detectExternalFocus(
 	events: ActivityEvent[],
+	external: ActivityEvent[],
+	externalPRs: ActivityEvent[],
 	reposCount: number,
-	isNewOrYoungAccount: boolean,
-	accountName: string,
-	tzOffsetHours = 0,
 ): Flag[] {
+	if (hasHomeOwner(external)) {
+		return [];
+	}
+
 	const flags: Flag[] = [];
+	const hasFewRepos = reposCount < CONFIG.PERSONAL_REPOS_LOW;
 
-	if (!isNewOrYoungAccount || events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-		return flags;
-	}
-
-	const userLogin = accountName.toLowerCase();
-
-	// PRs (flag more aggressively)
-	const prEvents = events.filter(
-		(e) => e.type === "pull-request" && e.action === "opened",
-	);
-
-	if (prEvents.length >= CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-		const timestamps = prEvents.map((e) => toTime(e.at));
-		const oldestEvent = Math.min(...timestamps);
-		const newestEvent = Math.max(...timestamps);
-
-		if (newestEvent) {
-			const eventSpanDays = Math.max(
-				1,
-				Math.trunc(daysBetween(oldestEvent, newestEvent)),
-			);
-			const prsPerDay = prEvents.length / eventSpanDays;
-
-			if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_EXTREME / 2) {
-				// PRs are much rarer
-				flags.push({
-					id: "young-pr-volume-extreme",
-					points: CONFIG.POINTS_EXTREME_ACTIVITY_DENSITY + 10,
-					group: "pr-volume",
-					amplifiable: true,
-					facts: {
-						prs: prEvents.length,
-						spanDays: eventSpanDays,
-						perDay: prsPerDay,
-					},
-					events: prEvents,
-				});
-			} else if (prsPerDay >= CONFIG.ACTIVITY_DENSITY_HIGH / 2) {
-				flags.push({
-					id: "young-pr-volume-high",
-					points: CONFIG.POINTS_HIGH_ACTIVITY_DENSITY + 5,
-					group: "pr-volume",
-					amplifiable: true,
-					facts: {
-						prs: prEvents.length,
-						spanDays: eventSpanDays,
-						perDay: prsPerDay,
-					},
-					events: prEvents,
-				});
-			}
-		}
-	}
-
-	// Unusual daily coding activity detection using Shannon's entropy
-	// Automated accounts: uniform hour distribution (high entropy) across many hours
-	// Organic accounts: concentrated in certain hours (low entropy/predictable patterns)
-	const codingEventTypes = new Set(["push", "pull-request"]);
-	const codingEventsWithReviews = events.filter(
-		(e) =>
-			(e.type && codingEventTypes.has(e.type)) ||
-			e.type === "review" ||
-			e.type === "review-comment",
-	);
-
-	// Group by day and hour in the account's own local time
-	const codingEventsByDay = new Map<string, number[]>();
-	codingEventsWithReviews.forEach((e) => {
-		if (!e.at) {
-			return;
-		}
-
-		const day = localDay(e.at, tzOffsetHours);
-		if (!codingEventsByDay.has(day)) {
-			codingEventsByDay.set(day, []);
-		}
-
-		codingEventsByDay.get(day)?.push(localHour(e.at, tzOffsetHours));
-	});
-
-	// For each day, analyze hour distribution using entropy
-	// Very high entropy (uniform spread) across many hours = unusual activity pattern
-	const daysWithUniformDistribution: string[] = [];
-	codingEventsByDay.forEach((dayHours, day) => {
-		const hourMap = new Map<number, number>();
-		dayHours.forEach((hour) => {
-			hourMap.set(hour, (hourMap.get(hour) || 0) + 1);
-		});
-
-		const uniqueHours = hourMap.size;
-		const hourEntropy = calculateNormalizedShannonsEntropy(
-			Array.from(hourMap.values()),
-		);
-
-		// Only flag days with many hours AND uniform distribution (automation-like)
-		if (uniqueHours >= CONFIG.HOURS_PER_DAY_INHUMAN && hourEntropy > 0.8) {
-			daysWithUniformDistribution.push(day);
-		}
-	});
-
-	// Check if these inhuman days are consecutive (require both many hours AND high entropy)
-	if (
-		daysWithUniformDistribution.length >=
-		CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME
-	) {
-		daysWithUniformDistribution.sort();
-		let consecutiveCount = 1;
-		let maxConsecutive = 1;
-		for (let i = 1; i < daysWithUniformDistribution.length; i++) {
-			const prev = toTime(daysWithUniformDistribution[i - 1]);
-			const curr = toTime(daysWithUniformDistribution[i]);
-			const diffDays = daysBetween(prev, curr);
-
-			if (diffDays === 1) {
-				consecutiveCount++;
-				maxConsecutive = Math.max(maxConsecutive, consecutiveCount);
-			} else {
-				consecutiveCount = 1;
-			}
-		}
-
-		// Consecutive marathon days = sustained uniform activity across many hours
-		if (maxConsecutive >= CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME) {
-			const uniformDayEvents = codingEventsWithReviews.filter(
-				(e) =>
-					e.at &&
-					daysWithUniformDistribution.includes(localDay(e.at, tzOffsetHours)),
-			);
-
-			flags.push({
-				id: "coding-streak",
-				points: CONFIG.POINTS_NONSTOP_ACTIVITY,
-				group: "timing",
-				amplifiable: true,
-				facts: {
-					streakDays: maxConsecutive,
-					uniformDays: daysWithUniformDistribution.length,
-				},
-				events: uniformDayEvents,
-			});
-		} else if (
-			daysWithUniformDistribution.length >= CONFIG.FREQUENT_MARATHON_DAYS
-		) {
-			const uniformDayEvents = codingEventsWithReviews.filter(
-				(e) =>
-					e.at &&
-					daysWithUniformDistribution.includes(localDay(e.at, tzOffsetHours)),
-			);
-
-			flags.push({
-				id: "coding-marathons",
-				points: CONFIG.POINTS_FREQUENT_MARATHON,
-				group: "timing",
-				amplifiable: true,
-				facts: { uniformDays: daysWithUniformDistribution.length },
-				events: uniformDayEvents,
-			});
-		}
-	}
-
-	// External repo spread
-	// Only count repos the user doesn't own
-	// Only flag for young accounts - established OSS devs often contribute widely
-	const externalRepos = new Set(
-		events
-			.map((e) => e.repo)
-			.filter((name) => {
-				if (!name) {
-					return false;
-				}
-
-				const repoOwner = ownerOf(name).toLowerCase();
-
-				return repoOwner !== userLogin;
-			}),
-	);
-
-	const externalEvents = events.filter((e) => {
-		const repoOwner = ownerOf(e.repo).toLowerCase();
-
-		return repoOwner && repoOwner !== userLogin;
-	});
-
-	if (externalRepos.size >= CONFIG.REPO_SPREAD_EXTREME) {
-		flags.push({
-			id: "repo-spread-extreme",
-			points: CONFIG.POINTS_EXTREME_REPO_SPREAD_YOUNG,
-			group: "repo-spread",
-			amplifiable: true,
-			facts: {
-				repos: externalRepos.size,
-				externalEvents: externalEvents.length,
-			},
-			events: externalEvents,
-		});
-	} else if (externalRepos.size >= CONFIG.REPO_SPREAD_HIGH) {
-		flags.push({
-			id: "repo-spread-high",
-			points: CONFIG.POINTS_WIDE_REPO_SPREAD_YOUNG,
-			group: "repo-spread",
-			amplifiable: true,
-			facts: {
-				repos: externalRepos.size,
-				externalEvents: externalEvents.length,
-			},
-			events: externalEvents,
-		});
-	}
-
-	// External PRs
-	// check frequency, not just total
-	const externalPRs = prEvents.filter((e) => {
-		const repoOwner = ownerOf(e.repo).toLowerCase();
-
-		return repoOwner && repoOwner !== userLogin;
-	});
-
-	// The busiest stretches anywhere in the data, not the ones ending today
-	const prDayWindow = densestEventWindow(externalPRs, 24);
-	const prWeekWindow = densestEventWindow(externalPRs, 24 * 7);
-
-	// Many PRs in a single day
-	// only flag extreme cases
-	if (prDayWindow.count >= CONFIG.PRS_TODAY_EXTREME) {
-		flags.push({
-			id: "external-pr-day",
-			points: CONFIG.POINTS_PR_BURST,
-			group: "pr-volume",
-			amplifiable: true,
-			facts: { prs: prDayWindow.count },
-			events: prDayWindow.items,
-		});
-	} else if (prWeekWindow.count >= CONFIG.PRS_WEEK_HIGH) {
-		// Many PRs in a week
-		flags.push({
-			id: "external-pr-week",
-			points: CONFIG.POINTS_HIGH_PR_FREQUENCY,
-			group: "pr-volume",
-			amplifiable: true,
-			facts: { prs: prWeekWindow.count },
-			events: prWeekWindow.items,
-		});
-	}
-
-	// Also flag if lots of PRs AND few personal repos (regardless of time)
-	if (
-		externalPRs.length >= CONFIG.EXTERNAL_PRS_MIN &&
-		reposCount < CONFIG.PERSONAL_REPOS_LOW
-	) {
+	if (hasFewRepos && externalPRs.length >= CONFIG.EXTERNAL_PRS_MIN) {
 		flags.push({
 			id: "external-contributor",
 			points: CONFIG.POINTS_PR_ONLY_CONTRIBUTOR,
@@ -276,17 +156,11 @@ export function detectYoungAccountActivity(
 		});
 	}
 
-	// Mostly external activity (not 100%)
-	const foreignEvents = events.filter((e) => {
-		const repoOwner = ownerOf(e.repo).toLowerCase();
-
-		return repoOwner && repoOwner !== userLogin;
-	});
-	const foreignRatio = foreignEvents.length / events.length;
+	const ratio = external.length / events.length;
 	if (
-		foreignEvents.length > 0 &&
-		foreignRatio >= CONFIG.FOREIGN_RATIO_HIGH &&
-		reposCount < CONFIG.PERSONAL_REPOS_LOW
+		hasFewRepos &&
+		external.length > 0 &&
+		ratio >= CONFIG.FOREIGN_RATIO_HIGH
 	) {
 		flags.push({
 			id: "mostly-external",
@@ -294,40 +168,67 @@ export function detectYoungAccountActivity(
 			group: "external-focus",
 			amplifiable: true,
 			facts: {
-				ratio: foreignRatio,
-				externalEvents: foreignEvents.length,
+				ratio,
+				externalEvents: external.length,
 				totalEvents: events.length,
 				ownRepos: reposCount,
 			},
-			events: foreignEvents,
+			events: external,
 		});
 	}
 
-	// Young accounts contributing externally but with no engagement events (issues, comments,
-	// reviews, watches) show a contribution-only pattern uncommon in organic participation
-	const ENGAGEMENT_TYPES = new Set([
-		"issue",
-		"issue-comment",
-		"star",
-		"review",
-		"review-comment",
-		"commit-comment",
-	]);
+	return flags;
+}
 
-	const hasAnyEngagement = events.some(
-		(e) => e.type && ENGAGEMENT_TYPES.has(e.type),
+/**
+ * People who contribute to other projects usually also file issues, comment,
+ * review or star along the way. A young account that only sends PRs is
+ * contributing without taking part.
+ */
+function detectLimitedEngagement(
+	events: ActivityEvent[],
+	externalPRs: ActivityEvent[],
+): Flag[] {
+	const hasEngagement = events.some((event) =>
+		ENGAGEMENT_TYPES.has(event.type),
 	);
 
-	if (!hasAnyEngagement && externalPRs.length >= 1) {
-		flags.push({
+	if (hasEngagement || externalPRs.length < CONFIG.LIMITED_ENGAGEMENT_MIN_PRS) {
+		return [];
+	}
+
+	return [
+		{
 			id: "limited-engagement",
 			points: CONFIG.POINTS_LIMITED_ENGAGEMENT,
 			group: "engagement",
 			amplifiable: true,
 			facts: { externalPRs: externalPRs.length },
 			events: externalPRs,
-		});
+		},
+	];
+}
+
+/** Checks that only make sense for accounts that are a few weeks old. */
+export function detectYoungAccountActivity(
+	events: ActivityEvent[],
+	reposCount: number,
+	isNewOrYoungAccount: boolean,
+	accountName: string,
+): Flag[] {
+	if (!isNewOrYoungAccount || events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+		return [];
 	}
 
-	return flags;
+	const prs = events.filter(isOpenedPR);
+	const external = externalEventsOf(events, accountName);
+	const externalPRs = external.filter(isOpenedPR);
+
+	return [
+		...detectYoungPRVolume(prs),
+		...detectRepoSpread(external),
+		...detectExternalPRBursts(externalPRs),
+		...detectExternalFocus(events, external, externalPRs, reposCount),
+		...detectLimitedEngagement(events, externalPRs),
+	];
 }

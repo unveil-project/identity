@@ -1,4 +1,5 @@
-import { daysBetween, isValidTime, toISO, toTime } from "./time";
+import { eventTime } from "./events";
+import { daysBetween, timeRange, toISO } from "./time";
 import type { ActivityEvent, WindowInfo } from "./types";
 
 /**
@@ -12,19 +13,24 @@ export function analyzeWindow(
 	events: readonly ActivityEvent[],
 	eventCap?: number,
 ): WindowInfo {
-	const times = events
-		.map((event) => toTime(event.at))
-		.filter(isValidTime)
-		.sort((a, b) => a - b);
+	const range = timeRange(events.map(eventTime));
+	const saturated = eventCap !== undefined && events.length >= eventCap;
 
-	const first = times[0];
-	const last = times[times.length - 1];
+	if (!range) {
+		return {
+			eventCount: events.length,
+			spanDays: 0,
+			firstEventAt: null,
+			lastEventAt: null,
+			saturated,
+		};
+	}
 
 	return {
 		eventCount: events.length,
-		spanDays: first && last ? daysBetween(first, last) : 0,
-		firstEventAt: first ? toISO(first) : null,
-		lastEventAt: last ? toISO(last) : null,
-		saturated: eventCap !== undefined && events.length >= eventCap,
+		spanDays: daysBetween(range.start, range.end),
+		firstEventAt: toISO(range.start),
+		lastEventAt: toISO(range.end),
+		saturated,
 	};
 }

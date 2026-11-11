@@ -1,0 +1,3580 @@
+{
+	"capturedAt": "2026-11-10T22:42:01.425Z",
+	"user": {
+		"login": "user-86910d4a",
+		"created_at": "2021-05-04T06:06:41Z",
+		"public_repos": 43,
+		"type": "User"
+	},
+	"events": [
+		{
+			"id": "19714250010",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5089",
+					"repository_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+					"labels_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5089/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5089/comments",
+					"events_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5089/events",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5089",
+					"id": 252877585,
+					"node_id": "310369d15bee22c8ead8237a",
+					"number": 5089,
+					"title": "Fix test_vllm on vLLM 0.29-0.33: set max_model_len",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 2762385549,
+							"node_id": "366e4adba3d5e9fdf2217031",
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/labels/CLA%20Signed",
+							"name": "repo-c45cc7a6",
+							"color": "009900",
+							"default": false,
+							"description": "This label is managed by the Facebook bot. Authors need to sign the CLA before a PR can be reviewed.",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 1360402444,
+							"node_id": "0f594542faa5db1b4fb974f1",
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/labels/module:%20not%20user%20facing",
+							"name": "repo-c45cc7a6",
+							"color": "1d76db",
+							"default": false,
+							"description": "Use this tag if you don't want this PR to show up in release notes",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 2,
+					"created_at": "2026-11-10T06:03:10Z",
+					"updated_at": "2026-11-10T22:30:32Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/pulls/5089",
+						"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5089",
+						"diff_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5089.diff",
+						"patch_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5089.patch",
+						"merged_at": null
+					},
+					"body": "torchao's vllm integration test fails on vllm 0.29–0.33.\n\n> **cause:** since vllm-project/vllm#47272, vllm reserves one kv block, so the test's 128 × 16-token blocks fit 2,032 tokens, below opt-125m's 2,048 max length.\n>\n> **change:** `max_model_len=1024`.\n>\n> **tests:** vllm 0.33.0 (2x a100, tp 1/2): 4 failed → 4 passed. vllm main 4527515cd: 2 failed → 2 passed.\n>\n> (ai-assisted)\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5089/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5089/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6772566120",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5089#issuecomment-6772566120",
+					"issue_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5089",
+					"id": 1729866453,
+					"node_id": "57943415fafba157a2a96f19",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T16:13:41Z",
+					"updated_at": "2026-11-10T16:13:41Z",
+					"body": "@pytorchbot label \"module: not user facing\"",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6772566120/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T16:13:41Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19714245345",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5087",
+					"repository_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+					"labels_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5087/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5087/comments",
+					"events_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5087/events",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5087",
+					"id": 1679479917,
+					"node_id": "1c2060be1f01a34e2befafce",
+					"number": 5087,
+					"title": "make mx_formats import not initialize cuda",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 2762385549,
+							"node_id": "366e4adba3d5e9fdf2217031",
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/labels/CLA%20Signed",
+							"name": "repo-c45cc7a6",
+							"color": "009900",
+							"default": false,
+							"description": "This label is managed by the Facebook bot. Authors need to sign the CLA before a PR can be reviewed.",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 3374353708,
+							"node_id": "554b3bc14840f13ba70fcc4f",
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/labels/module:%20inference",
+							"name": "repo-c45cc7a6",
+							"color": "3F26B4",
+							"default": false,
+							"description": "quantize_ api inference flow",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 2,
+					"created_at": "2026-11-10T00:25:03Z",
+					"updated_at": "2026-11-10T21:05:46Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/pulls/5087",
+						"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5087",
+						"diff_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5087.diff",
+						"patch_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5087.patch",
+						"merged_at": null
+					},
+					"body": "fixes #5086. vllm imports torchao before forking workers, so initializing cuda at import breaks them.\n\n> **cause:** `mx_formats/kernels.py` queries the gpu at import (`has_triton()`, `is_sm_at_least_100()`, `torch.cuda.is_available()`).\n>\n> **change:** decide which kernels to define from the build (`torch.version.cuda`/`hip`, triton package); gpu checks run on first use, so unsupported gpus get the same errors as before.\n>\n> **tests** (a100): new `test_import_does_not_initialize_cuda` fails on main, passes here. mx_formats and moe_training suites: no new failures.\n>\n> (ai-assisted)\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5087/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5087/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6772564754",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5087#issuecomment-6772564754",
+					"issue_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5087",
+					"id": 4133340869,
+					"node_id": "9e07b7c30d68235edbe52f9f",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T16:13:38Z",
+					"updated_at": "2026-11-10T16:13:38Z",
+					"body": "@pytorchbot label \"module: inference\"",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6772564754/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T16:13:38Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "26780139532",
+			"type": "PushEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 3830805045,
+				"name": "user-86910d4a/repo-998be3dd",
+				"url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd"
+			},
+			"payload": {
+				"repository_id": 3830805045,
+				"push_id": 3879757810,
+				"ref": "refs/heads/per-run-cache-salt",
+				"head": "fa3e49f03021964269301ce9470ae58e7acc25ef",
+				"before": "9597fba0fe137dab74296e60de00c05f766ade8c"
+			},
+			"public": true,
+			"created_at": "2026-11-10T07:05:00Z"
+		},
+		{
+			"id": "26779933819",
+			"type": "PushEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 531862162,
+				"name": "user-86910d4a/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6"
+			},
+			"payload": {
+				"repository_id": 531862162,
+				"push_id": 1513629991,
+				"ref": "refs/heads/fix-test-vllm-max-model-len",
+				"head": "3eb8199434f423ce1b752243b69bc2eb7d35ff01",
+				"before": "098e1cbf7f4c8246c3904d1d6a9ca9b3bb89f50a"
+			},
+			"public": true,
+			"created_at": "2026-11-10T07:02:53Z"
+		},
+		{
+			"id": "19712630946",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66720",
+					"repository_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+					"labels_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66720/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66720/comments",
+					"events_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66720/events",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66720",
+					"id": 753105558,
+					"node_id": "ad67cf675df0d2e796a448fe",
+					"number": 66720,
+					"title": "[Bugfix] Don't report sibling cache hits in n>1 prefill stats",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 380926689,
+							"node_id": "dc872634544c757085c6cd9e",
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/labels/bug",
+							"name": "repo-5faa5e07",
+							"color": "d73a4a",
+							"default": true,
+							"description": "Something isn't working",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 2,
+					"created_at": "2026-11-10T05:05:14Z",
+					"updated_at": "2026-11-10T16:32:48Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/pulls/66720",
+						"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66720",
+						"diff_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66720.diff",
+						"patch_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66720.patch",
+						"merged_at": null
+					},
+					"body": "## Overview\n\n**goal:** an `n>1` request reports prefix cache usage the way an `n=1` request does.\n\n**context:** the `n` children share the prompt, so later children hit the kv blocks their sibling just wrote. non-streaming responses took `cached_tokens` from the last child to finish: a cold `n=4` request reported 1,216 of 1,230 prompt tokens as cached (streaming reported 0).\n\n## Claims\n\n- `ParentRequest` keeps the prefill stats (`num_cached_tokens`, `num_cache_creation_tokens`) of the child with the fewest cached tokens, i.e. what was cached before the request. children with no prefill stats (failed before prefill) are skipped.\n- the request output reports those stats. per-child prometheus metrics are unchanged (#56361).\n\n## Validation\n\n- `test_parallel_sampling_num_cached_tokens` (new): fails on main (`assert 112 == 0` at 16-token blocks, `64 == 0` at 64), passes here at both.\n- `test_parallel_sampling_skips_child_without_prefill_stats` (new): a child that errors before prefill no longer pulls the value to 0.\n- a100, llama-3.1-8b, vllm main 4527515cd, cold `/v1/completions`, 2 trials: `cached_tokens` at `n`=2/4/8 is 1216–1264 on main, 0 here. warm `n=4` = warm `n=1` = 1248. chat completions: same. re-checked at cb50988 on 64-token blocks: cold 0 at every `n`, streaming and not; warm `n=4` = warm `n=1` = 1216.\n- related engine tests on a100 at cb50988: 8 passed. pre-commit passes.\n\n## Details\n\n- the minimum can undercount only if blocks are evicted between siblings, never overcount. preemption doesn't change it: prefill stats are recorded at first scheduling only.\n- not a duplicate: #55120 (multi-prompt requests), #56361 (prometheus metrics).\n- ai-assisted (metamate). i reviewed every line and ran the tests.\n\n---\n\n<details>\n<summary> Pull Request Checklist </summary>\n\n- [x] I used vLLM's `/pr-checklist` skill. (Mandatory for agents, optional for humans).\n- [x] AI assistance was used during the creation of this PR.\n\n- [x] **Design Fit:** Minimizes impact on core components, reuses existing functionality, and justifies added complexity.\n- [x] **Testing and Validation:** Validates the change and ensures any added tests are meaningful and reliable, with CI coverage or documented CI resource constraints and validation performed outside CI.\n- [x] **Code Quality and Style:** Keeps code and comments clear and concise, and updates relevant documentation and examples.\n- [x] **Pull Request Contents:** Includes a brief summary and relevant links, supports claims with evidence, explains root causes and implementation trade-offs, and follows the contributing guide.\n</details>\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66720/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66720/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/comments/6772148866",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66720#issuecomment-6772148866",
+					"issue_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66720",
+					"id": 3141289564,
+					"node_id": "02f7cd048bd857d87de0042e",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T15:56:20Z",
+					"updated_at": "2026-11-10T15:56:20Z",
+					"body": "good catch. the minimum now only counts children that reported prefill stats: a child that errors before prefill has none and is skipped (before, it counted as 0). client aborts never reach this path, and preemption doesn't change it, since prefill stats are recorded only at first scheduling. test: `test_parallel_sampling_skips_child_without_prefill_stats` (cb50988).\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/comments/6772148866/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T15:56:20Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19712163989",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5092",
+					"repository_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+					"labels_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5092/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5092/comments",
+					"events_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5092/events",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5092",
+					"id": 4151403781,
+					"node_id": "af9d2f00a771049f1a87a95f",
+					"number": 5092,
+					"title": "Load configs that still carry removed layout fields",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 2762385549,
+							"node_id": "366e4adba3d5e9fdf2217031",
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/labels/CLA%20Signed",
+							"name": "repo-c45cc7a6",
+							"color": "009900",
+							"default": false,
+							"description": "This label is managed by the Facebook bot. Authors need to sign the CLA before a PR can be reviewed.",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 2954773182,
+							"node_id": "366f5a12fc03a8303d12467a",
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/labels/module:%20core",
+							"name": "repo-c45cc7a6",
+							"color": "0b5380",
+							"default": false,
+							"description": "changes affecting multiple modules, e.g. base config/tensor, observers, quant ops",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 6,
+					"created_at": "2026-11-10T21:01:17Z",
+					"updated_at": "2026-11-10T22:30:33Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/pulls/5092",
+						"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5092",
+						"diff_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5092.diff",
+						"patch_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5092.patch",
+						"merged_at": null
+					},
+					"body": "15 of 21 official pytorch/* torchao checkpoints (e.g. pytorch/Qwen3-8B-INT4) don't load on torchao 0.17+ in vllm or transformers.\n\n> **cause:** their configs still carry fields removed with the layout system (#4153, #4245): `layout`, and on `Int4WeightOnlyConfig` also `preserve_zero`, `use_hqq`, `zero_point_domain`. version 2 never read them.\n>\n> **change:** `config_from_dict` drops them with a warning (version >= 2 only).\n>\n> **tests** (a100): new test fails on main, passes here. torchao configs under huggingface.co/pytorch: 6/21 parse on main, 21/21 here. `vllm serve pytorch/Qwen3-8B-INT4` fails on main, serves here.\n>\n> (ai-assisted)\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5092/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5092/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6779166494",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5092#issuecomment-6779166494",
+					"issue_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5092",
+					"id": 3723868404,
+					"node_id": "17f47b950be3ff22a4c149d3",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T21:01:52Z",
+					"updated_at": "2026-11-10T21:01:52Z",
+					"body": "@pytorchbot label \"module: core\"",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6779166494/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T21:01:52Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19712102974",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 5092,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/pulls/5092",
+					"id": 1145456172,
+					"number": 5092,
+					"head": {
+						"ref": "load-legacy-config-fields",
+						"sha": "821cb3d6846ed803106da57a6515b56e06507984",
+						"repo": {
+							"id": 531862162,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6",
+							"name": "repo-c45cc7a6"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "82c6889c4a33041a7023467746b6a91da3e691d1",
+						"repo": {
+							"id": 4099991413,
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+							"name": "repo-c45cc7a6"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T21:01:17Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "26777965395",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 252497461,
+				"name": "user-86910d4a/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07"
+			},
+			"payload": {
+				"ref": "bench-warmup-cache-salt",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/bench-warmup-cache-salt",
+				"master_branch": "main",
+				"description": "A high-throughput and memory-efficient inference and serving engine for LLMs",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-10T03:20:59Z"
+		},
+		{
+			"id": "26772276688",
+			"type": "PushEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 252497461,
+				"name": "user-86910d4a/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07"
+			},
+			"payload": {
+				"repository_id": 252497461,
+				"push_id": 18757433,
+				"ref": "refs/heads/bench-rust-warmup-cache-salt",
+				"head": "9257a5377ba3b2ba56c9848af9cd0b62d8aa31e0",
+				"before": "67d1783ebba4dc0c3f82879174dbbb3d4e9a4cab"
+			},
+			"public": true,
+			"created_at": "2026-11-10T06:56:04Z"
+		},
+		{
+			"id": "19691241537",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66707",
+					"repository_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+					"labels_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66707/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66707/comments",
+					"events_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66707/events",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66707",
+					"id": 2435881293,
+					"node_id": "bd4aacc67d3cda00893970f8",
+					"number": 66707,
+					"title": "[Bugfix][Benchmark] Keep vllm-bench warmups and ready check out of the prefix cache",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 380926689,
+							"node_id": "dc872634544c757085c6cd9e",
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/labels/bug",
+							"name": "repo-5faa5e07",
+							"color": "d73a4a",
+							"default": true,
+							"description": "Something isn't working",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 3658852035,
+							"node_id": "256c835bc02b25df9fd3b45e",
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/labels/rust",
+							"name": "repo-5faa5e07",
+							"color": "a83c09",
+							"default": false,
+							"description": "",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 2,
+					"created_at": "2026-11-10T03:35:06Z",
+					"updated_at": "2026-11-10T16:35:43Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/pulls/66707",
+						"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66707",
+						"diff_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66707.diff",
+						"patch_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66707.patch",
+						"merged_at": null
+					},
+					"body": "## Overview\n\n**goal:** `vllm-bench` warmups and ready check don't prime the prefix cache for the measured run (rust counterpart of #66701, same bug as #66698).\n\n**context:** warmups and the ready check resend request 0, so the first measured request was a cache hit.\n\n## Claims\n\n- same behavior as #66701: a unique `cache_salt` per warmup and on the ready check; one unsalted warmup retry if every salted warmup fails, with a warning carrying the first error.\n- `wait_for_endpoint` takes an optional fallback input, sent only when the server answers the salted probe with a failure (not on connection errors). multi-turn passes none.\n- the warmup send loop moved into `send_warmups`.\n\n## Validation\n\n- 5 new tests against a stub server. warmups: distinct salts, other `extra_body` kept; all salted requests rejected → 2 salted then 2 unsalted; one rejected → no retry. ready check (through `run_benchmark`): salted probe then the unsalted run; salted probe rejected → unsalted probe, then the run. each fails when the fix is broken on purpose.\n- end to end against a real `vllm serve` (a100, llama-3.1-8b, 1024-token prompts, 3 prompts, `--num-warmups 2`), `vllm:prefix_cache_hits` delta per run: main 1,920 (2,880 with `--ready-check-timeout-sec 30`), this pr 0 (0).\n- `cargo test -p vllm-bench --lib`: 241 passed. `cargo fmt --check` and `cargo clippy -D warnings` clean.\n\n## Details\n\n- a non-object `--extra-body` is replaced for warmups: backends only merge objects, and python treats `null` as `{}`.\n- will mirror any design change requested on #66701.\n- ai-assisted (metamate). i reviewed every line and ran the tests.\n\n---\n\n<details>\n<summary> Pull Request Checklist </summary>\n\n- [x] I used vLLM's `/pr-checklist` skill. (Mandatory for agents, optional for humans).\n- [x] AI assistance was used during the creation of this PR.\n\n- [x] **Design Fit:** Minimizes impact on core components, reuses existing functionality, and justifies added complexity.\n- [x] **Testing and Validation:** Validates the change and ensures any added tests are meaningful and reliable, with CI coverage or documented CI resource constraints and validation performed outside CI.\n- [x] **Code Quality and Style:** Keeps code and comments clear and concise, and updates relevant documentation and examples.\n- [x] **Pull Request Contents:** Includes a brief summary and relevant links, supports claims with evidence, explains root causes and implementation trade-offs, and follows the contributing guide.\n</details>\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66707/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66707/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/comments/6773088573",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/pull/66707#issuecomment-6773088573",
+					"issue_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66707",
+					"id": 2163614906,
+					"node_id": "8836412f34540c6db2261055",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T16:35:43Z",
+					"updated_at": "2026-11-10T16:35:43Z",
+					"body": "agreed, done in 51375df: the ready check now sends the same salted request, and falls back to an unsalted probe only when the server answers the salted one with a failure (not on connection errors), so servers that reject `cache_salt` still pass the check. new tests cover both cases through `run_benchmark`. end to end against a real `vllm serve` with `--num-warmups 2 --ready-check-timeout-sec 30`: prefix cache hits 2,880 on main, 0 here. same change in the python pr, #66701 (ca3b663).\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/comments/6773088573/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T16:35:43Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19688783781",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5088",
+					"repository_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+					"labels_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5088/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5088/comments",
+					"events_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5088/events",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5088",
+					"id": 1583162036,
+					"node_id": "826e3bbd70c0aeea59ebd6d4",
+					"number": 5088,
+					"title": "make import torchao fork-safe on cuda builds",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 2762385549,
+							"node_id": "366e4adba3d5e9fdf2217031",
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/labels/CLA%20Signed",
+							"name": "repo-c45cc7a6",
+							"color": "009900",
+							"default": false,
+							"description": "This label is managed by the Facebook bot. Authors need to sign the CLA before a PR can be reviewed.",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 2954773182,
+							"node_id": "366f5a12fc03a8303d12467a",
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/labels/module:%20core",
+							"name": "repo-c45cc7a6",
+							"color": "0b5380",
+							"default": false,
+							"description": "changes affecting multiple modules, e.g. base config/tensor, observers, quant ops",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 2,
+					"created_at": "2026-11-10T01:58:48Z",
+					"updated_at": "2026-11-10T21:05:49Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/pulls/5088",
+						"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5088",
+						"diff_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5088.diff",
+						"patch_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5088.patch",
+						"merged_at": null
+					},
+					"body": "a plain `import torchao` also breaks forked cuda workers (#5086).\n\n> **cause:** `float8_utils.py` calls `torch.cuda.is_available()` at import, which initializes cuda unless `PYTORCH_NVML_BASED_CUDA_CHECK=1`.\n>\n> **change:** check `torch.version.hip` first in `float8_utils.IS_ROCM` and `torchao.utils.is_ROCM()`; values unchanged.\n>\n> **tests** (a100, cpu): new fork and no-cuda-query tests fail on main, pass here (skipped on rocm). `test_lean_import.py` + `test_float8_utils.py`: 19 passed.\n>\n> (ai-assisted)\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5088/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5088/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6772565394",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/pull/5088#issuecomment-6772565394",
+					"issue_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5088",
+					"id": 2381209264,
+					"node_id": "2af44ff77b5a1d463ac2f033",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T16:13:40Z",
+					"updated_at": "2026-11-10T16:13:40Z",
+					"body": "@pytorchbot label \"module: core\"",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6772565394/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T16:13:40Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "26762574867",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 252497461,
+				"name": "user-86910d4a/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07"
+			},
+			"payload": {
+				"ref": "parallel-sampling-cached-tokens",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/parallel-sampling-cached-tokens",
+				"master_branch": "main",
+				"description": "A high-throughput and memory-efficient inference and serving engine for LLMs",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-10T05:05:13Z"
+		},
+		{
+			"id": "26755887150",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 252497461,
+				"name": "user-86910d4a/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07"
+			},
+			"payload": {
+				"ref": "bench-rust-warmup-cache-salt",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/bench-rust-warmup-cache-salt",
+				"master_branch": "main",
+				"description": "A high-throughput and memory-efficient inference and serving engine for LLMs",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-10T03:35:04Z"
+		},
+		{
+			"id": "19635381793",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 5089,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/pulls/5089",
+					"id": 1325891396,
+					"number": 5089,
+					"head": {
+						"ref": "fix-test-vllm-max-model-len",
+						"sha": "3eb8199434f423ce1b752243b69bc2eb7d35ff01",
+						"repo": {
+							"id": 531862162,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6",
+							"name": "repo-c45cc7a6"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "82c6889c4a33041a7023467746b6a91da3e691d1",
+						"repo": {
+							"id": 4099991413,
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+							"name": "repo-c45cc7a6"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T06:03:10Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19631818700",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 66720,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/pulls/66720",
+					"id": 2326744203,
+					"number": 66720,
+					"head": {
+						"ref": "parallel-sampling-cached-tokens",
+						"sha": "cb50988e4d57140e54723a719f50a8b206cf8d26",
+						"repo": {
+							"id": 252497461,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "f1a7d49657aa8a23dd5474297c502ddc80eb33a0",
+						"repo": {
+							"id": 2424081722,
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T05:05:14Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19627623365",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2932210959,
+				"name": "user-5d5f2b81/repo-998be3dd",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 103,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd/pulls/103",
+					"id": 3454608668,
+					"number": 103,
+					"head": {
+						"ref": "per-run-cache-salt",
+						"sha": "fa3e49f03021964269301ce9470ae58e7acc25ef",
+						"repo": {
+							"id": 3830805045,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd",
+							"name": "repo-998be3dd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "bc1b8e0dd3b77debebbda2ad1ac44e666ca06e20",
+						"repo": {
+							"id": 2932210959,
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd",
+							"name": "repo-998be3dd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T03:56:22Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19626823521",
+			"type": "ForkEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2932210959,
+				"name": "user-5d5f2b81/repo-998be3dd",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd"
+			},
+			"payload": {
+				"action": "forked",
+				"forkee": {
+					"id": 3830805045,
+					"node_id": "126639260f1f902e643cbc42",
+					"name": "repo-998be3dd",
+					"full_name": "user-86910d4a/repo-998be3dd",
+					"private": false,
+					"owner": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"html_url": "https://github.com/user-86910d4a/repo-998be3dd",
+					"description": "Performance benchmark & accuracy evaluation for vLLM",
+					"fork": true,
+					"url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd",
+					"forks_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/forks",
+					"keys_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/keys{/key_id}",
+					"collaborators_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/collaborators{/collaborator}",
+					"teams_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/teams",
+					"hooks_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/hooks",
+					"issue_events_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/issues/events{/number}",
+					"events_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/events",
+					"assignees_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/assignees{/user}",
+					"branches_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/branches{/branch}",
+					"tags_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/tags",
+					"blobs_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/git/blobs{/sha}",
+					"git_tags_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/git/tags{/sha}",
+					"git_refs_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/git/refs{/sha}",
+					"trees_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/git/trees{/sha}",
+					"statuses_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/statuses/{sha}",
+					"languages_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/languages",
+					"stargazers_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/stargazers",
+					"contributors_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/contributors",
+					"subscribers_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/subscribers",
+					"subscription_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/subscription",
+					"commits_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/commits{/sha}",
+					"git_commits_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/git/commits{/sha}",
+					"comments_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/comments{/number}",
+					"issue_comment_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/issues/comments{/number}",
+					"contents_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/contents/{+path}",
+					"compare_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/compare/{base}...{head}",
+					"merges_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/merges",
+					"archive_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/{archive_format}{/ref}",
+					"downloads_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/downloads",
+					"issues_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/issues{/number}",
+					"pulls_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/pulls{/number}",
+					"milestones_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/milestones{/number}",
+					"notifications_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/notifications{?since,all,participating}",
+					"labels_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/labels{/name}",
+					"releases_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/releases{/id}",
+					"deployments_url": "https://api.github.com/repos/user-86910d4a/repo-998be3dd/deployments",
+					"created_at": "2026-11-10T03:43:37Z",
+					"updated_at": "2026-11-10T03:43:37Z",
+					"pushed_at": "2026-11-10T07:04:59Z",
+					"git_url": "git://github.com/user-86910d4a/repo-998be3dd.git",
+					"ssh_url": "git@github.com:user-86910d4a/repo-998be3dd.git",
+					"clone_url": "https://github.com/user-86910d4a/repo-1c3579e6",
+					"svn_url": "https://github.com/user-86910d4a/repo-998be3dd",
+					"homepage": "",
+					"size": 148,
+					"stargazers_count": 0,
+					"watchers_count": 0,
+					"language": null,
+					"has_issues": false,
+					"has_projects": true,
+					"has_downloads": false,
+					"has_wiki": false,
+					"has_pages": false,
+					"has_discussions": false,
+					"forks_count": 0,
+					"mirror_url": null,
+					"archived": false,
+					"disabled": false,
+					"open_issues_count": 0,
+					"license": null,
+					"allow_forking": true,
+					"is_template": false,
+					"web_commit_signoff_required": true,
+					"has_pull_requests": true,
+					"pull_request_creation_policy": "all",
+					"topics": [],
+					"visibility": "public",
+					"forks": 0,
+					"open_issues": 0,
+					"watchers": 0,
+					"default_branch": "main"
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T03:43:37Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19626282958",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 66707,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/pulls/66707",
+					"id": 1867846009,
+					"number": 66707,
+					"head": {
+						"ref": "bench-rust-warmup-cache-salt",
+						"sha": "51375dfd26e43260e9c3af7680aff7d9f7391c9f",
+						"repo": {
+							"id": 252497461,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "dc74b8cbbbe3dbb9399fe369757d63defd614cc2",
+						"repo": {
+							"id": 2424081722,
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T03:35:06Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19625396945",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 66701,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/pulls/66701",
+					"id": 1541001407,
+					"number": 66701,
+					"head": {
+						"ref": "bench-warmup-cache-salt",
+						"sha": "ca3b663b13c1246051ec934284599b0b39e2d669",
+						"repo": {
+							"id": 252497461,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "dc74b8cbbbe3dbb9399fe369757d63defd614cc2",
+						"repo": {
+							"id": 2424081722,
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T03:21:01Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19624476679",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086",
+					"repository_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+					"labels_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/comments",
+					"events_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/events",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/issues/5086",
+					"id": 365964663,
+					"node_id": "702d4bc396cf8a52ff9114be",
+					"number": 5086,
+					"title": "Importing torchao.prototype.mx_formats initializes CUDA (device capability checked at module level)",
+					"user": {
+						"login": "user-0b3fa34f",
+						"id": 1359296003,
+						"node_id": "dd0a81e1a4ac72705b7dbc57",
+						"avatar_url": "https://avatars.githubusercontent.com/u/1359296003?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-0b3fa34f",
+						"html_url": "https://github.com/user-0b3fa34f",
+						"followers_url": "https://api.github.com/users/user-0b3fa34f/followers",
+						"following_url": "https://api.github.com/users/user-0b3fa34f/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-0b3fa34f/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-0b3fa34f/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-0b3fa34f/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-0b3fa34f/orgs",
+						"repos_url": "https://api.github.com/users/user-0b3fa34f/repos",
+						"events_url": "https://api.github.com/users/user-0b3fa34f/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-0b3fa34f/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 3,
+					"created_at": "2026-11-09T22:45:51Z",
+					"updated_at": "2026-11-10T03:06:23Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "### What happens\n\nImporting `torchao.prototype.mx_formats` initializes CUDA in the importing process, even if nothing from torchao is used afterwards.\n\n`torchao/prototype/mx_formats/kernels.py` computes two flags at module level:\n\n- `_triton_kernels_available` (line 454) calls `is_sm_at_least_100()` and, on ROCm, `is_MI350()`\n- `_mxfp8_cuda_kernels_available` (line 1016) calls `is_sm_at_least_100()`\n\n`is_sm_at_least_100()` calls `torch.cuda.get_device_capability()` and `is_MI350()` calls `torch.cuda.get_device_properties(0)`. Both run CUDA's lazy init. `prototype/moe_training/config.py:58` does the same through `is_MI300()` in a dataclass field default.\n\n### Why it matters\n\nOther libraries import this path at load time. For example, transformers imports `torchao.prototype.safetensors.safetensors_support` whenever torchao is installed, and `safetensors_utils.py` imports `mx_formats` (transformers issue: https://github.com/huggingface/transformers/issues/50540). So in any environment with torchao installed, the process has CUDA initialized before it does anything.\n\nAfter that, forking a child that uses CUDA fails:\n\n```\nRuntimeError: Cannot re-initialize CUDA in forked subprocess. To use CUDA with multiprocessing, you must use the 'spawn' start method\n```\n\nWe hit this in vLLM's CI when torchao was installed in the shared test image: tests that fork a worker started failing in jobs that never use torchao, on both CUDA and ROCm.\n\n### Reproduce (machine with a GPU)\n\n```python\nimport torch\nimport torchao.prototype.mx_formats  # noqa: F401\nprint(torch.cuda.is_initialized())  # True; False without the import\n```\n\n```python\nimport os\nimport torch\nimport torchao.prototype.mx_formats  # noqa: F401\n\npid = os.fork()\nif pid == 0:\n    torch.zeros(1, device=\"cuda\")  # raises \"Cannot re-initialize CUDA in forked subprocess\"\n    os._exit(0)\nos.waitpid(pid, 0)\n```\n\n### Versions\n\ntorchao 0.18.0 (the same code is on `main` today), torch 2.15.\n\n### Suggested fix\n\nCompute these flags on first use instead of at import, e.g. turn them into `functools.cache`d functions, and give the `moe_training` dataclass field a `default_factory`. That keeps `import torchao...` free of device queries.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null,
+					"pinned_comment": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6757814518",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/issues/5086#issuecomment-6757814518",
+					"issue_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086",
+					"id": 1587675615,
+					"node_id": "c959971724d9433374523dd7",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T03:06:23Z",
+					"updated_at": "2026-11-10T03:06:23Z",
+					"body": "pr: #5087, including that subprocess test (`test_import_does_not_initialize_cuda`). related: #5088 makes plain `import torchao` fork-safe.\n",
+					"pin": null,
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6757814518/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T03:06:23Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19624471900",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698",
+					"repository_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+					"labels_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/comments",
+					"events_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/events",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/issues/66698",
+					"id": 2280759132,
+					"node_id": "eb839b4eb5d45daf315edfb4",
+					"number": 66698,
+					"title": "[Bug]: `vllm bench serve --num-warmups` primes the prefix cache, so the first measured request is a cache hit",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 1282432741,
+							"node_id": "613ab7a831b3a3c79f40120e",
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/labels/kv-cache-manager",
+							"name": "repo-5faa5e07",
+							"color": "d065a7",
+							"default": false,
+							"description": "",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 2,
+					"created_at": "2026-11-10T02:52:49Z",
+					"updated_at": "2026-11-10T03:06:21Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "### Your current environment\n\n- vllm main at 4527515cd (python, editable), kernels from the 0.33.0 wheel; the warmup code is unchanged on current main (05caae03c)\n- torch 2.14.0+cu130, 1x nvidia a100 80gb, llama-3.1-8b-instruct, default `vllm serve` flags (prefix caching on)\n\n### 🐛 Describe the bug\n\n`vllm bench serve --num-warmups N` sends `input_requests[0]` N times before the measured run (`vllm/benchmarks/serve.py`, warmup block), and nothing clears the prefix cache afterwards. with prefix caching on (the default):\n- the first measured request is served from cache, so its ttft is a cache hit.\n- warmups 2..N are cache hits too, so they don't exercise prefill.\n\nrepro: prefix cache reset before each run, 2 runs per row:\n\n```\nvllm bench serve --dataset-name random --random-input-len 4096 --random-output-len 32 \\\n  --ignore-eos --num-prompts 10 --max-concurrency 1 --seed 7 --num-warmups {0,3}\n```\n\n| `--num-warmups` | request 0 ttft | other requests, median ttft | reported mean ttft |\n|---|---|---|---|\n| 0 | 348 / 353 ms | 329 / 332 ms | 331 / 333 ms |\n| 3 | 67 / 81 ms | 334 / 327 ms | 307 / 302 ms |\n\nserver counters agree: with 100 prompts × 1024 tokens and 4 warmups, `vllm:prefix_cache_hits` rose by 4,032 = 4 × 1,008 (warmups 2-4 plus measured request 0).\n\nthe bias is 1 request out of `num_prompts`: it skews min and mean ttft, most visibly in short latency runs.\n\nfix options:\n1. send each warmup with a unique `cache_salt`. warmups then do full prefills and never match measured requests; no server flag needed, but `cache_salt` is vllm-only.\n2. `POST /reset_prefix_cache` after warmup (needs `VLLM_SERVER_DEV_MODE=1`; `vllm bench sweep` already resets between runs).\n\ni can send a pr for either.\n\n### Before submitting a new issue...\n\n- [x] Make sure you already searched for relevant issues, and asked the chatbot living at the bottom right corner of the [documentation page](https://docs.vllm.ai/en/latest/), which can answer lots of frequently asked questions.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null,
+					"pinned_comment": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/comments/6757814181",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/issues/66698#issuecomment-6757814181",
+					"issue_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698",
+					"id": 1082107092,
+					"node_id": "d9a07568f4f47483e0564587",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-10T03:06:21Z",
+					"updated_at": "2026-11-10T03:06:21Z",
+					"body": "thanks @luyixiao95. i filed this to fix it myself, so i will take it, with the same approach: a unique `cache_salt` per warmup. pr today.\n",
+					"pin": null,
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/comments/6757814181/reactions",
+						"total_count": 1,
+						"+1": 1,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T03:06:21Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19623620647",
+			"type": "IssuesEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "opened",
+				"issue": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698",
+					"repository_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+					"labels_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/comments",
+					"events_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/events",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/issues/66698",
+					"id": 2280759132,
+					"node_id": "eb839b4eb5d45daf315edfb4",
+					"number": 66698,
+					"title": "[Bug]: `vllm bench serve --num-warmups` primes the prefix cache, so the first measured request is a cache hit",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 1282432741,
+							"node_id": "613ab7a831b3a3c79f40120e",
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/labels/kv-cache-manager",
+							"name": "repo-5faa5e07",
+							"color": "d065a7",
+							"default": false,
+							"description": "",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 2,
+					"created_at": "2026-11-10T02:52:49Z",
+					"updated_at": "2026-11-10T03:06:21Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "### Your current environment\n\n- vllm main at 4527515cd (python, editable), kernels from the 0.33.0 wheel; the warmup code is unchanged on current main (05caae03c)\n- torch 2.14.0+cu130, 1x nvidia a100 80gb, llama-3.1-8b-instruct, default `vllm serve` flags (prefix caching on)\n\n### 🐛 Describe the bug\n\n`vllm bench serve --num-warmups N` sends `input_requests[0]` N times before the measured run (`vllm/benchmarks/serve.py`, warmup block), and nothing clears the prefix cache afterwards. with prefix caching on (the default):\n- the first measured request is served from cache, so its ttft is a cache hit.\n- warmups 2..N are cache hits too, so they don't exercise prefill.\n\nrepro: prefix cache reset before each run, 2 runs per row:\n\n```\nvllm bench serve --dataset-name random --random-input-len 4096 --random-output-len 32 \\\n  --ignore-eos --num-prompts 10 --max-concurrency 1 --seed 7 --num-warmups {0,3}\n```\n\n| `--num-warmups` | request 0 ttft | other requests, median ttft | reported mean ttft |\n|---|---|---|---|\n| 0 | 348 / 353 ms | 329 / 332 ms | 331 / 333 ms |\n| 3 | 67 / 81 ms | 334 / 327 ms | 307 / 302 ms |\n\nserver counters agree: with 100 prompts × 1024 tokens and 4 warmups, `vllm:prefix_cache_hits` rose by 4,032 = 4 × 1,008 (warmups 2-4 plus measured request 0).\n\nthe bias is 1 request out of `num_prompts`: it skews min and mean ttft, most visibly in short latency runs.\n\nfix options:\n1. send each warmup with a unique `cache_salt`. warmups then do full prefills and never match measured requests; no server flag needed, but `cache_salt` is vllm-only.\n2. `POST /reset_prefix_cache` after warmup (needs `VLLM_SERVER_DEV_MODE=1`; `vllm bench sweep` already resets between runs).\n\ni can send a pr for either.\n\n### Before submitting a new issue...\n\n- [x] Make sure you already searched for relevant issues, and asked the chatbot living at the bottom right corner of the [documentation page](https://docs.vllm.ai/en/latest/), which can answer lots of frequently asked questions.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/66698/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null,
+					"pinned_comment": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T02:52:50Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19620114035",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 5088,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/pulls/5088",
+					"id": 4113593388,
+					"number": 5088,
+					"head": {
+						"ref": "fix-import-fork-safe",
+						"sha": "2ac5b50468323d0c219eb6f60fbb72f3ae8fd7c3",
+						"repo": {
+							"id": 531862162,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6",
+							"name": "repo-c45cc7a6"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "82c6889c4a33041a7023467746b6a91da3e691d1",
+						"repo": {
+							"id": 4099991413,
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+							"name": "repo-c45cc7a6"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T01:58:48Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19618775654",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/63741",
+					"repository_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+					"labels_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/63741/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/63741/comments",
+					"events_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/63741/events",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/issues/63741",
+					"id": 2779569322,
+					"node_id": "ff43865c5405b13e1a03c612",
+					"number": 63741,
+					"title": "[RFC / Performance] How LLM Agent Context Compaction Collapses Automatic Prefix Caching (APC)",
+					"user": {
+						"login": "user-31526373",
+						"id": 1464028475,
+						"node_id": "bcfd715a5bd26dd61552a6a0",
+						"avatar_url": "https://avatars.githubusercontent.com/u/1464028475?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-31526373",
+						"html_url": "https://github.com/user-31526373",
+						"followers_url": "https://api.github.com/users/user-31526373/followers",
+						"following_url": "https://api.github.com/users/user-31526373/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-31526373/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-31526373/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-31526373/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-31526373/orgs",
+						"repos_url": "https://api.github.com/users/user-31526373/repos",
+						"events_url": "https://api.github.com/users/user-31526373/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-31526373/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 1341957804,
+							"node_id": "918d0f35d2764de740d48ceb",
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/labels/feature%20request",
+							"name": "repo-5faa5e07",
+							"color": "a2eeef",
+							"default": false,
+							"description": "New feature or request",
+							"archived_at": null,
+							"archived_by": null
+						},
+						{
+							"id": 1282432741,
+							"node_id": "613ab7a831b3a3c79f40120e",
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/labels/kv-cache-manager",
+							"name": "repo-5faa5e07",
+							"color": "d065a7",
+							"default": false,
+							"description": "",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 1,
+					"created_at": "2026-10-26T12:19:49Z",
+					"updated_at": "2026-11-09T23:58:08Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "### 🚀 The feature, motivation and pitch\n\nMany long-horizon LLM Agent frameworks perform context compaction (summarization) to prevent context window overflow. In our production runs (~81k context), we observed that compaction caused a severe prefill stall (TTFT stalled at 206.9s), collapsing vLLM's Automatic Prefix Caching (APC) hit rate down to 10.1%.\n\nRoot Cause:\nAgent frameworks often strip older archive checkpoints from the prompt to \"keep the window lean\". This drops an early message and shifts all subsequent tokens, causing APC prefix matching to fail right after the system prompt (token 8,886). 73k tokens had to undergo full re-prefill.\n\nThe Proposal & Benchmark:\nBy ensuring the compaction request's message prefix is token-identical to normal conversation turns, APC hit rate immediately recovered to 99.6%:\n- Cache Hit Rate: 10.1% -> 99.6%\n- Cached Tokens: 8,192 -> 144,165\n- Re-prefilled Tokens: 72,986 -> 627 (116x reduction)\n- TTFT: 206.9s -> 3.1s (66x faster)\n\nWe propose adding guidelines/warnings in vLLM docs regarding APC-friendly prompt construction for Agent builders.\n\n### Alternatives\n\nExplicit cache control breakpoints can help, but keeping the prefix token-identical in the request builder is the cleanest, zero-overhead solution.\n\n### Additional context\n\nFull methodology, de-identified logs, and 2-second model-free reproduction script:\nhttps://github.com/yansu202511/cache-alignment-findings\n\n### Before submitting a new issue...\n\n- [x] Make sure you already searched for relevant issues, and asked the chatbot living at the bottom right corner of the [documentation page](https://docs.vllm.ai/en/latest/), which can answer lots of frequently asked questions.",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/63741/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/63741/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null,
+					"pinned_comment": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/comments/6754731675",
+					"html_url": "https://github.com/user-5d5f2b81/repo-5faa5e07/issues/63741#issuecomment-6754731675",
+					"issue_url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/63741",
+					"id": 1023161933,
+					"node_id": "c6407397fc93fcf7338c9973",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-09T23:55:22Z",
+					"updated_at": "2026-11-09T23:58:08Z",
+					"body": "i'd like to take the docs part: a section in the automatic prefix caching docs on keeping the prompt prefix token-identical across agent turns, plus a repro script that sends the same conversation to `vllm serve` twice (once with an early message dropped, once with the prefix kept identical) and reports the prefix cache hit rate for each. @yansu202511 are you planning to write this yourself? if not, i'll send a pr.\n",
+					"pin": null,
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/issues/comments/6754731675/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T23:55:22Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19616750318",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 66683,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/pulls/66683",
+					"id": 1239723777,
+					"number": 66683,
+					"head": {
+						"ref": "docs-apc-agent-prompts",
+						"sha": "b0dc19c0b92f51f135a547ed8b6d5bf1ea3a8b6c",
+						"repo": {
+							"id": 252497461,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "d0014ff91ca2b5a2656a829ec424823ca6603a52",
+						"repo": {
+							"id": 2424081722,
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T01:11:04Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19613622880",
+			"type": "IssuesEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2932210959,
+				"name": "user-5d5f2b81/repo-998be3dd",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd"
+			},
+			"payload": {
+				"action": "opened",
+				"issue": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd/issues/102",
+					"repository_url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd",
+					"labels_url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd/issues/102/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd/issues/102/comments",
+					"events_url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd/issues/102/events",
+					"html_url": "https://github.com/user-5d5f2b81/repo-998be3dd/issues/102",
+					"id": 1380211838,
+					"node_id": "d16c88289d1b84b15bac7212",
+					"number": 102,
+					"title": "repeated runs hit the prefix cache, so the reported median can be a warm-cache number",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 0,
+					"created_at": "2026-11-10T00:27:40Z",
+					"updated_at": "2026-11-10T00:27:40Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "`lib/run_vllm_bench.sh` runs every repetition on the same server with the same prompts (`random`, default seed 0), and nothing clears the prefix cache in between. when a config's prompts fit in the kv cache, runs 2-3 are served from cache and the reported median is a cached run.\n\nrepro: `lib/run_vllm_bench.sh` at `bc1b8e0`, unmodified, native runtime. 1x a100 80gb, vllm 0.33.0, llama-3.1-8b-instruct, kv cache 457k tokens.\n\n| config | run | prefix cache hit | median ttft | req/s |\n|---|---|---|---|---|\n| random 1024/256, 200 prompts, concurrency 64 (fits) | 1 | 0.5% | 1648 ms | 6.05 |\n| | 2 | 98.4% | 232 ms | 9.74 |\n| | 3 | 98.4% | 232 ms | 9.71 |\n| | reported | | 232 ms | 9.71 |\n| random 8192/1024, 256 prompts, concurrency 128 (doesn't fit) | 1-3 | ≤0.9% | ~116 s | 0.56 |\n\na nightly config is affected when `num_prompts × input_len` fits in that deployment's kv cache. to check: `GPU KV cache size` in the server log, or run 1 vs run 2 ttft in `bench-<name>-run-<n>.json`.\n\nfix options:\n1. `POST /reset_prefix_cache` before each run (needs `VLLM_SERVER_DEV_MODE=1`). keeps the same prompts across runs and nights.\n2. a different `--seed` per run. no server change; prompts differ per run.\n\ni can send a pr for either.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd/issues/102/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-5d5f2b81/repo-998be3dd/issues/102/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null,
+					"pinned_comment": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T00:27:41Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19613428399",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 5087,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/pulls/5087",
+					"id": 3217115059,
+					"number": 5087,
+					"head": {
+						"ref": "fix-mx-import-cuda-init",
+						"sha": "35c27bcef73e5c7adef8d62c2a44a9d300d6a0bf",
+						"repo": {
+							"id": 531862162,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6",
+							"name": "repo-c45cc7a6"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "82c6889c4a33041a7023467746b6a91da3e691d1",
+						"repo": {
+							"id": 4099991413,
+							"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+							"name": "repo-c45cc7a6"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T00:25:03Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19611175177",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086",
+					"repository_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6",
+					"labels_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/comments",
+					"events_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/events",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/issues/5086",
+					"id": 365964663,
+					"node_id": "702d4bc396cf8a52ff9114be",
+					"number": 5086,
+					"title": "Importing torchao.prototype.mx_formats initializes CUDA (device capability checked at module level)",
+					"user": {
+						"login": "user-0b3fa34f",
+						"id": 1359296003,
+						"node_id": "dd0a81e1a4ac72705b7dbc57",
+						"avatar_url": "https://avatars.githubusercontent.com/u/1359296003?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-0b3fa34f",
+						"html_url": "https://github.com/user-0b3fa34f",
+						"followers_url": "https://api.github.com/users/user-0b3fa34f/followers",
+						"following_url": "https://api.github.com/users/user-0b3fa34f/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-0b3fa34f/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-0b3fa34f/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-0b3fa34f/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-0b3fa34f/orgs",
+						"repos_url": "https://api.github.com/users/user-0b3fa34f/repos",
+						"events_url": "https://api.github.com/users/user-0b3fa34f/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-0b3fa34f/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [],
+					"state": "open",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 3,
+					"created_at": "2026-11-09T22:45:51Z",
+					"updated_at": "2026-11-10T03:06:23Z",
+					"closed_at": null,
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"sub_issues_summary": {
+						"total": 0,
+						"completed": 0,
+						"percent_completed": 0
+					},
+					"issue_dependencies_summary": {
+						"blocked_by": 0,
+						"total_blocked_by": 0,
+						"blocking": 0,
+						"total_blocking": 0
+					},
+					"body": "### What happens\n\nImporting `torchao.prototype.mx_formats` initializes CUDA in the importing process, even if nothing from torchao is used afterwards.\n\n`torchao/prototype/mx_formats/kernels.py` computes two flags at module level:\n\n- `_triton_kernels_available` (line 454) calls `is_sm_at_least_100()` and, on ROCm, `is_MI350()`\n- `_mxfp8_cuda_kernels_available` (line 1016) calls `is_sm_at_least_100()`\n\n`is_sm_at_least_100()` calls `torch.cuda.get_device_capability()` and `is_MI350()` calls `torch.cuda.get_device_properties(0)`. Both run CUDA's lazy init. `prototype/moe_training/config.py:58` does the same through `is_MI300()` in a dataclass field default.\n\n### Why it matters\n\nOther libraries import this path at load time. For example, transformers imports `torchao.prototype.safetensors.safetensors_support` whenever torchao is installed, and `safetensors_utils.py` imports `mx_formats` (transformers issue: https://github.com/huggingface/transformers/issues/50540). So in any environment with torchao installed, the process has CUDA initialized before it does anything.\n\nAfter that, forking a child that uses CUDA fails:\n\n```\nRuntimeError: Cannot re-initialize CUDA in forked subprocess. To use CUDA with multiprocessing, you must use the 'spawn' start method\n```\n\nWe hit this in vLLM's CI when torchao was installed in the shared test image: tests that fork a worker started failing in jobs that never use torchao, on both CUDA and ROCm.\n\n### Reproduce (machine with a GPU)\n\n```python\nimport torch\nimport torchao.prototype.mx_formats  # noqa: F401\nprint(torch.cuda.is_initialized())  # True; False without the import\n```\n\n```python\nimport os\nimport torch\nimport torchao.prototype.mx_formats  # noqa: F401\n\npid = os.fork()\nif pid == 0:\n    torch.zeros(1, device=\"cuda\")  # raises \"Cannot re-initialize CUDA in forked subprocess\"\n    os._exit(0)\nos.waitpid(pid, 0)\n```\n\n### Versions\n\ntorchao 0.18.0 (the same code is on `main` today), torch 2.15.\n\n### Suggested fix\n\nCompute these flags on first use instead of at import, e.g. turn them into `functools.cache`d functions, and give the `moe_training` dataclass field a `default_factory`. That keeps `import torchao...` free of device queries.\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null,
+					"pinned_comment": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6754729928",
+					"html_url": "https://github.com/user-4c1d51f6/repo-c45cc7a6/issues/5086#issuecomment-6754729928",
+					"issue_url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/5086",
+					"id": 3426715150,
+					"node_id": "da1ac58fa9be0a3e9841215e",
+					"user": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-09T23:55:16Z",
+					"updated_at": "2026-11-09T23:58:07Z",
+					"body": "reproduced on an a100 with torchao main (82c6889c4) and torch 2.14: after `import torchao.prototype.mx_formats`, `torch.cuda.is_initialized()` returns `True`; without the import it returns `False`. i'd like to fix it the way you suggested: compute `_triton_kernels_available` and `_mxfp8_cuda_kernels_available` on first use (`functools.cache`), give the dtype field in `moe_training/config.py` a `default_factory`, and add a regression test that checks the import leaves cuda uninitialized. are you already working on it?\n",
+					"pin": null,
+					"reactions": {
+						"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6/issues/comments/6754729928/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T23:55:16Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19593416801",
+			"type": "ForkEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4150787072,
+				"name": "user-548ae57b/repo-94281416",
+				"url": "https://api.github.com/repos/user-548ae57b/repo-94281416"
+			},
+			"payload": {
+				"action": "forked",
+				"forkee": {
+					"id": 1421680581,
+					"node_id": "dd20c2eae27f391f73aa5b2b",
+					"name": "repo-94281416",
+					"full_name": "user-86910d4a/repo-94281416",
+					"private": false,
+					"owner": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"html_url": "https://github.com/user-86910d4a/repo-94281416",
+					"description": "Development repository for the Triton language and compiler",
+					"fork": true,
+					"url": "https://api.github.com/repos/user-86910d4a/repo-94281416",
+					"forks_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/forks",
+					"keys_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/keys{/key_id}",
+					"collaborators_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/collaborators{/collaborator}",
+					"teams_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/teams",
+					"hooks_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/hooks",
+					"issue_events_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/issues/events{/number}",
+					"events_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/events",
+					"assignees_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/assignees{/user}",
+					"branches_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/branches{/branch}",
+					"tags_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/tags",
+					"blobs_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/git/blobs{/sha}",
+					"git_tags_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/git/tags{/sha}",
+					"git_refs_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/git/refs{/sha}",
+					"trees_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/git/trees{/sha}",
+					"statuses_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/statuses/{sha}",
+					"languages_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/languages",
+					"stargazers_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/stargazers",
+					"contributors_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/contributors",
+					"subscribers_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/subscribers",
+					"subscription_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/subscription",
+					"commits_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/commits{/sha}",
+					"git_commits_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/git/commits{/sha}",
+					"comments_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/comments{/number}",
+					"issue_comment_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/issues/comments{/number}",
+					"contents_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/contents/{+path}",
+					"compare_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/compare/{base}...{head}",
+					"merges_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/merges",
+					"archive_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/{archive_format}{/ref}",
+					"downloads_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/downloads",
+					"issues_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/issues{/number}",
+					"pulls_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/pulls{/number}",
+					"milestones_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/milestones{/number}",
+					"notifications_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/notifications{?since,all,participating}",
+					"labels_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/labels{/name}",
+					"releases_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/releases{/id}",
+					"deployments_url": "https://api.github.com/repos/user-86910d4a/repo-94281416/deployments",
+					"created_at": "2026-11-09T20:36:25Z",
+					"updated_at": "2026-11-09T20:36:25Z",
+					"pushed_at": "2026-11-09T20:32:44Z",
+					"git_url": "git://github.com/user-86910d4a/repo-94281416.git",
+					"ssh_url": "git@github.com:user-86910d4a/repo-94281416.git",
+					"clone_url": "https://github.com/user-86910d4a/repo-337c5d76",
+					"svn_url": "https://github.com/user-86910d4a/repo-94281416",
+					"homepage": "https://triton-lang.org/",
+					"size": 850601,
+					"stargazers_count": 0,
+					"watchers_count": 0,
+					"language": null,
+					"has_issues": false,
+					"has_projects": true,
+					"has_downloads": false,
+					"has_wiki": true,
+					"has_pages": false,
+					"has_discussions": false,
+					"forks_count": 0,
+					"mirror_url": null,
+					"archived": false,
+					"disabled": false,
+					"open_issues_count": 0,
+					"license": {
+						"key": "mit",
+						"name": "MIT License",
+						"spdx_id": "MIT",
+						"url": "https://api.github.com/licenses/mit",
+						"node_id": "2cf1786fc96ab40aa5faa006"
+					},
+					"allow_forking": true,
+					"is_template": false,
+					"web_commit_signoff_required": false,
+					"has_pull_requests": true,
+					"pull_request_creation_policy": "all",
+					"topics": [],
+					"visibility": "public",
+					"forks": 0,
+					"open_issues": 0,
+					"watchers": 0,
+					"default_branch": "main"
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T20:36:25Z",
+			"org": {
+				"id": 3197440923,
+				"login": "user-548ae57b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-548ae57b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3197440923?"
+			}
+		},
+		{
+			"id": "19593198361",
+			"type": "ForkEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2048459633,
+				"name": "user-4c1d51f6/repo-f806d5bc",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-f806d5bc"
+			},
+			"payload": {
+				"action": "forked",
+				"forkee": {
+					"id": 2783869946,
+					"node_id": "442d6f817bf85c61ea880811",
+					"name": "repo-f806d5bc",
+					"full_name": "user-86910d4a/repo-f806d5bc",
+					"private": false,
+					"owner": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"html_url": "https://github.com/user-86910d4a/repo-f806d5bc",
+					"description": "On-device AI across mobile, embedded and edge for PyTorch",
+					"fork": true,
+					"url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc",
+					"forks_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/forks",
+					"keys_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/keys{/key_id}",
+					"collaborators_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/collaborators{/collaborator}",
+					"teams_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/teams",
+					"hooks_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/hooks",
+					"issue_events_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/issues/events{/number}",
+					"events_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/events",
+					"assignees_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/assignees{/user}",
+					"branches_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/branches{/branch}",
+					"tags_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/tags",
+					"blobs_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/git/blobs{/sha}",
+					"git_tags_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/git/tags{/sha}",
+					"git_refs_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/git/refs{/sha}",
+					"trees_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/git/trees{/sha}",
+					"statuses_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/statuses/{sha}",
+					"languages_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/languages",
+					"stargazers_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/stargazers",
+					"contributors_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/contributors",
+					"subscribers_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/subscribers",
+					"subscription_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/subscription",
+					"commits_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/commits{/sha}",
+					"git_commits_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/git/commits{/sha}",
+					"comments_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/comments{/number}",
+					"issue_comment_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/issues/comments{/number}",
+					"contents_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/contents/{+path}",
+					"compare_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/compare/{base}...{head}",
+					"merges_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/merges",
+					"archive_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/{archive_format}{/ref}",
+					"downloads_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/downloads",
+					"issues_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/issues{/number}",
+					"pulls_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/pulls{/number}",
+					"milestones_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/milestones{/number}",
+					"notifications_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/notifications{?since,all,participating}",
+					"labels_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/labels{/name}",
+					"releases_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/releases{/id}",
+					"deployments_url": "https://api.github.com/repos/user-86910d4a/repo-f806d5bc/deployments",
+					"created_at": "2026-11-09T20:34:22Z",
+					"updated_at": "2026-11-09T20:34:22Z",
+					"pushed_at": "2026-11-09T20:17:56Z",
+					"git_url": "git://github.com/user-86910d4a/repo-f806d5bc.git",
+					"ssh_url": "git@github.com:user-86910d4a/repo-f806d5bc.git",
+					"clone_url": "https://github.com/user-86910d4a/repo-b31206b5",
+					"svn_url": "https://github.com/user-86910d4a/repo-f806d5bc",
+					"homepage": "https://executorch.ai",
+					"size": 420550,
+					"stargazers_count": 0,
+					"watchers_count": 0,
+					"language": null,
+					"has_issues": false,
+					"has_projects": true,
+					"has_downloads": false,
+					"has_wiki": true,
+					"has_pages": false,
+					"has_discussions": false,
+					"forks_count": 0,
+					"mirror_url": null,
+					"archived": false,
+					"disabled": false,
+					"open_issues_count": 0,
+					"license": {
+						"key": "other",
+						"name": "Other",
+						"spdx_id": "NOASSERTION",
+						"url": null,
+						"node_id": "8794c5376b646dad1022aa89"
+					},
+					"allow_forking": true,
+					"is_template": false,
+					"web_commit_signoff_required": false,
+					"has_pull_requests": true,
+					"pull_request_creation_policy": "all",
+					"topics": [],
+					"visibility": "public",
+					"forks": 0,
+					"open_issues": 0,
+					"watchers": 0,
+					"default_branch": "main"
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T20:34:22Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19593131676",
+			"type": "ForkEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4099991413,
+				"name": "user-4c1d51f6/repo-c45cc7a6",
+				"url": "https://api.github.com/repos/user-4c1d51f6/repo-c45cc7a6"
+			},
+			"payload": {
+				"action": "forked",
+				"forkee": {
+					"id": 531862162,
+					"node_id": "ea8834921ebfcb0306e361d5",
+					"name": "repo-c45cc7a6",
+					"full_name": "user-86910d4a/repo-c45cc7a6",
+					"private": false,
+					"owner": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"html_url": "https://github.com/user-86910d4a/repo-c45cc7a6",
+					"description": "PyTorch native quantization for training and inference",
+					"fork": true,
+					"url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6",
+					"forks_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/forks",
+					"keys_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/keys{/key_id}",
+					"collaborators_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/collaborators{/collaborator}",
+					"teams_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/teams",
+					"hooks_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/hooks",
+					"issue_events_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/issues/events{/number}",
+					"events_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/events",
+					"assignees_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/assignees{/user}",
+					"branches_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/branches{/branch}",
+					"tags_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/tags",
+					"blobs_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/git/blobs{/sha}",
+					"git_tags_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/git/tags{/sha}",
+					"git_refs_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/git/refs{/sha}",
+					"trees_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/git/trees{/sha}",
+					"statuses_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/statuses/{sha}",
+					"languages_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/languages",
+					"stargazers_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/stargazers",
+					"contributors_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/contributors",
+					"subscribers_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/subscribers",
+					"subscription_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/subscription",
+					"commits_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/commits{/sha}",
+					"git_commits_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/git/commits{/sha}",
+					"comments_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/comments{/number}",
+					"issue_comment_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/issues/comments{/number}",
+					"contents_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/contents/{+path}",
+					"compare_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/compare/{base}...{head}",
+					"merges_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/merges",
+					"archive_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/{archive_format}{/ref}",
+					"downloads_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/downloads",
+					"issues_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/issues{/number}",
+					"pulls_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/pulls{/number}",
+					"milestones_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/milestones{/number}",
+					"notifications_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/notifications{?since,all,participating}",
+					"labels_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/labels{/name}",
+					"releases_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/releases{/id}",
+					"deployments_url": "https://api.github.com/repos/user-86910d4a/repo-c45cc7a6/deployments",
+					"created_at": "2026-11-09T20:33:45Z",
+					"updated_at": "2026-11-09T20:33:45Z",
+					"pushed_at": "2026-11-10T20:29:37Z",
+					"git_url": "git://github.com/user-86910d4a/repo-c45cc7a6.git",
+					"ssh_url": "git@github.com:user-86910d4a/repo-c45cc7a6.git",
+					"clone_url": "https://github.com/user-86910d4a/repo-4b675837",
+					"svn_url": "https://github.com/user-86910d4a/repo-c45cc7a6",
+					"homepage": "https://pytorch.org/ao/stable/index.html",
+					"size": 22697,
+					"stargazers_count": 0,
+					"watchers_count": 0,
+					"language": null,
+					"has_issues": false,
+					"has_projects": true,
+					"has_downloads": false,
+					"has_wiki": false,
+					"has_pages": false,
+					"has_discussions": false,
+					"forks_count": 0,
+					"mirror_url": null,
+					"archived": false,
+					"disabled": false,
+					"open_issues_count": 0,
+					"license": {
+						"key": "other",
+						"name": "Other",
+						"spdx_id": "NOASSERTION",
+						"url": null,
+						"node_id": "8794c5376b646dad1022aa89"
+					},
+					"allow_forking": true,
+					"is_template": false,
+					"web_commit_signoff_required": false,
+					"has_pull_requests": true,
+					"pull_request_creation_policy": "all",
+					"topics": [],
+					"visibility": "public",
+					"forks": 0,
+					"open_issues": 0,
+					"watchers": 0,
+					"default_branch": "main"
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T20:33:45Z",
+			"org": {
+				"id": 1275001376,
+				"login": "user-4c1d51f6",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-4c1d51f6",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1275001376?"
+			}
+		},
+		{
+			"id": "19592877397",
+			"type": "ForkEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 749476664,
+				"name": "user-2a289e32/repo-6e5a3e3c",
+				"url": "https://api.github.com/repos/user-2a289e32/repo-6e5a3e3c"
+			},
+			"payload": {
+				"action": "forked",
+				"forkee": {
+					"id": 1708071575,
+					"node_id": "346f8d3e05ff65528a58b70c",
+					"name": "repo-6e5a3e3c",
+					"full_name": "user-86910d4a/repo-6e5a3e3c",
+					"private": false,
+					"owner": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"html_url": "https://github.com/user-86910d4a/repo-6e5a3e3c",
+					"description": "SGLang is a high-performance serving framework for large language models and multimodal models.",
+					"fork": true,
+					"url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c",
+					"forks_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/forks",
+					"keys_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/keys{/key_id}",
+					"collaborators_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/collaborators{/collaborator}",
+					"teams_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/teams",
+					"hooks_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/hooks",
+					"issue_events_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/issues/events{/number}",
+					"events_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/events",
+					"assignees_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/assignees{/user}",
+					"branches_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/branches{/branch}",
+					"tags_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/tags",
+					"blobs_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/git/blobs{/sha}",
+					"git_tags_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/git/tags{/sha}",
+					"git_refs_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/git/refs{/sha}",
+					"trees_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/git/trees{/sha}",
+					"statuses_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/statuses/{sha}",
+					"languages_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/languages",
+					"stargazers_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/stargazers",
+					"contributors_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/contributors",
+					"subscribers_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/subscribers",
+					"subscription_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/subscription",
+					"commits_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/commits{/sha}",
+					"git_commits_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/git/commits{/sha}",
+					"comments_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/comments{/number}",
+					"issue_comment_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/issues/comments{/number}",
+					"contents_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/contents/{+path}",
+					"compare_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/compare/{base}...{head}",
+					"merges_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/merges",
+					"archive_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/{archive_format}{/ref}",
+					"downloads_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/downloads",
+					"issues_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/issues{/number}",
+					"pulls_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/pulls{/number}",
+					"milestones_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/milestones{/number}",
+					"notifications_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/notifications{?since,all,participating}",
+					"labels_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/labels{/name}",
+					"releases_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/releases{/id}",
+					"deployments_url": "https://api.github.com/repos/user-86910d4a/repo-6e5a3e3c/deployments",
+					"created_at": "2026-11-09T20:31:18Z",
+					"updated_at": "2026-11-09T20:31:19Z",
+					"pushed_at": "2026-11-09T20:30:01Z",
+					"git_url": "git://github.com/user-86910d4a/repo-6e5a3e3c.git",
+					"ssh_url": "git@github.com:user-86910d4a/repo-6e5a3e3c.git",
+					"clone_url": "https://github.com/user-86910d4a/repo-7c3875cc",
+					"svn_url": "https://github.com/user-86910d4a/repo-6e5a3e3c",
+					"homepage": "https://sglang.io",
+					"size": 515335,
+					"stargazers_count": 0,
+					"watchers_count": 0,
+					"language": null,
+					"has_issues": false,
+					"has_projects": true,
+					"has_downloads": false,
+					"has_wiki": false,
+					"has_pages": false,
+					"has_discussions": false,
+					"forks_count": 0,
+					"mirror_url": null,
+					"archived": false,
+					"disabled": false,
+					"open_issues_count": 0,
+					"license": {
+						"key": "apache-2.0",
+						"name": "Apache License 2.0",
+						"spdx_id": "Apache-2.0",
+						"url": "https://api.github.com/licenses/apache-2.0",
+						"node_id": "84e971afd90bf419465a4149"
+					},
+					"allow_forking": true,
+					"is_template": false,
+					"web_commit_signoff_required": false,
+					"has_pull_requests": true,
+					"pull_request_creation_policy": "all",
+					"topics": [],
+					"visibility": "public",
+					"forks": 0,
+					"open_issues": 0,
+					"watchers": 0,
+					"default_branch": "main"
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T20:31:18Z",
+			"org": {
+				"id": 2098887992,
+				"login": "user-2a289e32",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-2a289e32",
+				"avatar_url": "https://avatars.githubusercontent.com/u/2098887992?"
+			}
+		},
+		{
+			"id": "19592783872",
+			"type": "ForkEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 4110837262,
+				"name": "user-99626a29/repo-eb451c36",
+				"url": "https://api.github.com/repos/user-99626a29/repo-eb451c36"
+			},
+			"payload": {
+				"action": "forked",
+				"forkee": {
+					"id": 4065815913,
+					"node_id": "e63ab9398dcec6a97e625851",
+					"name": "repo-eb451c36",
+					"full_name": "user-86910d4a/repo-eb451c36",
+					"private": false,
+					"owner": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"html_url": "https://github.com/user-86910d4a/repo-eb451c36",
+					"description": "FlashInfer: Kernel Library for LLM Serving",
+					"fork": true,
+					"url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36",
+					"forks_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/forks",
+					"keys_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/keys{/key_id}",
+					"collaborators_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/collaborators{/collaborator}",
+					"teams_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/teams",
+					"hooks_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/hooks",
+					"issue_events_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/issues/events{/number}",
+					"events_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/events",
+					"assignees_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/assignees{/user}",
+					"branches_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/branches{/branch}",
+					"tags_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/tags",
+					"blobs_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/git/blobs{/sha}",
+					"git_tags_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/git/tags{/sha}",
+					"git_refs_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/git/refs{/sha}",
+					"trees_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/git/trees{/sha}",
+					"statuses_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/statuses/{sha}",
+					"languages_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/languages",
+					"stargazers_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/stargazers",
+					"contributors_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/contributors",
+					"subscribers_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/subscribers",
+					"subscription_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/subscription",
+					"commits_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/commits{/sha}",
+					"git_commits_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/git/commits{/sha}",
+					"comments_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/comments{/number}",
+					"issue_comment_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/issues/comments{/number}",
+					"contents_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/contents/{+path}",
+					"compare_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/compare/{base}...{head}",
+					"merges_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/merges",
+					"archive_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/{archive_format}{/ref}",
+					"downloads_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/downloads",
+					"issues_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/issues{/number}",
+					"pulls_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/pulls{/number}",
+					"milestones_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/milestones{/number}",
+					"notifications_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/notifications{?since,all,participating}",
+					"labels_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/labels{/name}",
+					"releases_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/releases{/id}",
+					"deployments_url": "https://api.github.com/repos/user-86910d4a/repo-eb451c36/deployments",
+					"created_at": "2026-11-09T20:30:23Z",
+					"updated_at": "2026-11-09T20:30:23Z",
+					"pushed_at": "2026-11-09T20:21:53Z",
+					"git_url": "git://github.com/user-86910d4a/repo-eb451c36.git",
+					"ssh_url": "git@github.com:user-86910d4a/repo-eb451c36.git",
+					"clone_url": "https://github.com/user-86910d4a/repo-338833a9",
+					"svn_url": "https://github.com/user-86910d4a/repo-eb451c36",
+					"homepage": "https://flashinfer.ai",
+					"size": 330531,
+					"stargazers_count": 0,
+					"watchers_count": 0,
+					"language": null,
+					"has_issues": false,
+					"has_projects": true,
+					"has_downloads": false,
+					"has_wiki": false,
+					"has_pages": false,
+					"has_discussions": false,
+					"forks_count": 0,
+					"mirror_url": null,
+					"archived": false,
+					"disabled": false,
+					"open_issues_count": 0,
+					"license": {
+						"key": "apache-2.0",
+						"name": "Apache License 2.0",
+						"spdx_id": "Apache-2.0",
+						"url": "https://api.github.com/licenses/apache-2.0",
+						"node_id": "84e971afd90bf419465a4149"
+					},
+					"allow_forking": true,
+					"is_template": false,
+					"web_commit_signoff_required": false,
+					"has_pull_requests": true,
+					"pull_request_creation_policy": "all",
+					"topics": [],
+					"visibility": "public",
+					"forks": 0,
+					"open_issues": 0,
+					"watchers": 0,
+					"default_branch": "main"
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T20:30:23Z",
+			"org": {
+				"id": 1452563479,
+				"login": "user-99626a29",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-99626a29",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1452563479?"
+			}
+		},
+		{
+			"id": "19307834102",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "closed",
+				"number": 65960,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/pulls/65960",
+					"id": 366512949,
+					"number": 65960,
+					"head": {
+						"ref": "perf-ci-prefix-caching-test",
+						"sha": "2713a47dab7a88a441fcac73c5fe1b0af8d71c70",
+						"repo": {
+							"id": 252497461,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "5f2edcec963a83760b6b0dfd5fe1987dcfc601b0",
+						"repo": {
+							"id": 2424081722,
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T17:50:11Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "19252436679",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 65960,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07/pulls/65960",
+					"id": 366512949,
+					"number": 65960,
+					"head": {
+						"ref": "perf-ci-prefix-caching-test",
+						"sha": "2713a47dab7a88a441fcac73c5fe1b0af8d71c70",
+						"repo": {
+							"id": 252497461,
+							"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "5f2edcec963a83760b6b0dfd5fe1987dcfc601b0",
+						"repo": {
+							"id": 2424081722,
+							"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07",
+							"name": "repo-5faa5e07"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T17:49:12Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		},
+		{
+			"id": "26173454779",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 252497461,
+				"name": "user-86910d4a/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07"
+			},
+			"payload": {
+				"ref": "perf-ci-prefix-caching-test",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/perf-ci-prefix-caching-test",
+				"master_branch": "main",
+				"description": "A high-throughput and memory-efficient inference and serving engine for LLMs",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-04T22:23:28Z"
+		},
+		{
+			"id": "19159780375",
+			"type": "ForkEvent",
+			"actor": {
+				"id": 4195989760,
+				"login": "user-86910d4a",
+				"display_login": "user-86910d4a",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-86910d4a",
+				"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?"
+			},
+			"repo": {
+				"id": 2424081722,
+				"name": "user-5d5f2b81/repo-5faa5e07",
+				"url": "https://api.github.com/repos/user-5d5f2b81/repo-5faa5e07"
+			},
+			"payload": {
+				"action": "forked",
+				"forkee": {
+					"id": 252497461,
+					"node_id": "2957d93598bc3b648fb7f29e",
+					"name": "repo-5faa5e07",
+					"full_name": "user-86910d4a/repo-5faa5e07",
+					"private": false,
+					"owner": {
+						"login": "user-86910d4a",
+						"id": 4195989760,
+						"node_id": "90dd078bda985e19e7154a4f",
+						"avatar_url": "https://avatars.githubusercontent.com/u/4195989760?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-86910d4a",
+						"html_url": "https://github.com/user-86910d4a",
+						"followers_url": "https://api.github.com/users/user-86910d4a/followers",
+						"following_url": "https://api.github.com/users/user-86910d4a/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-86910d4a/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-86910d4a/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-86910d4a/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-86910d4a/orgs",
+						"repos_url": "https://api.github.com/users/user-86910d4a/repos",
+						"events_url": "https://api.github.com/users/user-86910d4a/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-86910d4a/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"html_url": "https://github.com/user-86910d4a/repo-5faa5e07",
+					"description": "A high-throughput and memory-efficient inference and serving engine for LLMs",
+					"fork": true,
+					"url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07",
+					"forks_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/forks",
+					"keys_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/keys{/key_id}",
+					"collaborators_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/collaborators{/collaborator}",
+					"teams_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/teams",
+					"hooks_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/hooks",
+					"issue_events_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/issues/events{/number}",
+					"events_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/events",
+					"assignees_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/assignees{/user}",
+					"branches_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/branches{/branch}",
+					"tags_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/tags",
+					"blobs_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/git/blobs{/sha}",
+					"git_tags_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/git/tags{/sha}",
+					"git_refs_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/git/refs{/sha}",
+					"trees_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/git/trees{/sha}",
+					"statuses_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/statuses/{sha}",
+					"languages_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/languages",
+					"stargazers_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/stargazers",
+					"contributors_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/contributors",
+					"subscribers_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/subscribers",
+					"subscription_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/subscription",
+					"commits_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/commits{/sha}",
+					"git_commits_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/git/commits{/sha}",
+					"comments_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/comments{/number}",
+					"issue_comment_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/issues/comments{/number}",
+					"contents_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/contents/{+path}",
+					"compare_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/compare/{base}...{head}",
+					"merges_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/merges",
+					"archive_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/{archive_format}{/ref}",
+					"downloads_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/downloads",
+					"issues_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/issues{/number}",
+					"pulls_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/pulls{/number}",
+					"milestones_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/milestones{/number}",
+					"notifications_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/notifications{?since,all,participating}",
+					"labels_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/labels{/name}",
+					"releases_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/releases{/id}",
+					"deployments_url": "https://api.github.com/repos/user-86910d4a/repo-5faa5e07/deployments",
+					"created_at": "2026-11-04T21:30:55Z",
+					"updated_at": "2026-11-04T21:30:55Z",
+					"pushed_at": "2026-11-10T16:32:43Z",
+					"git_url": "git://github.com/user-86910d4a/repo-5faa5e07.git",
+					"ssh_url": "git@github.com:user-86910d4a/repo-5faa5e07.git",
+					"clone_url": "https://github.com/user-86910d4a/repo-d5883337",
+					"svn_url": "https://github.com/user-86910d4a/repo-5faa5e07",
+					"homepage": "https://vllm.ai",
+					"size": 355808,
+					"stargazers_count": 0,
+					"watchers_count": 0,
+					"language": null,
+					"has_issues": false,
+					"has_projects": true,
+					"has_downloads": false,
+					"has_wiki": false,
+					"has_pages": false,
+					"has_discussions": false,
+					"forks_count": 0,
+					"mirror_url": null,
+					"archived": false,
+					"disabled": false,
+					"open_issues_count": 0,
+					"license": {
+						"key": "apache-2.0",
+						"name": "Apache License 2.0",
+						"spdx_id": "Apache-2.0",
+						"url": "https://api.github.com/licenses/apache-2.0",
+						"node_id": "84e971afd90bf419465a4149"
+					},
+					"allow_forking": true,
+					"is_template": false,
+					"web_commit_signoff_required": true,
+					"has_pull_requests": true,
+					"pull_request_creation_policy": "all",
+					"topics": [],
+					"visibility": "public",
+					"forks": 0,
+					"open_issues": 0,
+					"watchers": 0,
+					"default_branch": "main"
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-04T21:30:55Z",
+			"org": {
+				"id": 3381908595,
+				"login": "user-5d5f2b81",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5d5f2b81",
+				"avatar_url": "https://avatars.githubusercontent.com/u/3381908595?"
+			}
+		}
+	]
+}

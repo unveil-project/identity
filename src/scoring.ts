@@ -1,5 +1,6 @@
 import { CONFIG } from "./config";
-import type { EvidenceGroup, Flag, ScoredGroup } from "./types";
+import type { Flag, ScoredGroup } from "./types";
+import { groupBy } from "./utils";
 
 export type ScoreOptions = {
 	bountyMultiplier?: number;
@@ -33,20 +34,10 @@ export function scoreFlags(
 			: flag.points,
 	}));
 
-	const byGroup = new Map<EvidenceGroup, Flag[]>();
-	for (const flag of scored) {
-		const existing = byGroup.get(flag.group);
-		if (existing) {
-			existing.push(flag);
-		} else {
-			byGroup.set(flag.group, [flag]);
-		}
-	}
-
 	const groups: ScoredGroup[] = [];
 	let total = 0;
 
-	for (const [group, groupFlags] of byGroup) {
+	for (const [group, groupFlags] of groupBy(scored, (flag) => flag.group)) {
 		const points = groupFlags.map((flag) => flag.effectivePoints ?? 0);
 		const rawPoints = points.reduce((sum, value) => sum + value, 0);
 		const strongest = points.reduce((max, value) => Math.max(max, value), 0);
@@ -72,4 +63,22 @@ export function scoreFlags(
 		groups,
 		flags: scored,
 	};
+}
+
+/**
+ * Make the final score from the penalty and the organic bonus.
+ * 100 means human, 0 means automation.
+ *
+ * When the penalty alone is not automation, we add the full bonus.
+ * When it is, we add less bonus as the penalty grows, and none at 100.
+ * So if the penalty is only a little too high, a big bonus can still move
+ * the account out of automation.
+ */
+export function humanScore(penalty: number, organicBonus: number): number {
+	const fadeStart = 100 - CONFIG.THRESHOLD_SUSPICIOUS;
+	const fadeProgress = (penalty - fadeStart) / (100 - fadeStart);
+	const bonusWeight = Math.min(1, Math.max(0, 1 - fadeProgress));
+	const bonus = Math.round(organicBonus * bonusWeight);
+
+	return Math.min(100, Math.max(0, 100 - penalty + bonus));
 }

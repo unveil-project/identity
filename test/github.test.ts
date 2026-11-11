@@ -179,14 +179,16 @@ describe("fromGitHub", () => {
 
 describe("report without a provider", () => {
 	it("treats everything before the last slash as the owner", () => {
-		// A nested group path: "team/sub" owns "team/sub/project".
+		// Nested group paths: "team0/sub" owns "team0/sub/project". The events
+		// are spread over five groups, so for an outsider they are drive-by
+		// activity with no home group.
 		const events: ActivityEvent[] = Array.from({ length: 25 }, (_, i) => ({
 			type: "push",
 			at: new Date(Date.UTC(2026, 0, 1, i)).toISOString(),
-			repo: "team/sub/project",
+			repo: `team${i % 5}/sub/project`,
 		}));
 		const account = {
-			login: "team/sub",
+			login: "team0/sub",
 			createdAt: "2020-01-01T00:00:00Z",
 			publicRepos: 0,
 		};

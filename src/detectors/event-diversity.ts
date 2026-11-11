@@ -1,53 +1,48 @@
 import { CONFIG } from "../config";
-import type { ActivityEvent, Flag } from "../types";
-import { calculateNormalizedShannonsEntropy } from "../utils";
+import type { ActivityEvent, ActivityEventType, Flag } from "../types";
+import { calculateNormalizedShannonsEntropy, countBy } from "../utils";
 
+/** Event types where the account talks to other people. */
+const INTERACTION_TYPES: readonly ActivityEventType[] = [
+	"issue-comment",
+	"review",
+	"review-comment",
+];
+
+/**
+ * Bots tend to repeat one or two kinds of action. People mix many kinds and
+ * talk to others along the way.
+ */
 export function detectNarrowActivityFocus(events: ActivityEvent[]): Flag[] {
-	const flags: Flag[] = [];
-
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-		return flags;
+		return [];
 	}
 
-	// Event type diversity check using Shannon's entropy
-	// Automated accounts typically have narrow event type profiles (low entropy)
-	// Organic accounts engage in varied activities (high entropy)
-	const eventTypeMap = new Map<string, number>();
-	events.forEach((e) => {
-		if (e.type) {
-			eventTypeMap.set(e.type, (eventTypeMap.get(e.type) || 0) + 1);
-		}
-	});
+	const countsByType = countBy(events, (event) => event.type);
+	const entropy = calculateNormalizedShannonsEntropy([
+		...countsByType.values(),
+	]);
 
-	const eventTypeCount = Array.from(eventTypeMap.values());
-	const eventTypeEntropy = calculateNormalizedShannonsEntropy(eventTypeCount);
-
-	const eventTypes = new Set(
-		events
-			.map((e) => e.type)
-			.filter((t): t is string => t !== null && t !== undefined),
+	const isNarrow =
+		countsByType.size <= CONFIG.DIVERSITY_MAX_EVENT_TYPES &&
+		entropy < CONFIG.DIVERSITY_MAX_ENTROPY;
+	const hasInteraction = INTERACTION_TYPES.some((type) =>
+		countsByType.has(type),
 	);
-	const hasInteraction =
-		eventTypes.has("issue-comment") ||
-		eventTypes.has("review") ||
-		eventTypes.has("review-comment");
-	const hasWatches = eventTypes.has("star");
+	const hasStars = countsByType.has("star");
 
-	// Automation indicator: very narrow type profile (few types + low variety) + no interpersonal interactions
-	const narrowTypeProfile =
-		eventTypes.size <= CONFIG.DIVERSITY_MAX_EVENT_TYPES &&
-		eventTypeEntropy < CONFIG.DIVERSITY_MAX_ENTROPY;
+	if (!isNarrow || hasInteraction || hasStars) {
+		return [];
+	}
 
-	if (narrowTypeProfile && !hasInteraction && !hasWatches) {
-		flags.push({
+	return [
+		{
 			id: "narrow-activity",
 			points: CONFIG.POINTS_LOW_DIVERSITY,
 			group: "diversity",
 			amplifiable: true,
-			facts: { eventTypes: eventTypes.size, entropy: eventTypeEntropy },
+			facts: { eventTypes: countsByType.size, entropy },
 			events,
-		});
-	}
-
-	return flags;
+		},
+	];
 }

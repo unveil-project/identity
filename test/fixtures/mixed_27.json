@@ -1,0 +1,1903 @@
+{
+	"capturedAt": "2026-11-10T22:33:18.756Z",
+	"user": {
+		"login": "user-07bde303",
+		"created_at": "2019-02-12T13:01:06Z",
+		"public_repos": 22,
+		"type": "User"
+	},
+	"events": [
+		{
+			"id": "19662606112",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "labeled",
+				"number": 53209,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53209",
+					"id": 3579495011,
+					"number": 53209,
+					"head": {
+						"ref": "feat/studio-ai-sre-prototype",
+						"sha": "ff55aa07fa4f84ced2eaa2e247c4e0dbaa97a5ca",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "79763687f7e5227ed961c1c86c3444b2b59c8a68",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				},
+				"label": {
+					"id": 3716256128,
+					"node_id": "edddd67f6599e251362b7b7e",
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/labels/do-not-merge",
+					"name": "repo-ced84ca9",
+					"color": "B60205",
+					"default": false,
+					"description": "Not ready to be merged yet; pending other dependencies",
+					"archived_at": null,
+					"archived_by": null
+				},
+				"labels": [
+					{
+						"id": 3716256128,
+						"node_id": "edddd67f6599e251362b7b7e",
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/labels/do-not-merge",
+						"name": "repo-ced84ca9",
+						"color": "B60205",
+						"default": false,
+						"description": "Not ready to be merged yet; pending other dependencies",
+						"archived_at": null,
+						"archived_by": null
+					}
+				]
+			},
+			"public": true,
+			"created_at": "2026-11-10T12:02:03Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19662601136",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53209,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53209",
+					"id": 3579495011,
+					"number": 53209,
+					"head": {
+						"ref": "feat/studio-ai-sre-prototype",
+						"sha": "ff55aa07fa4f84ced2eaa2e247c4e0dbaa97a5ca",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "79763687f7e5227ed961c1c86c3444b2b59c8a68",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-10T12:02:03Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19593925004",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53086",
+					"repository_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+					"labels_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53086/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53086/comments",
+					"events_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53086/events",
+					"html_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53086",
+					"id": 1797566790,
+					"node_id": "185ca4c9a19660da51ccf7b3",
+					"number": 53086,
+					"title": "docs(logs): document unified CLI logs DEBUG-267",
+					"user": {
+						"login": "user-8e8f46db",
+						"id": 2076973083,
+						"node_id": "16e3fa0199f8292c8205c7ed",
+						"avatar_url": "https://avatars.githubusercontent.com/u/2076973083?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-8e8f46db",
+						"html_url": "https://github.com/user-8e8f46db",
+						"followers_url": "https://api.github.com/users/user-8e8f46db/followers",
+						"following_url": "https://api.github.com/users/user-8e8f46db/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-8e8f46db/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-8e8f46db/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-8e8f46db/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-8e8f46db/orgs",
+						"repos_url": "https://api.github.com/users/user-8e8f46db/repos",
+						"events_url": "https://api.github.com/users/user-8e8f46db/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-8e8f46db/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [
+						{
+							"id": 3764097592,
+							"node_id": "61e6c7b6730c5b99b5349ed2",
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/labels/documentation",
+							"name": "repo-ced84ca9",
+							"color": "0075ca",
+							"default": true,
+							"description": "Improvements or additions to documentation",
+							"archived_at": null,
+							"archived_by": null
+						}
+					],
+					"state": "closed",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 4,
+					"created_at": "2026-11-06T13:22:17Z",
+					"updated_at": "2026-11-09T15:32:37Z",
+					"closed_at": "2026-11-09T15:32:34Z",
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53086",
+						"html_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53086",
+						"diff_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53086.diff",
+						"patch_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53086.patch",
+						"merged_at": "2026-11-09T15:32:34Z"
+					},
+					"body": "## Problem\n\nThe unified CLI logs commands need a public guide. The existing SQL guide also says the CLI cannot query hosted ClickHouse logs, which is only true for v2.\n\n## Fix\n\nAdd **Logs in the CLI** to the Observability navigation and overview cards. Cover local and remote queries, filters and time ranges, interactive versus JSON output, exports, SQL, command options, migration, and troubleshooting.\n\nInclude screenshots of the explorer and full record details using demo local logs. Keep the v2 CLI reference unchanged and update links from the existing logs and SQL guides.\n\nMerge after the CLI version with unified logs is released. Tracks [DEBUG-267](https://linear.app/supabase/issue/DEBUG-267) and [DEBUG-268](https://linear.app/supabase/issue/DEBUG-268).\n\n## How to test\n\nOpen `/docs/guides/observability/cli-logs` in the preview. Check the section order, images, option tables, and links from Observability, Logs in Studio, and Query logs with SQL.\n\nLocal examples were verified using the CLI PR build and retained log fixtures. Hosted examples were checked against the implementation but were not rerun against a live project for this docs change.\n\n## Screenshots\n\nExplorer showing demo local logs:\n\n![Interactive log explorer](https://raw.githubusercontent.com/supabase/supabase/0f47956edf/apps/docs/public/img/guides/observability/cli-logs/explorer.jpg)\n\nFull selected record:\n\n![Full log details](https://raw.githubusercontent.com/supabase/supabase/0f47956edf/apps/docs/public/img/guides/observability/cli-logs/details.jpg)\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53086/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53086/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/comments/6743598083",
+					"html_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53086#issuecomment-6743598083",
+					"issue_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53086",
+					"id": 2278639372,
+					"node_id": "c4cbaae02fca6c9e3af5a37a",
+					"user": {
+						"login": "user-07bde303",
+						"id": 1508621906,
+						"node_id": "627e6e4962335fc6148cb008",
+						"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-07bde303",
+						"html_url": "https://github.com/user-07bde303",
+						"followers_url": "https://api.github.com/users/user-07bde303/followers",
+						"following_url": "https://api.github.com/users/user-07bde303/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-07bde303/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-07bde303/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-07bde303/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-07bde303/orgs",
+						"repos_url": "https://api.github.com/users/user-07bde303/repos",
+						"events_url": "https://api.github.com/users/user-07bde303/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-07bde303/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-09T15:14:53Z",
+					"updated_at": "2026-11-09T15:14:53Z",
+					"body": "Looks good. Ship it\r\n\r\nIs the [query with sql](https://docs-git-jordi-debug-267-cli-logs-docs-supabase.vercel.app/docs/guides/observability/cli-logs#query-with-sql) subsection should it not reference the existing [Query Logs with SQL](https://docs-git-jordi-debug-267-cli-logs-docs-supabase.vercel.app/docs/guides/observability/advanced-log-filtering) dedicated section? It makes sense for the section to exist and include how to operate SQL with the CLI but it doesn;t need to repeate informaiton about clickhouse for example, since that is already documented elsewhere. Studio's page for example handles the cross reference like this.\r\n\r\n> Use [Logs](https://docs-git-jordi-debug-267-cli-logs-docs-supabase.vercel.app/dashboard/project/_/logs) to inspect events across your hosted project's services. For SQL queries through [Explorer](https://docs-git-jordi-debug-267-cli-logs-docs-supabase.vercel.app/dashboard/project/_/explorer), MCP, or the API, see [Query logs with SQL](https://docs-git-jordi-debug-267-cli-logs-docs-supabase.vercel.app/docs/guides/observability/advanced-log-filtering).\r\n\r\nIt's interesting to me that the docs start with local use case first. Is that the top use case our users our interested in for the CLI? Legit question",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/comments/6743598083/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T15:14:53Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19575680759",
+			"type": "IssueCommentEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "created",
+				"issue": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53170",
+					"repository_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+					"labels_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53170/labels{/name}",
+					"comments_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53170/comments",
+					"events_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53170/events",
+					"html_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53170",
+					"id": 950136184,
+					"node_id": "597fe93eaf9b56c4e8877fe8",
+					"number": 53170,
+					"title": "feat(studio): one click attribute filters in the unified logs overview panel",
+					"user": {
+						"login": "user-341b56cb",
+						"id": 3422268375,
+						"node_id": "57bc6dbbe626ada967133dcf",
+						"avatar_url": "https://avatars.githubusercontent.com/u/3422268375?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-341b56cb",
+						"html_url": "https://github.com/user-341b56cb",
+						"followers_url": "https://api.github.com/users/user-341b56cb/followers",
+						"following_url": "https://api.github.com/users/user-341b56cb/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-341b56cb/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-341b56cb/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-341b56cb/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-341b56cb/orgs",
+						"repos_url": "https://api.github.com/users/user-341b56cb/repos",
+						"events_url": "https://api.github.com/users/user-341b56cb/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-341b56cb/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"labels": [],
+					"state": "closed",
+					"locked": false,
+					"assignees": [],
+					"milestone": null,
+					"comments": 6,
+					"created_at": "2026-11-09T16:13:17Z",
+					"updated_at": "2026-11-09T18:12:46Z",
+					"closed_at": "2026-11-09T18:12:44Z",
+					"assignee": null,
+					"issue_field_values": [],
+					"type": null,
+					"active_lock_reason": null,
+					"draft": false,
+					"pull_request": {
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53170",
+						"html_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53170",
+						"diff_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53170.diff",
+						"patch_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53170.patch",
+						"merged_at": "2026-11-09T18:12:44Z"
+					},
+					"body": "## Problem\n\nFiltering via properties in the Overview tab of Unified Logs had a couple of clicks to it.\n\n## Solution\n\nAttribute rows now expose equals and not-equals directly, through one shared code path.\n\n- **Hover devices** (`(hover: hover) and (pointer: fine)` above `md`): hovering or keyboard-focusing a row reveals borderless icon buttons at its right edge — equals, not equals, copy — following the same reveal pattern as the \"Only\" button on the sidebar filters. The value fades out behind them so nothing is occluded or reflowed.\n- **Touch devices and small viewports**: unchanged dropdown, now listing \"Filter: equals\", \"Filter: not equals\" and \"Copy &lt;attribute&gt;\" instead of the single \"Add filter\".\n- Only rows that can actually be filtered get filter actions; everything else gets copy alone.\n\n| Before | After |\n|--------|--------|\n| <img width=\"451\" height=\"191\" alt=\"Screenshot 2026-11-09 at 16 12 08\" src=\"https://github.com/user-attachments/assets/ffc68a34-4373-44ea-8922-8f5b3dd436a0\" /> | <img width=\"465\" height=\"148\" alt=\"Screenshot 2026-11-09 at 16 12 25\" src=\"https://github.com/user-attachments/assets/0bf41014-25d7-4390-ba5f-ab7a796ec1de\" /> | \n\n## Review instructions\n\n1. Open the preview, go to a project's Logs, and click a log row to open the detail dock on the Overview tab.\n2. Hover a filterable row (Path, Method, Status, or any attribute). Equals, not-equals and copy buttons fade in at the right edge; the value fades out. Tab into them to check the focus rings and tooltips.\n3. Click the equals button on Path. The filter appears in the filter bar and the log list updates. Do the same with not-equals on another row and confirm the chip uses `<>`.\n4. Hover a row that can't be filtered (for example Host or Client). Only the copy button appears, and no filter action is offered.\n5. Apply the same filter twice — no duplicate chip. Then apply the opposite operator on that column — the chip's operator is replaced rather than mixed.\n6. Narrow the window below 768px (or use a touch device). The hover buttons disappear and clicking a row opens the dropdown with \"Filter: equals\", \"Filter: not equals\" and \"Copy &lt;attribute&gt;\".\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53170/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"timeline_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53170/timeline",
+					"performed_via_github_app": null,
+					"state_reason": null
+				},
+				"comment": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/comments/6745334848",
+					"html_url": "https://github.com/user-5fd00a5b/repo-ced84ca9/pull/53170#issuecomment-6745334848",
+					"issue_url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/53170",
+					"id": 396103811,
+					"node_id": "bd09f73ac51158aa1b0385de",
+					"user": {
+						"login": "user-07bde303",
+						"id": 1508621906,
+						"node_id": "627e6e4962335fc6148cb008",
+						"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?v=4",
+						"gravatar_id": "",
+						"url": "https://api.github.com/users/user-07bde303",
+						"html_url": "https://github.com/user-07bde303",
+						"followers_url": "https://api.github.com/users/user-07bde303/followers",
+						"following_url": "https://api.github.com/users/user-07bde303/following{/other_user}",
+						"gists_url": "https://api.github.com/users/user-07bde303/gists{/gist_id}",
+						"starred_url": "https://api.github.com/users/user-07bde303/starred{/owner}{/repo}",
+						"subscriptions_url": "https://api.github.com/users/user-07bde303/subscriptions",
+						"organizations_url": "https://api.github.com/users/user-07bde303/orgs",
+						"repos_url": "https://api.github.com/users/user-07bde303/repos",
+						"events_url": "https://api.github.com/users/user-07bde303/events{/privacy}",
+						"received_events_url": "https://api.github.com/users/user-07bde303/received_events",
+						"type": "User",
+						"user_view_type": "public",
+						"site_admin": false
+					},
+					"created_at": "2026-11-09T16:28:08Z",
+					"updated_at": "2026-11-09T16:28:08Z",
+					"body": "<img width=\"475\" height=\"299\" alt=\"image\" src=\"https://github.com/user-attachments/assets/0be5ed7b-7994-4708-8e4b-dc6d1560d11e\" />\r\n\r\n\r\n@kemaldotearth  this is definitely an improvement, one thought to make this potentially more extendable, is that it would still have the lil window popup it would jsut have more options, instead of putting more button icons on the lines\r\n\r\n1. there's a single icon that is obvious to click\r\n2. there's a list of options then presented to the user\r\n   - copy, search by, exclude\r\n\r\n\r\nPrior art from other systems, does follow this multi-button route though\r\n\r\n<img width=\"235\" height=\"106\" alt=\"image\" src=\"https://github.com/user-attachments/assets/22ba8f3d-5d77-4659-848b-e61a9a08c9d7\" />\r\n",
+					"reactions": {
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/issues/comments/6745334848/reactions",
+						"total_count": 0,
+						"+1": 0,
+						"-1": 0,
+						"laugh": 0,
+						"hooray": 0,
+						"confused": 0,
+						"heart": 0,
+						"rocket": 0,
+						"eyes": 0
+					},
+					"performed_via_github_app": null,
+					"minimized": null
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-09T16:28:08Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19569653125",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "labeled",
+				"number": 52998,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/52998",
+					"id": 1664098170,
+					"number": 52998,
+					"head": {
+						"ref": "feat/egress-usage-ui",
+						"sha": "d9deb7231e8016d5efbdcfe89e4925c5221f35f4",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "965977876909fe564c24ce63a470948514855a1e",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				},
+				"label": {
+					"id": 3716256128,
+					"node_id": "edddd67f6599e251362b7b7e",
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/labels/do-not-merge",
+					"name": "repo-ced84ca9",
+					"color": "B60205",
+					"default": false,
+					"description": "Not ready to be merged yet; pending other dependencies",
+					"archived_at": null,
+					"archived_by": null
+				},
+				"labels": [
+					{
+						"id": 3764097592,
+						"node_id": "61e6c7b6730c5b99b5349ed2",
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/labels/documentation",
+						"name": "repo-ced84ca9",
+						"color": "0075ca",
+						"default": true,
+						"description": "Improvements or additions to documentation",
+						"archived_at": null,
+						"archived_by": null
+					},
+					{
+						"id": 3716256128,
+						"node_id": "edddd67f6599e251362b7b7e",
+						"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/labels/do-not-merge",
+						"name": "repo-ced84ca9",
+						"color": "B60205",
+						"default": false,
+						"description": "Not ready to be merged yet; pending other dependencies",
+						"archived_at": null,
+						"archived_by": null
+					}
+				]
+			},
+			"public": true,
+			"created_at": "2026-11-05T08:18:08Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26359357680",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "feat(usage)egress-sql-who",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/feat(usage)egress-sql-who",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:21:03Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26346859181",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "feat(usage)egress-perf-gating",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/feat(usage)egress-perf-gating",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:19:29Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26342058579",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "docs(usage)egress-debugging",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/docs(usage)egress-debugging",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:38:10Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26310580508",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "feat(usage)egress-storage-drilldown",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/feat(usage)egress-storage-drilldown",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:20:51Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26273781525",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "feat/egress-usage-ui",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/feat/egress-usage-ui",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T07:38:01Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26243013444",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "feat(usage)egress-top-api-paths",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/feat(usage)egress-top-api-paths",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T11:44:13Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26242327974",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "feat(usage)egress-top-queries",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/feat(usage)egress-top-queries",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:24:52Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26239810082",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 2496601015,
+				"name": "user-5fd00a5b/repo-80485cfd",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-80485cfd"
+			},
+			"payload": {
+				"ref": "feat(skill)egress-manage-usage",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/feat(skill)egress-manage-usage",
+				"master_branch": "main",
+				"description": "Agent Skills to help developers using AI agents with Supabase",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:42:23Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26238103399",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "feat(usage)egress-cached-vs-uncached",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/feat(usage)egress-cached-vs-uncached",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:45:56Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19228120589",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53025,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53025",
+					"id": 4273005144,
+					"number": 53025,
+					"head": {
+						"ref": "feat(usage)egress-top-queries",
+						"sha": "e226ef980487baf85f615d9ed10c8036e65108f7",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "feat(usage)egress-top-api-paths",
+						"sha": "113e8e2d82dbbfa2ed456fa8318bb53789350584",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:25:06Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "26237117350",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "docs(observability)egress-link",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/docs(observability)egress-link",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:38:12Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19227781994",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53024,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53024",
+					"id": 2715501111,
+					"number": 53024,
+					"head": {
+						"ref": "feat(usage)egress-sql-who",
+						"sha": "798559267ca7d22af52cf6a3cf5e99f62f09c764",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "feat(usage)egress-logs-explorer-button",
+						"sha": "f9629acdb11954daf80f6aafe71ddc89ba85e106",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:21:15Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19227748126",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53023,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53023",
+					"id": 337109058,
+					"number": 53023,
+					"head": {
+						"ref": "feat(usage)egress-storage-drilldown",
+						"sha": "81471e9ce26211feef7d7ac64d1b3ebd9eaabfa5",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "feat(usage)egress-cached-vs-uncached",
+						"sha": "21a3a00049320a7f06082f0f4e3bd7c1f85f6c1b",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:20:53Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19227675723",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53022,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53022",
+					"id": 1935216183,
+					"number": 53022,
+					"head": {
+						"ref": "feat(usage)egress-top-consumers",
+						"sha": "b523258a839a918870c2f466025c8c9fb9202ac7",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "feat(usage)egress-top-api-paths",
+						"sha": "113e8e2d82dbbfa2ed456fa8318bb53789350584",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:20:02Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19227664466",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53021,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53021",
+					"id": 2848004206,
+					"number": 53021,
+					"head": {
+						"ref": "feat(usage)egress-perf-gating",
+						"sha": "4e04fb7e59ce4a7a758631ad88120927bb6923f6",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "feat(usage)egress-top-api-paths",
+						"sha": "113e8e2d82dbbfa2ed456fa8318bb53789350584",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:19:54Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19227548762",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53020,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53020",
+					"id": 4130241175,
+					"number": 53020,
+					"head": {
+						"ref": "feat(usage)egress-jump-buttons",
+						"sha": "07af39e853bbf9e99119d2cfe8b86394cca0015f",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "dfe1e330a40cbdd4bc6022593febf03b7e53a36b",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:18:35Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19227484960",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53019,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53019",
+					"id": 2868337110,
+					"number": 53019,
+					"head": {
+						"ref": "feat(usage)egress-logs-explorer-button",
+						"sha": "f9629acdb11954daf80f6aafe71ddc89ba85e106",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "dfe1e330a40cbdd4bc6022593febf03b7e53a36b",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T13:17:51Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19224814904",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53016,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53016",
+					"id": 4143080292,
+					"number": 53016,
+					"head": {
+						"ref": "feat(usage)egress-cached-vs-uncached",
+						"sha": "21a3a00049320a7f06082f0f4e3bd7c1f85f6c1b",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "8bebf8206e79cfa42daac06d134b8b6744664115",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:46:08Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19224512257",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 2496601015,
+				"name": "user-5fd00a5b/repo-80485cfd",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-80485cfd"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 640,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-80485cfd/pulls/640",
+					"id": 3368472663,
+					"number": 640,
+					"head": {
+						"ref": "feat(skill)egress-manage-usage",
+						"sha": "e5de65a2e0a2d5bbe9dec902269b5cf48b3e46a4",
+						"repo": {
+							"id": 2496601015,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-80485cfd",
+							"name": "repo-80485cfd"
+						}
+					},
+					"base": {
+						"ref": "main",
+						"sha": "c9be0e931b7930f7d02126d04774d904c381e7d7",
+						"repo": {
+							"id": 2496601015,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-80485cfd",
+							"name": "repo-80485cfd"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:42:32Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19224225002",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53015,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53015",
+					"id": 3684806270,
+					"number": 53015,
+					"head": {
+						"ref": "feat(usage)egress-ai-debug",
+						"sha": "14cc0ee2444067ac6c326cb9a139b36eb4fbcb3e",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "8bebf8206e79cfa42daac06d134b8b6744664115",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:38:47Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19224219978",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53014,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53014",
+					"id": 986128377,
+					"number": 53014,
+					"head": {
+						"ref": "docs(observability)egress-link",
+						"sha": "f2cfb725f150645729e5f7f09167b7d61111cc67",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "8bebf8206e79cfa42daac06d134b8b6744664115",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:38:44Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19224218601",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53013,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53013",
+					"id": 1924450095,
+					"number": 53013,
+					"head": {
+						"ref": "docs(usage)egress-debugging",
+						"sha": "c3dfecab48c9c56bf9610fa7fb72502752ebf9e0",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "8bebf8206e79cfa42daac06d134b8b6744664115",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:38:41Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19224214434",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53012,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53012",
+					"id": 3594013882,
+					"number": 53012,
+					"head": {
+						"ref": "feat(usage)egress-labels-copy",
+						"sha": "77a6af1ece0d99cdc2eecab33aa3b0148600c8ed",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "8bebf8206e79cfa42daac06d134b8b6744664115",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T12:38:39Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19219848389",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 53007,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/53007",
+					"id": 311822507,
+					"number": 53007,
+					"head": {
+						"ref": "feat(usage)egress-top-api-paths",
+						"sha": "113e8e2d82dbbfa2ed456fa8318bb53789350584",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "fa7e8b636a432427a380ff6ed9be134cd3e61fcc",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T11:44:46Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "19202334025",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 52998,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/52998",
+					"id": 1664098170,
+					"number": 52998,
+					"head": {
+						"ref": "feat/egress-usage-ui",
+						"sha": "d9deb7231e8016d5efbdcfe89e4925c5221f35f4",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "965977876909fe564c24ce63a470948514855a1e",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-05T08:04:58Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "18871844117",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "merged",
+				"number": 52393,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/52393",
+					"id": 3317919843,
+					"number": 52393,
+					"head": {
+						"ref": "fix/logs-meter-alarm",
+						"sha": "e0f636a0b6356944e9726617a37f7cc380cb9cfa",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "a9f56b3c4aae0cc7a3349e08e3604fdf5b9d3c68",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-11-02T09:41:09Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "25703433119",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"repository_id": 1624272474,
+				"push_id": 1060202820,
+				"ref": "refs/heads/fix/logs-meter-alarm",
+				"head": "a4db050b271553f93a79e670e643eea179cbb6c1",
+				"before": "f08385ddf1380c14f3d05fc93695b9eb88943923"
+			},
+			"public": true,
+			"created_at": "2026-10-29T09:26:52Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "25614630120",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"repository_id": 1624272474,
+				"push_id": 3977152205,
+				"ref": "refs/heads/fix/logs-meter-alarm",
+				"head": "f08385ddf1380c14f3d05fc93695b9eb88943923",
+				"before": "6767749e709143b98f1ca7550c8579a15df15fe1"
+			},
+			"public": true,
+			"created_at": "2026-10-29T08:43:46Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "25476865023",
+			"type": "CreateEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"ref": "fix/logs-meter-alarm",
+				"ref_type": "branch",
+				"full_ref": "refs/heads/fix/logs-meter-alarm",
+				"master_branch": "master",
+				"description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
+				"pusher_type": "user"
+			},
+			"public": true,
+			"created_at": "2026-10-27T13:55:25Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "25395809250",
+			"type": "PushEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"repository_id": 1624272474,
+				"push_id": 992574771,
+				"ref": "refs/heads/fix/logs-meter-alarm",
+				"head": "6767749e709143b98f1ca7550c8579a15df15fe1",
+				"before": "a8ad32409253a52beba8d1018d25a9cb1b62c5f4"
+			},
+			"public": true,
+			"created_at": "2026-10-27T16:55:28Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		},
+		{
+			"id": "18347758866",
+			"type": "PullRequestEvent",
+			"actor": {
+				"id": 1508621906,
+				"login": "user-07bde303",
+				"display_login": "user-07bde303",
+				"gravatar_id": "",
+				"url": "https://api.github.com/users/user-07bde303",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1508621906?"
+			},
+			"repo": {
+				"id": 1624272474,
+				"name": "user-5fd00a5b/repo-ced84ca9",
+				"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9"
+			},
+			"payload": {
+				"action": "opened",
+				"number": 52393,
+				"pull_request": {
+					"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9/pulls/52393",
+					"id": 3317919843,
+					"number": 52393,
+					"head": {
+						"ref": "fix/logs-meter-alarm",
+						"sha": "e0f636a0b6356944e9726617a37f7cc380cb9cfa",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					},
+					"base": {
+						"ref": "master",
+						"sha": "a9f56b3c4aae0cc7a3349e08e3604fdf5b9d3c68",
+						"repo": {
+							"id": 1624272474,
+							"url": "https://api.github.com/repos/user-5fd00a5b/repo-ced84ca9",
+							"name": "repo-ced84ca9"
+						}
+					}
+				}
+			},
+			"public": true,
+			"created_at": "2026-10-27T14:00:31Z",
+			"org": {
+				"id": 1537431395,
+				"login": "user-5fd00a5b",
+				"gravatar_id": "",
+				"url": "https://api.github.com/orgs/user-5fd00a5b",
+				"avatar_url": "https://avatars.githubusercontent.com/u/1537431395?"
+			}
+		}
+	]
+}

@@ -1,266 +1,240 @@
 import { CONFIG } from "../config";
-import { secondsBetween, toTime } from "../time";
+import {
+	isBranchCreation,
+	isOpenedPR,
+	type TimedEvent,
+	toTimeline,
+} from "../events";
+import { isOwnRepo, nameOf } from "../repos";
+import { secondsBetween } from "../time";
 import type { ActivityEvent, EventConnection, Flag } from "../types";
-import { nameOf, ownerOf } from "../utils";
+import { groupBy } from "../utils";
 
-/** Every branch event first, then every PR event. */
-function eventsOf(connections: EventConnection[]): ActivityEvent[] {
-	const branchEvents = connections.map((connection) => connection.from);
-	const prEvents = connections.map((connection) => connection.to);
+type BranchPRMatch = {
+	branch: TimedEvent;
+	pr: TimedEvent;
+	gapSeconds: number;
+};
 
-	return [...branchEvents, ...prEvents];
+type BranchPRInput = {
+	/** Every branch the account created, oldest first. */
+	branches: TimedEvent[];
+	/** Every PR the account opened, oldest first. */
+	prs: TimedEvent[];
+	login: string;
+	isEstablished: boolean;
+	minRatio: number;
+};
+
+/**
+ * Pair each branch with the first PR that opens within
+ * BRANCH_PR_TIME_WINDOW_SECONDS after it, among PRs with the same key (the
+ * repository, or the project name). Each PR is used for one branch at most.
+ * Both lists must be sorted oldest first.
+ */
+function pairBranchesWithPRs(
+	branches: TimedEvent[],
+	prs: TimedEvent[],
+	keyOf: (event: ActivityEvent) => string | undefined,
+	isPair: (branch: ActivityEvent, pr: ActivityEvent) => boolean,
+): BranchPRMatch[] {
+	const prsByKey = groupBy(prs, (pr) => keyOf(pr.event));
+	// For each key, the index of the first PR not used or passed yet.
+	const nextPRIndex = new Map<string, number>();
+	const matches: BranchPRMatch[] = [];
+
+	for (const branch of branches) {
+		const key = keyOf(branch.event);
+		if (key === undefined) {
+			continue;
+		}
+
+		const candidates = prsByKey.get(key);
+		if (!candidates) {
+			continue;
+		}
+
+		let index = nextPRIndex.get(key) ?? 0;
+
+		// PRs opened before the branch existed cannot come from it.
+		while ((candidates[index]?.time ?? Infinity) < branch.time) {
+			index++;
+		}
+
+		const pr = candidates[index];
+		if (pr) {
+			const gapSeconds = Math.trunc(secondsBetween(branch.time, pr.time));
+			const isQuick = gapSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS;
+
+			if (isQuick && isPair(branch.event, pr.event)) {
+				matches.push({ branch, pr, gapSeconds });
+				index++;
+			}
+		}
+
+		nextPRIndex.set(key, index);
+	}
+
+	return matches;
 }
 
+function connectionsOf(matches: BranchPRMatch[]): EventConnection[] {
+	return matches.map((match) => ({
+		from: match.branch.event,
+		to: match.pr.event,
+	}));
+}
+
+/** Every branch event first, then every PR event. */
+function eventsOf(matches: BranchPRMatch[]): ActivityEvent[] {
+	const branches = matches.map((match) => match.branch.event);
+	const prs = matches.map((match) => match.pr.event);
+
+	return [...branches, ...prs];
+}
+
+function longestGapOf(matches: BranchPRMatch[]): number {
+	return Math.max(0, ...matches.map((match) => match.gapSeconds));
+}
+
+/**
+ * The branch and the PR are in the same repository, and the account owns it.
+ *
+ * Only the account's own repos count here. Branching directly inside someone
+ * else's repo requires push access that a maintainer had to grant, so those
+ * are normal collaborators moving fast. An automation spraying PRs at repos it
+ * has no access to has to fork first, and the fork check catches that.
+ */
+function detectOwnRepoPattern(input: BranchPRInput): Flag | undefined {
+	const { branches, prs, login, isEstablished, minRatio } = input;
+	const minPairs = isEstablished
+		? CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS_ESTABLISHED
+		: CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS;
+
+	const ownBranches = branches.filter((b) => isOwnRepo(b.event.repo, login));
+	const ownPRs = prs.filter((pr) => isOwnRepo(pr.event.repo, login));
+
+	if (ownBranches.length < minPairs || ownPRs.length < minPairs) {
+		return undefined;
+	}
+
+	// Far fewer branches than PRs means most PRs did not come from a fresh
+	// branch, which is how a busy maintainer works.
+	if (ownBranches.length / ownPRs.length < CONFIG.BRANCH_PR_COUNT_RATIO_MIN) {
+		return undefined;
+	}
+
+	const matches = pairBranchesWithPRs(
+		ownBranches,
+		ownPRs,
+		(event) => event.repo,
+		() => true,
+	);
+	if (matches.length < minPairs) {
+		return undefined;
+	}
+
+	// The ratio compares matches found in the account's own repos against
+	// every branch it created anywhere. That is on purpose: labelling a real
+	// person as a bot is costly, and the bigger denominator stops someone who
+	// branches all over the place, and happens to be quick in a couple of
+	// their own repos, from tripping this flag.
+	const ratio = matches.length / branches.length;
+	if (ratio < minRatio) {
+		return undefined;
+	}
+
+	return {
+		id: "branch-pr-pattern",
+		points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
+		group: "branch-pr",
+		amplifiable: true,
+		facts: {
+			pairs: matches.length,
+			minPairs,
+			branches: branches.length,
+			ownBranches: ownBranches.length,
+			ratio,
+			minRatio,
+			maxGapSeconds: longestGapOf(matches),
+		},
+		events: eventsOf(matches),
+		connections: connectionsOf(matches),
+	};
+}
+
+/**
+ * The branch is in the account's fork and the PR goes to the original project:
+ * same repository name, different owner. Established accounts need fewer
+ * matches here, because this pattern is already a much narrower signal.
+ */
+function detectForkPattern(input: BranchPRInput): Flag | undefined {
+	const { branches, prs, login, isEstablished, minRatio } = input;
+	const minPairs = isEstablished
+		? CONFIG.BRANCH_PR_FORK_MIN_PAIRS_ESTABLISHED
+		: CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS;
+
+	if (branches.length < minPairs || prs.length < minPairs) {
+		return undefined;
+	}
+
+	const matches = pairBranchesWithPRs(
+		branches,
+		prs,
+		(event) => nameOf(event.repo),
+		(branch, pr) => isOwnRepo(branch.repo, login) && !isOwnRepo(pr.repo, login),
+	);
+	if (matches.length < minPairs) {
+		return undefined;
+	}
+
+	const ratio = matches.length / branches.length;
+	if (ratio < minRatio) {
+		return undefined;
+	}
+
+	return {
+		id: "fork-pr-pattern",
+		points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
+		group: "branch-pr",
+		amplifiable: true,
+		facts: {
+			pairs: matches.length,
+			minPairs,
+			branches: branches.length,
+			ratio,
+			minRatio,
+			maxGapSeconds: longestGapOf(matches),
+		},
+		events: eventsOf(matches),
+		connections: connectionsOf(matches),
+	};
+}
+
+/**
+ * Looks for branches that turn into a pull request almost immediately, again
+ * and again. People can be this fast too (branch, push, `gh pr create`), so a
+ * match is a hint that something is automated, not proof of it.
+ */
 export function detectBranchPRAutomation(
 	events: ActivityEvent[],
 	isEstablished: boolean,
 	accountName: string,
 ): Flag[] {
-	const flags: Flag[] = [];
+	const input: BranchPRInput = {
+		branches: toTimeline(events.filter(isBranchCreation)),
+		prs: toTimeline(events.filter(isOpenedPR)),
+		login: accountName,
+		isEstablished,
+		minRatio: isEstablished
+			? CONFIG.BRANCH_PR_PATTERN_RATIO_MIN_ESTABLISHED
+			: CONFIG.BRANCH_PR_PATTERN_RATIO_MIN,
+	};
 
-	// Looks for branches that turn into a pull request almost immediately, again and again.
-	// People can be this fast too (branch, push, `gh pr create`), so a match is a hint that
-	// something is automated, not proof of it.
-	const branchPRMinPairs = isEstablished
-		? CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS_ESTABLISHED
-		: CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS;
-	const branchPRMinRatio = isEstablished
-		? CONFIG.BRANCH_PR_PATTERN_RATIO_MIN_ESTABLISHED
-		: CONFIG.BRANCH_PR_PATTERN_RATIO_MIN;
-
-	const branchCreates = events.filter(
-		(e) => e.type === "create" && e.ref?.type === "branch",
-	);
-	const prEvents = events.filter(
-		(e) => e.type === "pull-request" && e.action === "opened",
-	);
-
-	const branchTimes = branchCreates
-		.map((e) => ({ event: e, time: toTime(e.at) }))
-		.sort((a, b) => a.time - b.time);
-
-	const prTimes = prEvents
-		.map((e) => ({ event: e, time: toTime(e.at) }))
-		.sort((a, b) => a.time - b.time);
-
-	// First check: the branch and the PR are in the same repository, and the account
-	// owns it.
-	//
-	// Only the account's own repos count here. Branching directly inside someone
-	// else's repo requires push access that a maintainer had to grant, so those are
-	// normal collaborators moving fast. An automation spraying PRs at repos it has
-	// no access to has to fork first, and the fork check further down catches that.
-	const accountNameLower = accountName.toLowerCase();
-	const ownsRepo = (event: ActivityEvent) =>
-		ownerOf(event.repo).toLowerCase() === accountNameLower;
-
-	const ownedBranchTimes = branchTimes.filter((b) => ownsRepo(b.event));
-	const ownedPrTimes = prTimes.filter((p) => ownsRepo(p.event));
-
-	if (
-		ownedBranchTimes.length >= branchPRMinPairs &&
-		ownedPrTimes.length >= branchPRMinPairs
-	) {
-		const branchPRRatio = ownedBranchTimes.length / ownedPrTimes.length;
-
-		if (branchPRRatio >= CONFIG.BRANCH_PR_COUNT_RATIO_MIN) {
-			const prTimesByRepo = new Map<string, typeof prTimes>();
-			for (const prEntry of ownedPrTimes) {
-				const repoName = prEntry.event.repo;
-				if (repoName) {
-					if (!prTimesByRepo.has(repoName)) {
-						prTimesByRepo.set(repoName, []);
-					}
-
-					prTimesByRepo.get(repoName)?.push(prEntry);
-				}
-			}
-
-			let matchedPairs = 0;
-			let maxObservedTimeDiff = 0;
-			const prIdxByRepo = new Map<string, number>();
-			const matchedConnections: EventConnection[] = [];
-
-			for (const branchEntry of ownedBranchTimes) {
-				const repoName = branchEntry.event.repo;
-				if (!repoName) {
-					continue;
-				}
-
-				const repoPrTimes = prTimesByRepo.get(repoName);
-				if (!repoPrTimes || repoPrTimes.length === 0) {
-					continue;
-				}
-
-				if (!prIdxByRepo.has(repoName)) {
-					prIdxByRepo.set(repoName, 0);
-				}
-
-				let prIdx = prIdxByRepo.get(repoName) ?? 0;
-				let prEntry = repoPrTimes[prIdx];
-
-				while (prEntry && prEntry.time < branchEntry.time) {
-					prIdx++;
-					prEntry = repoPrTimes[prIdx];
-				}
-
-				if (prEntry) {
-					const timeDiffSeconds = Math.trunc(
-						secondsBetween(branchEntry.time, prEntry.time),
-					);
-
-					if (
-						timeDiffSeconds >= 0 &&
-						timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS
-					) {
-						matchedPairs++;
-						maxObservedTimeDiff = Math.max(
-							maxObservedTimeDiff,
-							timeDiffSeconds,
-						);
-						matchedConnections.push({
-							from: branchEntry.event,
-							to: prEntry.event,
-						});
-						prIdx++;
-					}
-				}
-
-				prIdxByRepo.set(repoName, prIdx);
-			}
-
-			if (matchedPairs >= branchPRMinPairs) {
-				// The ratio compares matches found in the account's own repos
-				// against every branch it created anywhere. That is on purpose:
-				// labelling a real person as a bot is costly, and the bigger
-				// denominator stops someone who branches all over the place, and
-				// happens to be quick in a couple of their own repos, from tripping
-				// this flag.
-				const automationRatio = matchedPairs / branchCreates.length;
-
-				if (automationRatio >= branchPRMinRatio) {
-					flags.push({
-						id: "branch-pr-pattern",
-						points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
-						group: "branch-pr",
-						amplifiable: true,
-						facts: {
-							pairs: matchedPairs,
-							minPairs: branchPRMinPairs,
-							branches: branchCreates.length,
-							ownBranches: ownedBranchTimes.length,
-							ratio: automationRatio,
-							minRatio: branchPRMinRatio,
-							maxGapSeconds: maxObservedTimeDiff,
-						},
-						events: eventsOf(matchedConnections),
-						connections: matchedConnections,
-					});
-
-					return flags;
-				}
-			}
-		}
+	const flag = detectOwnRepoPattern(input) ?? detectForkPattern(input);
+	if (!flag) {
+		return [];
 	}
 
-	// Second check: the branch is in the user's fork and the PR goes to the original
-	// project — same repository name, different owner. Established accounts need fewer
-	// matches here, because this pattern is already a much narrower signal.
-	const forkMinPairs = isEstablished
-		? CONFIG.BRANCH_PR_FORK_MIN_PAIRS_ESTABLISHED
-		: CONFIG.BRANCH_PR_PATTERN_MIN_PAIRS;
-
-	if (branchCreates.length >= forkMinPairs && prEvents.length >= forkMinPairs) {
-		let forkWorkflowMatches = 0;
-		let forkMaxTimeDiff = 0;
-		const matchedForkConnections: EventConnection[] = [];
-
-		const projectNames = new Set<string>();
-		for (const branch of branchTimes) {
-			const repo = branch.event.repo;
-			if (repo) {
-				const projectName = nameOf(repo);
-				if (projectName) {
-					projectNames.add(projectName);
-				}
-			}
-		}
-
-		for (const projectName of projectNames) {
-			const branchesForProject = branchTimes.filter((b) => {
-				const repoName = b.event.repo;
-
-				return repoName && nameOf(repoName) === projectName;
-			});
-
-			const prsForProject = prTimes.filter((p) => {
-				const repoName = p.event.repo;
-
-				return repoName && nameOf(repoName) === projectName;
-			});
-
-			if (branchesForProject.length > 0 && prsForProject.length > 0) {
-				let prIdx = 0;
-				for (const branchEntry of branchesForProject) {
-					let prEntry = prsForProject[prIdx];
-
-					while (prEntry && prEntry.time < branchEntry.time) {
-						prIdx++;
-						prEntry = prsForProject[prIdx];
-					}
-
-					if (prEntry) {
-						const timeDiffSeconds = Math.trunc(
-							secondsBetween(branchEntry.time, prEntry.time),
-						);
-
-						const branchOwner = ownerOf(branchEntry.event.repo);
-						const prOwner = ownerOf(prEntry.event.repo);
-
-						if (
-							timeDiffSeconds >= 0 &&
-							timeDiffSeconds <= CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS &&
-							branchOwner !== undefined &&
-							branchOwner.toLowerCase() === accountNameLower &&
-							prOwner !== undefined &&
-							branchOwner !== prOwner
-						) {
-							forkWorkflowMatches++;
-							forkMaxTimeDiff = Math.max(forkMaxTimeDiff, timeDiffSeconds);
-							matchedForkConnections.push({
-								from: branchEntry.event,
-								to: prEntry.event,
-							});
-							prIdx++;
-						}
-					}
-				}
-			}
-		}
-
-		if (forkWorkflowMatches >= forkMinPairs) {
-			const automationRatio = forkWorkflowMatches / branchCreates.length;
-
-			if (automationRatio >= branchPRMinRatio) {
-				flags.push({
-					id: "fork-pr-pattern",
-					points: CONFIG.POINTS_BRANCH_PR_AUTOMATION,
-					group: "branch-pr",
-					amplifiable: true,
-					facts: {
-						pairs: forkWorkflowMatches,
-						minPairs: forkMinPairs,
-						branches: branchCreates.length,
-						ratio: automationRatio,
-						minRatio: branchPRMinRatio,
-						maxGapSeconds: forkMaxTimeDiff,
-					},
-					events: eventsOf(matchedForkConnections),
-					connections: matchedForkConnections,
-				});
-			}
-		}
-	}
-
-	return flags;
+	return [flag];
 }

@@ -62,27 +62,22 @@ describe("report - Zero Repos & External Activity", () => {
 		vi.useRealTimers();
 	});
 
-	it("should flag accounts with no personal repos but external activity", () => {
-		const events: GitHubEvent[] = [];
-		// Need ZERO_REPOS_MIN_EVENTS (20) events for the flag to trigger
-		for (let i = 0; i < 20; i++) {
-			events.push({
-				type: "PushEvent",
-				created_at: new Date(
-					2026,
-					2,
-					10,
-					Math.floor(i / 4),
-					0,
-					0,
-				).toISOString(),
-				repo: { name: `other-org/repo${i}` } as any,
-			} as any);
-		}
+	/** ZERO_REPOS_MIN_EVENTS (20) events, one on each repo. */
+	function eventsOn(repoOf: (i: number) => string): GitHubEvent[] {
+		return Array.from({ length: 20 }, (_, i) =>
+			event(
+				"IssueCommentEvent",
+				new Date(2026, 2, 10, Math.floor(i / 4)).toISOString(),
+				repoOf(i),
+				{ action: "created" },
+			),
+		);
+	}
 
+	it("should flag accounts with no personal repos but external activity", () => {
 		const result = reportGitHub({
 			user: user({ login: "contributor", created_at: "2025-12-01T00:00:00Z", public_repos: 0 }),
-			events,
+			events: eventsOn((i) => `owner${i}/repo`),
 		});
 
 		expect(
@@ -90,6 +85,18 @@ describe("report - Zero Repos & External Activity", () => {
 				f.label.includes("Only active on other people's repos"),
 			),
 		).toBe(true);
+	});
+
+	it("should not flag someone who works in one organization's repos", () => {
+		// Plenty of people who work for a company keep no repos of their own.
+		const result = reportGitHub({
+			user: user({ login: "employee", created_at: "2025-12-01T00:00:00Z", public_repos: 0 }),
+			events: eventsOn((i) => `company/service${i % 4}`),
+		});
+
+		expect(result.flags.some((f) => f.id === "zero-repos-external")).toBe(
+			false,
+		);
 	});
 });
 

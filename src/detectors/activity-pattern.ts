@@ -1,14 +1,68 @@
 import { CONFIG } from "../config";
-import { addHours, hoursBetween, isValidTime, toISO, toTime } from "../time";
+import { type TimedEvent, toTimeline } from "../events";
+import { addHours, hoursBetween, toISO } from "../time";
 import type { ActivityEvent, Flag } from "../types";
 
-type RestWindow = {
+type ActiveDay = {
 	start: number;
 	end: number;
+	/** How many of the 24 hours had at least one event. */
 	hoursActive: number;
-	restGap: number;
-	eventCount: number;
+	/** The longest quiet stretch, in hours. */
+	longestRest: number;
+	events: ActivityEvent[];
 };
+
+/** Measure the 24 hours that start with the event at `startIndex`. */
+function measureDay(timeline: TimedEvent[], startIndex: number): ActiveDay {
+	const start = timeline[startIndex]?.time ?? 0;
+	const end = addHours(start, 24);
+
+	const dayEntries: TimedEvent[] = [];
+	for (let i = startIndex; i < timeline.length; i++) {
+		const entry = timeline[i];
+		if (!entry || entry.time >= end) {
+			break;
+		}
+
+		dayEntries.push(entry);
+	}
+
+	// Busy hours count from the start of the window, not from midnight.
+	const activeHours = new Set(
+		dayEntries.map((entry) => Math.floor(hoursBetween(start, entry.time))),
+	);
+
+	// The quiet time after the last event is rest too, so the window end
+	// closes the last gap.
+	const times = [...dayEntries.map((entry) => entry.time), end];
+	let longestRest = 0;
+	for (let i = 1; i < times.length; i++) {
+		const gap = hoursBetween(times[i - 1] ?? start, times[i] ?? end);
+		longestRest = Math.max(longestRest, gap);
+	}
+
+	return {
+		start,
+		end,
+		hoursActive: activeHours.size,
+		longestRest,
+		events: dayEntries.map((entry) => entry.event),
+	};
+}
+
+/** Busy in nearly every hour, with several events in each of them. */
+function isBusyAllDay(day: ActiveDay): boolean {
+	if (day.events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+		return false;
+	}
+
+	if (day.hoursActive < CONFIG.HOURS_ACTIVE_EXTREME) {
+		return false;
+	}
+
+	return day.events.length / day.hoursActive >= CONFIG.EVENTS_PER_HOUR_MIN;
+}
 
 /**
  * Find any 24 hours where the account never stopped long enough to sleep.
@@ -18,118 +72,48 @@ type RestWindow = {
  * midnight would be split in two and we would miss it.
  */
 export function detectInhumanActivityPattern(events: ActivityEvent[]): Flag[] {
-	const flags: Flag[] = [];
+	const timeline = toTimeline(events);
 
-	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-		return flags;
+	if (timeline.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+		return [];
 	}
 
-	const times = events
-		.map((event) => ({ event, time: toTime(event.at) }))
-		.filter((entry) => isValidTime(entry.time))
-		.sort((a, b) => a.time - b.time);
-
-	if (times.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-		return flags;
-	}
-
-	const timeline = times.map((entry) => entry.time);
-	let worst: RestWindow | null = null;
+	let leastRested: ActiveDay | undefined;
 
 	for (let start = 0; start < timeline.length; start++) {
-		const windowStart = timeline[start];
-		if (!windowStart) {
+		const day = measureDay(timeline, start);
+
+		if (!isBusyAllDay(day)) {
 			continue;
 		}
 
-		const windowEnd = addHours(windowStart, 24);
-
-		let end = start;
-		let endTime = timeline[end];
-		while (endTime !== undefined && endTime < windowEnd) {
-			end++;
-			endTime = timeline[end];
-		}
-
-		const eventCount = end - start;
-		if (eventCount < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-			continue;
-		}
-
-		// Count busy hours from the start of the window, not from midnight.
-		const activeSlots = new Set<number>();
-		let maxGap = 0;
-		let previous = windowStart;
-
-		for (let i = start; i < end; i++) {
-			const time = timeline[i];
-			if (!time) {
-				continue;
-			}
-
-			activeSlots.add(Math.floor(hoursBetween(windowStart, time)));
-			const gap = hoursBetween(previous, time);
-			if (gap > maxGap) {
-				maxGap = gap;
-			}
-
-			previous = time;
-		}
-
-		// The quiet time after the last event is rest too.
-		const trailingGap = hoursBetween(previous, windowEnd);
-		if (trailingGap > maxGap) {
-			maxGap = trailingGap;
-		}
-
-		const hoursActive = activeSlots.size;
-		if (hoursActive < CONFIG.HOURS_ACTIVE_EXTREME) {
-			continue;
-		}
-
-		if (eventCount / hoursActive < CONFIG.EVENTS_PER_HOUR_MIN) {
-			continue;
-		}
-
-		if (!worst || maxGap < worst.restGap) {
-			worst = {
-				start: windowStart,
-				end: windowEnd,
-				hoursActive,
-				restGap: maxGap,
-				eventCount,
-			};
+		if (!leastRested || day.longestRest < leastRested.longestRest) {
+			leastRested = day;
 		}
 	}
 
-	if (!worst || worst.restGap >= CONFIG.REST_GAP_MIN_HOURS) {
-		return flags;
+	if (!leastRested || leastRested.longestRest >= CONFIG.REST_GAP_MIN_HOURS) {
+		return [];
 	}
 
-	let points: number = CONFIG.POINTS_24_7_ACTIVITY;
-	if (worst.restGap < 1) {
-		points = Math.round(points * 1.5);
-	}
+	const points =
+		leastRested.longestRest < CONFIG.REST_GAP_NONE_HOURS
+			? CONFIG.POINTS_24_7_NO_REST
+			: CONFIG.POINTS_24_7_ACTIVITY;
 
-	const windowStart = worst.start;
-	const windowEnd = worst.end;
-	const windowEvents = times
-		.filter((entry) => entry.time >= windowStart && entry.time < windowEnd)
-		.map((entry) => entry.event);
-
-	flags.push({
-		id: "always-active",
-		points,
-		group: "timing",
-		amplifiable: true,
-		facts: {
-			windowStart: toISO(windowStart),
-			hoursActive: worst.hoursActive,
-			longestRestHours: worst.restGap,
-			events: worst.eventCount,
+	return [
+		{
+			id: "always-active",
+			points,
+			group: "timing",
+			amplifiable: true,
+			facts: {
+				windowStart: toISO(leastRested.start),
+				hoursActive: leastRested.hoursActive,
+				longestRestHours: leastRested.longestRest,
+				events: leastRested.events.length,
+			},
+			events: leastRested.events,
 		},
-		events: windowEvents,
-	});
-
-	return flags;
+	];
 }

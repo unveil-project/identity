@@ -349,7 +349,3 @@ export type Analysis<Source = unknown> = Classification & {
 		repos: number;
 	};
 };
-
-export type FlagReturn = {
-	flags: Flag[];
-};

@@ -1,37 +1,30 @@
 import { CONFIG } from "../config";
-import { BOUNTY_REPO_NAMES, BOUNTY_REPO_PATHS } from "../data/bounty-repos";
+import { isBountyRepo } from "../data/bounty-repos";
 import type { ActivityEvent, Flag } from "../types";
-import { nameOf } from "../utils";
 
+/** Titles like "[$25 BOUNTY] ..." or "$50 USDC ...". */
 const BOUNTY_LABEL_PATTERN = /\[\$\d+|\$\d+\s*(bounty|usd|usdc)/i;
 
-function isBountyRepo(repoFullName: string): boolean {
-	const lower = repoFullName.toLowerCase();
-	if (BOUNTY_REPO_PATHS.has(lower)) {
-		return true;
-	}
-
-	const name = nameOf(lower);
-
-	return name !== undefined && BOUNTY_REPO_NAMES.has(name);
+function isBountyLabeling(event: ActivityEvent): boolean {
+	return (
+		event.type === "issue" &&
+		event.action === "labeled" &&
+		isBountyRepo(event.repo) &&
+		BOUNTY_LABEL_PATTERN.test(event.issue?.title ?? "")
+	);
 }
 
+/** Accounts that put bounty prices on issues are running a bounty campaign. */
 export function detectBountyLabelInfrastructure(
 	events: ActivityEvent[],
 ): Flag[] {
-	const bountyLabeledIssues = events.filter(
-		(e) =>
-			e.type === "issue" &&
-			e.action === "labeled" &&
-			isBountyRepo(e.repo) &&
-			BOUNTY_LABEL_PATTERN.test(e.issue?.title ?? ""),
-	);
+	const labeledIssues = events.filter(isBountyLabeling);
 
-	if (bountyLabeledIssues.length < CONFIG.BOUNTY_LABEL_MIN) {
+	if (labeledIssues.length < CONFIG.BOUNTY_LABEL_MIN) {
 		return [];
 	}
 
-	const repos = new Set(bountyLabeledIssues.map((e) => e.repo).filter(Boolean));
+	const repos = new Set(labeledIssues.map((event) => event.repo));
 
 	return [
 		{
@@ -39,8 +32,8 @@ export function detectBountyLabelInfrastructure(
 			points: CONFIG.POINTS_BOUNTY_LABEL_INFRA,
 			group: "bounty",
 			amplifiable: true,
-			facts: { issues: bountyLabeledIssues.length, repos: repos.size },
-			events: bountyLabeledIssues,
+			facts: { issues: labeledIssues.length, repos: repos.size },
+			events: labeledIssues,
 		},
 	];
 }

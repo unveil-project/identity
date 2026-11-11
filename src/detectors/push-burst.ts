@@ -1,56 +1,58 @@
 import { CONFIG } from "../config";
-import { secondsBetween, toTime } from "../time";
+import { toTimeline } from "../events";
+import { secondsBetween } from "../time";
 import type { ActivityEvent, Flag } from "../types";
 
+/**
+ * Count back-to-back pushes to the same repository that land within a few
+ * minutes of each other. People push in quick bursts too (fixing a failing CI
+ * run, for example), so only a very high number of pairs counts.
+ *
+ * Pushes to different repositories are left out: deploy scripts and monorepo
+ * tools push to many repositories at once, which says little about who is
+ * pushing.
+ */
 export function detectPushBurst(events: ActivityEvent[]): Flag[] {
-	const flags: Flag[] = [];
+	const pushes = toTimeline(events.filter((event) => event.type === "push"));
 
-	const pushEvents = events
-		.filter((e) => e.type === "push")
-		.sort((a, b) => toTime(a.at) - toTime(b.at));
-
-	if (pushEvents.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
-		return flags;
+	if (pushes.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
+		return [];
 	}
 
-	// Detect ultra-tight successive pushes to the same repo.
-	// Cross-repo rapid pushes are a different (less diagnostic) pattern — multi-repo
-	// CI/CD pipelines legitimately push to many repos in quick succession.
-	// Same-repo pushes within seconds are physically implausible for a human.
-	let tightBurstCount = 0;
-	const tightPushIndices = new Set<number>();
+	let pairs = 0;
+	const burstIndexes = new Set<number>();
 
-	for (let i = 1; i < pushEvents.length; i++) {
-		const prev = pushEvents[i - 1];
-		const curr = pushEvents[i];
-		if (!prev || !curr || prev.repo !== curr.repo) {
+	for (let i = 1; i < pushes.length; i++) {
+		const previous = pushes[i - 1];
+		const current = pushes[i];
+		if (!previous || !current || previous.event.repo !== current.event.repo) {
 			continue;
 		}
 
-		const diffSeconds = Math.trunc(
-			secondsBetween(toTime(prev.at), toTime(curr.at)),
-		);
-		if (diffSeconds <= CONFIG.TIGHT_COMMIT_SECONDS) {
-			tightBurstCount++;
-			tightPushIndices.add(i - 1);
-			tightPushIndices.add(i);
+		const gapSeconds = Math.trunc(secondsBetween(previous.time, current.time));
+		if (gapSeconds <= CONFIG.TIGHT_COMMIT_SECONDS) {
+			pairs++;
+			burstIndexes.add(i - 1);
+			burstIndexes.add(i);
 		}
 	}
 
-	if (tightBurstCount >= CONFIG.TIGHT_COMMIT_THRESHOLD_GLOBAL) {
-		const burstPushEvents = pushEvents.filter((_, i) =>
-			tightPushIndices.has(i),
-		);
+	if (pairs < CONFIG.TIGHT_COMMIT_THRESHOLD_GLOBAL) {
+		return [];
+	}
 
-		flags.push({
+	const burstPushes = pushes
+		.filter((_, index) => burstIndexes.has(index))
+		.map((entry) => entry.event);
+
+	return [
+		{
 			id: "push-burst",
 			points: CONFIG.POINTS_TIGHT_BURST,
 			group: "timing",
 			amplifiable: true,
-			facts: { pairs: tightBurstCount, pushes: tightPushIndices.size },
-			events: burstPushEvents,
-		});
-	}
-
-	return flags;
+			facts: { pairs, pushes: burstIndexes.size },
+			events: burstPushes,
+		},
+	];
 }
