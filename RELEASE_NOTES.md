@@ -34,15 +34,18 @@ more kinds of automation, so some scores change.
 
 ### `identityConfig`
 
-- Removed keys that no check used: `POINTS_NO_IDENTITY`,
+- Deprecated keys that no check uses: `POINTS_NO_IDENTITY`,
   `FOLLOW_RATIO_FOLLOWING_MIN`, `FOLLOW_RATIO_FOLLOWERS_MAX`,
   `POINTS_FOLLOW_RATIO`, `POINTS_ZERO_FOLLOWERS` and
-  `ZERO_FOLLOWERS_MIN_AGE_DAYS`.
-- `ACTIVITY_DENSITY_HIGH`, `ACTIVITY_DENSITY_EXTREME`,
-  `POINTS_HIGH_ACTIVITY_DENSITY` and `POINTS_EXTREME_ACTIVITY_DENSITY` are
-  replaced by `YOUNG_PRS_PER_DAY_HIGH` (4), `YOUNG_PRS_PER_DAY_EXTREME` (7.5),
-  `POINTS_YOUNG_PR_VOLUME_HIGH` (20) and `POINTS_YOUNG_PR_VOLUME_EXTREME` (35):
-  the values the young account PR check really used.
+  `ZERO_FOLLOWERS_MIN_AGE_DAYS`. They keep their old values and will be
+  removed in v4.
+- Deprecated `ACTIVITY_DENSITY_HIGH`, `ACTIVITY_DENSITY_EXTREME`,
+  `POINTS_HIGH_ACTIVITY_DENSITY` and `POINTS_EXTREME_ACTIVITY_DENSITY`. Use
+  `YOUNG_PRS_PER_DAY_HIGH` (4), `YOUNG_PRS_PER_DAY_EXTREME` (7.5),
+  `POINTS_YOUNG_PR_VOLUME_HIGH` (20) and `POINTS_YOUNG_PR_VOLUME_EXTREME` (35)
+  instead: the values the young account PR check really uses. The deprecated
+  keys keep their old values, no check reads them, and they will be removed
+  in v4.
 - New keys for the new rules: `HOME_OWNER_MIN_SHARE`,
   `LIMITED_ENGAGEMENT_MIN_PRS` and `BOUNTY_CAMPAIGN_MIN_OWNERS`.
 - New keys for thresholds that were written inline before, with the same

@@ -258,4 +258,28 @@ export const CONFIG = {
 	// Bounty label infrastructure detection
 	BOUNTY_LABEL_MIN: 3, // need at least this many bounty-labelled issues to flag
 	POINTS_BOUNTY_LABEL_INFRA: 25,
+
+	// Deprecated keys, kept so `identityConfig` stays compatible within v3.
+	// Remove them in the next major version.
+
+	/** @deprecated No check uses it. It will be removed in v4. */
+	POINTS_NO_IDENTITY: 15,
+	/** @deprecated No check uses it. It will be removed in v4. */
+	FOLLOW_RATIO_FOLLOWING_MIN: 50,
+	/** @deprecated No check uses it. It will be removed in v4. */
+	FOLLOW_RATIO_FOLLOWERS_MAX: 5,
+	/** @deprecated No check uses it. It will be removed in v4. */
+	POINTS_FOLLOW_RATIO: 15,
+	/** @deprecated No check uses it. It will be removed in v4. */
+	POINTS_ZERO_FOLLOWERS: 10,
+	/** @deprecated No check uses it. It will be removed in v4. */
+	ZERO_FOLLOWERS_MIN_AGE_DAYS: 90,
+	/** @deprecated Use `YOUNG_PRS_PER_DAY_HIGH`. It will be removed in v4. */
+	ACTIVITY_DENSITY_HIGH: 8,
+	/** @deprecated Use `YOUNG_PRS_PER_DAY_EXTREME`. It will be removed in v4. */
+	ACTIVITY_DENSITY_EXTREME: 15,
+	/** @deprecated Use `POINTS_YOUNG_PR_VOLUME_HIGH`. It will be removed in v4. */
+	POINTS_HIGH_ACTIVITY_DENSITY: 15,
+	/** @deprecated Use `POINTS_YOUNG_PR_VOLUME_EXTREME`. It will be removed in v4. */
+	POINTS_EXTREME_ACTIVITY_DENSITY: 25,
 } as const;
