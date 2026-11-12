@@ -1399,7 +1399,46 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 		expect(spamFlag).toBeDefined();
 		expect(spamFlag?.points).toBe(45);
 		expect(spamFlag?.detail).toContain("35 PRs");
+		expect(spamFlag?.detail).not.toContain("push");
 		expect(result.classification).toBe("automation");
+	});
+
+	it("reports how many PRs in the burst went to repos the account can push to", () => {
+		// 20 PRs to a repo the account pushes to, 5 to its own repo, 10 to others.
+		const repoFor = (i: number) => {
+			if (i < 20) return "acme/app";
+			if (i < 25) return "user/tools";
+			return `stranger/repo${i}`;
+		};
+		const prs = Array.from({ length: 35 }, (_, i) =>
+			event(
+				"PullRequestEvent",
+				new Date(2026, 2, 10, 6 + Math.floor(i / 5), i % 60).toISOString(),
+				repoFor(i),
+				{ action: "opened" },
+			),
+		);
+		const push = event(
+			"PushEvent",
+			new Date(2026, 2, 9, 12).toISOString(),
+			"acme/app",
+		);
+
+		const result = reportGitHub({
+			user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 25 }),
+			events: [push, ...prs],
+		});
+
+		const spamFlag = result.flags.find((f) => f.id === "pr-volume-day");
+		// Push access is context only: the points stay the same.
+		expect(spamFlag?.points).toBe(45);
+		expect(spamFlag?.detail).toBe(
+			"35 PRs within a single 24-hour window, 25 to repos it can push to",
+		);
+		expect(spamFlag?.data).toContainEqual({
+			label: "To repos with push access",
+			value: 25,
+		});
 	});
 
 	it("should flag distributed PR spam pattern (50+ PRs across 15+ repos)", () => {

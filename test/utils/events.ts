@@ -6,7 +6,7 @@ import {
 	type GitHubUser,
 } from "../../src/providers/github";
 import { report } from "../../src/report";
-import type { ActivityEvent, Flag } from "../../src/types";
+import type { ActivityEvent, AnalyzeOptions, Flag } from "../../src/types";
 
 /** Build a user, overriding only the fields a test cares about. */
 export function user(overrides: Partial<GitHubUser> = {}): GitHubUser {
@@ -45,8 +45,8 @@ export function toEvents(
  * Run `report` on GitHub test data, the way a GitHub caller would, so tests
  * can read the flags with their labels and details.
  */
-export function reportGitHub(input: GitHubInput) {
-	return report(fromGitHub(input));
+export function reportGitHub(input: GitHubInput, options?: AnalyzeOptions) {
+	return report(fromGitHub(input), options);
 }
 
 /** Build a minimal flag, for testing the scorer on its own. */

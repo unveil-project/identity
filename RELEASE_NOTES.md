@@ -1,5 +1,29 @@
 # Release notes
 
+## Unreleased
+
+### New option: `scope`
+
+`classify` and `report` now take options as a second argument. With
+`scope: "read-only"`, only repos the account cannot push to are checked.
+Repos it owns, and repos where it pushed or created a branch or tag, are
+left out. Use it when you only care about how the account behaves in
+projects it does not help run. The default is `"all"`, so results do not
+change.
+
+`window.ignoredEventCount` says how many events were left out. Ignored events
+still count toward `window.saturated`, because the platform did return them.
+
+### More context in the report
+
+- **PR volume flags show how many PRs went to repos the account can push
+  to.** A burst of PRs often happens in a project the account helps run. The
+  flag now says so, for example "35 PRs within a single 24-hour window, 25 to
+  repos it can push to". The new `pushAccessPRs` fact holds the number. The
+  points stay the same: many PRs in a day is a sign of automation, even in
+  your own project. Flags: `pr-volume-day`, `pr-volume-week-extreme`,
+  `pr-volume-week-high`.
+
 ## 3.1.0
 
 Maintainers, newcomers and busy developers are flagged less often. More

@@ -598,38 +598,17 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			},
 		],
 	}),
-	"pr-volume-day": ({ prs }) => ({
+	"pr-volume-day": (facts) => ({
 		label: "Very high PR volume (daily)",
-		detail: `${prs} PRs within a single 24-hour window`,
-		data: [
-			{
-				label: "PRs in densest 24h window",
-				value: prs,
-				threshold: CONFIG.PRS_DAY_EXTREME,
-			},
-		],
+		...describePRVolume(facts, DAY_WINDOW, CONFIG.PRS_DAY_EXTREME),
 	}),
-	"pr-volume-week-extreme": ({ prs }) => ({
+	"pr-volume-week-extreme": (facts) => ({
 		label: "Very high PR volume (weekly)",
-		detail: `${prs} PRs within a single 7-day window`,
-		data: [
-			{
-				label: "PRs in densest 7-day window",
-				value: prs,
-				threshold: CONFIG.PRS_WEEK_EXTREME,
-			},
-		],
+		...describePRVolume(facts, WEEK_WINDOW, CONFIG.PRS_WEEK_EXTREME),
 	}),
-	"pr-volume-week-high": ({ prs }) => ({
+	"pr-volume-week-high": (facts) => ({
 		label: "High PR volume (weekly)",
-		detail: `${prs} PRs within a single 7-day window`,
-		data: [
-			{
-				label: "PRs in densest 7-day window",
-				value: prs,
-				threshold: CONFIG.PRS_WEEK_VERY_HIGH,
-			},
-		],
+		...describePRVolume(facts, WEEK_WINDOW, CONFIG.PRS_WEEK_VERY_HIGH),
 	}),
 	"pr-distributed": ({ prs, repos, perWeek, busiest30Days }) => {
 		const rate = perWeek > 0 ? ` (${perWeek.toFixed(1)} PRs/week)` : "";
@@ -772,6 +751,51 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 };
+
+type PRVolumeWindow = {
+	/** Used in the sentence, like "a single 24-hour window". */
+	sentence: string;
+	/** Used in the metric label, like "densest 24h window". */
+	metric: string;
+};
+
+const DAY_WINDOW: PRVolumeWindow = {
+	sentence: "24-hour",
+	metric: "24h",
+};
+
+const WEEK_WINDOW: PRVolumeWindow = {
+	sentence: "7-day",
+	metric: "7-day",
+};
+
+/** Says how many of the PRs went to repos the account can push to, if any. */
+function describePushAccess(pushAccessPRs: number): string {
+	if (pushAccessPRs === 0) {
+		return "";
+	}
+
+	return `, ${pushAccessPRs} to repos it can push to`;
+}
+
+/** The sentence and metrics shared by the PR volume flags. */
+function describePRVolume(
+	{ prs, pushAccessPRs }: FlagFacts["pr-volume-day"],
+	window: PRVolumeWindow,
+	threshold: number,
+): Omit<FlagText, "label"> {
+	return {
+		detail: `${prs} PRs within a single ${window.sentence} window${describePushAccess(pushAccessPRs)}`,
+		data: [
+			{
+				label: `PRs in densest ${window.metric} window`,
+				value: prs,
+				threshold,
+			},
+			{ label: "To repos with push access", value: pushAccessPRs },
+		],
+	};
+}
 
 /** The sentence and metrics shared by both bounty PR flags. */
 function describeBountyPRs({

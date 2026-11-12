@@ -42,6 +42,23 @@ describe("analyzeWindow", () => {
 		expect(window.eventCount).toBe(10);
 		expect(window.spanDays).toBeCloseTo(9 / 24, 3);
 	});
+
+	it("counts ignored events toward the platform limit", () => {
+		// The platform returned the full 300, even if we look at only 10.
+		const events = Array.from({ length: 10 }, (_, i) =>
+			event(
+				"PushEvent",
+				new Date(Date.UTC(2026, 5, 1, i)).toISOString(),
+				"user/project",
+			),
+		);
+		const ignored = GITHUB_EVENT_CAP - 10;
+		const window = analyzeWindow(toEvents(events), GITHUB_EVENT_CAP, ignored);
+
+		expect(window.saturated).toBe(true);
+		expect(window.eventCount).toBe(10);
+		expect(window.ignoredEventCount).toBe(ignored);
+	});
 });
 
 describe("confidence and insufficient data", () => {
