@@ -107,6 +107,30 @@ describe("fromGitHubEvent", () => {
 		});
 	});
 
+	it("reads the app that posted an issue or comment for the account", () => {
+		const viaApp = (type: string, payload: Record<string, unknown>) =>
+			fromGitHubEvent(event(type, "2026-01-01T00:00:00Z", "a/b", payload), "user")
+				.viaApp;
+		const claude = { performed_via_github_app: { slug: "claude" } };
+
+		expect(viaApp("IssueCommentEvent", { action: "created", comment: claude })).toBe(
+			"claude",
+		);
+		expect(viaApp("IssuesEvent", { action: "opened", issue: claude })).toBe(
+			"claude",
+		);
+		// The issue under a comment may be someone else's: its app does not count.
+		expect(
+			viaApp("IssueCommentEvent", {
+				action: "created",
+				issue: claude,
+				comment: { performed_via_github_app: null },
+			}),
+		).toBeUndefined();
+		// Closing an issue is not posting it.
+		expect(viaApp("IssuesEvent", { action: "closed", issue: claude })).toBeUndefined();
+	});
+
 	it("keeps the original event as the source", () => {
 		const raw = event("PushEvent", "2026-01-01T00:00:00Z", "a/b");
 		expect(fromGitHubEvent(raw, "user").source).toBe(raw);

@@ -105,6 +105,7 @@ console.log(analysis);
 //     eventCount: 100,
 //     spanDays: 46.2,
 //     saturated: false,          // true = the platform capped the list, counts are minimums
+//     ignoredEventCount: 0,      // events left out by an option, not part of eventCount
 //     firstEventAt: "...",
 //     lastEventAt: "...",
 //   },
@@ -136,6 +137,34 @@ getClassificationDetails(analysis.classification);
 
 `describeFlag(flag)` gives the text for a single flag. The `FlagFacts` type
 lists the facts of every flag id.
+
+### Options
+
+`classify` and `report` take options as a second argument.
+
+#### `scope`
+
+Which repos the checks look at.
+
+- `"all"` (default): every repo, including the account's own. The library
+  answers "is this account automated, or does it use automation?", and
+  automation in your own projects is still automation.
+- `"read-only"`: only repos the account cannot push to. Repos it owns, and
+  repos where it pushed or created a branch or tag, are left out. There, the
+  account works as a maintainer or collaborator. Use it when you only care
+  about how the account behaves in projects it does not help run.
+
+```js
+classify(fromGitHub({ user, events }), { scope: "read-only" });
+```
+
+We cannot see GitHub roles, only what the account did. A repo counts as
+read-only until the account pushes to it or creates a branch there.
+
+Some accounts work almost only in repos they can push to. With
+`"read-only"`, few events are left, and the result can be
+`insufficient-data`. In a `report`, `window.ignoredEventCount` says how many
+events were left out.
 
 ### Input
 

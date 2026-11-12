@@ -14,11 +14,25 @@ const PR_WEEK_RAMP: readonly RampAnchor[] = [
 	[CONFIG.PRS_WEEK_EXTREME, CONFIG.POINTS_PRS_WEEK_EXTREME],
 ];
 
+function countPushAccessPRs(
+	prs: readonly ActivityEvent[],
+	pushAccessRepos: Set<string>,
+): number {
+	return prs.filter((pr) => pushAccessRepos.has(pr.repo)).length;
+}
+
 /**
  * The busiest 24 hours and the busiest 7 days anywhere in the data, not the
  * last 24 hours or 7 days before today. The speed is the signal, not the total.
+ *
+ * PRs to repos the account can push to still count. A maintainer who opens
+ * this many PRs likely uses automation too. We only report how many there
+ * were, so the reader has the context.
  */
-function detectPRBursts(prs: ActivityEvent[]): Flag[] {
+function detectPRBursts(
+	prs: ActivityEvent[],
+	pushAccessRepos: Set<string>,
+): Flag[] {
 	const flags: Flag[] = [];
 
 	const day = densestEventWindow(prs, 24);
@@ -28,7 +42,10 @@ function detectPRBursts(prs: ActivityEvent[]): Flag[] {
 			points: CONFIG.POINTS_PRS_DAY_EXTREME,
 			group: "pr-volume",
 			amplifiable: true,
-			facts: { prs: day.count },
+			facts: {
+				prs: day.count,
+				pushAccessPRs: countPushAccessPRs(day.items, pushAccessRepos),
+			},
 			events: day.items,
 		});
 	}
@@ -41,7 +58,10 @@ function detectPRBursts(prs: ActivityEvent[]): Flag[] {
 			points: rampPoints(week.count, PR_WEEK_RAMP),
 			group: "pr-volume",
 			amplifiable: true,
-			facts: { prs: week.count },
+			facts: {
+				prs: week.count,
+				pushAccessPRs: countPushAccessPRs(week.items, pushAccessRepos),
+			},
 			events: week.items,
 		});
 	}
@@ -94,13 +114,14 @@ function detectDistributedPRs(prs: ActivityEvent[]): Flag[] {
 
 export function detectExtremeAndDistributedPRSpam(
 	events: ActivityEvent[],
+	pushAccessRepos: Set<string>,
 ): Flag[] {
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return [];
 	}
 
 	const prs = events.filter(isOpenedPR);
-	const bursts = detectPRBursts(prs);
+	const bursts = detectPRBursts(prs, pushAccessRepos);
 
 	// A burst already explains the volume, so the slower check would only repeat it.
 	if (bursts.length > 0) {

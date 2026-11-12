@@ -1,5 +1,5 @@
 import { CONFIG } from "./config";
-import { isExternalRepo, ownerOf } from "./repos";
+import { isExternalRepo, isOwnRepo, ownerOf } from "./repos";
 import { isValidTime, toTime } from "./time";
 import type { ActivityEvent } from "./types";
 import { countBy, type DensestWindow, densestWindow } from "./utils";
@@ -66,6 +66,21 @@ export function collaboratorReposOf(
 	);
 
 	return new Set(writes.map((event) => event.repo));
+}
+
+/**
+ * Repos the account can push to: the ones it owns, and the ones where it
+ * works as a collaborator (see `collaboratorReposOf`).
+ */
+export function pushAccessReposOf(
+	events: readonly ActivityEvent[],
+	login: string,
+): Set<string> {
+	const ownRepos = events
+		.map((event) => event.repo)
+		.filter((repo) => isOwnRepo(repo, login));
+
+	return new Set([...ownRepos, ...collaboratorReposOf(events, login)]);
 }
 
 /**

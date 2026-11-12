@@ -6,6 +6,7 @@ import {
 	describeSpikeDays,
 	formatShortSpan,
 	formatWindowDuration,
+	wordList,
 } from "../src/report/format";
 import type { Flag } from "../src/types";
 import { event, user } from "./utils/events";
@@ -104,6 +105,15 @@ describe("format", () => {
 		expect(formatShortSpan(3, 4400)).toBe("3d");
 		expect(formatShortSpan(0, 10)).toBe("1h");
 		expect(formatShortSpan(0, 130)).toBe("3h");
+	});
+
+	it("lists words for a sentence", () => {
+		expect(wordList([])).toBe("");
+		expect(wordList(["Codex"])).toBe("Codex");
+		expect(wordList(["Claude", "Cursor"])).toBe("Claude and Cursor");
+		expect(wordList(["Codex", "Claude", "Cursor"])).toBe(
+			"Codex, Claude and Cursor",
+		);
 	});
 
 	it("lists spike days", () => {

@@ -25,6 +25,8 @@ export type {
 	AccountInput,
 	ActivityEvent,
 	ActivityEventType,
+	AnalyzeOptions,
+	AnalyzeScope,
 	Classification,
 	ClassificationLabel,
 } from "./types";

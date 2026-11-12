@@ -36,6 +36,11 @@ export type ActivityEvent<Source = unknown> = {
 		isAuthor?: boolean;
 	};
 	actorIsApp?: boolean;
+	/**
+	 * The app that posted this issue or comment for the account, when the
+	 * platform says so. On GitHub, this is the GitHub App's slug.
+	 */
+	viaApp?: string;
 	source?: Source;
 };
 
@@ -75,6 +80,14 @@ type ForkWindowFacts = {
 type PRWindowFacts = {
 	/** Opened PRs in the busiest window. */
 	prs: number;
+};
+
+type PRVolumeFacts = PRWindowFacts & {
+	/**
+	 * PRs in the window to repos the account owns or pushed to. This is
+	 * context for the reader. It does not change the points.
+	 */
+	pushAccessPRs: number;
 };
 
 type CommentSprayFacts = {
@@ -200,9 +213,9 @@ export type FlagFacts = {
 	};
 	"limited-engagement": { externalPRs: number };
 	"push-burst": { pairs: number; pushes: number };
-	"pr-volume-day": PRWindowFacts;
-	"pr-volume-week-extreme": PRWindowFacts;
-	"pr-volume-week-high": PRWindowFacts;
+	"pr-volume-day": PRVolumeFacts;
+	"pr-volume-week-extreme": PRVolumeFacts;
+	"pr-volume-week-high": PRVolumeFacts;
 	"pr-distributed": {
 		prs: number;
 		repos: number;
@@ -220,6 +233,8 @@ export type FlagFacts = {
 		ratio: number;
 		prefixes: string[];
 	};
+	/** Posts are the account's comments and the issues it opened. */
+	"ai-agent-app": { posts: number; allPosts: number; apps: string[] };
 };
 
 export type FlagId = keyof FlagFacts;
@@ -291,6 +306,35 @@ export type AccountInput<Source = unknown> = {
 	eventCap?: number;
 };
 
+/**
+ * Which repos the checks look at.
+ *
+ * - `"all"`: every repo. This answers "does this account use automation?",
+ *   because automation in the account's own projects counts too.
+ * - `"read-only"`: only repos the account cannot push to. Repos it owns, and
+ *   repos where it pushed or created a branch or tag, are left out. There the
+ *   account works as a maintainer or collaborator.
+ *
+ * We cannot see GitHub roles, only what the account did. A repo counts as
+ * read-only until the account pushes to it. So the Triage role, which cannot
+ * push, counts as read-only too.
+ */
+export type AnalyzeScope = "all" | "read-only";
+
+/** Choices that change how `classify` and `report` look at an account. */
+export type AnalyzeOptions = {
+	/**
+	 * Which repos the checks look at. See `AnalyzeScope`.
+	 *
+	 * Some accounts work almost only in repos they can push to. With
+	 * `"read-only"`, few events may be left, and the result can become
+	 * `insufficient-data`.
+	 *
+	 * @default "all"
+	 */
+	scope?: AnalyzeScope;
+};
+
 export type ClassificationLabel =
 	| "organic"
 	| "mixed"
@@ -306,6 +350,11 @@ export type WindowInfo = {
 	lastEventAt: string | null;
 	/** True if the platform hit its limit. The real counts are higher than what we see. */
 	saturated: boolean;
+	/**
+	 * Events we were given but left out, because of the `scope` option. They
+	 * are not part of `eventCount`. Always 0 with the default scope, "all".
+	 */
+	ignoredEventCount: number;
 };
 
 export type TimezoneEstimate = {

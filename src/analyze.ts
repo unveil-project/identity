@@ -2,6 +2,7 @@ import { calculateConfidence } from "./confidence";
 import { CONFIG } from "./config";
 import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
+import { detectAIAgentApp } from "./detectors/ai-agent-app";
 import { detectAIAgentBranchPrefix } from "./detectors/ai-branch-prefix";
 import { detectBountyLabelInfrastructure } from "./detectors/bounty-label-infra";
 import {
@@ -26,15 +27,18 @@ import { detectRepositoryCreationBurst } from "./detectors/repository-creation";
 import { detectWatchActivity } from "./detectors/watch-activity";
 import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
-import { externalEventsOf } from "./events";
+import { externalEventsOf, pushAccessReposOf } from "./events";
 import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
 import { detectOrganicSignals } from "./modifiers/organic-signals";
-import { humanScore, scoreFlags } from "./scoring";
+import { capForAIAgentUse, humanScore, scoreFlags } from "./scoring";
 import { daysBetween, toTime } from "./time";
 import { estimateUtcOffset } from "./timezone";
 import type {
 	AccountInput,
+	ActivityEvent,
 	Analysis,
+	AnalyzeOptions,
+	AnalyzeScope,
 	ClassificationLabel,
 	Flag,
 	WindowInfo,
@@ -69,18 +73,39 @@ function classificationFor(
 }
 
 /**
+ * The events the checks look at. With the "read-only" scope, events in repos
+ * the account can push to are left out.
+ */
+function eventsToCheck<Source>(
+	events: ActivityEvent<Source>[],
+	pushAccessRepos: Set<string>,
+	scope: AnalyzeScope,
+): ActivityEvent<Source>[] {
+	if (scope === "read-only") {
+		return events.filter((event) => {
+			return !pushAccessRepos.has(event.repo);
+		});
+	}
+
+	return events;
+}
+
+/**
  * Run every check on an account and score it. `classify` and `report` both
  * start from this, and each returns the part its caller asked for.
  */
-export function analyze<Source = unknown>({
-	account,
-	events,
-	eventCap,
-}: AccountInput<Source>): Analysis<Source> {
+export function analyze<Source = unknown>(
+	{ account, events, eventCap }: AccountInput<Source>,
+	{ scope = "all" }: AnalyzeOptions = {},
+): Analysis<Source> {
 	const login = account.login;
 	const reposCount = account.publicRepos;
 
-	const repoEvents = events.filter((event) => event.repo);
+	const allRepoEvents = events.filter((event) => event.repo);
+	// Found from every event, so the option cannot hide the pushes it relies on.
+	const pushAccessRepos = pushAccessReposOf(allRepoEvents, login);
+	const repoEvents = eventsToCheck(allRepoEvents, pushAccessRepos, scope);
+	const ignoredEventCount = allRepoEvents.length - repoEvents.length;
 	const externalEvents = externalEventsOf(repoEvents, login);
 
 	const accountAge = Math.trunc(
@@ -88,7 +113,7 @@ export function analyze<Source = unknown>({
 	);
 	const isYoung = accountAge < CONFIG.AGE_YOUNG_ACCOUNT;
 
-	const window = analyzeWindow(repoEvents, eventCap);
+	const window = analyzeWindow(repoEvents, eventCap, ignoredEventCount);
 	const timezone = estimateUtcOffset(repoEvents);
 	const tzOffset = timezone.offsetHours;
 
@@ -117,17 +142,22 @@ export function analyze<Source = unknown>({
 		...detectCodingMarathons(repoEvents, tzOffset),
 		...detectYoungAccountActivity(repoEvents, reposCount, isYoung, login),
 		...detectPushBurst(repoEvents),
-		...detectExtremeAndDistributedPRSpam(repoEvents),
+		...detectExtremeAndDistributedPRSpam(repoEvents, pushAccessRepos),
 		...detectCommentBeforePR(repoEvents, login),
 		...detectBountyRepoPRs(repoEvents),
 		...detectBountyLabelInfrastructure(repoEvents),
 		...detectAIAgentBranchPrefix(repoEvents),
+		...detectAIAgentApp(repoEvents),
 	];
 
 	const scored = scoreFlags(flags, {
 		bountyMultiplier: getBountyMultiplier(repoEvents) ?? 1,
 	});
-	const score = humanScore(scored.total, detectOrganicSignals(repoEvents));
+	const uncappedScore = humanScore(
+		scored.total,
+		detectOrganicSignals(repoEvents),
+	);
+	const score = capForAIAgentUse(uncappedScore, flags);
 	const confidence = calculateConfidence(window);
 
 	return {

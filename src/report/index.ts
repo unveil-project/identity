@@ -1,9 +1,11 @@
 import { analyze } from "../analyze";
-import type { AccountInput, Flag, FlagFacts } from "../types";
+import type { AccountInput, AnalyzeOptions, Flag, FlagFacts } from "../types";
 import { FLAG_TEXT } from "./flag-text";
 import type { FlagText, Report, ReportFlag } from "./types";
 
 export type {
+	AnalyzeOptions,
+	AnalyzeScope,
 	EventConnection,
 	EvidenceGroup,
 	Flag,
@@ -45,9 +47,10 @@ function toReportFlag<Source>(flag: Flag<Source>): ReportFlag<Source> {
  * flags[0].label; // "Fork spike detected"
  */
 export function report<Source = unknown>(
-	options: AccountInput<Source>,
+	input: AccountInput<Source>,
+	options: AnalyzeOptions = {},
 ): Report<Source> {
-	const analysis = analyze(options);
+	const analysis = analyze(input, options);
 
 	return {
 		...analysis,

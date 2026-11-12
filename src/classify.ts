@@ -1,5 +1,5 @@
 import { analyze } from "./analyze";
-import type { AccountInput, Classification } from "./types";
+import type { AccountInput, AnalyzeOptions, Classification } from "./types";
 
 /**
  * Score an account. Build the input with a provider, like `fromGitHub`.
@@ -9,10 +9,16 @@ import type { AccountInput, Classification } from "./types";
  *
  * @example
  * classify(fromGitHub({ user, events }));
+ *
+ * // Only look at repos the account cannot push to.
+ * classify(fromGitHub({ user, events }), { scope: "read-only" });
  */
-export function classify(options: AccountInput): Classification {
+export function classify(
+	input: AccountInput,
+	options: AnalyzeOptions = {},
+): Classification {
 	const { score, classification, confidence, isBountyHunter, isGitHubApp } =
-		analyze(options);
+		analyze(input, options);
 
 	return {
 		score,
