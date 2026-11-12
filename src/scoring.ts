@@ -82,3 +82,21 @@ export function humanScore(penalty: number, organicBonus: number): number {
 
 	return Math.min(100, Math.max(0, 100 - penalty + bonus));
 }
+
+/**
+ * When an AI agent posted for the account, the account uses automation, so
+ * the score stays below "organic": at most "mixed". The proof itself takes
+ * no points. If the account also behaves like spam, the other checks have
+ * already taken the score lower, down to "automation".
+ */
+export function capForAIAgentUse(
+	score: number,
+	flags: readonly Flag[],
+): number {
+	const usesAIAgent = flags.some((flag) => flag.id === "ai-agent-app");
+	if (!usesAIAgent) {
+		return score;
+	}
+
+	return Math.min(score, CONFIG.THRESHOLD_HUMAN - 1);
+}

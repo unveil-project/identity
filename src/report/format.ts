@@ -13,6 +13,18 @@ export function plural(count: number, word: string): string {
 	return `${count} ${word}${count === 1 ? "" : "s"}`;
 }
 
+/** Words for a sentence: "Codex", "Claude and Cursor", "A, B and C". */
+export function wordList(words: readonly string[]): string {
+	if (words.length <= 1) {
+		return words.join("");
+	}
+
+	const allButLast = words.slice(0, -1).join(", ");
+	const last = words[words.length - 1];
+
+	return `${allButLast} and ${last}`;
+}
+
 /**
  * Describe how long a burst lasted, in words.
  *

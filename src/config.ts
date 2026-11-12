@@ -255,6 +255,10 @@ export const CONFIG = {
 	AI_BRANCH_RATIO_MIN: 0.5, // >= 50% of branches use AI agent prefixes
 	POINTS_AI_BRANCH_PREFIX: 30,
 
+	// Comments and issues that an AI agent app posted for the account
+	AI_AGENT_APP_MIN_POSTS: 2, // one post can be a trial or an accident; two means the account came back to the agent
+	POINTS_AI_AGENT_APP: 0, // no penalty: the proof keeps the score below organic instead (see capForAIAgentUse)
+
 	// Bounty label infrastructure detection
 	BOUNTY_LABEL_MIN: 3, // need at least this many bounty-labelled issues to flag
 	POINTS_BOUNTY_LABEL_INFRA: 25,

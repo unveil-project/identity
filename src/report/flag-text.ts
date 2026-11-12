@@ -1,4 +1,5 @@
 import { CONFIG } from "../config";
+import { AI_AGENT_APPS } from "../data/ai-agent-apps";
 import type { FlagFacts, FlagId } from "../types";
 import {
 	describeSpikeDays,
@@ -7,12 +8,18 @@ import {
 	oneDecimal,
 	percent,
 	plural,
+	wordList,
 } from "./format";
 import type { FlagText } from "./types";
 
 type FlagTextBuilders = {
 	[K in FlagId]: (facts: FlagFacts[K]) => FlagText;
 };
+
+/** The name people know an AI agent app by, like "Codex". */
+function agentName(app: string): string {
+	return AI_AGENT_APPS.get(app) ?? app;
+}
 
 /**
  * The words for every flag, by flag id. The checks only record numbers, so
@@ -750,6 +757,25 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			{ label: "Detected prefixes", value: prefixes.join(", ") },
 		],
 	}),
+	"ai-agent-app": ({ posts, allPosts, apps }) => {
+		const agents = apps.map(agentName);
+		const share = percent(posts / allPosts);
+
+		return {
+			label: "Posts through an AI agent",
+			detail: `${wordList(agents)} posted ${posts} of the account's ${allPosts} comments and issues (${share})`,
+			data: [
+				{
+					label: "Posted by an AI agent",
+					value: posts,
+					threshold: CONFIG.AI_AGENT_APP_MIN_POSTS,
+				},
+				{ label: "All comments and issues", value: allPosts },
+				{ label: "Share posted by an AI agent", value: share },
+				{ label: "AI agents", value: agents.join(", ") },
+			],
+		};
+	},
 };
 
 type PRVolumeWindow = {

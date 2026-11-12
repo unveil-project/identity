@@ -155,7 +155,7 @@ export const REGRESSION_FIXTURES = {
 	"organic_43": "organic",
 	"organic_44": "organic",
 	"organic_45": "organic",
-	"organic_46": "organic",
+	"mixed_71": "mixed",
 	"organic_47": "organic",
 	"organic_48": "organic",
 	"organic_49": "organic",

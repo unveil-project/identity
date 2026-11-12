@@ -36,6 +36,11 @@ export type ActivityEvent<Source = unknown> = {
 		isAuthor?: boolean;
 	};
 	actorIsApp?: boolean;
+	/**
+	 * The app that posted this issue or comment for the account, when the
+	 * platform says so. On GitHub, this is the GitHub App's slug.
+	 */
+	viaApp?: string;
 	source?: Source;
 };
 
@@ -228,6 +233,8 @@ export type FlagFacts = {
 		ratio: number;
 		prefixes: string[];
 	};
+	/** Posts are the account's comments and the issues it opened. */
+	"ai-agent-app": { posts: number; allPosts: number; apps: string[] };
 };
 
 export type FlagId = keyof FlagFacts;

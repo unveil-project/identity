@@ -36,7 +36,11 @@ export type GitHubEvent = {
 		action?: string;
 		ref_type?: string | null;
 		ref?: string | null;
-		issue?: { title?: string };
+		issue?: {
+			title?: string;
+			performed_via_github_app?: { slug?: string } | null;
+		};
+		comment?: { performed_via_github_app?: { slug?: string } | null };
 		pull_request?: {
 			number?: number;
 			head?: { repo?: { url?: string } | null };
@@ -74,6 +78,28 @@ function isBotType(type: string | null | undefined): boolean {
 	return typeof type === "string" && type.toLowerCase() === "bot";
 }
 
+/**
+ * The GitHub App that posted this event's issue or comment for the account.
+ * GitHub names it in `performed_via_github_app`. A comment event also carries
+ * its issue, which someone else may have opened, so only the comment's app
+ * counts there. For issues, only opening one is posting it.
+ */
+function appSlugOf(event: GitHubEvent): string | undefined {
+	const payload = event.payload;
+
+	if (event.type === "IssueCommentEvent") {
+		return payload?.comment?.performed_via_github_app?.slug ?? undefined;
+	}
+
+	const isOpenedIssue =
+		event.type === "IssuesEvent" && payload?.action === "opened";
+	if (isOpenedIssue) {
+		return payload?.issue?.performed_via_github_app?.slug ?? undefined;
+	}
+
+	return undefined;
+}
+
 /** Turn one GitHub event into the shape `classify` reads. */
 export function fromGitHubEvent(
 	event: GitHubEvent,
@@ -99,6 +125,7 @@ export function fromGitHubEvent(
 		issue: payload?.issue ? { title: payload.issue.title } : undefined,
 		pullRequest: pr ? { number: pr.number, isAuthor } : undefined,
 		actorIsApp: isBotType(event.actor?.type),
+		viaApp: appSlugOf(event),
 		source: event,
 	};
 }
