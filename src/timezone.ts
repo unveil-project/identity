@@ -58,7 +58,6 @@ export function estimateUtcOffset(
 
 	let offset = Math.round(CONFIG.TZ_LOCAL_ACTIVITY_CENTER - meanHourUtc);
 
-	// Keep the offset inside the range that real timezones use
 	while (offset < -12) {
 		offset += HOURS;
 	}

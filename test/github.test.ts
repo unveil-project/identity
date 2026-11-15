@@ -11,8 +11,6 @@ import { report } from "../src/report";
 import type { ActivityEvent } from "../src/types";
 import { event, user } from "./utils/events";
 
-// Whole API responses must be accepted as they are. `tsc` fails here if the
-// GitHub types ever ask for something the API does not send.
 type ApiUser = Endpoints["GET /users/{username}"]["response"]["data"];
 type ApiEvent =
 	Endpoints["GET /users/{username}/events/public"]["response"]["data"][number];
@@ -119,7 +117,6 @@ describe("fromGitHubEvent", () => {
 		expect(viaApp("IssuesEvent", { action: "opened", issue: claude })).toBe(
 			"claude",
 		);
-		// The issue under a comment may be someone else's: its app does not count.
 		expect(
 			viaApp("IssueCommentEvent", {
 				action: "created",
@@ -127,7 +124,6 @@ describe("fromGitHubEvent", () => {
 				comment: { performed_via_github_app: null },
 			}),
 		).toBeUndefined();
-		// Closing an issue is not posting it.
 		expect(viaApp("IssuesEvent", { action: "closed", issue: claude })).toBeUndefined();
 	});
 
@@ -203,9 +199,6 @@ describe("fromGitHub", () => {
 
 describe("report without a provider", () => {
 	it("treats everything before the last slash as the owner", () => {
-		// Nested group paths: "team0/sub" owns "team0/sub/project". The events
-		// are spread over five groups, so for an outsider they are drive-by
-		// activity with no home group.
 		const events: ActivityEvent[] = Array.from({ length: 25 }, (_, i) => ({
 			type: "push",
 			at: new Date(Date.UTC(2026, 0, 1, i)).toISOString(),

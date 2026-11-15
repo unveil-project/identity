@@ -2,7 +2,12 @@ import { CONFIG } from "../config";
 import { densestEventWindow, eventTime, isOpenedPR } from "../events";
 import { spanDays } from "../time";
 import type { ActivityEvent, Flag } from "../types";
-import { levelFor, type RampAnchor, rampPoints } from "../utils";
+import {
+	densestDistinctWindow,
+	levelFor,
+	type RampAnchor,
+	rampPoints,
+} from "../utils";
 
 const PR_WEEK_LEVELS = [
 	{ min: CONFIG.PRS_WEEK_VERY_HIGH, id: "pr-volume-week-high" },
@@ -14,11 +19,46 @@ const PR_WEEK_RAMP: readonly RampAnchor[] = [
 	[CONFIG.PRS_WEEK_EXTREME, CONFIG.POINTS_PRS_WEEK_EXTREME],
 ];
 
+const PR_DISTRIBUTED_RAMP: readonly RampAnchor[] = [
+	[CONFIG.PRS_SPAM_ROLLING_30DAYS, CONFIG.POINTS_PR_SPAM_DISTRIBUTED],
+	[
+		CONFIG.PRS_SPAM_ROLLING_30DAYS_EXTREME,
+		CONFIG.POINTS_PR_SPAM_DISTRIBUTED_EXTREME,
+	],
+];
+
+const PR_REPOS_DAY_RAMP: readonly RampAnchor[] = [
+	[CONFIG.PR_REPOS_DAY_HIGH, CONFIG.POINTS_PR_REPOS_DAY_HIGH],
+	[CONFIG.PR_REPOS_DAY_EXTREME, CONFIG.POINTS_PR_REPOS_DAY_EXTREME],
+];
+
 function countPushAccessPRs(
 	prs: readonly ActivityEvent[],
 	pushAccessRepos: Set<string>,
 ): number {
 	return prs.filter((pr) => pushAccessRepos.has(pr.repo)).length;
+}
+
+/**
+ * PRs to many different projects in one day. No person switches between
+ * that many projects so fast.
+ */
+function detectPRRepoSpread(prs: ActivityEvent[]): Flag[] {
+	const day = densestDistinctWindow(prs, eventTime, (pr) => pr.repo, 24);
+	if (day.distinct < CONFIG.PR_REPOS_DAY_HIGH) {
+		return [];
+	}
+
+	return [
+		{
+			id: "pr-repos-day",
+			points: rampPoints(day.distinct, PR_REPOS_DAY_RAMP),
+			group: "pr-volume",
+			amplifiable: true,
+			facts: { repos: day.distinct, prs: day.items.length },
+			events: day.items,
+		},
+	];
 }
 
 /**
@@ -66,13 +106,15 @@ function detectPRBursts(
 		});
 	}
 
+	flags.push(...detectPRRepoSpread(prs));
+
 	return flags;
 }
 
 /**
  * Many PRs spread over many repositories. Long-time contributors reach these
  * totals too, so the PRs must also come fast: many per week on average, or a
- * very busy month.
+ * very busy month. More PRs in the busiest 30 days give more points.
  */
 function detectDistributedPRs(prs: ActivityEvent[]): Flag[] {
 	if (prs.length < CONFIG.PRS_SPAM_VOLUME) {
@@ -98,7 +140,7 @@ function detectDistributedPRs(prs: ActivityEvent[]): Flag[] {
 	return [
 		{
 			id: "pr-distributed",
-			points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
+			points: rampPoints(busiest30Days, PR_DISTRIBUTED_RAMP),
 			group: "pr-volume",
 			amplifiable: true,
 			facts: {
@@ -123,7 +165,6 @@ export function detectExtremeAndDistributedPRSpam(
 	const prs = events.filter(isOpenedPR);
 	const bursts = detectPRBursts(prs, pushAccessRepos);
 
-	// A burst already explains the volume, so the slower check would only repeat it.
 	if (bursts.length > 0) {
 		return bursts;
 	}

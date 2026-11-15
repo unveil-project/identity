@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CONFIG } from "../src/config";
-import { humanScore, scoreFlags } from "../src/scoring";
-import type { Flag } from "../src/types";
+import { capForAIAttribution, humanScore, scoreFlags } from "../src/scoring";
+import type { Flag, FlagId } from "../src/types";
 import { rampPoints } from "../src/utils";
 import { flag } from "./utils/events";
 
@@ -34,7 +34,6 @@ describe("rampPoints", () => {
 			}
 			previous = points;
 		}
-		// Before, going from 7 to 8 forks jumped 25 points at once.
 		expect(biggestJump).toBeLessThan(10);
 	});
 });
@@ -51,7 +50,6 @@ describe("scoreFlags", () => {
 			flag("pr-volume", 45),
 			flag("pr-volume", 40),
 		]);
-		// Added up it would be 135. Instead: biggest (50) + 25% of the rest (21) = 71.
 		expect(result.total).toBe(71);
 		const group = result.groups[0];
 		expect(group?.rawPoints).toBe(135);
@@ -76,31 +74,42 @@ describe("scoreFlags", () => {
 });
 
 describe("humanScore", () => {
-	it("is 100 minus the penalty without a bonus", () => {
-		expect(humanScore(30, 0)).toBe(70);
-	});
-
-	it("gives the full bonus while the flags alone are not automation", () => {
-		expect(humanScore(40, 10)).toBe(70);
-		expect(humanScore(50, 30)).toBe(80);
-	});
-
-	it("does not let a bonus pull a heavily flagged account out of automation", () => {
-		// Adding the bonus in full gave 100 - 80 + 30 = 50, which reads as "mixed".
-		expect(humanScore(80, 30)).toBeLessThan(CONFIG.THRESHOLD_SUSPICIOUS);
-	});
-
-	it("never goes up when the penalty grows", () => {
-		let previous = Number.POSITIVE_INFINITY;
-		for (let penalty = 0; penalty <= 120; penalty++) {
-			const score = humanScore(penalty, 45);
-			expect(score).toBeLessThanOrEqual(previous);
-			previous = score;
-		}
+	it("is 100 minus the penalty", () => {
+		expect(humanScore(30)).toBe(70);
 	});
 
 	it("stays between 0 and 100", () => {
-		expect(humanScore(0, 45)).toBe(100);
-		expect(humanScore(150, 45)).toBe(0);
+		expect(humanScore(0)).toBe(100);
+		expect(humanScore(150)).toBe(0);
+	});
+});
+
+describe("capForAIAttribution", () => {
+	const AI_ATTRIBUTION_IDS: FlagId[] = [
+		"ai-agent-app",
+		"ai-branch-prefix",
+		"ai-branch-volume",
+		"ai-post-volume",
+	];
+
+	function aiFlag(id: FlagId): Flag {
+		return { ...flag("ai-attribution", 0), id } as Flag;
+	}
+
+	it.each(AI_ATTRIBUTION_IDS)("keeps %s below organic", (id) => {
+		expect(capForAIAttribution(100, [aiFlag(id)])).toBe(
+			CONFIG.THRESHOLD_HUMAN - 1,
+		);
+	});
+
+	it("leaves a score that is already below organic", () => {
+		const flags = [aiFlag("ai-agent-app")];
+
+		expect(capForAIAttribution(69, flags)).toBe(69);
+		expect(capForAIAttribution(20, flags)).toBe(20);
+	});
+
+	it("does nothing without AI proof", () => {
+		expect(capForAIAttribution(100, [flag("pr-volume", 10)])).toBe(100);
 	});
 });

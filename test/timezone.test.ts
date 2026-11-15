@@ -22,7 +22,6 @@ function workingHours(fromHourUtc: number, toHourUtc: number): GitHubEvent[] {
 
 describe("estimateUtcOffset", () => {
 	it("finds a positive offset from normal working hours", () => {
-		// Someone in UTC+9 working 09:00-17:00 their time is 00:00-08:00 UTC.
 		const estimate = estimateUtcOffset(toEvents(workingHours(0, 8)));
 		expect(estimate.offsetHours).toBeGreaterThanOrEqual(8);
 		expect(estimate.offsetHours).toBeLessThanOrEqual(11);
@@ -30,7 +29,6 @@ describe("estimateUtcOffset", () => {
 	});
 
 	it("finds a negative offset from normal working hours", () => {
-		// Someone in UTC-5 working 09:00-17:00 their time is 14:00-22:00 UTC.
 		const estimate = estimateUtcOffset(toEvents(workingHours(14, 22)));
 		expect(estimate.offsetHours).toBeGreaterThanOrEqual(-6);
 		expect(estimate.offsetHours).toBeLessThanOrEqual(-3);
@@ -51,11 +49,10 @@ describe("estimateUtcOffset", () => {
 });
 
 describe("24/7 detection across timezones", () => {
-	// The same busy period, moved so it runs over UTC midnight
 	function roundTheClockDay(startUtcHour: number): GitHubEvent[] {
 		const events: GitHubEvent[] = [];
 		for (let i = 0; i < 23; i++) {
-			if (i === 12) continue; // one quiet hour
+			if (i === 12) continue;
 			events.push(
 				event(
 					"PushEvent",

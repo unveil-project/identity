@@ -4,6 +4,7 @@ import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
 import { detectAIAgentApp } from "./detectors/ai-agent-app";
 import { detectAIAgentBranchPrefix } from "./detectors/ai-branch-prefix";
+import { detectAIVolume } from "./detectors/ai-volume";
 import { detectBountyLabelInfrastructure } from "./detectors/bounty-label-infra";
 import {
 	detectBountyRepoPRs,
@@ -29,8 +30,7 @@ import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
 import { externalEventsOf, pushAccessReposOf } from "./events";
 import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
-import { detectOrganicSignals } from "./modifiers/organic-signals";
-import { capForAIAgentUse, humanScore, scoreFlags } from "./scoring";
+import { capForAIAttribution, humanScore, scoreFlags } from "./scoring";
 import { daysBetween, toTime } from "./time";
 import { estimateUtcOffset } from "./timezone";
 import type {
@@ -58,9 +58,6 @@ function classificationFor(
 		return "mixed";
 	}
 
-	// Too little activity is not proof that an account is fine, so a good score
-	// needs enough events behind it. A bad score stands even with few events:
-	// the checks above found something real.
 	const hasEnoughEvidence =
 		window.eventCount >= CONFIG.MIN_EVENTS_FOR_CLASSIFICATION &&
 		confidence >= CONFIG.CONFIDENCE_MIN_FOR_RESULT;
@@ -102,7 +99,6 @@ export function analyze<Source = unknown>(
 	const reposCount = account.publicRepos;
 
 	const allRepoEvents = events.filter((event) => event.repo);
-	// Found from every event, so the option cannot hide the pushes it relies on.
 	const pushAccessRepos = pushAccessReposOf(allRepoEvents, login);
 	const repoEvents = eventsToCheck(allRepoEvents, pushAccessRepos, scope);
 	const ignoredEventCount = allRepoEvents.length - repoEvents.length;
@@ -119,8 +115,6 @@ export function analyze<Source = unknown>(
 
 	const dormancy = detectDormancy(repoEvents, accountAge, reposCount, window);
 
-	// Some checks are softer on old accounts. To get that, an account needs a
-	// history that matches its age, not just an old creation date.
 	const isEstablished =
 		accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT &&
 		!dormancy.isDormantReactivation;
@@ -148,16 +142,14 @@ export function analyze<Source = unknown>(
 		...detectBountyLabelInfrastructure(repoEvents),
 		...detectAIAgentBranchPrefix(repoEvents),
 		...detectAIAgentApp(repoEvents),
+		...detectAIVolume(repoEvents),
 	];
 
 	const scored = scoreFlags(flags, {
 		bountyMultiplier: getBountyMultiplier(repoEvents) ?? 1,
 	});
-	const uncappedScore = humanScore(
-		scored.total,
-		detectOrganicSignals(repoEvents),
-	);
-	const score = capForAIAgentUse(uncappedScore, flags);
+	const uncappedScore = humanScore(scored.total);
+	const score = capForAIAttribution(uncappedScore, flags);
 	const confidence = calculateConfidence(window);
 
 	return {
@@ -168,7 +160,6 @@ export function analyze<Source = unknown>(
 		isGitHubApp:
 			account.isApp === true ||
 			events.some((event) => event.actorIsApp === true),
-		// The flags point at the events we were given, so their source type holds.
 		flags: scored.flags as Flag<Source>[],
 		groups: scored.groups,
 		window,

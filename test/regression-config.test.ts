@@ -60,9 +60,6 @@ describe("regression config", () => {
 		}
 	});
 
-	// The "github-app" category is the ground truth for `isGitHubApp`, and that
-	// comes from GitHub's own type — which the fixture only has if the snapshot
-	// kept it. A bot fixture that lost its type would silently pass as a person.
 	it("keeps the bot type on github-app fixtures, and only those", () => {
 		for (const name of Object.keys(REGRESSION_FIXTURES)) {
 			const fixture = readFixture(name);
@@ -75,8 +72,6 @@ describe("regression config", () => {
 		}
 	});
 
-	// Without a capture date the fixture is replayed against today's clock, so
-	// its account keeps ageing and the expected classification drifts on its own.
 	it("stamps every fixture with the date it was captured", () => {
 		for (const name of Object.keys(REGRESSION_FIXTURES)) {
 			const fixture = readFixture(name);

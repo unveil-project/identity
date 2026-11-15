@@ -36,7 +36,6 @@ describe("densestWindow", () => {
 
 describe("densestDistinctWindow", () => {
 	it("counts different keys, not items", () => {
-		// Five comments in one repo, then three comments in three repos.
 		const comments = [
 			...[0, 1, 2, 3, 4].map((minute) => ({ minute, repo: "a/one" })),
 			...[60, 61, 62].map((minute, i) => ({ minute, repo: `b/${i}` })),

@@ -11,7 +11,6 @@ import {
 import type { Flag } from "../src/types";
 import { event, user } from "./utils/events";
 
-// 12 forks in a day on a 10 day old account, and nothing else.
 function forkingAccount() {
 	const events = Array.from({ length: 12 }, (_, i) =>
 		event(
@@ -46,12 +45,12 @@ describe("report", () => {
 		expect(flags.map((f) => f.label)).toEqual([
 			"Recently created",
 			"Narrow activity focus",
-			"Fork spike detected",
+			"Fork spike",
 		]);
 		expect(flags[2]).toMatchObject({
 			id: "fork-spike",
 			facts: { forks: 12, totalForks: 12 },
-			detail: "Burst of 12 fork events in a single 24-hour window",
+			detail: "12 forks within 24 hours",
 			data: [
 				{ label: "Forks in 24h window", value: 12, threshold: 8 },
 				{ label: "Total forks observed", value: 12 },

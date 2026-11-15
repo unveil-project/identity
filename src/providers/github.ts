@@ -38,11 +38,17 @@ export type GitHubEvent = {
 		ref?: string | null;
 		issue?: {
 			title?: string;
+			body?: string | null;
 			performed_via_github_app?: { slug?: string } | null;
 		};
-		comment?: { performed_via_github_app?: { slug?: string } | null };
+		comment?: {
+			body?: string | null;
+			performed_via_github_app?: { slug?: string } | null;
+		};
+		review?: { body?: string | null };
 		pull_request?: {
 			number?: number;
+			body?: string | null;
 			head?: { repo?: { url?: string } | null };
 		};
 	};
@@ -109,8 +115,6 @@ export function fromGitHubEvent(
 	const payload = event.payload;
 	const pr = payload?.pull_request;
 
-	// GitHub only tells us who submitted a PR through the repo its head branch
-	// lives in. If that repo belongs to the account, the account submitted it.
 	const headUrl = pr?.head?.repo?.url?.toLowerCase() ?? "";
 	const isAuthor = headUrl.includes(`/repos/${login.toLowerCase()}/`);
 

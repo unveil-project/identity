@@ -123,8 +123,8 @@ analysis.flags[0];
 //   group: "fork",
 //   facts: { forks: 12, totalForks: 14 },   // the numbers the check measured
 //   events: [...],                          // the events behind the flag
-//   label: "Fork spike detected",
-//   detail: "Burst of 12 fork events in a single 24-hour window",
+//   label: "Fork spike",
+//   detail: "12 forks within 24 hours",
 //   data: [
 //     { label: "Forks in 24h window", value: 12, threshold: 8 },
 //     { label: "Total forks observed", value: 14 },

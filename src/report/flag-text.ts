@@ -26,7 +26,6 @@ function agentName(app: string): string {
  * this is the one place where flags turn into text.
  */
 export const FLAG_TEXT: FlagTextBuilders = {
-	// Account age
 	"new-account": ({ ageDays }) => ({
 		label: "Recently created",
 		detail: `Account is ${ageDays} days old`,
@@ -50,7 +49,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"dormant-reactivation": ({ ageDays, repos, events, spanDays }) => ({
-		label: "Activity inconsistent with account age",
+		label: "Old account, all activity is recent",
 		detail: `The account is ${ageDays} days old with ${repos} repositories, but all ${events} events we can see happened in the space of ${spanDays.toFixed(1)} days`,
 		data: [
 			{
@@ -71,7 +70,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Profile
 	"zero-repos-external": ({ externalEvents, totalEvents }) => ({
 		label: "Only active on other people's repos",
 		detail: `No personal repos, all ${totalEvents} events are on repos they don't own`,
@@ -82,10 +80,9 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Repository creation
 	"repo-creation-extreme": ({ created, totalCreated }) => ({
-		label: "Concentrated repository creation",
-		detail: `${created} repositories created in a short timeframe (within 24 hours)`,
+		label: "Many repos created in one day",
+		detail: `${created} repositories created within 24 hours`,
 		data: [
 			{
 				label: "Repos created in 24h",
@@ -96,8 +93,8 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"repo-creation-high": ({ created, totalCreated }) => ({
-		label: "Frequent repository creation",
-		detail: `${created} repositories created in a short timeframe (within 24 hours)`,
+		label: "Several repos created in one day",
+		detail: `${created} repositories created within 24 hours`,
 		data: [
 			{
 				label: "Repos created in 24h",
@@ -108,7 +105,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Timing
 	"always-active": ({ windowStart, hoursActive, longestRestHours, events }) => {
 		const rest = longestRestHours.toFixed(1);
 
@@ -132,11 +128,11 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		};
 	},
 	"coding-streak": ({ streakDays, uniformDays }) => ({
-		label: "Extended daily coding",
+		label: "Long coding days in a row",
 		detail: `${streakDays} days in a row with ${CONFIG.HOURS_PER_DAY_INHUMAN}+ hours of coding`,
 		data: [
 			{
-				label: "Consecutive inhuman days",
+				label: "Days in a row",
 				value: streakDays,
 				threshold: CONFIG.CONSECUTIVE_INHUMAN_DAYS_EXTREME,
 			},
@@ -170,7 +166,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Diversity
 	"narrow-activity": ({ eventTypes, entropy }) => ({
 		label: "Narrow activity focus",
 		detail: `Only ${eventTypes} kinds of activity, and none of it involves other people`,
@@ -190,7 +185,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Comments
 	"issue-comment-spray-extreme": ({ comments, repos, windowMinutes }) => {
 		const duration = formatWindowDuration(windowMinutes);
 
@@ -264,7 +258,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		detail: `Commented on an issue and opened a PR to the same repo within ${CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MINUTES} minutes, in ${repos} repositories (the fastest took ${fastestSeconds}s)`,
 		data: [
 			{
-				label: "Repos with fast comment→PR",
+				label: "Repos with a fast comment then PR",
 				value: repos,
 				threshold: CONFIG.COMMENT_BEFORE_PR_VERY_FAST_MIN_REPOS,
 			},
@@ -276,7 +270,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Stars
 	"star-spray-extreme": ({ repos, windowMinutes, totalStars }) => {
 		const duration = formatWindowDuration(windowMinutes);
 
@@ -312,7 +305,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		};
 	},
 
-	// Branches and PRs
 	"branch-pr-pattern": ({
 		pairs,
 		minPairs,
@@ -322,10 +314,10 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		minRatio,
 		maxGapSeconds,
 	}) => ({
-		label: "Rapid branch→PR pattern",
+		label: "Branch then PR within seconds",
 		detail: `${pairs} branches in the account's own repositories followed by PRs within ${maxGapSeconds}s, out of ${branches} branches created in total`,
 		data: [
-			{ label: "Matched branch→PR pairs", value: pairs, threshold: minPairs },
+			{ label: "Branches followed by a PR", value: pairs, threshold: minPairs },
 			{ label: "Total branches", value: branches },
 			{ label: "Branches in own repos", value: ownBranches },
 			{
@@ -334,7 +326,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 				threshold: percent(minRatio),
 			},
 			{
-				label: "Max time branch→PR (s)",
+				label: "Max time from branch to PR (s)",
 				value: maxGapSeconds,
 				threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
 			},
@@ -348,11 +340,11 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		minRatio,
 		maxGapSeconds,
 	}) => ({
-		label: "Rapid fork→PR pattern",
+		label: "Fork branch then PR within seconds",
 		detail: `${pairs} fork branches followed by upstream PRs within ${maxGapSeconds}s, out of ${branches} branches created in total`,
 		data: [
 			{
-				label: "Matched fork branch→PR pairs",
+				label: "Fork branches followed by a PR",
 				value: pairs,
 				threshold: minPairs,
 			},
@@ -363,15 +355,15 @@ export const FLAG_TEXT: FlagTextBuilders = {
 				threshold: percent(minRatio),
 			},
 			{
-				label: "Max time branch→PR (s)",
+				label: "Max time from branch to PR (s)",
 				value: maxGapSeconds,
 				threshold: CONFIG.BRANCH_PR_TIME_WINDOW_SECONDS,
 			},
 		],
 	}),
 	"rapid-prs": ({ prs, minPRs, repo, maxGapSeconds }) => ({
-		label: "Rapid PRs to repository",
-		detail: `${prs} PRs opened to ${repo} within ${maxGapSeconds}s intervals`,
+		label: "Fast PRs to one repo",
+		detail: `${prs} PRs opened to ${repo} each less than ${maxGapSeconds}s after the last`,
 		data: [
 			{ label: "Rapid PRs to same repo", value: prs, threshold: minPRs },
 			{ label: "Target repository", value: repo },
@@ -383,7 +375,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// PR outcome
 	"closed-pr-spray": ({
 		closed,
 		minClosed,
@@ -411,8 +402,8 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		};
 	},
 	"closed-pr-burst": ({ closed, minClosed, repos, spanMinutes }) => ({
-		label: "Concentrated PR closures",
-		detail: `${closed} PRs closed across ${repos} repos in ${spanMinutes}m (concentrated closing activity)`,
+		label: "Many PRs closed at once",
+		detail: `${closed} PRs closed across ${repos} repos in ${spanMinutes}m`,
 		data: [
 			{ label: "Closed PRs", value: closed, threshold: minClosed },
 			{ label: "Distinct repos", value: repos },
@@ -424,10 +415,9 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Forks
 	"fork-extreme": ({ forks, totalForks }) => ({
-		label: "Extreme fork automation",
-		detail: `${forks} repositories forked in rapid succession (within 24 hours)`,
+		label: "Very many forks in one day",
+		detail: `${forks} repositories forked within 24 hours`,
 		data: [
 			{
 				label: "Forks in 24h window",
@@ -438,8 +428,8 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"fork-severe": ({ forks, totalForks }) => ({
-		label: "Severe fork surge",
-		detail: `${forks} repositories forked in rapid succession (within 24 hours)`,
+		label: "Many forks in one day",
+		detail: `${forks} repositories forked within 24 hours`,
 		data: [
 			{
 				label: "Forks in 24h window",
@@ -450,8 +440,8 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"fork-spike": ({ forks, totalForks }) => ({
-		label: "Fork spike detected",
-		detail: `Burst of ${forks} fork events in a single 24-hour window`,
+		label: "Fork spike",
+		detail: `${forks} forks within 24 hours`,
 		data: [
 			{
 				label: "Forks in 24h window",
@@ -474,8 +464,8 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"fork-surge-48h": ({ forks, totalForks }) => ({
-		label: "Multi-day fork surge",
-		detail: `Concentrated burst: ${forks} repositories forked over 2 days`,
+		label: "Many forks in 2 days",
+		detail: `${forks} repositories forked within 2 days`,
 		data: [
 			{
 				label: "Forks in 48h window",
@@ -486,8 +476,8 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"fork-surge-72h": ({ forks, totalForks }) => ({
-		label: "Severe multi-day fork surge",
-		detail: `Rapid burst: ${forks} repositories forked over 72 hours`,
+		label: "Many forks in 3 days",
+		detail: `${forks} repositories forked within 3 days`,
 		data: [
 			{
 				label: "Forks in 72h window",
@@ -498,7 +488,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"fork-rate": ({ perDay, spanDays, totalForks }) => ({
-		label: "Sustained fork rate",
+		label: "High daily fork rate",
 		detail: `Average of ${perDay.toFixed(1)} forks per day over ${spanDays} days (${totalForks} total)`,
 		data: [
 			{
@@ -511,8 +501,8 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"fork-streak": ({ streakDays, activeDays, totalForks }) => ({
-		label: "Extended forking pattern",
-		detail: `Forking activity on ${activeDays} days (${streakDays} consecutive), ${totalForks} repositories total`,
+		label: "Forks many days in a row",
+		detail: `Forked repos on ${activeDays} days (${streakDays} in a row), ${totalForks} forks in total`,
 		data: [
 			{
 				label: "Consecutive fork days",
@@ -523,19 +513,27 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			{ label: "Total forks", value: totalForks },
 		],
 	}),
-	"fork-scatter": ({ repos, totalForks, spanDays }) => {
+	"fork-scatter": ({
+		repos,
+		totalForks,
+		spanDays,
+		reposPerWeek,
+		busiestWeekRepos,
+	}) => {
 		const span =
-			spanDays > 0 ? ` over ${spanDays} days` : " in a short timeframe";
+			spanDays > 0 ? ` over ${spanDays} days` : " in less than a day";
 
 		return {
-			label: "Fork scatter pattern",
-			detail: `Forks spread across ${repos} different repositories${span}`,
+			label: "Forks of many different repos",
+			detail: `Forks spread across ${repos} different repositories${span}, about ${reposPerWeek} per week, ${busiestWeekRepos} in the busiest week`,
 			data: [
 				{
 					label: "Distinct repos forked",
 					value: repos,
 					threshold: CONFIG.FORK_REPO_DIVERSITY_HIGH,
 				},
+				{ label: "Repos per week", value: reposPerWeek },
+				{ label: "Repos in the busiest week", value: busiestWeekRepos },
 				{ label: "Total forks", value: totalForks },
 				{ label: "Activity span (days)", value: spanDays },
 			],
@@ -545,18 +543,17 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		const steps = forks + branches + prs;
 
 		return {
-			label: "Chained automation pattern",
+			label: "Fork, branch, PR chain",
 			detail: `${steps} steps in the same order every time: ${forks} forks, then ${branches} branches, then ${prs} pull requests`,
 			data: [
 				{ label: "Fork events", value: forks },
 				{ label: "Branch creates in forked repos", value: branches },
 				{ label: "PRs from forked repos", value: prs },
-				{ label: "Total chained operations", value: steps },
+				{ label: "Total steps", value: steps },
 			],
 		};
 	},
 
-	// PR volume
 	"young-pr-volume-extreme": ({ prs, spanDays, perDay }) => ({
 		label: "Very high PR volume",
 		detail: `${prs} PRs in ${plural(spanDays, "day")}`,
@@ -621,7 +618,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		const rate = perWeek > 0 ? ` (${perWeek.toFixed(1)} PRs/week)` : "";
 
 		return {
-			label: "Distributed PR pattern",
+			label: "PRs spread over many repos",
 			detail: `${prs} PRs spread across ${repos} different repositories${rate}`,
 			data: [
 				{ label: "Total PRs", value: prs, threshold: CONFIG.PRS_SPAM_VOLUME },
@@ -636,9 +633,21 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		};
 	},
 
-	// Repo spread
+	"pr-repos-day": ({ repos, prs }) => ({
+		label: "PRs to many projects in one day",
+		detail: `Opened PRs in ${repos} different repos within 24 hours`,
+		data: [
+			{
+				label: "Repos with a PR in densest 24h window",
+				value: repos,
+				threshold: CONFIG.PR_REPOS_DAY_HIGH,
+			},
+			{ label: "PRs in that window", value: prs },
+		],
+	}),
+
 	"repo-spread-extreme": ({ repos, externalEvents }) => ({
-		label: "Highly distributed activity",
+		label: "Active in very many repos",
 		detail: `Activity spread across ${repos} external repositories`,
 		data: [
 			{
@@ -650,7 +659,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 	"repo-spread-high": ({ repos, externalEvents }) => ({
-		label: "Distributed activity",
+		label: "Active in many repos",
 		detail: `Activity spread across ${repos} external repositories`,
 		data: [
 			{
@@ -662,7 +671,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// External focus
 	"external-contributor": ({ externalPRs, ownRepos }) => {
 		const own =
 			ownRepos === 0
@@ -670,7 +678,7 @@ export const FLAG_TEXT: FlagTextBuilders = {
 				: `but only ${ownRepos} of their own`;
 
 		return {
-			label: "Primarily external contributions",
+			label: "Mostly PRs to other people's repos",
 			detail: `${externalPRs} PRs to other repos, ${own}`,
 			data: [
 				{
@@ -701,9 +709,8 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Engagement
 	"limited-engagement": ({ externalPRs }) => ({
-		label: "Limited community engagement",
+		label: "Only PRs, no other activity",
 		detail:
 			"Pushes code to other people's repos, but never opens an issue, comments, reviews, or stars anything",
 		data: [
@@ -716,17 +723,16 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Bounty
 	"bounty-prs-high": (facts) => ({
-		label: "PRs predominantly targeting known bounty program repositories",
+		label: "Most PRs go to bounty repos",
 		...describeBountyPRs(facts),
 	}),
 	"bounty-prs-low": (facts) => ({
-		label: "PR activity in known bounty program repositories",
+		label: "PRs to bounty repos",
 		...describeBountyPRs(facts),
 	}),
 	"bounty-labels": ({ issues, repos }) => ({
-		label: "Bounty infrastructure activity",
+		label: "Issues with bounty labels",
 		detail: `${issues} issues labeled with bounty amounts across ${plural(repos, "known bounty repo")}`,
 		data: [
 			{
@@ -738,22 +744,16 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// AI attribution
-	"ai-branch-prefix": ({ aiBranches, branches, ratio, prefixes }) => ({
-		label: "AI agent branch naming pattern",
+	"ai-branch-prefix": ({ aiBranches, branches, prefixes }) => ({
+		label: "AI agent branches",
 		detail: `${aiBranches}/${branches} branches use AI agent tool prefixes (${prefixes.join(", ")})`,
 		data: [
-			{ label: "AI-prefixed branches", value: aiBranches },
 			{
-				label: "Total branches",
-				value: branches,
-				threshold: CONFIG.AI_BRANCH_MIN_CREATIONS,
+				label: "AI-prefixed branches",
+				value: aiBranches,
+				threshold: CONFIG.AI_BRANCH_MIN,
 			},
-			{
-				label: "AI branch ratio",
-				value: percent(ratio),
-				threshold: percent(CONFIG.AI_BRANCH_RATIO_MIN),
-			},
+			{ label: "Total branches", value: branches },
 			{ label: "Detected prefixes", value: prefixes.join(", ") },
 		],
 	}),
@@ -776,6 +776,30 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			],
 		};
 	},
+	"ai-branch-volume": ({ busiestDay, aiBranches }) => ({
+		label: "Heavy AI agent use (branches)",
+		detail: `${busiestDay} AI agent branches within 24 hours`,
+		data: [
+			{
+				label: "AI agent branches in densest 24h window",
+				value: busiestDay,
+				threshold: CONFIG.AI_BRANCHES_DAY_LIGHT,
+			},
+			{ label: "All AI agent branches", value: aiBranches },
+		],
+	}),
+	"ai-post-volume": ({ busiestDay, aiPosts }) => ({
+		label: "Heavy AI agent use (posts)",
+		detail: `${busiestDay} AI agent posts within 24 hours`,
+		data: [
+			{
+				label: "AI agent posts in densest 24h window",
+				value: busiestDay,
+				threshold: CONFIG.AI_POSTS_DAY_LIGHT,
+			},
+			{ label: "All AI agent posts", value: aiPosts },
+		],
+	}),
 };
 
 type PRVolumeWindow = {
@@ -801,7 +825,7 @@ function describePushAccess(pushAccessPRs: number): string {
 		return "";
 	}
 
-	return `, ${pushAccessPRs} to repos it can push to`;
+	return `, ${pushAccessPRs} of them to repos it can push to`;
 }
 
 /** The sentence and metrics shared by the PR volume flags. */

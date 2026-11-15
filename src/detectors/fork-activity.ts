@@ -10,6 +10,7 @@ import { localDay } from "../timezone";
 import type { ActivityEvent, Flag, FlagId } from "../types";
 import {
 	type DensestWindow,
+	densestDistinctWindow,
 	levelFor,
 	type RampAnchor,
 	rampPoints,
@@ -160,24 +161,68 @@ function detectForkStreak(
 	];
 }
 
-/** Forks spread over many different repositories. */
-function detectForkScatter(forks: ActivityEvent[]): Flag[] {
-	const repos = new Set(forks.map((fork) => fork.repo));
+const HOURS_PER_WEEK = 24 * 7;
 
-	if (repos.size < CONFIG.FORK_REPO_DIVERSITY_HIGH) {
+function forkedRepo(fork: ActivityEvent): string {
+	return fork.repo;
+}
+
+/**
+ * Different repos forked per week, over the whole time we see.
+ * A span shorter than one week counts as one week, so a few days of
+ * forking is not stretched into a huge weekly number.
+ */
+function reposPerWeek(repos: number, days: number): number {
+	const weeks = Math.max(1, days / 7);
+
+	return repos / weeks;
+}
+
+/**
+ * Forks spread over many different repositories.
+ *
+ * The number of repos alone says little: many people fork 15 repos in a
+ * month. So the points add up three parts:
+ * - volume: how many different repos
+ * - speed: how many different repos per week, on average
+ * - intensity: the most different repos in any 7 days
+ * A calm pace gets few points, even with many repos.
+ */
+function detectForkScatter(forks: ActivityEvent[]): Flag[] {
+	const repos = new Set(forks.map(forkedRepo)).size;
+
+	if (repos < CONFIG.FORK_REPO_DIVERSITY_HIGH) {
 		return [];
 	}
+
+	const days = spanDays(forks.map(eventTime));
+	const perWeek = reposPerWeek(repos, days);
+	const busiestWeek = densestDistinctWindow(
+		forks,
+		eventTime,
+		forkedRepo,
+		HOURS_PER_WEEK,
+	);
+
+	const volumePoints = rampPoints(repos, CONFIG.FORK_SCATTER_VOLUME_RAMP);
+	const speedPoints = rampPoints(perWeek, CONFIG.FORK_SCATTER_SPEED_RAMP);
+	const intensityPoints = rampPoints(
+		busiestWeek.distinct,
+		CONFIG.FORK_SCATTER_INTENSITY_RAMP,
+	);
 
 	return [
 		{
 			id: "fork-scatter",
-			points: CONFIG.POINTS_FORK_DIVERSITY,
+			points: volumePoints + speedPoints + intensityPoints,
 			group: "fork",
 			amplifiable: true,
 			facts: {
-				repos: repos.size,
+				repos,
 				totalForks: forks.length,
-				spanDays: Math.trunc(spanDays(forks.map(eventTime))),
+				spanDays: Math.trunc(days),
+				reposPerWeek: Math.round(perWeek * 10) / 10,
+				busiestWeekRepos: busiestWeek.distinct,
 			},
 			events: forks,
 		},
@@ -194,11 +239,9 @@ export function detectForkActivity(
 		return [];
 	}
 
-	// A burst is the strongest fork signal. When there is one, the slower
-	// patterns below would only describe the same forks again.
 	const spike = strongestForkSpike(forks);
 	if (spike) {
-		return [spike];
+		return [strongerSpikeOrScatter(spike, detectForkScatter(forks))];
 	}
 
 	return [
@@ -206,6 +249,15 @@ export function detectForkActivity(
 		...detectForkStreak(forks, tzOffsetHours),
 		...detectForkScatter(forks),
 	];
+}
+
+function strongerSpikeOrScatter(spike: Flag, scatterFlags: Flag[]): Flag {
+	const scatter = scatterFlags[0];
+	if (scatter && scatter.points > spike.points) {
+		return scatter;
+	}
+
+	return spike;
 }
 
 /**

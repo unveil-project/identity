@@ -50,9 +50,6 @@ describe("newcomers", () => {
 	});
 
 	it("does not treat a new team member as a drive-by account", () => {
-		// A new hire's account: no repos of its own, all work in the company's
-		// repos. It looks like an account that lives on other people's repos,
-		// but it has one clear home.
 		const work = Array.from({ length: 30 }, (_, i) => {
 			const at = new Date(Date.UTC(2026, 5, 15 + (i % 12), 9 + (i % 8)));
 			const kinds = [

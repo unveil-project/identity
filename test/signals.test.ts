@@ -15,7 +15,7 @@ describe("report - Account Age Flags", () => {
 	});
 
 	it("should flag recently created accounts (< 30 days old)", () => {
-		const recentDate = new Date(2026, 2, 5); // 5 days old
+		const recentDate = new Date(2026, 2, 5);
 		const result = reportGitHub({
 			user: user({ login: "newuser", created_at: recentDate.toISOString(), public_repos: 5 }),
 			events: [],
@@ -27,7 +27,7 @@ describe("report - Account Age Flags", () => {
 	});
 
 	it("should flag young accounts (30-90 days old)", () => {
-		const youngDate = new Date(2026, 0, 20); // ~50 days old
+		const youngDate = new Date(2026, 0, 20);
 		const result = reportGitHub({
 			user: user({ login: "younguser", created_at: youngDate.toISOString(), public_repos: 5 }),
 			events: [],
@@ -39,7 +39,7 @@ describe("report - Account Age Flags", () => {
 	});
 
 	it("should not flag established accounts (> 90 days old)", () => {
-		const establishedDate = new Date(2025, 11, 1); // > 100 days old
+		const establishedDate = new Date(2025, 11, 1);
 		const result = reportGitHub({
 			user: user({ login: "olduser", created_at: establishedDate.toISOString(), public_repos: 5 }),
 			events: [],
@@ -88,7 +88,6 @@ describe("report - Zero Repos & External Activity", () => {
 	});
 
 	it("should not flag someone who works in one organization's repos", () => {
-		// Plenty of people who work for a company keep no repos of their own.
 		const result = reportGitHub({
 			user: user({ login: "employee", created_at: "2025-12-01T00:00:00Z", public_repos: 0 }),
 			events: eventsOn((i) => `company/service${i % 4}`),
@@ -143,7 +142,7 @@ describe("report - Fork Surge Detection", () => {
 			events,
 		});
 
-		expect(result.flags.some((f) => f.label === "Fork spike detected")).toBe(
+		expect(result.flags.some((f) => f.label === "Fork spike")).toBe(
 			true,
 		);
 	});
@@ -178,7 +177,6 @@ describe("report - Fork Surge Detection", () => {
 
 	it("should not show sustained fork rate on single-day spikes", () => {
 		const events: GitHubEvent[] = [];
-		// Create 17 forks in 24 hours (spike detected)
 		for (let i = 0; i < 17; i++) {
 			events.push({
 				type: "ForkEvent",
@@ -199,20 +197,17 @@ describe("report - Fork Surge Detection", () => {
 			events,
 		});
 
-		// Should have spike detected
-		expect(result.flags.some((f) => f.label === "Fork spike detected")).toBe(
+		expect(result.flags.some((f) => f.label === "Fork spike")).toBe(
 			true,
 		);
 
-		// Should NOT have sustained fork rate (spike only spans 1 day)
-		expect(result.flags.some((f) => f.label === "Sustained fork rate")).toBe(
+		expect(result.flags.some((f) => f.label === "High daily fork rate")).toBe(
 			false,
 		);
 	});
 
 	it("should not show fork scatter pattern when spike is detected", () => {
 		const events: GitHubEvent[] = [];
-		// Create 20 forks in 24 hours across 20 different repos (spike + diversity)
 		for (let i = 0; i < 20; i++) {
 			events.push({
 				type: "ForkEvent",
@@ -233,23 +228,20 @@ describe("report - Fork Surge Detection", () => {
 			events,
 		});
 
-		// Should have spike detected (20 in 24h)
 		expect(
 			result.flags.some(
 				(f) =>
-					f.label.includes("Severe fork surge") || f.label.includes("Extreme"),
+					f.label.includes("Many forks in one day") || f.label.includes("Extreme"),
 			),
 		).toBe(true);
 
-		// Should NOT have scatter pattern (spike already indicates the threat)
-		expect(result.flags.some((f) => f.label === "Fork scatter pattern")).toBe(
+		expect(result.flags.some((f) => f.label === "Forks of many different repos")).toBe(
 			false,
 		);
 	});
 
 	it("should show fork scatter pattern for slow, distributed targeting", () => {
 		const events: GitHubEvent[] = [];
-		// Create 20 forks over 10 days across 20 different repos (no spike, but wide spread)
 		for (let i = 0; i < 20; i++) {
 			events.push({
 				type: "ForkEvent",
@@ -269,17 +261,97 @@ describe("report - Fork Surge Detection", () => {
 			events,
 		});
 
-		// Should NOT have spike (only 2 per day, spread over 10 days)
 		expect(
 			result.flags.some(
 				(f) => f.label.includes("spike") || f.label.includes("Spike"),
 			),
 		).toBe(false);
 
-		// Should have scatter pattern (diversity of targets)
-		expect(result.flags.some((f) => f.label === "Fork scatter pattern")).toBe(
+		expect(result.flags.some((f) => f.label === "Forks of many different repos")).toBe(
 			true,
 		);
+	});
+
+	describe("fork scatter points follow volume, speed and intensity", () => {
+		/** One fork per repo, `hoursApart` hours after the one before. */
+		function spreadForks(count: number, hoursApart: number): GitHubEvent[] {
+			const start = new Date(2026, 1, 1, 10).getTime();
+			const events: GitHubEvent[] = [];
+
+			for (let i = 0; i < count; i++) {
+				const at = new Date(start + i * hoursApart * 60 * 60 * 1000);
+				events.push({
+					type: "ForkEvent",
+					created_at: at.toISOString(),
+					repo: { name: `owner${i}/repo${i}` } as any,
+				} as any);
+			}
+
+			return events;
+		}
+
+		function scatterReport(events: GitHubEvent[]) {
+			const result = reportGitHub({
+				user: user({ login: "user", created_at: "2025-01-01T00:00:00Z", public_repos: 10 }),
+				events,
+			});
+			const scatter = result.flags.find(
+				(f) => f.label === "Forks of many different repos",
+			);
+
+			return { result, scatter };
+		}
+
+		/** Points that would move a clean account from organic to mixed. */
+		const pointsToMixed = 100 - 69;
+
+		it("gives few points to 15 repos in a month at a calm pace", () => {
+			const { scatter } = scatterReport(spreadForks(15, 48));
+
+			expect(scatter).toBeDefined();
+			expect(scatter?.points).toBeLessThanOrEqual(10);
+		});
+
+		it("moves an account to mixed on its own for 30 repos at one a day", () => {
+			const { scatter } = scatterReport(spreadForks(30, 24));
+
+			expect(scatter?.points).toBeGreaterThanOrEqual(pointsToMixed);
+		});
+
+		it("still gives points when forks are slowed down to avoid speed checks", () => {
+			const slow = scatterReport(spreadForks(30, 48)).scatter;
+			const calm = scatterReport(spreadForks(15, 48)).scatter;
+
+			expect(slow?.points).toBeGreaterThan(calm?.points ?? 0);
+		});
+
+		it("gives more points to faster and larger spreads", () => {
+			const calm = scatterReport(spreadForks(15, 48)).scatter;
+			const fast = scatterReport(spreadForks(15, 6.5)).scatter;
+			const large = scatterReport(spreadForks(60, 12)).scatter;
+
+			expect(fast?.points).toBeGreaterThan(calm?.points ?? 0);
+			expect(large?.points).toBeGreaterThan(fast?.points ?? 0);
+		});
+
+		it("keeps a stronger scatter when a small spike is also found", () => {
+			const large = scatterReport(spreadForks(60, 12)).scatter;
+
+			const events = spreadForks(60, 12);
+			const start = new Date(2026, 1, 1, 10).getTime();
+			// Move forks 2-5 into the first four hours: 5 forks in 24 hours.
+			for (const [i, fork] of events.slice(1, 5).entries()) {
+				const hour = i + 1;
+				fork.created_at = new Date(start + hour * 60 * 60 * 1000).toISOString();
+			}
+
+			const { result, scatter } = scatterReport(events);
+
+			expect(large).toBeDefined();
+			expect(scatter).toBeDefined();
+			expect(scatter?.points).toBeGreaterThanOrEqual(large?.points ?? 0);
+			expect(result.flags.some((f) => f.label === "Multiple forks")).toBe(false);
+		});
 	});
 });
 
@@ -295,7 +367,6 @@ describe("report - Repository Creation Patterns", () => {
 
 	it("should flag frequent repository creation (8+ repos in 24 hours)", () => {
 		const events: GitHubEvent[] = [];
-		// Create 8 repo creation events - using UTC to avoid timezone issues
 		for (let i = 0; i < 8; i++) {
 			const date = new Date(Date.UTC(2026, 2, 10, i, 0, 0));
 			events.push({
@@ -305,7 +376,6 @@ describe("report - Repository Creation Patterns", () => {
 				payload: { ref_type: "repository" },
 			} as any);
 		}
-		// Add 2 more events to meet MIN_EVENTS_FOR_ANALYSIS (10)
 		events.push({
 			type: "PushEvent",
 			created_at: new Date(Date.UTC(2026, 2, 10, 8, 0, 0)).toISOString(),
@@ -323,13 +393,12 @@ describe("report - Repository Creation Patterns", () => {
 		});
 
 		expect(
-			result.flags.some((f) => f.label === "Frequent repository creation"),
+			result.flags.some((f) => f.label === "Several repos created in one day"),
 		).toBe(true);
 	});
 
 	it("should flag concentrated repository creation (16+ repos in 24 hours)", () => {
 		const events: GitHubEvent[] = [];
-		// Create 16 repo creation events - using UTC to avoid timezone issues
 		for (let i = 0; i < 16; i++) {
 			const date = new Date(Date.UTC(2026, 2, 10, Math.floor(i / 2), 0, 0));
 			events.push({
@@ -339,7 +408,6 @@ describe("report - Repository Creation Patterns", () => {
 				payload: { ref_type: "repository" },
 			} as any);
 		}
-		// Add 2 more events to meet MIN_EVENTS_FOR_ANALYSIS (10)
 		events.push({
 			type: "PushEvent",
 			created_at: new Date(Date.UTC(2026, 2, 10, 8, 0, 0)).toISOString(),
@@ -357,7 +425,7 @@ describe("report - Repository Creation Patterns", () => {
 		});
 
 		expect(
-			result.flags.some((f) => f.label === "Concentrated repository creation"),
+			result.flags.some((f) => f.label === "Many repos created in one day"),
 		).toBe(true);
 	});
 
@@ -380,7 +448,7 @@ describe("report - Repository Creation Patterns", () => {
 
 		expect(
 			result.flags.some((f) =>
-				f.label.includes("Concentrated repository creation"),
+				f.label.includes("Many repos created in one day"),
 			),
 		).toBe(false);
 	});
@@ -398,10 +466,8 @@ describe("report - Activity Pattern Detection", () => {
 
 	it("should flag 24/7 activity pattern (< 3 hours sleep on single day)", () => {
 		const events: GitHubEvent[] = [];
-		// Simulate activity across 22 hours with only 1 hour gap
 		for (let hour = 0; hour < 23; hour++) {
 			if (hour !== 12) {
-				// 1 hour gap
 				events.push({
 					type: "PushEvent",
 					created_at: new Date(2026, 2, 10, hour, 0, 0).toISOString(),
@@ -427,7 +493,6 @@ describe("report - Activity Pattern Detection", () => {
 
 	it("should not flag 24/7 pattern if activity is spread over multiple days", () => {
 		const events: GitHubEvent[] = [];
-		// Activity spread across multiple days, each day has normal sleep
 		for (let day = 0; day < 5; day++) {
 			for (let hour = 8; hour < 20; hour++) {
 				events.push({
@@ -474,7 +539,6 @@ describe("report - Narrow Activity Focus", () => {
 			events,
 		});
 
-		// Pure push events with low diversity and no interaction
 		expect(result.flags.some((f) => f.label === "Narrow activity focus")).toBe(
 			true,
 		);
@@ -482,7 +546,6 @@ describe("report - Narrow Activity Focus", () => {
 
 	it("should not flag narrow focus if there are human interactions", () => {
 		const events: GitHubEvent[] = [];
-		// Push events
 		for (let i = 0; i < 12; i++) {
 			events.push({
 				type: "PushEvent",
@@ -490,7 +553,6 @@ describe("report - Narrow Activity Focus", () => {
 				repo: { name: "repo" } as any,
 			} as any);
 		}
-		// Add interaction
 		events.push({
 			type: "IssueCommentEvent",
 			created_at: new Date(2026, 2, 10, 13, 0, 0).toISOString(),
@@ -520,7 +582,6 @@ describe("report - Score Calculation", () => {
 
 	it("should calculate score as 100 minus the grouped penalty total", () => {
 		const events: GitHubEvent[] = [];
-		// Create fork spike to add points
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "ForkEvent",
@@ -545,7 +606,6 @@ describe("report - Score Calculation", () => {
 
 	it("should not let correlated flags in one evidence group stack additively", () => {
 		const events: GitHubEvent[] = [];
-		// One burst of PR spam, busy enough to trigger several PR volume checks
 		for (let i = 0; i < 120; i++) {
 			events.push({
 				type: "PullRequestEvent",
@@ -568,11 +628,8 @@ describe("report - Score Calculation", () => {
 
 		const prVolume = result.groups.find((g) => g.group === "pr-volume");
 		expect(prVolume).toBeDefined();
-		// More than one check fired on the same behaviour...
 		expect(prVolume?.flagCount).toBeGreaterThan(1);
-		// ...but the group adds much less than all of them added up.
 		expect(prVolume?.points).toBeLessThan(prVolume?.rawPoints ?? 0);
-		// The biggest single flag still counts fully.
 		const strongest = Math.max(
 			...result.flags
 				.filter((f) => f.group === "pr-volume")
@@ -593,7 +650,6 @@ describe("report - Score Calculation", () => {
 
 	it("should cap score at 0 minimum", () => {
 		const events: GitHubEvent[] = [];
-		// Create massive fork spike
 		for (let i = 0; i < 50; i++) {
 			events.push({
 				type: "ForkEvent",
@@ -610,7 +666,6 @@ describe("report - Score Calculation", () => {
 		}
 
 		const result = reportGitHub({
-			// very new account
 			user: user({ login: "bot", created_at: "2026-03-08T00:00:00Z", public_repos: 0 }),
 			events,
 		});
@@ -630,7 +685,6 @@ describe("report - Classification", () => {
 	});
 
 	it("should classify as organic when score >= 70", () => {
-		// Needs enough events, otherwise we get "insufficient-data"
 		const events: GitHubEvent[] = [];
 		for (let day = 0; day < 20; day++) {
 			events.push({
@@ -666,7 +720,6 @@ describe("report - Classification", () => {
 
 	it("should classify as mixed when score is between 50-69", () => {
 		const events: GitHubEvent[] = [];
-		// Exactly FORKS_HIGH forks, which is worth exactly 26 points
 		for (let i = 0; i < 5; i++) {
 			events.push({
 				type: "ForkEvent",
@@ -676,12 +729,10 @@ describe("report - Classification", () => {
 		}
 
 		const result = reportGitHub({
-			// 14 days old (new account penalty: 20 points)
 			user: user({ created_at: "2026-04-15T00:00:00Z", public_repos: 100 }),
 			events,
 		});
 
-		// Total penalty points: 26 (forks) + 20 (new account) = 46 → score = 100 - 46 = 54
 		expect(result.classification).toBe("mixed");
 		expect(result.score).toBeGreaterThanOrEqual(50);
 		expect(result.score).toBeLessThan(70);
@@ -689,7 +740,6 @@ describe("report - Classification", () => {
 
 	it("should classify as automation when score < 50", () => {
 		const events: GitHubEvent[] = [];
-		// Create multiple automation indicators
 		for (let i = 0; i < 35; i++) {
 			events.push({
 				type: "ForkEvent",
@@ -706,12 +756,10 @@ describe("report - Classification", () => {
 		}
 
 		const result = reportGitHub({
-			// 52 days old (young account penalty: 10 points)
 			user: user({ login: "bot", created_at: "2026-03-08T00:00:00Z", public_repos: 0 }),
 			events,
 		});
 
-		// Total penalty points: 85 (forks) + 10 (young account) = 95 → score = 100 - 95 = 5
 		expect(result.classification).toBe("automation");
 		expect(result.score).toBeLessThan(50);
 	});
@@ -728,7 +776,7 @@ describe("report - Profile Information", () => {
 	});
 
 	it("should include correct account age in profile", () => {
-		const created_at = "2025-12-01T00:00:00Z"; // ~100 days ago
+		const created_at = "2025-12-01T00:00:00Z";
 		const result = reportGitHub({
 			user: user({ created_at, public_repos: 5 }),
 			events: [],
@@ -760,7 +808,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should flag extreme issue comment spam (15+ repos in 2 minutes)", () => {
 		const events: GitHubEvent[] = [];
-		// Create 15 issue comment events on different repos within 2 minutes
 		for (let i = 0; i < 15; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -768,7 +815,6 @@ describe("report - Issue Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS (10)
 		for (let i = 15; i < 16; i++) {
 			events.push({
 				type: "PushEvent",
@@ -789,7 +835,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should flag high issue comment frequency (10-14 repos in short timeframe)", () => {
 		const events: GitHubEvent[] = [];
-		// Create 10 issue comment events within 2 minutes
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -812,7 +857,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should not flag issue comments spread over longer time periods", () => {
 		const events: GitHubEvent[] = [];
-		// Create issue comment events spread across 1 hour (not in 2 minute window)
 		for (let i = 0; i < 15; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -820,7 +864,6 @@ describe("report - Issue Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS
 		events.push({
 			type: "PushEvent",
 			created_at: new Date(2026, 2, 10, 13, 0, 0).toISOString(),
@@ -843,7 +886,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should not flag low number of issue comments", () => {
 		const events: GitHubEvent[] = [];
-		// Only 5 issue comments - below ISSUE_COMMENT_MIN_FOR_SPRAY threshold (10)
 		for (let i = 0; i < 5; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -851,7 +893,6 @@ describe("report - Issue Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS (10)
 		for (let i = 5; i < 10; i++) {
 			events.push({
 				type: "PushEvent",
@@ -876,7 +917,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should include correct comment count and repo count in flag detail", () => {
 		const events: GitHubEvent[] = [];
-		// Create 10 issue comments on different repos within 2 minutes
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -903,7 +943,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should properly calculate comments per minute in flag detail", () => {
 		const events: GitHubEvent[] = [];
-		// Create 10 issue comments within 30 seconds (should be ~20 comments/min)
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -924,8 +963,6 @@ describe("report - Issue Comment Spam Detection", () => {
 		);
 		expect(issueCommentFlag).toBeDefined();
 		if (issueCommentFlag) {
-			// Should show comments, repos, and time window (but not decimal metrics).
-			// The burst is shorter than a minute, so it must not read "0 minutes".
 			expect(issueCommentFlag.detail).toMatch(
 				/comments to.*repos in under a minute/,
 			);
@@ -934,7 +971,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should assign correct points for extreme issue comment spam", () => {
 		const events: GitHubEvent[] = [];
-		// Create 20 issue comments on different repos within 2 minutes
 		for (let i = 0; i < 20; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -957,7 +993,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should assign correct points for high issue comment frequency", () => {
 		const events: GitHubEvent[] = [];
-		// Create 10 issue comments within 2 minutes
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -981,7 +1016,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should handle edge case of exactly threshold number of issue comments", () => {
 		const events: GitHubEvent[] = [];
-		// Create exactly 10 issue comments (threshold) on different repos
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -995,7 +1029,6 @@ describe("report - Issue Comment Spam Detection", () => {
 			events,
 		});
 
-		// At threshold (10), should flag as "High comment frequency across repos"
 		expect(
 			result.flags.some(
 				(f) => f.label === "High comment frequency across repos",
@@ -1005,9 +1038,6 @@ describe("report - Issue Comment Spam Detection", () => {
 
 	it("should count distinct repos, not total comments, when determining spray severity", () => {
 		const events: GitHubEvent[] = [];
-		// Create 15 issue comments but on only 9 different repos
-		// This should flag as "High comment frequency" (9 >= threshold of 10 is false, so this tests the low threshold)
-		// Better: create comments on 11 repos but with some duplicates
 		const repos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 		for (let i = 0; i < 15; i++) {
 			const repoIdx = repos[i % repos.length]!;
@@ -1023,7 +1053,6 @@ describe("report - Issue Comment Spam Detection", () => {
 			events,
 		});
 
-		// Should flag as "High comment frequency" (11 distinct repos >= threshold of 10)
 		expect(
 			result.flags.some(
 				(f) => f.label === "High comment frequency across repos",
@@ -1044,7 +1073,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should flag extreme PR comment spam (12+ PRs in 2 minutes)", () => {
 		const events: GitHubEvent[] = [];
-		// Create 12 PR comment events on different PRs within 2 minutes
 		for (let i = 0; i < 12; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1052,7 +1080,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS (10)
 		for (let i = 12; i < 14; i++) {
 			events.push({
 				type: "PushEvent",
@@ -1071,7 +1098,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should flag high PR comment frequency (8-11 PRs in short timeframe)", () => {
 		const events: GitHubEvent[] = [];
-		// Create 8 PR comment events within 2 minutes
 		for (let i = 0; i < 8; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1079,7 +1105,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS (10)
 		for (let i = 8; i < 10; i++) {
 			events.push({
 				type: "PushEvent",
@@ -1100,7 +1125,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should not flag PR comments spread over longer time periods", () => {
 		const events: GitHubEvent[] = [];
-		// Create PR comment events spread across 1 hour (not in 2 minute window)
 		for (let i = 0; i < 12; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1108,7 +1132,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS
 		events.push({
 			type: "PushEvent",
 			created_at: new Date(2026, 2, 10, 13, 0, 0).toISOString(),
@@ -1131,7 +1154,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should not flag low number of PR comments", () => {
 		const events: GitHubEvent[] = [];
-		// Only 5 PR comments - below PR_COMMENT_MIN_FOR_SPRAY threshold (8)
 		for (let i = 0; i < 5; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1139,7 +1161,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS (10)
 		for (let i = 5; i < 10; i++) {
 			events.push({
 				type: "PushEvent",
@@ -1164,7 +1185,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should include correct comment count and repo count in flag detail", () => {
 		const events: GitHubEvent[] = [];
-		// Create 10 PR comments on different repos within 2 minutes
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1172,7 +1192,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS
 		for (let i = 10; i < 12; i++) {
 			events.push({
 				type: "PushEvent",
@@ -1199,7 +1218,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should properly calculate comments per minute in flag detail", () => {
 		const events: GitHubEvent[] = [];
-		// Create 8 PR comments within 30 seconds (should be ~16 comments/min)
 		for (let i = 0; i < 8; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1207,7 +1225,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS
 		for (let i = 8; i < 10; i++) {
 			events.push({
 				type: "PushEvent",
@@ -1228,15 +1245,12 @@ describe("report - PR Comment Spam Detection", () => {
 		);
 		expect(prCommentFlag).toBeDefined();
 		if (prCommentFlag) {
-			// Should show comments, PRs, and time window (but not decimal metrics).
-			// The burst is shorter than a minute, so it must not read "0 minutes".
 			expect(prCommentFlag.detail).toMatch(/comments on.*PRs in under a minute/);
 		}
 	});
 
 	it("should distinguish between issue comments and PR comments", () => {
 		const events: GitHubEvent[] = [];
-		// Create PR comment events
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1244,7 +1258,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/pr-repo${i}` } as any,
 			} as any);
 		}
-		// Create separate issue comment events
 		for (let i = 0; i < 10; i++) {
 			events.push({
 				type: "IssueCommentEvent",
@@ -1258,7 +1271,6 @@ describe("report - PR Comment Spam Detection", () => {
 			events,
 		});
 
-		// Should flag both issue and PR comment spam independently
 		const hasIssueSpam = result.flags.some(
 			(f) =>
 				f.label === "Rapid comments across repositories" ||
@@ -1276,7 +1288,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should assign correct points for extreme PR comment spam", () => {
 		const events: GitHubEvent[] = [];
-		// Create 15 PR comments on different repos within 2 minutes
 		for (let i = 0; i < 15; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1297,7 +1308,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should assign correct points for high PR comment frequency", () => {
 		const events: GitHubEvent[] = [];
-		// Create 8 PR comments within 2 minutes
 		for (let i = 0; i < 8; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1305,7 +1315,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS
 		for (let i = 8; i < 10; i++) {
 			events.push({
 				type: "PushEvent",
@@ -1329,7 +1338,6 @@ describe("report - PR Comment Spam Detection", () => {
 
 	it("should handle edge case of exactly threshold number of PR comments", () => {
 		const events: GitHubEvent[] = [];
-		// Create exactly 8 PR comments (threshold) on different repos
 		for (let i = 0; i < 8; i++) {
 			events.push({
 				type: "PullRequestReviewCommentEvent",
@@ -1337,7 +1345,6 @@ describe("report - PR Comment Spam Detection", () => {
 				repo: { name: `owner/repo${i}` } as any,
 			} as any);
 		}
-		// Add more events to meet MIN_EVENTS_FOR_ANALYSIS
 		for (let i = 8; i < 10; i++) {
 			events.push({
 				type: "PushEvent",
@@ -1351,7 +1358,6 @@ describe("report - PR Comment Spam Detection", () => {
 			events,
 		});
 
-		// At threshold (8), should flag as "High PR comment frequency"
 		expect(
 			result.flags.some((f) => f.label === "High PR comment frequency"),
 		).toBe(true);
@@ -1371,7 +1377,6 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 	it("should flag extreme daily PR spam (30+ PRs in 24 hours)", () => {
 		const events: GitHubEvent[] = [];
 
-		// Create 35 PR events in the last 24 hours
 		for (let i = 0; i < 35; i++) {
 			const repoIndex = i % 20;
 			events.push({
@@ -1404,7 +1409,6 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 	});
 
 	it("reports how many PRs in the burst went to repos the account can push to", () => {
-		// 20 PRs to a repo the account pushes to, 5 to its own repo, 10 to others.
 		const repoFor = (i: number) => {
 			if (i < 20) return "acme/app";
 			if (i < 25) return "user/tools";
@@ -1430,10 +1434,9 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const spamFlag = result.flags.find((f) => f.id === "pr-volume-day");
-		// Push access is context only: the points stay the same.
 		expect(spamFlag?.points).toBe(45);
 		expect(spamFlag?.detail).toBe(
-			"35 PRs within a single 24-hour window, 25 to repos it can push to",
+			"35 PRs within a single 24-hour window, 25 of them to repos it can push to",
 		);
 		expect(spamFlag?.data).toContainEqual({
 			label: "To repos with push access",
@@ -1444,10 +1447,9 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 	it("should flag distributed PR spam pattern (50+ PRs across 15+ repos)", () => {
 		const events: GitHubEvent[] = [];
 
-		// Create 100 PR events across 20 repos (distributed over time to avoid daily/weekly flags)
 		for (let i = 0; i < 100; i++) {
 			const repoIndex = i % 20;
-			const daysAgo = 14 + Math.floor(i / 5); // Spread over 34 days
+			const daysAgo = 14 + Math.floor(i / 5);
 			events.push({
 				type: "PullRequestEvent",
 				payload: { action: "opened" },
@@ -1455,7 +1457,6 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 				repo: { name: `spamtarget/repo${repoIndex}` } as any,
 			} as any);
 		}
-		// Add some push events to meet MIN_EVENTS_FOR_ANALYSIS
 		for (let i = 100; i < 110; i++) {
 			events.push({
 				type: "PushEvent",
@@ -1470,19 +1471,133 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const spamFlag = result.flags.find(
-			(f) => f.label === "Distributed PR pattern",
+			(f) => f.label === "PRs spread over many repos",
 		);
 		expect(spamFlag).toBeDefined();
-		expect(spamFlag?.points).toBe(45);
+		expect(spamFlag?.points).toBe(55);
 		expect(spamFlag?.detail).toContain("100 PRs");
 		expect(spamFlag?.detail).toContain("different repositories");
 		expect(result.classification).toBe("automation");
 	});
 
+	describe("distributed PR points grow with the busiest 30 days", () => {
+		const DAY_MS = 24 * 60 * 60 * 1000;
+		const manyOwners = (i: number) => `owner${i % 17}/repo`;
+		const oneOwner = (i: number) => `acme/repo${i % 17}`;
+
+		function distributedPRAccount(
+			prCount: number,
+			repoFor: (i: number) => string = manyOwners,
+		) {
+			const start = new Date(2026, 1, 10, 12).getTime();
+			const step = (24 * DAY_MS) / prCount;
+			const prs = Array.from({ length: prCount }, (_, i) =>
+				event(
+					"PullRequestEvent",
+					new Date(start + i * step).toISOString(),
+					repoFor(i),
+					{ action: "opened" },
+				),
+			);
+			const comments = Array.from({ length: 5 }, (_, i) =>
+				event(
+					"IssueCommentEvent",
+					new Date(2026, 2, 5, 10, i).toISOString(),
+					repoFor(0),
+				),
+			);
+			const pushes = Array.from({ length: 5 }, (_, i) =>
+				event(
+					"PushEvent",
+					new Date(2026, 2, 6, 10, i).toISOString(),
+					"user/personal",
+				),
+			);
+
+			return reportGitHub({
+				user: user({ created_at: "2019-01-01T00:00:00Z" }),
+				events: [...prs, ...comments, ...pushes],
+			});
+		}
+
+		function distributedFlag(result: ReturnType<typeof reportGitHub>) {
+			return result.flags.find((f) => f.id === "pr-distributed");
+		}
+
+		it("keeps the base points at 60 PRs", () => {
+			const result = distributedPRAccount(60);
+
+			expect(distributedFlag(result)?.points).toBe(45);
+		});
+
+		it("gives more points at 85 PRs across 17 owners", () => {
+			const base = distributedFlag(distributedPRAccount(60))?.points ?? 0;
+			const result = distributedPRAccount(85);
+			const points = distributedFlag(result)?.points ?? 0;
+
+			expect(points).toBeGreaterThan(45);
+			expect(points).toBeLessThan(55);
+			expect(points).toBeGreaterThan(base);
+			expect(result.classification).toBe("automation");
+		});
+
+		it("gives PRs to one owner the same ramp", () => {
+			const manyOwnersResult = distributedPRAccount(85);
+			const oneOwnerResult = distributedPRAccount(85, oneOwner);
+
+			expect(distributedFlag(oneOwnerResult)?.points).toBe(
+				distributedFlag(manyOwnersResult)?.points,
+			);
+			expect(oneOwnerResult.classification).toBe("automation");
+		});
+	});
+
+	describe("PRs to many projects in one day", () => {
+		/** One PR to each of `repoCount` repos, 30 minutes apart. */
+		function prsToRepos(repoCount: number) {
+			const prs = Array.from({ length: repoCount }, (_, i) =>
+				event(
+					"PullRequestEvent",
+					new Date(2026, 2, 9, 0, i * 30).toISOString(),
+					`owner${i}/repo`,
+					{ action: "opened" },
+				),
+			);
+
+			return reportGitHub({
+				user: user({ created_at: "2019-01-01T00:00:00Z" }),
+				events: prs,
+			});
+		}
+
+		function repoSpreadFlag(result: ReturnType<typeof reportGitHub>) {
+			return result.flags.find((f) => f.id === "pr-repos-day");
+		}
+
+		it("does not flag PRs to 19 repos", () => {
+			expect(repoSpreadFlag(prsToRepos(19))).toBeUndefined();
+		});
+
+		it("flags PRs to 20 repos as automation on its own", () => {
+			const result = prsToRepos(20);
+
+			expect(repoSpreadFlag(result)?.points).toBe(51);
+			expect(result.classification).toBe("automation");
+		});
+
+		it("adds a quarter of the daily PR volume flag in the same group", () => {
+			const result = prsToRepos(30);
+			const prVolume = result.groups.find((g) => g.group === "pr-volume");
+
+			expect(repoSpreadFlag(result)?.points).toBe(60);
+			expect(result.flags.some((f) => f.id === "pr-volume-day")).toBe(true);
+			expect(prVolume?.points).toBe(Math.round(60 + 45 * 0.25));
+		});
+	});
+
 	it("should not flag moderate PR volume in a week", () => {
 		const events: GitHubEvent[] = [];
 
-		// Create 20 PRs in the last 7 days (below threshold)
 		for (let i = 0; i < 20; i++) {
 			events.push({
 				type: "PullRequestEvent",
@@ -1521,10 +1636,9 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 	it("should not flag legitimate long-term activity (500 PRs over 6 months)", () => {
 		const events: GitHubEvent[] = [];
 
-		// Create 500 PRs spread over ~6 months
 		for (let i = 0; i < 500; i++) {
 			const repoIndex = i % 30;
-			const daysAgo = Math.floor(i / 2.7); // ~180 days
+			const daysAgo = Math.floor(i / 2.7);
 			events.push({
 				type: "PullRequestEvent",
 				payload: { action: "opened" },
@@ -1562,7 +1676,6 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 	it("should not flag high PR count if repos spread is below threshold", () => {
 		const events: GitHubEvent[] = [];
 
-		// Create 75 PRs across only 5 repos (below 15 repo threshold)
 		for (let i = 0; i < 75; i++) {
 			const daysAgo = 14 + Math.floor(i / 5);
 			events.push({
@@ -1579,9 +1692,41 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const distributedSpamFlag = result.flags.find(
-			(f) => f.label === "Distributed PR pattern",
+			(f) => f.label === "PRs spread over many repos",
 		);
 		expect(distributedSpamFlag).toBeUndefined();
+	});
+});
+
+describe("report - Young Account PR Volume", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("gives 45 points to a young account with 20+ PRs per day", () => {
+		const prs = Array.from({ length: 21 }, (_, i) =>
+			event(
+				"PullRequestEvent",
+				new Date(2026, 2, 9, 12 + i).toISOString(),
+				`owner${i}/repo`,
+				{ action: "opened" },
+			),
+		);
+
+		const result = reportGitHub({
+			user: user({ created_at: new Date(2026, 0, 20).toISOString() }),
+			events: prs,
+		});
+
+		const volumeFlag = result.flags.find(
+			(f) => f.id === "young-pr-volume-extreme",
+		);
+		expect(volumeFlag?.points).toBe(45);
 	});
 });
 
@@ -1597,7 +1742,6 @@ describe("report - Star Burst Detection", () => {
 
 	it("should describe a sub-hour star burst in minutes, not '0 hours'", () => {
 		const events: GitHubEvent[] = [];
-		// 20 repos starred over 40 minutes: shorter than the unit we measure in
 		for (let i = 0; i < 20; i++) {
 			events.push({
 				type: "WatchEvent",
@@ -1665,14 +1809,11 @@ describe("report - Rapid branch→PR pattern", () => {
 		});
 
 		expect(result.flags).toContainEqual(
-			expect.objectContaining({ label: "Rapid branch→PR pattern" }),
+			expect.objectContaining({ label: "Branch then PR within seconds" }),
 		);
 	});
 
 	it("does not flag the same pattern in a repository owned by someone else", () => {
-		// Creating a branch in a repo the account does not own means it was granted
-		// push access, so this is a collaborator running `gh pr create` — not a bot,
-		// which would have to fork instead (covered by the fork→PR check).
 		const result = reportGitHub({
 			user: user({
 				login: "maintainer",
@@ -1686,11 +1827,6 @@ describe("report - Rapid branch→PR pattern", () => {
 	});
 
 	it("does not flag a handful of own-repo pairs against heavy branching elsewhere", () => {
-		// Matches are counted only in the account's own repositories, but the
-		// automation ratio is measured against every branch the account created.
-		// Someone who branches constantly across repos they contribute to and runs
-		// `gh pr create` in a few of their own must not clear the ratio on that
-		// handful alone.
 		const elsewhere: GitHubEvent[] = [];
 		for (let i = 0; i < 100; i++) {
 			const at = new Date(2026, 1, 10, 3, i * 7);
@@ -1755,7 +1891,7 @@ describe("report - Rapid branch→PR pattern", () => {
 		});
 
 		expect(result.flags).toContainEqual(
-			expect.objectContaining({ label: "Rapid fork→PR pattern" }),
+			expect.objectContaining({ label: "Fork branch then PR within seconds" }),
 		);
 	});
 
@@ -1774,14 +1910,11 @@ describe("report - Rapid branch→PR pattern", () => {
 		});
 
 		expect(result.flags).toContainEqual(
-			expect.objectContaining({ label: "Rapid fork→PR pattern" }),
+			expect.objectContaining({ label: "Fork branch then PR within seconds" }),
 		);
 	});
 
 	it("does not flag branches in a fork the account does not own", () => {
-		// Branching in someone else's repo needs push access a maintainer granted,
-		// so pairing those branches with PRs that happen to land in another owner's
-		// repo of the same name is not the fork workflow this check looks for.
 		const result = reportGitHub({
 			user: user({
 				login: "maintainer",

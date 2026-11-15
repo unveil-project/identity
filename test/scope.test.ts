@@ -43,7 +43,6 @@ describe("scope: read-only", () => {
 	});
 
 	it("counts repos with push access by default", () => {
-		// The account pushes to acme/app, so it is a collaborator there.
 		const events = [...dailyPushes("acme/app"), ...prBurst(() => "acme/app")];
 
 		const result = reportGitHub({ user: maintainer, events });
@@ -78,7 +77,6 @@ describe("scope: read-only", () => {
 	});
 
 	it("still flags PRs to repos the account has no push access to", () => {
-		// Only PRs to strangers, no pushes there: the account has read-only access.
 		const events = [
 			...dailyPushes("acme/app"),
 			...prBurst((i) => `stranger${i}/repo`),

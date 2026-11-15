@@ -44,7 +44,6 @@ describe("analyzeWindow", () => {
 	});
 
 	it("counts ignored events toward the platform limit", () => {
-		// The platform returned the full 300, even if we look at only 10.
 		const events = Array.from({ length: 10 }, (_, i) =>
 			event(
 				"PushEvent",

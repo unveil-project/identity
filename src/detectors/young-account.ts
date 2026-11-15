@@ -21,6 +21,11 @@ const YOUNG_PR_VOLUME_LEVELS = [
 		id: "young-pr-volume-extreme",
 		points: CONFIG.POINTS_YOUNG_PR_VOLUME_EXTREME,
 	},
+	{
+		min: CONFIG.YOUNG_PRS_PER_DAY_SEVERE,
+		id: "young-pr-volume-extreme",
+		points: CONFIG.POINTS_YOUNG_PR_VOLUME_SEVERE,
+	},
 ] as const;
 
 const REPO_SPREAD_LEVELS = [

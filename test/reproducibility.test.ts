@@ -49,8 +49,6 @@ describe("busiest time window", () => {
 	});
 
 	it("still finds a PR burst that happened months ago", () => {
-		// 20 PRs to other people's repos in one day, two months ago. If we counted
-		// back from today we would see none of them.
 		const events = Array.from({ length: 20 }, (_, i) =>
 			event(
 				"PullRequestEvent",
