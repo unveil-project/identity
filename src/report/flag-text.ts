@@ -26,7 +26,6 @@ function agentName(app: string): string {
  * this is the one place where flags turn into text.
  */
 export const FLAG_TEXT: FlagTextBuilders = {
-	// Account age
 	"new-account": ({ ageDays }) => ({
 		label: "Recently created",
 		detail: `Account is ${ageDays} days old`,
@@ -71,7 +70,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Profile
 	"zero-repos-external": ({ externalEvents, totalEvents }) => ({
 		label: "Only active on other people's repos",
 		detail: `No personal repos, all ${totalEvents} events are on repos they don't own`,
@@ -82,7 +80,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Repository creation
 	"repo-creation-extreme": ({ created, totalCreated }) => ({
 		label: "Many repos created in one day",
 		detail: `${created} repositories created within 24 hours`,
@@ -108,7 +105,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Timing
 	"always-active": ({ windowStart, hoursActive, longestRestHours, events }) => {
 		const rest = longestRestHours.toFixed(1);
 
@@ -170,7 +166,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Diversity
 	"narrow-activity": ({ eventTypes, entropy }) => ({
 		label: "Narrow activity focus",
 		detail: `Only ${eventTypes} kinds of activity, and none of it involves other people`,
@@ -190,7 +185,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Comments
 	"issue-comment-spray-extreme": ({ comments, repos, windowMinutes }) => {
 		const duration = formatWindowDuration(windowMinutes);
 
@@ -276,7 +270,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Stars
 	"star-spray-extreme": ({ repos, windowMinutes, totalStars }) => {
 		const duration = formatWindowDuration(windowMinutes);
 
@@ -312,7 +305,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		};
 	},
 
-	// Branches and PRs
 	"branch-pr-pattern": ({
 		pairs,
 		minPairs,
@@ -383,7 +375,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// PR outcome
 	"closed-pr-spray": ({
 		closed,
 		minClosed,
@@ -424,7 +415,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Forks
 	"fork-extreme": ({ forks, totalForks }) => ({
 		label: "Very many forks in one day",
 		detail: `${forks} repositories forked within 24 hours`,
@@ -523,19 +513,27 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			{ label: "Total forks", value: totalForks },
 		],
 	}),
-	"fork-scatter": ({ repos, totalForks, spanDays }) => {
+	"fork-scatter": ({
+		repos,
+		totalForks,
+		spanDays,
+		reposPerWeek,
+		busiestWeekRepos,
+	}) => {
 		const span =
 			spanDays > 0 ? ` over ${spanDays} days` : " in less than a day";
 
 		return {
 			label: "Forks of many different repos",
-			detail: `Forks spread across ${repos} different repositories${span}`,
+			detail: `Forks spread across ${repos} different repositories${span}, about ${reposPerWeek} per week, ${busiestWeekRepos} in the busiest week`,
 			data: [
 				{
 					label: "Distinct repos forked",
 					value: repos,
 					threshold: CONFIG.FORK_REPO_DIVERSITY_HIGH,
 				},
+				{ label: "Repos per week", value: reposPerWeek },
+				{ label: "Repos in the busiest week", value: busiestWeekRepos },
 				{ label: "Total forks", value: totalForks },
 				{ label: "Activity span (days)", value: spanDays },
 			],
@@ -556,7 +554,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		};
 	},
 
-	// PR volume
 	"young-pr-volume-extreme": ({ prs, spanDays, perDay }) => ({
 		label: "Very high PR volume",
 		detail: `${prs} PRs in ${plural(spanDays, "day")}`,
@@ -649,7 +646,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Repo spread
 	"repo-spread-extreme": ({ repos, externalEvents }) => ({
 		label: "Active in very many repos",
 		detail: `Activity spread across ${repos} external repositories`,
@@ -675,7 +671,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// External focus
 	"external-contributor": ({ externalPRs, ownRepos }) => {
 		const own =
 			ownRepos === 0
@@ -714,7 +709,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Engagement
 	"limited-engagement": ({ externalPRs }) => ({
 		label: "Only PRs, no other activity",
 		detail:
@@ -729,7 +723,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// Bounty
 	"bounty-prs-high": (facts) => ({
 		label: "Most PRs go to bounty repos",
 		...describeBountyPRs(facts),
@@ -751,7 +744,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 		],
 	}),
 
-	// AI attribution
 	"ai-branch-prefix": ({ aiBranches, branches, prefixes }) => ({
 		label: "AI agent branches",
 		detail: `${aiBranches}/${branches} branches use AI agent tool prefixes (${prefixes.join(", ")})`,

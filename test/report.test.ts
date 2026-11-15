@@ -11,7 +11,6 @@ import {
 import type { Flag } from "../src/types";
 import { event, user } from "./utils/events";
 
-// 12 forks in a day on a 10 day old account, and nothing else.
 function forkingAccount() {
 	const events = Array.from({ length: 12 }, (_, i) =>
 		event(

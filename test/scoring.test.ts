@@ -34,7 +34,6 @@ describe("rampPoints", () => {
 			}
 			previous = points;
 		}
-		// Before, going from 7 to 8 forks jumped 25 points at once.
 		expect(biggestJump).toBeLessThan(10);
 	});
 });
@@ -51,7 +50,6 @@ describe("scoreFlags", () => {
 			flag("pr-volume", 45),
 			flag("pr-volume", 40),
 		]);
-		// Added up it would be 135. Instead: biggest (50) + 25% of the rest (21) = 71.
 		expect(result.total).toBe(71);
 		const group = result.groups[0];
 		expect(group?.rawPoints).toBe(135);

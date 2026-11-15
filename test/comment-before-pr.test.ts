@@ -53,7 +53,6 @@ describe("issue comment followed by a fast PR", () => {
 	});
 
 	it("does not flag a collaborator in repositories they push to", () => {
-		// Pushing straight into acme's repos takes write access a maintainer granted.
 		const pushes = ["acme/api", "acme/ui"].map((repo) =>
 			event("PushEvent", "2026-06-01T09:00:00Z", repo),
 		);

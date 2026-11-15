@@ -115,8 +115,6 @@ export function fromGitHubEvent(
 	const payload = event.payload;
 	const pr = payload?.pull_request;
 
-	// GitHub only tells us who submitted a PR through the repo its head branch
-	// lives in. If that repo belongs to the account, the account submitted it.
 	const headUrl = pr?.head?.repo?.url?.toLowerCase() ?? "";
 	const isAuthor = headUrl.includes(`/repos/${login.toLowerCase()}/`);
 

@@ -58,9 +58,6 @@ function classificationFor(
 		return "mixed";
 	}
 
-	// Too little activity is not proof that an account is fine, so a good score
-	// needs enough events behind it. A bad score stands even with few events:
-	// the checks above found something real.
 	const hasEnoughEvidence =
 		window.eventCount >= CONFIG.MIN_EVENTS_FOR_CLASSIFICATION &&
 		confidence >= CONFIG.CONFIDENCE_MIN_FOR_RESULT;
@@ -102,7 +99,6 @@ export function analyze<Source = unknown>(
 	const reposCount = account.publicRepos;
 
 	const allRepoEvents = events.filter((event) => event.repo);
-	// Found from every event, so the option cannot hide the pushes it relies on.
 	const pushAccessRepos = pushAccessReposOf(allRepoEvents, login);
 	const repoEvents = eventsToCheck(allRepoEvents, pushAccessRepos, scope);
 	const ignoredEventCount = allRepoEvents.length - repoEvents.length;
@@ -119,8 +115,6 @@ export function analyze<Source = unknown>(
 
 	const dormancy = detectDormancy(repoEvents, accountAge, reposCount, window);
 
-	// Some checks are softer on old accounts. To get that, an account needs a
-	// history that matches its age, not just an old creation date.
 	const isEstablished =
 		accountAge >= CONFIG.AGE_ESTABLISHED_ACCOUNT &&
 		!dormancy.isDormantReactivation;
@@ -166,7 +160,6 @@ export function analyze<Source = unknown>(
 		isGitHubApp:
 			account.isApp === true ||
 			events.some((event) => event.actorIsApp === true),
-		// The flags point at the events we were given, so their source type holds.
 		flags: scored.flags as Flag<Source>[],
 		groups: scored.groups,
 		window,

@@ -17,7 +17,6 @@ export function calculateConfidence(window: WindowInfo): number {
 	const spanRatio = window.spanDays / CONFIG.CONFIDENCE_FULL_SPAN_DAYS;
 	const spanConfidence = Math.min(1, spanRatio);
 
-	// The number of events matters more than how long they cover.
 	const confidence = 0.7 * countConfidence + 0.3 * spanConfidence;
 
 	return Math.round(Math.min(1, Math.max(0, confidence)) * 100) / 100;

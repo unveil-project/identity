@@ -1,38 +1,58 @@
 # Release notes
 
-# 3.3.0
+## 3.3.0
 
-### No more organic bonus
+### Scoring
 
-The score no longer gives points back for opened issues or merged PRs. When
-volume and speed look like automation, other activity does not make up for
-it. Some accounts get a lower score: an account that opens 50 PRs in a day
-and a few issues is now "automation", not "mixed". The `ORGANIC_*` config
-values are removed.
+- **No more organic bonus.** Opened issues and merged PRs no longer give
+  points back.
+- **New flag `pr-repos-day`.** PRs to many different repos within 24 hours.
+- **`pr-distributed` points grow with the PRs in the busiest 30 days**, from
+  45 up to 55.
+- **`young-pr-volume-extreme` gives more points** to young accounts with 20
+  or more PRs per day.
+- **`fork-scatter` points follow the pace.** Points now come from the number
+  of repos, the forks per week and the busiest week, instead of a flat 45.
+  New facts: `reposPerWeek` and `busiestWeekRepos`.
 
-# 3.2.0
+### AI agents
 
-### New option: `scope`
+- **`ai-branch-prefix` no longer takes points.** Branches named by an AI
+  agent (like `codex/fix`) now keep the score below "organic" instead,
+  like `ai-agent-app`. The flag shows from 2 such branches, not when half
+  of all branches have an AI prefix. `claude/` is now an AI agent prefix.
+- **New flags `ai-branch-volume` and `ai-post-volume`.** Very heavy AI agent
+  use in 24 hours takes points.
 
-`classify` and `report` now take options as a second argument. With
-`scope: "read-only"`, only repos the account cannot push to are checked.
-Repos it owns, and repos where it pushed or created a branch or tag, are
-left out. Use it when you only care about how the account behaves in
-projects it does not help run. The default is `"all"`, so results do not
-change.
+### Report
 
-`window.ignoredEventCount` says how many events were left out. Ignored events
-still count toward `window.saturated`, because the platform did return them.
+- Flag labels and details use plainer words. The flag ids did not change.
 
-### More context in the report
+### `identityConfig`
 
-- **PR volume flags show how many PRs went to repos the account can push
-  to.** A burst of PRs often happens in a project the account helps run. The
-  flag now says so, for example "35 PRs within a single 24-hour window, 25 to
-  repos it can push to". The new `pushAccessPRs` fact holds the number. The
-  points stay the same: many PRs in a day is a sign of automation, even in
-  your own project. Flags: `pr-volume-day`, `pr-volume-week-extreme`,
-  `pr-volume-week-high`.
+- **Deprecated:** `ORGANIC_*`, `POINTS_ORGANIC_*`, `AI_BRANCH_MIN_CREATIONS`,
+  `AI_BRANCH_RATIO_MIN`, `POINTS_FORK_DIVERSITY`. No check uses them, and
+  they will be removed in v4.
+- **Changed:** `POINTS_AI_BRANCH_PREFIX` is now 0.
+- **New:** `PR_REPOS_DAY_*`, `POINTS_PR_REPOS_DAY_*`,
+  `PRS_SPAM_ROLLING_30DAYS_EXTREME`, `POINTS_PR_SPAM_DISTRIBUTED_EXTREME`,
+  `YOUNG_PRS_PER_DAY_SEVERE`, `POINTS_YOUNG_PR_VOLUME_SEVERE`,
+  `AI_BRANCH_MIN`, `AI_BRANCHES_DAY_*`, `POINTS_AI_BRANCHES_DAY_*`,
+  `AI_POSTS_DAY_*`, `POINTS_AI_POSTS_DAY_*`, `FORK_SCATTER_VOLUME_RAMP`,
+  `FORK_SCATTER_SPEED_RAMP`, `FORK_SCATTER_INTENSITY_RAMP`.
+
+## 3.2.0
+
+- **New option `scope`.** `classify` and `report` take options as a second
+  argument. `scope: "read-only"` checks only repos the account cannot push
+  to. The default is `"all"`. `window.ignoredEventCount` says how many
+  events were left out.
+- **New flag `ai-agent-app`.** Comments and issues posted by an AI agent app
+  (Codex, Claude, Cursor) keep the score at most "mixed". It takes no
+  points. New config keys: `AI_AGENT_APP_MIN_POSTS`, `POINTS_AI_AGENT_APP`.
+- **PR volume flags show PRs to repos the account can push to.** New fact
+  `pushAccessPRs` on `pr-volume-day`, `pr-volume-week-extreme` and
+  `pr-volume-week-high`. The points did not change.
 
 ## 3.1.0
 

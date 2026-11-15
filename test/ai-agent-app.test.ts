@@ -239,7 +239,6 @@ describe("report - Heavy AI agent use", () => {
 	});
 
 	it("ignores AI agent branches spread over a few days", () => {
-		// 16 branches over 3 days: about 5 a day.
 		expect(branchVolumePoints(16, 4.5 * 60)).toBeUndefined();
 	});
 
@@ -271,7 +270,6 @@ describe("report - AI footers in text", () => {
 	});
 
 	it("does not read the text of posts: an AI footer alone stays organic", () => {
-		// Text is too easy to misread, so only facts from GitHub count.
 		const result = reportGitHub({
 			user: dev,
 			events: [...calmWork(), ...commentsWith(5, { body: CLAUDE_FOOTER })],

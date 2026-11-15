@@ -193,7 +193,15 @@ export type FlagFacts = {
 	"fork-surge-72h": ForkWindowFacts;
 	"fork-rate": { perDay: number; spanDays: number; totalForks: number };
 	"fork-streak": { streakDays: number; activeDays: number; totalForks: number };
-	"fork-scatter": { repos: number; totalForks: number; spanDays: number };
+	"fork-scatter": {
+		repos: number;
+		totalForks: number;
+		spanDays: number;
+		/** Different repos forked per week, on average over the span. */
+		reposPerWeek: number;
+		/** Most different repos forked within any 7 days. */
+		busiestWeekRepos: number;
+	};
 	"fork-chain": { forks: number; branches: number; prs: number };
 	"young-pr-volume-extreme": { prs: number; spanDays: number; perDay: number };
 	"young-pr-volume-high": { prs: number; spanDays: number; perDay: number };

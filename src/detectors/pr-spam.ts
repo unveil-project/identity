@@ -165,7 +165,6 @@ export function detectExtremeAndDistributedPRSpam(
 	const prs = events.filter(isOpenedPR);
 	const bursts = detectPRBursts(prs, pushAccessRepos);
 
-	// A burst already explains the volume, so the slower check would only repeat it.
 	if (bursts.length > 0) {
 		return bursts;
 	}

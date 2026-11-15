@@ -9,14 +9,10 @@ describe("isBountyRepo", () => {
 	});
 
 	it("matches a new copy of a campaign repository under any owner", () => {
-		// "zeroeye" is listed under many throwaway accounts: a new copy counts
-		// before anyone adds it to the list.
 		expect(isBountyRepo("brand-new-account/zeroeye")).toBe(true);
 	});
 
 	it("does not match a real project because a fake copy took its name", () => {
-		// Fake copies named "Vault", "Gitea" and "Traefik" are listed, but only
-		// with their own owners. The real projects are not bounty repos.
 		expect(isBountyRepo("hashicorp/vault")).toBe(false);
 		expect(isBountyRepo("go-gitea/gitea")).toBe(false);
 		expect(isBountyRepo("traefik/traefik")).toBe(false);

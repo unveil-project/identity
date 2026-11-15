@@ -28,13 +28,10 @@ function measureDay(timeline: TimedEvent[], startIndex: number): ActiveDay {
 		dayEntries.push(entry);
 	}
 
-	// Busy hours count from the start of the window, not from midnight.
 	const activeHours = new Set(
 		dayEntries.map((entry) => Math.floor(hoursBetween(start, entry.time))),
 	);
 
-	// The quiet time after the last event is rest too, so the window end
-	// closes the last gap.
 	const times = [...dayEntries.map((entry) => entry.time), end];
 	let longestRest = 0;
 	for (let i = 1; i < times.length; i++) {

@@ -78,7 +78,6 @@ export function detectRapidPRSpam(
 		}
 	}
 
-	// A run of N PRs has N - 1 pairs.
 	if (!fastest || fastest.pairs < minPRs - 1) {
 		return [];
 	}

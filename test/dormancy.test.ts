@@ -96,10 +96,6 @@ describe("dormant accounts", () => {
 	});
 
 	it("does not flag a busy account whose feed hit the platform limit", () => {
-		// 300 events in four days is the most GitHub ever sends. The short span
-		// only means the account is busy: its older activity is cut off, not
-		// missing. People who work in their company's repos often have almost no
-		// repos of their own.
 		const busy = Array.from({ length: GITHUB_EVENT_CAP }, (_, i) =>
 			event(
 				"PushEvent",
@@ -125,10 +121,6 @@ describe("dormant accounts", () => {
 	});
 
 	it("removes the softer checks from a reactivated account", () => {
-		// Both accounts are old enough for the softer checks, and both do the same
-		// 5 fast PRs to one repo. That is under the limit for old accounts (6) but
-		// at or over the normal limit (4). Only the one with a real repo history
-		// keeps the softer limit.
 		const events = recentBurst();
 
 		const trusted = reportGitHub({

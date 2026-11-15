@@ -39,7 +39,6 @@ function pairBranchesWithPRs(
 	isPair: (branch: ActivityEvent, pr: ActivityEvent) => boolean,
 ): BranchPRMatch[] {
 	const prsByKey = groupBy(prs, (pr) => keyOf(pr.event));
-	// For each key, the index of the first PR not used or passed yet.
 	const nextPRIndex = new Map<string, number>();
 	const matches: BranchPRMatch[] = [];
 
@@ -56,7 +55,6 @@ function pairBranchesWithPRs(
 
 		let index = nextPRIndex.get(key) ?? 0;
 
-		// PRs opened before the branch existed cannot come from it.
 		while ((candidates[index]?.time ?? Infinity) < branch.time) {
 			index++;
 		}
@@ -118,8 +116,6 @@ function detectOwnRepoPattern(input: BranchPRInput): Flag | undefined {
 		return undefined;
 	}
 
-	// Far fewer branches than PRs means most PRs did not come from a fresh
-	// branch, which is how a busy maintainer works.
 	if (ownBranches.length / ownPRs.length < CONFIG.BRANCH_PR_COUNT_RATIO_MIN) {
 		return undefined;
 	}
@@ -134,11 +130,6 @@ function detectOwnRepoPattern(input: BranchPRInput): Flag | undefined {
 		return undefined;
 	}
 
-	// The ratio compares matches found in the account's own repos against
-	// every branch it created anywhere. That is on purpose: labelling a real
-	// person as a bot is costly, and the bigger denominator stops someone who
-	// branches all over the place, and happens to be quick in a couple of
-	// their own repos, from tripping this flag.
 	const ratio = matches.length / branches.length;
 	if (ratio < minRatio) {
 		return undefined;
