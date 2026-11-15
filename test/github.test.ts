@@ -137,36 +137,6 @@ describe("fromGitHubEvent", () => {
 	});
 });
 
-describe("fromGitHubEvent text", () => {
-	const textOf = (type: string, payload: Record<string, unknown>) =>
-		fromGitHubEvent(event(type, "2026-01-01T00:00:00Z", "a/b", payload), "user")
-			.text;
-
-	it("reads the words the account wrote", () => {
-		expect(
-			textOf("IssueCommentEvent", {
-				comment: { body: "mine" },
-				issue: { body: "theirs" },
-			}),
-		).toBe("mine");
-		expect(textOf("PullRequestReviewEvent", { review: { body: "mine" } })).toBe(
-			"mine",
-		);
-		expect(
-			textOf("IssuesEvent", { action: "opened", issue: { body: "mine" } }),
-		).toBe("mine");
-	});
-
-	it("skips the body of an issue the account only closed or labeled", () => {
-		expect(
-			textOf("IssuesEvent", { action: "closed", issue: { body: "theirs" } }),
-		).toBeUndefined();
-		expect(
-			textOf("IssuesEvent", { action: "labeled", issue: { body: "theirs" } }),
-		).toBeUndefined();
-	});
-});
-
 describe("fromGitHub", () => {
 	it("builds the account and sets GitHub's event cap", () => {
 		const input = fromGitHub({

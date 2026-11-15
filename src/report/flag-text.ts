@@ -784,19 +784,6 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			],
 		};
 	},
-	"ai-written-text": ({ posts, allPosts, signatures }) => ({
-		label: "Posts written by an AI tool",
-		detail: `${posts} own posts say an AI tool wrote them`,
-		data: [
-			{
-				label: "Posts that name an AI tool as writer",
-				value: posts,
-				threshold: CONFIG.AI_TEXT_MIN_POSTS,
-			},
-			{ label: "All own posts", value: allPosts },
-			{ label: "Signatures", value: signatures.join(", ") },
-		],
-	}),
 	"ai-branch-volume": ({ busiestDay, aiBranches }) => ({
 		label: "Heavy AI agent use (branches)",
 		detail: `${busiestDay} AI agent branches within 24 hours`,
@@ -809,18 +796,16 @@ export const FLAG_TEXT: FlagTextBuilders = {
 			{ label: "All AI agent branches", value: aiBranches },
 		],
 	}),
-	"ai-post-volume": ({ busiestDay, aiPosts, appPosts, textPosts }) => ({
+	"ai-post-volume": ({ busiestDay, aiPosts }) => ({
 		label: "Heavy AI agent use (posts)",
-		detail: `${busiestDay} AI-written posts within 24 hours`,
+		detail: `${busiestDay} AI agent posts within 24 hours`,
 		data: [
 			{
-				label: "AI-written posts in densest 24h window",
+				label: "AI agent posts in densest 24h window",
 				value: busiestDay,
 				threshold: CONFIG.AI_POSTS_DAY_LIGHT,
 			},
-			{ label: "All AI-written posts", value: aiPosts },
-			{ label: "Posted by an AI agent app", value: appPosts },
-			{ label: "Say an AI tool wrote them", value: textPosts },
+			{ label: "All AI agent posts", value: aiPosts },
 		],
 	}),
 };

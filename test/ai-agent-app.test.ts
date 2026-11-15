@@ -243,34 +243,24 @@ describe("report - Heavy AI agent use", () => {
 		expect(branchVolumePoints(16, 4.5 * 60)).toBeUndefined();
 	});
 
-	it("gives AI-written posts points by the busiest day, even in one repo", () => {
-		const footer = { body: CLAUDE_FOOTER };
+	it("gives AI agent posts points by the busiest day, even in one repo", () => {
+		const viaAgent = { performed_via_github_app: { slug: "claude" } };
 
-		expect(postVolume(footer, 40)).toBeUndefined();
-		expect(postVolume(footer, 60)?.points).toBe(
+		expect(postVolume(viaAgent, 40)).toBeUndefined();
+		expect(postVolume(viaAgent, 60)?.points).toBe(
 			CONFIG.POINTS_AI_POSTS_DAY_HEAVY,
 		);
-		expect(postVolume(footer, 120)?.points).toBe(
+		expect(postVolume(viaAgent, 120)?.points).toBe(
 			CONFIG.POINTS_AI_POSTS_DAY_EXTREME,
 		);
 	});
 
-	it("counts a post once when an agent app posted it and it has a footer", () => {
-		const both = {
-			body: CLAUDE_FOOTER,
-			performed_via_github_app: { slug: "claude" },
-		};
-
-		expect(postVolume(both, 60)?.facts).toEqual({
-			busiestDay: 60,
-			aiPosts: 60,
-			appPosts: 60,
-			textPosts: 60,
-		});
+	it("does not count posts that only mention an AI tool in their text", () => {
+		expect(postVolume({ body: CLAUDE_FOOTER }, 120)).toBeUndefined();
 	});
 });
 
-describe("report - Posts written by an AI tool", () => {
+describe("report - AI footers in text", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date(Date.UTC(2026, 2, 10, 12)));
@@ -280,46 +270,14 @@ describe("report - Posts written by an AI tool", () => {
 		vi.useRealTimers();
 	});
 
-	it("keeps an account with 2 AI-written posts out of organic", () => {
+	it("does not read the text of posts: an AI footer alone stays organic", () => {
+		// Text is too easy to misread, so only facts from GitHub count.
 		const result = reportGitHub({
 			user: dev,
-			events: [...calmWork(), ...commentsWith(2, { body: CLAUDE_FOOTER })],
+			events: [...calmWork(), ...commentsWith(5, { body: CLAUDE_FOOTER })],
 		});
 
-		expect(flagOf(result, "ai-written-text")?.facts).toEqual({
-			posts: 2,
-			allPosts: 2,
-			signatures: ["attribution"],
-		});
-		expect(result.score).toBe(CONFIG.THRESHOLD_HUMAN - 1);
-	});
-
-	it("does not count a single AI-written post", () => {
-		const result = reportGitHub({
-			user: dev,
-			events: [...calmWork(), ...commentsWith(1, { body: CLAUDE_FOOTER })],
-		});
-
-		expect(flagOf(result, "ai-written-text")).toBeUndefined();
-		expect(result.classification).toBe("organic");
-	});
-
-	it("ignores AI text that someone else wrote", () => {
-		// Closing an issue carries the issue's body, which its author wrote.
-		const closedIssues = Array.from({ length: 3 }, (_, i) =>
-			event(
-				"IssuesEvent",
-				new Date(Date.UTC(2026, 2, 5, i)).toISOString(),
-				"dev/project",
-				{ action: "closed", issue: { body: CLAUDE_FOOTER } },
-			),
-		);
-		const result = reportGitHub({
-			user: dev,
-			events: [...calmWork(), ...closedIssues],
-		});
-
-		expect(flagOf(result, "ai-written-text")).toBeUndefined();
+		expect(result.flags.some((f) => f.group === "ai-attribution")).toBe(false);
 		expect(result.classification).toBe("organic");
 	});
 });

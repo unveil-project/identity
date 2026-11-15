@@ -5,7 +5,6 @@ import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
 import { detectAIAgentApp } from "./detectors/ai-agent-app";
 import { detectAIAgentBranchPrefix } from "./detectors/ai-branch-prefix";
 import { detectAIVolume } from "./detectors/ai-volume";
-import { detectAIWrittenText } from "./detectors/ai-written-text";
 import { detectBountyLabelInfrastructure } from "./detectors/bounty-label-infra";
 import {
 	detectBountyRepoPRs,
@@ -150,7 +149,6 @@ export function analyze<Source = unknown>(
 		...detectBountyLabelInfrastructure(repoEvents),
 		...detectAIAgentBranchPrefix(repoEvents),
 		...detectAIAgentApp(repoEvents),
-		...detectAIWrittenText(repoEvents),
 		...detectAIVolume(repoEvents),
 	];
 

@@ -266,17 +266,13 @@ export const CONFIG = {
 	AI_AGENT_APP_MIN_POSTS: 2, // one post can be a trial or an accident; two means the account came back to the agent
 	POINTS_AI_AGENT_APP: 0, // no penalty: the proof keeps the score below organic instead (see capForAIAttribution)
 
-	// The account's own posts that say an AI tool wrote them
-	AI_TEXT_MIN_POSTS: 2, // own posts with an AI footer or trailer needed
-	POINTS_AI_TEXT: 0, // no penalty: the proof keeps the score below organic instead (see capForAIAttribution)
-
 	// AI use that is too much: AI-made items on the busiest day
 	AI_BRANCHES_DAY_LIGHT: 8, // up to this many AI agent branches in 24 hours: 0 points
 	AI_BRANCHES_DAY_HEAVY: 16,
 	POINTS_AI_BRANCHES_DAY_HEAVY: 30, // points at AI_BRANCHES_DAY_HEAVY branches
 	AI_BRANCHES_DAY_EXTREME: 30,
 	POINTS_AI_BRANCHES_DAY_EXTREME: 51, // points at AI_BRANCHES_DAY_EXTREME and above: automation on its own
-	AI_POSTS_DAY_LIGHT: 40, // up to this many AI-written posts in 24 hours: 0 points
+	AI_POSTS_DAY_LIGHT: 40, // up to this many AI agent app posts in 24 hours: 0 points
 	AI_POSTS_DAY_HEAVY: 60,
 	POINTS_AI_POSTS_DAY_HEAVY: 30, // points at AI_POSTS_DAY_HEAVY posts
 	AI_POSTS_DAY_EXTREME: 120,

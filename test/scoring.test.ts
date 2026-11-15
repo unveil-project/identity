@@ -144,7 +144,6 @@ describe("capForAIAttribution", () => {
 	const AI_ATTRIBUTION_IDS: FlagId[] = [
 		"ai-agent-app",
 		"ai-branch-prefix",
-		"ai-written-text",
 		"ai-branch-volume",
 		"ai-post-volume",
 	];

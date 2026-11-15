@@ -4,7 +4,6 @@ import type { ActivityEvent, Flag } from "../types";
 import { type RampAnchor, rampPoints } from "../utils";
 import { isAIAgentPost } from "./ai-agent-app";
 import { aiBranchesOf } from "./ai-branch-prefix";
-import { isAIWrittenPost } from "./ai-written-text";
 
 const AI_BRANCH_DAY_RAMP: readonly RampAnchor[] = [
 	[CONFIG.AI_BRANCHES_DAY_LIGHT, 0],
@@ -40,16 +39,9 @@ function detectAIBranchVolume(events: ActivityEvent[]): Flag[] {
 	];
 }
 
-/**
- * The busiest day of posts that an AI agent app made or that say an AI tool
- * wrote them. A post that is both counts once.
- */
+/** The busiest day of posts that an AI agent app made for the account. */
 function detectAIPostVolume(events: ActivityEvent[]): Flag[] {
-	const appPosts = events.filter(isAIAgentPost);
-	const textPosts = events.filter(isAIWrittenPost);
-	const aiPosts = events.filter(
-		(event) => isAIAgentPost(event) || isAIWrittenPost(event),
-	);
+	const aiPosts = events.filter(isAIAgentPost);
 	const day = densestEventWindow(aiPosts, 24);
 	const points = rampPoints(day.count, AI_POST_DAY_RAMP);
 
@@ -66,8 +58,6 @@ function detectAIPostVolume(events: ActivityEvent[]): Flag[] {
 			facts: {
 				busiestDay: day.count,
 				aiPosts: aiPosts.length,
-				appPosts: appPosts.length,
-				textPosts: textPosts.length,
 			},
 			events: day.items,
 		},

@@ -41,8 +41,6 @@ export type ActivityEvent<Source = unknown> = {
 	 * platform says so. On GitHub, this is the GitHub App's slug.
 	 */
 	viaApp?: string;
-	/** Words the account wrote in this event: its comment or review, or the issue or PR it opened. */
-	text?: string;
 	source?: Source;
 };
 
@@ -238,14 +236,10 @@ export type FlagFacts = {
 	};
 	/** Posts are the account's comments and the issues it opened. */
 	"ai-agent-app": { posts: number; allPosts: number; apps: string[] };
-	/** Posts are the events where the account wrote text. */
-	"ai-written-text": { posts: number; allPosts: number; signatures: string[] };
 	"ai-branch-volume": { busiestDay: number; aiBranches: number };
 	"ai-post-volume": {
 		busiestDay: number;
 		aiPosts: number;
-		appPosts: number;
-		textPosts: number;
 	};
 };
 
