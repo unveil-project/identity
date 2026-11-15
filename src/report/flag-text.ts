@@ -833,7 +833,7 @@ function describePushAccess(pushAccessPRs: number): string {
 		return "";
 	}
 
-	return `, ${pushAccessPRs} to repos it can push to`;
+	return `, ${pushAccessPRs} of them to repos it can push to`;
 }
 
 /** The sentence and metrics shared by the PR volume flags. */

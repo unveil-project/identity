@@ -14,6 +14,14 @@ change.
 `window.ignoredEventCount` says how many events were left out. Ignored events
 still count toward `window.saturated`, because the platform did return them.
 
+### No more organic bonus
+
+The score no longer gives points back for opened issues or merged PRs. When
+volume and speed look like automation, other activity does not make up for
+it. Some accounts get a lower score: an account that opens 50 PRs in a day
+and a few issues is now "automation", not "mixed". The `ORGANIC_*` config
+values are removed.
+
 ### More context in the report
 
 - **PR volume flags show how many PRs went to repos the account can push

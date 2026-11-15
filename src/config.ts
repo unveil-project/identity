@@ -214,24 +214,6 @@ export const CONFIG = {
 	LIMITED_ENGAGEMENT_MIN_PRS: 3, // one or two PRs from a newcomer are too few to call it a pattern
 	POINTS_LIMITED_ENGAGEMENT: 25,
 
-	// Organic signals (reduce score — genuine engagement patterns bots rarely exhibit)
-	ORGANIC_ISSUE_MIN_COUNT: 3, // minimum issues filed to consider
-	ORGANIC_ISSUE_MIN_REPOS: 2, // must span at least this many different repos
-	ORGANIC_ISSUE_MIN_DAYS: 7, // must be spread over at least this many days
-	POINTS_ORGANIC_ISSUE_ENGAGEMENT: 15, // bonus applied as negative penalty
-
-	// Merged PR organic signal — getting code accepted by maintainers is a positive human indicator.
-	// Points are intentionally conservative: automation bots can and do get PRs merged,
-	// so this signal must not be able to rescue a heavily-flagged account on its own.
-	ORGANIC_MERGED_PR_MIN: 3, // minimum merged PRs in foreign repos to grant any bonus
-	ORGANIC_MERGED_PR_HIGH: 10, // threshold for elevated bonus
-	ORGANIC_MERGED_PR_EXTREME: 25, // threshold for maximum bonus
-	ORGANIC_MERGED_PR_MIN_RATE: 0.5, // merged / opened must be at least this to qualify
-	ORGANIC_MERGED_PR_MIN_OPENED: 3, // minimum opened PRs needed to evaluate the rate
-	POINTS_ORGANIC_MERGED_PR: 10, // 3–9 merged PRs
-	POINTS_ORGANIC_MERGED_PR_HIGH: 20, // 10–24 merged PRs
-	POINTS_ORGANIC_MERGED_PR_EXTREME: 30, // 25+ merged PRs
-
 	// Watch/star farming (bulk starring of repos in a short time window)
 	WATCH_SPAM_MIN_EVENTS: 10,
 	WATCH_SPAM_WINDOW_HOURS: 24,

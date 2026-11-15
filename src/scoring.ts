@@ -66,21 +66,13 @@ export function scoreFlags(
 }
 
 /**
- * Make the final score from the penalty and the organic bonus.
- * 100 means human, 0 means automation.
+ * Make the final score from the penalty. 100 means human, 0 means automation.
  *
- * When the penalty alone is not automation, we add the full bonus.
- * When it is, we add less bonus as the penalty grows, and none at 100.
- * So if the penalty is only a little too high, a big bonus can still move
- * the account out of automation.
+ * Nothing gives points back. If the volume and speed look like automation,
+ * other activity does not make up for it.
  */
-export function humanScore(penalty: number, organicBonus: number): number {
-	const fadeStart = 100 - CONFIG.THRESHOLD_SUSPICIOUS;
-	const fadeProgress = (penalty - fadeStart) / (100 - fadeStart);
-	const bonusWeight = Math.min(1, Math.max(0, 1 - fadeProgress));
-	const bonus = Math.round(organicBonus * bonusWeight);
-
-	return Math.min(100, Math.max(0, 100 - penalty + bonus));
+export function humanScore(penalty: number): number {
+	return Math.min(100, Math.max(0, 100 - penalty));
 }
 
 /**

@@ -30,7 +30,6 @@ import { detectYoungAccountActivity } from "./detectors/young-account";
 import { detectZeroReposActivity } from "./detectors/zero-repos";
 import { externalEventsOf, pushAccessReposOf } from "./events";
 import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
-import { detectOrganicSignals } from "./modifiers/organic-signals";
 import { capForAIAttribution, humanScore, scoreFlags } from "./scoring";
 import { daysBetween, toTime } from "./time";
 import { estimateUtcOffset } from "./timezone";
@@ -155,10 +154,7 @@ export function analyze<Source = unknown>(
 	const scored = scoreFlags(flags, {
 		bountyMultiplier: getBountyMultiplier(repoEvents) ?? 1,
 	});
-	const uncappedScore = humanScore(
-		scored.total,
-		detectOrganicSignals(repoEvents, flags),
-	);
+	const uncappedScore = humanScore(scored.total);
 	const score = capForAIAttribution(uncappedScore, flags);
 	const confidence = calculateConfidence(window);
 

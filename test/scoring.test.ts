@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { CONFIG } from "../src/config";
-import { detectOrganicSignals } from "../src/modifiers/organic-signals";
 import { capForAIAttribution, humanScore, scoreFlags } from "../src/scoring";
 import type { Flag, FlagId } from "../src/types";
 import { rampPoints } from "../src/utils";
-import { event, flag, toEvents } from "./utils/events";
+import { flag } from "./utils/events";
 
 describe("rampPoints", () => {
 	const anchors = [
@@ -77,66 +76,13 @@ describe("scoreFlags", () => {
 });
 
 describe("humanScore", () => {
-	it("is 100 minus the penalty without a bonus", () => {
-		expect(humanScore(30, 0)).toBe(70);
-	});
-
-	it("gives the full bonus while the flags alone are not automation", () => {
-		expect(humanScore(40, 10)).toBe(70);
-		expect(humanScore(50, 30)).toBe(80);
-	});
-
-	it("does not let a bonus pull a heavily flagged account out of automation", () => {
-		// Adding the bonus in full gave 100 - 80 + 30 = 50, which reads as "mixed".
-		expect(humanScore(80, 30)).toBeLessThan(CONFIG.THRESHOLD_SUSPICIOUS);
-	});
-
-	it("never goes up when the penalty grows", () => {
-		let previous = Number.POSITIVE_INFINITY;
-		for (let penalty = 0; penalty <= 120; penalty++) {
-			const score = humanScore(penalty, 45);
-			expect(score).toBeLessThanOrEqual(previous);
-			previous = score;
-		}
+	it("is 100 minus the penalty", () => {
+		expect(humanScore(30)).toBe(70);
 	});
 
 	it("stays between 0 and 100", () => {
-		expect(humanScore(0, 45)).toBe(100);
-		expect(humanScore(150, 45)).toBe(0);
-	});
-});
-
-describe("detectOrganicSignals", () => {
-	// 12 PRs the account opened, and maintainers merged all of them.
-	function mergedPRs() {
-		const authored = {
-			head: { repo: { url: "https://api.github.com/repos/user/repo" } },
-		};
-
-		return toEvents(
-			Array.from({ length: 12 }, (_, i) => [
-				event("PullRequestEvent", `2026-01-${10 + i}T10:00:00Z`, "o/r", {
-					action: "opened",
-					pull_request: { number: i, ...authored },
-				}),
-				event("PullRequestEvent", `2026-01-${10 + i}T12:00:00Z`, "o/r", {
-					action: "merged",
-					pull_request: { number: i, ...authored },
-				}),
-			]).flat(),
-		);
-	}
-
-	it("gives the merged-PR bonus to a calm account", () => {
-		expect(detectOrganicSignals(mergedPRs(), [])).toBe(
-			CONFIG.POINTS_ORGANIC_MERGED_PR_HIGH,
-		);
-	});
-
-	it("gives no merged-PR bonus when the PR volume was flagged", () => {
-		const flags = [flag("pr-volume", 45)];
-
-		expect(detectOrganicSignals(mergedPRs(), flags)).toBe(0);
+		expect(humanScore(0)).toBe(100);
+		expect(humanScore(150)).toBe(0);
 	});
 });
 

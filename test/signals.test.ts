@@ -1433,7 +1433,7 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 		// Push access is context only: the points stay the same.
 		expect(spamFlag?.points).toBe(45);
 		expect(spamFlag?.detail).toBe(
-			"35 PRs within a single 24-hour window, 25 to repos it can push to",
+			"35 PRs within a single 24-hour window, 25 of them to repos it can push to",
 		);
 		expect(spamFlag?.data).toContainEqual({
 			label: "To repos with push access",
