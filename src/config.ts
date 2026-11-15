@@ -106,7 +106,9 @@ export const CONFIG = {
 	// Distributed PR spam density guards (prevent flagging long-term contributors)
 	PRS_SPAM_DENSITY_PER_WEEK: 15, // >= this PRs/week = suspicious density (distributed spam)
 	PRS_SPAM_ROLLING_30DAYS: 60, // >= this many PRs in any 30 days + many repos = flag
-	POINTS_PR_SPAM_DISTRIBUTED: 45, // points for distributed spam pattern
+	POINTS_PR_SPAM_DISTRIBUTED: 45, // points at exactly PRS_SPAM_ROLLING_30DAYS PRs in 30 days
+	PRS_SPAM_ROLLING_30DAYS_EXTREME: 90, // this many PRs in any 30 days + many repos = clear automation
+	POINTS_PR_SPAM_DISTRIBUTED_EXTREME: 55, // points at PRS_SPAM_ROLLING_30DAYS_EXTREME and above
 
 	// PR-only contributor
 	EXTERNAL_PRS_MIN: 15, // external PRs threshold

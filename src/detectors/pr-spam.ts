@@ -14,6 +14,14 @@ const PR_WEEK_RAMP: readonly RampAnchor[] = [
 	[CONFIG.PRS_WEEK_EXTREME, CONFIG.POINTS_PRS_WEEK_EXTREME],
 ];
 
+const PR_DISTRIBUTED_RAMP: readonly RampAnchor[] = [
+	[CONFIG.PRS_SPAM_ROLLING_30DAYS, CONFIG.POINTS_PR_SPAM_DISTRIBUTED],
+	[
+		CONFIG.PRS_SPAM_ROLLING_30DAYS_EXTREME,
+		CONFIG.POINTS_PR_SPAM_DISTRIBUTED_EXTREME,
+	],
+];
+
 function countPushAccessPRs(
 	prs: readonly ActivityEvent[],
 	pushAccessRepos: Set<string>,
@@ -72,7 +80,7 @@ function detectPRBursts(
 /**
  * Many PRs spread over many repositories. Long-time contributors reach these
  * totals too, so the PRs must also come fast: many per week on average, or a
- * very busy month.
+ * very busy month. More PRs in the busiest 30 days give more points.
  */
 function detectDistributedPRs(prs: ActivityEvent[]): Flag[] {
 	if (prs.length < CONFIG.PRS_SPAM_VOLUME) {
@@ -98,7 +106,7 @@ function detectDistributedPRs(prs: ActivityEvent[]): Flag[] {
 	return [
 		{
 			id: "pr-distributed",
-			points: CONFIG.POINTS_PR_SPAM_DISTRIBUTED,
+			points: rampPoints(busiest30Days, PR_DISTRIBUTED_RAMP),
 			group: "pr-volume",
 			amplifiable: true,
 			facts: {

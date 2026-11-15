@@ -1473,10 +1473,67 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 			(f) => f.label === "Distributed PR pattern",
 		);
 		expect(spamFlag).toBeDefined();
-		expect(spamFlag?.points).toBe(45);
+		expect(spamFlag?.points).toBe(55);
 		expect(spamFlag?.detail).toContain("100 PRs");
 		expect(spamFlag?.detail).toContain("different repositories");
 		expect(result.classification).toBe("automation");
+	});
+
+	describe("distributed PR points grow with the busiest 30 days", () => {
+		const DAY_MS = 24 * 60 * 60 * 1000;
+
+		function distributedPRAccount(prCount: number) {
+			const start = new Date(2026, 1, 10, 12).getTime();
+			const step = (24 * DAY_MS) / prCount;
+			const prs = Array.from({ length: prCount }, (_, i) =>
+				event(
+					"PullRequestEvent",
+					new Date(start + i * step).toISOString(),
+					`target/repo${i % 17}`,
+					{ action: "opened" },
+				),
+			);
+			const comments = Array.from({ length: 5 }, (_, i) =>
+				event(
+					"IssueCommentEvent",
+					new Date(2026, 2, 5, 10, i).toISOString(),
+					"target/repo0",
+				),
+			);
+			const pushes = Array.from({ length: 5 }, (_, i) =>
+				event(
+					"PushEvent",
+					new Date(2026, 2, 6, 10, i).toISOString(),
+					"user/personal",
+				),
+			);
+
+			return reportGitHub({
+				user: user({ created_at: "2019-01-01T00:00:00Z" }),
+				events: [...prs, ...comments, ...pushes],
+			});
+		}
+
+		function distributedFlag(result: ReturnType<typeof reportGitHub>) {
+			return result.flags.find((f) => f.id === "pr-distributed");
+		}
+
+		it("keeps the base points at 60 PRs", () => {
+			const result = distributedPRAccount(60);
+
+			expect(distributedFlag(result)?.points).toBe(45);
+		});
+
+		it("gives more points at 85 PRs across 17 repos", () => {
+			const base = distributedFlag(distributedPRAccount(60))?.points ?? 0;
+			const result = distributedPRAccount(85);
+			const points = distributedFlag(result)?.points ?? 0;
+
+			expect(points).toBeGreaterThan(45);
+			expect(points).toBeLessThan(55);
+			expect(points).toBeGreaterThan(base);
+			expect(result.classification).toBe("automation");
+		});
 	});
 
 	it("should not flag moderate PR volume in a week", () => {
