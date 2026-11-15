@@ -98,6 +98,10 @@ export const CONFIG = {
 	POINTS_PRS_WEEK_EXTREME: 50,
 	PRS_WEEK_VERY_HIGH: 50, // >= this many PRs in any 7 days = very high weekly spam
 	POINTS_PRS_WEEK_VERY_HIGH: 40,
+	PR_REPOS_DAY_HIGH: 20, // PRs to this many different repos in any 24 hours = no person switches projects that fast
+	PR_REPOS_DAY_EXTREME: 30, // points keep growing up to this many repos
+	POINTS_PR_REPOS_DAY_HIGH: 51, // points at PR_REPOS_DAY_HIGH repos: automation on its own
+	POINTS_PR_REPOS_DAY_EXTREME: 60, // points at PR_REPOS_DAY_EXTREME repos and above
 
 	// Distributed PR spam (high PR count + many repos)
 	PRS_SPAM_VOLUME: 50, // PR count threshold for combined check
@@ -255,13 +259,28 @@ export const CONFIG = {
 	BOUNTY_MULTIPLIER_LOW: 1.15, // >= 40% bounty PR ratio or labeling activity — mild multiplier
 
 	// AI agent branch prefix detection
-	AI_BRANCH_MIN_CREATIONS: 3, // need at least this many branch creations to analyze
-	AI_BRANCH_RATIO_MIN: 0.5, // >= 50% of branches use AI agent prefixes
-	POINTS_AI_BRANCH_PREFIX: 30,
+	AI_BRANCH_MIN: 2, // AI agent branches needed; one can be a trial
+	POINTS_AI_BRANCH_PREFIX: 0, // no penalty: the proof keeps the score below organic instead (see capForAIAttribution)
 
 	// Comments and issues that an AI agent app posted for the account
 	AI_AGENT_APP_MIN_POSTS: 2, // one post can be a trial or an accident; two means the account came back to the agent
-	POINTS_AI_AGENT_APP: 0, // no penalty: the proof keeps the score below organic instead (see capForAIAgentUse)
+	POINTS_AI_AGENT_APP: 0, // no penalty: the proof keeps the score below organic instead (see capForAIAttribution)
+
+	// The account's own posts that say an AI tool wrote them
+	AI_TEXT_MIN_POSTS: 2, // own posts with an AI footer or trailer needed
+	POINTS_AI_TEXT: 0, // no penalty: the proof keeps the score below organic instead (see capForAIAttribution)
+
+	// AI use that is too much: AI-made items on the busiest day
+	AI_BRANCHES_DAY_LIGHT: 8, // up to this many AI agent branches in 24 hours: 0 points
+	AI_BRANCHES_DAY_HEAVY: 16,
+	POINTS_AI_BRANCHES_DAY_HEAVY: 30, // points at AI_BRANCHES_DAY_HEAVY branches
+	AI_BRANCHES_DAY_EXTREME: 30,
+	POINTS_AI_BRANCHES_DAY_EXTREME: 51, // points at AI_BRANCHES_DAY_EXTREME and above: automation on its own
+	AI_POSTS_DAY_LIGHT: 40, // up to this many AI-written posts in 24 hours: 0 points
+	AI_POSTS_DAY_HEAVY: 60,
+	POINTS_AI_POSTS_DAY_HEAVY: 30, // points at AI_POSTS_DAY_HEAVY posts
+	AI_POSTS_DAY_EXTREME: 120,
+	POINTS_AI_POSTS_DAY_EXTREME: 51, // points at AI_POSTS_DAY_EXTREME and above: automation on its own
 
 	// Bounty label infrastructure detection
 	BOUNTY_LABEL_MIN: 3, // need at least this many bounty-labelled issues to flag
@@ -290,4 +309,8 @@ export const CONFIG = {
 	POINTS_HIGH_ACTIVITY_DENSITY: 15,
 	/** @deprecated Use `POINTS_YOUNG_PR_VOLUME_EXTREME`. It will be removed in v4. */
 	POINTS_EXTREME_ACTIVITY_DENSITY: 25,
+	/** @deprecated No check uses it. It will be removed in v4. */
+	AI_BRANCH_MIN_CREATIONS: 3,
+	/** @deprecated No check uses it. It will be removed in v4. */
+	AI_BRANCH_RATIO_MIN: 0.5,
 } as const;

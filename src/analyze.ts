@@ -4,6 +4,8 @@ import { detectAccountAge } from "./detectors/account-age";
 import { detectInhumanActivityPattern } from "./detectors/activity-pattern";
 import { detectAIAgentApp } from "./detectors/ai-agent-app";
 import { detectAIAgentBranchPrefix } from "./detectors/ai-branch-prefix";
+import { detectAIVolume } from "./detectors/ai-volume";
+import { detectAIWrittenText } from "./detectors/ai-written-text";
 import { detectBountyLabelInfrastructure } from "./detectors/bounty-label-infra";
 import {
 	detectBountyRepoPRs,
@@ -30,7 +32,7 @@ import { detectZeroReposActivity } from "./detectors/zero-repos";
 import { externalEventsOf, pushAccessReposOf } from "./events";
 import { getBountyMultiplier } from "./modifiers/bounty-multiplier";
 import { detectOrganicSignals } from "./modifiers/organic-signals";
-import { capForAIAgentUse, humanScore, scoreFlags } from "./scoring";
+import { capForAIAttribution, humanScore, scoreFlags } from "./scoring";
 import { daysBetween, toTime } from "./time";
 import { estimateUtcOffset } from "./timezone";
 import type {
@@ -148,6 +150,8 @@ export function analyze<Source = unknown>(
 		...detectBountyLabelInfrastructure(repoEvents),
 		...detectAIAgentBranchPrefix(repoEvents),
 		...detectAIAgentApp(repoEvents),
+		...detectAIWrittenText(repoEvents),
+		...detectAIVolume(repoEvents),
 	];
 
 	const scored = scoreFlags(flags, {
@@ -157,7 +161,7 @@ export function analyze<Source = unknown>(
 		scored.total,
 		detectOrganicSignals(repoEvents, flags),
 	);
-	const score = capForAIAgentUse(uncappedScore, flags);
+	const score = capForAIAttribution(uncappedScore, flags);
 	const confidence = calculateConfidence(window);
 
 	return {

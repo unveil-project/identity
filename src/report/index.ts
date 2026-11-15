@@ -44,7 +44,7 @@ function toReportFlag<Source>(flag: Flag<Source>): ReportFlag<Source> {
  * import { report } from "@unveil/identity/report";
  *
  * const { score, flags } = report(fromGitHub({ user, events }));
- * flags[0].label; // "Fork spike detected"
+ * flags[0].label; // "Fork spike"
  */
 export function report<Source = unknown>(
 	input: AccountInput<Source>,

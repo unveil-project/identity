@@ -51,7 +51,7 @@ describe("dormant accounts", () => {
 
 		expect(
 			result.flags.some(
-				(f) => f.label === "Activity inconsistent with account age",
+				(f) => f.label === "Old account, all activity is recent",
 			),
 		).toBe(true);
 	});
@@ -64,7 +64,7 @@ describe("dormant accounts", () => {
 
 		expect(
 			result.flags.some(
-				(f) => f.label === "Activity inconsistent with account age",
+				(f) => f.label === "Old account, all activity is recent",
 			),
 		).toBe(false);
 	});
@@ -77,7 +77,7 @@ describe("dormant accounts", () => {
 
 		expect(
 			result.flags.some(
-				(f) => f.label === "Activity inconsistent with account age",
+				(f) => f.label === "Old account, all activity is recent",
 			),
 		).toBe(false);
 	});
@@ -90,7 +90,7 @@ describe("dormant accounts", () => {
 
 		expect(
 			result.flags.some(
-				(f) => f.label === "Activity inconsistent with account age",
+				(f) => f.label === "Old account, all activity is recent",
 			),
 		).toBe(false);
 	});
@@ -141,10 +141,10 @@ describe("dormant accounts", () => {
 		});
 
 		expect(
-			trusted.flags.some((f) => f.label === "Rapid PRs to repository"),
+			trusted.flags.some((f) => f.label === "Fast PRs to one repo"),
 		).toBe(false);
 		expect(
-			reactivated.flags.some((f) => f.label === "Rapid PRs to repository"),
+			reactivated.flags.some((f) => f.label === "Fast PRs to one repo"),
 		).toBe(true);
 	});
 });

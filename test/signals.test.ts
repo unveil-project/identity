@@ -143,7 +143,7 @@ describe("report - Fork Surge Detection", () => {
 			events,
 		});
 
-		expect(result.flags.some((f) => f.label === "Fork spike detected")).toBe(
+		expect(result.flags.some((f) => f.label === "Fork spike")).toBe(
 			true,
 		);
 	});
@@ -200,12 +200,12 @@ describe("report - Fork Surge Detection", () => {
 		});
 
 		// Should have spike detected
-		expect(result.flags.some((f) => f.label === "Fork spike detected")).toBe(
+		expect(result.flags.some((f) => f.label === "Fork spike")).toBe(
 			true,
 		);
 
 		// Should NOT have sustained fork rate (spike only spans 1 day)
-		expect(result.flags.some((f) => f.label === "Sustained fork rate")).toBe(
+		expect(result.flags.some((f) => f.label === "High daily fork rate")).toBe(
 			false,
 		);
 	});
@@ -237,12 +237,12 @@ describe("report - Fork Surge Detection", () => {
 		expect(
 			result.flags.some(
 				(f) =>
-					f.label.includes("Severe fork surge") || f.label.includes("Extreme"),
+					f.label.includes("Many forks in one day") || f.label.includes("Extreme"),
 			),
 		).toBe(true);
 
 		// Should NOT have scatter pattern (spike already indicates the threat)
-		expect(result.flags.some((f) => f.label === "Fork scatter pattern")).toBe(
+		expect(result.flags.some((f) => f.label === "Forks of many different repos")).toBe(
 			false,
 		);
 	});
@@ -277,7 +277,7 @@ describe("report - Fork Surge Detection", () => {
 		).toBe(false);
 
 		// Should have scatter pattern (diversity of targets)
-		expect(result.flags.some((f) => f.label === "Fork scatter pattern")).toBe(
+		expect(result.flags.some((f) => f.label === "Forks of many different repos")).toBe(
 			true,
 		);
 	});
@@ -323,7 +323,7 @@ describe("report - Repository Creation Patterns", () => {
 		});
 
 		expect(
-			result.flags.some((f) => f.label === "Frequent repository creation"),
+			result.flags.some((f) => f.label === "Several repos created in one day"),
 		).toBe(true);
 	});
 
@@ -357,7 +357,7 @@ describe("report - Repository Creation Patterns", () => {
 		});
 
 		expect(
-			result.flags.some((f) => f.label === "Concentrated repository creation"),
+			result.flags.some((f) => f.label === "Many repos created in one day"),
 		).toBe(true);
 	});
 
@@ -380,7 +380,7 @@ describe("report - Repository Creation Patterns", () => {
 
 		expect(
 			result.flags.some((f) =>
-				f.label.includes("Concentrated repository creation"),
+				f.label.includes("Many repos created in one day"),
 			),
 		).toBe(false);
 	});
@@ -1470,11 +1470,10 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const spamFlag = result.flags.find(
-			(f) => f.label === "Distributed PR pattern",
+			(f) => f.label === "PRs spread over many repos",
 		);
 		expect(spamFlag).toBeDefined();
-		// All PRs go to one owner, so the flag keeps its base points.
-		expect(spamFlag?.points).toBe(45);
+		expect(spamFlag?.points).toBe(55);
 		expect(spamFlag?.detail).toContain("100 PRs");
 		expect(spamFlag?.detail).toContain("different repositories");
 		expect(result.classification).toBe("automation");
@@ -1541,11 +1540,57 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 			expect(result.classification).toBe("automation");
 		});
 
-		it("keeps the base points when one owner gets most PRs", () => {
-			const result = distributedPRAccount(85, oneOwner);
+		it("gives PRs to one owner the same ramp", () => {
+			const manyOwnersResult = distributedPRAccount(85);
+			const oneOwnerResult = distributedPRAccount(85, oneOwner);
 
-			expect(distributedFlag(result)?.points).toBe(45);
-			expect(result.classification).toBe("mixed");
+			expect(distributedFlag(oneOwnerResult)?.points).toBe(
+				distributedFlag(manyOwnersResult)?.points,
+			);
+			expect(oneOwnerResult.classification).toBe("automation");
+		});
+	});
+
+	describe("PRs to many projects in one day", () => {
+		/** One PR to each of `repoCount` repos, 30 minutes apart. */
+		function prsToRepos(repoCount: number) {
+			const prs = Array.from({ length: repoCount }, (_, i) =>
+				event(
+					"PullRequestEvent",
+					new Date(2026, 2, 9, 0, i * 30).toISOString(),
+					`owner${i}/repo`,
+					{ action: "opened" },
+				),
+			);
+
+			return reportGitHub({
+				user: user({ created_at: "2019-01-01T00:00:00Z" }),
+				events: prs,
+			});
+		}
+
+		function repoSpreadFlag(result: ReturnType<typeof reportGitHub>) {
+			return result.flags.find((f) => f.id === "pr-repos-day");
+		}
+
+		it("does not flag PRs to 19 repos", () => {
+			expect(repoSpreadFlag(prsToRepos(19))).toBeUndefined();
+		});
+
+		it("flags PRs to 20 repos as automation on its own", () => {
+			const result = prsToRepos(20);
+
+			expect(repoSpreadFlag(result)?.points).toBe(51);
+			expect(result.classification).toBe("automation");
+		});
+
+		it("adds a quarter of the daily PR volume flag in the same group", () => {
+			const result = prsToRepos(30);
+			const prVolume = result.groups.find((g) => g.group === "pr-volume");
+
+			expect(repoSpreadFlag(result)?.points).toBe(60);
+			expect(result.flags.some((f) => f.id === "pr-volume-day")).toBe(true);
+			expect(prVolume?.points).toBe(Math.round(60 + 45 * 0.25));
 		});
 	});
 
@@ -1649,7 +1694,7 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 		});
 
 		const distributedSpamFlag = result.flags.find(
-			(f) => f.label === "Distributed PR pattern",
+			(f) => f.label === "PRs spread over many repos",
 		);
 		expect(distributedSpamFlag).toBeUndefined();
 	});
@@ -1768,7 +1813,7 @@ describe("report - Rapid branch→PR pattern", () => {
 		});
 
 		expect(result.flags).toContainEqual(
-			expect.objectContaining({ label: "Rapid branch→PR pattern" }),
+			expect.objectContaining({ label: "Branch then PR within seconds" }),
 		);
 	});
 
@@ -1858,7 +1903,7 @@ describe("report - Rapid branch→PR pattern", () => {
 		});
 
 		expect(result.flags).toContainEqual(
-			expect.objectContaining({ label: "Rapid fork→PR pattern" }),
+			expect.objectContaining({ label: "Fork branch then PR within seconds" }),
 		);
 	});
 
@@ -1877,7 +1922,7 @@ describe("report - Rapid branch→PR pattern", () => {
 		});
 
 		expect(result.flags).toContainEqual(
-			expect.objectContaining({ label: "Rapid fork→PR pattern" }),
+			expect.objectContaining({ label: "Fork branch then PR within seconds" }),
 		);
 	});
 

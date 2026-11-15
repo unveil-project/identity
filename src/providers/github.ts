@@ -38,11 +38,17 @@ export type GitHubEvent = {
 		ref?: string | null;
 		issue?: {
 			title?: string;
+			body?: string | null;
 			performed_via_github_app?: { slug?: string } | null;
 		};
-		comment?: { performed_via_github_app?: { slug?: string } | null };
+		comment?: {
+			body?: string | null;
+			performed_via_github_app?: { slug?: string } | null;
+		};
+		review?: { body?: string | null };
 		pull_request?: {
 			number?: number;
+			body?: string | null;
 			head?: { repo?: { url?: string } | null };
 		};
 	};
@@ -100,6 +106,31 @@ function appSlugOf(event: GitHubEvent): string | undefined {
 	return undefined;
 }
 
+/**
+ * The words the account wrote in this event. Like `appSlugOf`, it skips text
+ * that someone else wrote: a comment event also carries its issue, and closing
+ * or labeling an issue carries that issue's body.
+ */
+function ownTextOf(event: GitHubEvent): string | undefined {
+	const payload = event.payload;
+	const isOpened = payload?.action === "opened";
+
+	switch (event.type) {
+		case "IssueCommentEvent":
+		case "PullRequestReviewCommentEvent":
+		case "CommitCommentEvent":
+			return payload?.comment?.body ?? undefined;
+		case "PullRequestReviewEvent":
+			return payload?.review?.body ?? undefined;
+		case "IssuesEvent":
+			return isOpened ? (payload?.issue?.body ?? undefined) : undefined;
+		case "PullRequestEvent":
+			return isOpened ? (payload?.pull_request?.body ?? undefined) : undefined;
+		default:
+			return undefined;
+	}
+}
+
 /** Turn one GitHub event into the shape `classify` reads. */
 export function fromGitHubEvent(
 	event: GitHubEvent,
@@ -126,6 +157,7 @@ export function fromGitHubEvent(
 		pullRequest: pr ? { number: pr.number, isAuthor } : undefined,
 		actorIsApp: isBotType(event.actor?.type),
 		viaApp: appSlugOf(event),
+		text: ownTextOf(event),
 		source: event,
 	};
 }

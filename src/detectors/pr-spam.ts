@@ -1,13 +1,13 @@
 import { CONFIG } from "../config";
-import {
-	densestEventWindow,
-	eventTime,
-	hasHomeOwner,
-	isOpenedPR,
-} from "../events";
+import { densestEventWindow, eventTime, isOpenedPR } from "../events";
 import { spanDays } from "../time";
 import type { ActivityEvent, Flag } from "../types";
-import { levelFor, type RampAnchor, rampPoints } from "../utils";
+import {
+	densestDistinctWindow,
+	levelFor,
+	type RampAnchor,
+	rampPoints,
+} from "../utils";
 
 const PR_WEEK_LEVELS = [
 	{ min: CONFIG.PRS_WEEK_VERY_HIGH, id: "pr-volume-week-high" },
@@ -27,11 +27,38 @@ const PR_DISTRIBUTED_RAMP: readonly RampAnchor[] = [
 	],
 ];
 
+const PR_REPOS_DAY_RAMP: readonly RampAnchor[] = [
+	[CONFIG.PR_REPOS_DAY_HIGH, CONFIG.POINTS_PR_REPOS_DAY_HIGH],
+	[CONFIG.PR_REPOS_DAY_EXTREME, CONFIG.POINTS_PR_REPOS_DAY_EXTREME],
+];
+
 function countPushAccessPRs(
 	prs: readonly ActivityEvent[],
 	pushAccessRepos: Set<string>,
 ): number {
 	return prs.filter((pr) => pushAccessRepos.has(pr.repo)).length;
+}
+
+/**
+ * PRs to many different projects in one day. No person switches between
+ * that many projects so fast.
+ */
+function detectPRRepoSpread(prs: ActivityEvent[]): Flag[] {
+	const day = densestDistinctWindow(prs, eventTime, (pr) => pr.repo, 24);
+	if (day.distinct < CONFIG.PR_REPOS_DAY_HIGH) {
+		return [];
+	}
+
+	return [
+		{
+			id: "pr-repos-day",
+			points: rampPoints(day.distinct, PR_REPOS_DAY_RAMP),
+			group: "pr-volume",
+			amplifiable: true,
+			facts: { repos: day.distinct, prs: day.items.length },
+			events: day.items,
+		},
+	];
 }
 
 /**
@@ -79,22 +106,9 @@ function detectPRBursts(
 		});
 	}
 
+	flags.push(...detectPRRepoSpread(prs));
+
 	return flags;
-}
-
-/**
- * PRs to the repos of one owner are a busy maintainer, not a spray, so they
- * keep the base points. More points need PRs spread over many owners.
- */
-function distributedPRPoints(
-	prs: ActivityEvent[],
-	busiest30Days: number,
-): number {
-	if (hasHomeOwner(prs)) {
-		return CONFIG.POINTS_PR_SPAM_DISTRIBUTED;
-	}
-
-	return rampPoints(busiest30Days, PR_DISTRIBUTED_RAMP);
 }
 
 /**
@@ -126,7 +140,7 @@ function detectDistributedPRs(prs: ActivityEvent[]): Flag[] {
 	return [
 		{
 			id: "pr-distributed",
-			points: distributedPRPoints(prs, busiest30Days),
+			points: rampPoints(busiest30Days, PR_DISTRIBUTED_RAMP),
 			group: "pr-volume",
 			amplifiable: true,
 			facts: {

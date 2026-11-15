@@ -115,3 +115,211 @@ describe("report - Comments and issues by an AI agent", () => {
 		expect(withAgent.score).toBe(withOtherApp.score);
 	});
 });
+
+const CLAUDE_FOOTER =
+	"Looks good.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)";
+
+/** Branches the account created on 5 March, `minutesApart` minutes apart. */
+function branches(names: string[], minutesApart = 10): GitHubEvent[] {
+	return names.map((name, i) =>
+		event(
+			"CreateEvent",
+			new Date(Date.UTC(2026, 2, 5, 0, i * minutesApart)).toISOString(),
+			"dev/project",
+			{ ref_type: "branch", ref: name },
+		),
+	);
+}
+
+function aiBranchNames(count: number): string[] {
+	return Array.from({ length: count }, (_, i) => `codex/task-${i}`);
+}
+
+/** Comments in one repo, one a minute from 5 March. */
+function commentsWith(
+	count: number,
+	comment: Record<string, unknown>,
+): GitHubEvent[] {
+	return Array.from({ length: count }, (_, i) =>
+		event(
+			"IssueCommentEvent",
+			new Date(Date.UTC(2026, 2, 5, 0, i)).toISOString(),
+			"other/project",
+			{ action: "created", comment },
+		),
+	);
+}
+
+function flagOf(result: ReturnType<typeof reportGitHub>, id: string) {
+	return result.flags.find((f) => f.id === id);
+}
+
+describe("report - AI agent branches", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date(Date.UTC(2026, 2, 10, 12)));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("does not count a single AI agent branch: it can be a trial", () => {
+		const result = reportGitHub({
+			user: dev,
+			events: [...calmWork(), ...branches(["codex/fix"])],
+		});
+
+		expect(flagOf(result, "ai-branch-prefix")).toBeUndefined();
+		expect(result.classification).toBe("organic");
+	});
+
+	it("keeps an account with 2 AI agent branches out of 50 out of organic", () => {
+		const humanBranches = Array.from({ length: 48 }, (_, i) => `fix-${i}`);
+		const result = reportGitHub({
+			user: dev,
+			events: [
+				...calmWork(),
+				...branches([...humanBranches, "codex/a", "codex/b"], 60),
+			],
+		});
+
+		expect(flagOf(result, "ai-branch-prefix")?.points).toBe(0);
+		expect(result.score).toBe(CONFIG.THRESHOLD_HUMAN - 1);
+	});
+
+	it("knows Claude Code branches", () => {
+		const result = reportGitHub({
+			user: dev,
+			events: [
+				...calmWork(),
+				...branches(["claude/x-abc123", "claude/y-def456"]),
+			],
+		});
+
+		expect(flagOf(result, "ai-branch-prefix")?.facts).toMatchObject({
+			prefixes: ["claude/"],
+		});
+	});
+});
+
+describe("report - Heavy AI agent use", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date(Date.UTC(2026, 2, 10, 12)));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	function branchVolumePoints(count: number, minutesApart = 10) {
+		const result = reportGitHub({
+			user: dev,
+			events: [...calmWork(), ...branches(aiBranchNames(count), minutesApart)],
+		});
+
+		return flagOf(result, "ai-branch-volume")?.points;
+	}
+
+	function postVolume(comment: Record<string, unknown>, count: number) {
+		const result = reportGitHub({
+			user: dev,
+			events: [...calmWork(), ...commentsWith(count, comment)],
+		});
+
+		return flagOf(result, "ai-post-volume");
+	}
+
+	it("gives AI agent branches points by the busiest day", () => {
+		expect(branchVolumePoints(8)).toBeUndefined();
+		expect(branchVolumePoints(16)).toBe(CONFIG.POINTS_AI_BRANCHES_DAY_HEAVY);
+		expect(branchVolumePoints(30)).toBe(CONFIG.POINTS_AI_BRANCHES_DAY_EXTREME);
+		expect(branchVolumePoints(40)).toBe(CONFIG.POINTS_AI_BRANCHES_DAY_EXTREME);
+	});
+
+	it("ignores AI agent branches spread over a few days", () => {
+		// 16 branches over 3 days: about 5 a day.
+		expect(branchVolumePoints(16, 4.5 * 60)).toBeUndefined();
+	});
+
+	it("gives AI-written posts points by the busiest day, even in one repo", () => {
+		const footer = { body: CLAUDE_FOOTER };
+
+		expect(postVolume(footer, 40)).toBeUndefined();
+		expect(postVolume(footer, 60)?.points).toBe(
+			CONFIG.POINTS_AI_POSTS_DAY_HEAVY,
+		);
+		expect(postVolume(footer, 120)?.points).toBe(
+			CONFIG.POINTS_AI_POSTS_DAY_EXTREME,
+		);
+	});
+
+	it("counts a post once when an agent app posted it and it has a footer", () => {
+		const both = {
+			body: CLAUDE_FOOTER,
+			performed_via_github_app: { slug: "claude" },
+		};
+
+		expect(postVolume(both, 60)?.facts).toEqual({
+			busiestDay: 60,
+			aiPosts: 60,
+			appPosts: 60,
+			textPosts: 60,
+		});
+	});
+});
+
+describe("report - Posts written by an AI tool", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date(Date.UTC(2026, 2, 10, 12)));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("keeps an account with 2 AI-written posts out of organic", () => {
+		const result = reportGitHub({
+			user: dev,
+			events: [...calmWork(), ...commentsWith(2, { body: CLAUDE_FOOTER })],
+		});
+
+		expect(flagOf(result, "ai-written-text")?.facts).toEqual({
+			posts: 2,
+			allPosts: 2,
+			signatures: ["attribution"],
+		});
+		expect(result.score).toBe(CONFIG.THRESHOLD_HUMAN - 1);
+	});
+
+	it("does not count a single AI-written post", () => {
+		const result = reportGitHub({
+			user: dev,
+			events: [...calmWork(), ...commentsWith(1, { body: CLAUDE_FOOTER })],
+		});
+
+		expect(flagOf(result, "ai-written-text")).toBeUndefined();
+		expect(result.classification).toBe("organic");
+	});
+
+	it("ignores AI text that someone else wrote", () => {
+		// Closing an issue carries the issue's body, which its author wrote.
+		const closedIssues = Array.from({ length: 3 }, (_, i) =>
+			event(
+				"IssuesEvent",
+				new Date(Date.UTC(2026, 2, 5, i)).toISOString(),
+				"dev/project",
+				{ action: "closed", issue: { body: CLAUDE_FOOTER } },
+			),
+		);
+		const result = reportGitHub({
+			user: dev,
+			events: [...calmWork(), ...closedIssues],
+		});
+
+		expect(flagOf(result, "ai-written-text")).toBeUndefined();
+		expect(result.classification).toBe("organic");
+	});
+});

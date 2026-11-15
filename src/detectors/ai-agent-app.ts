@@ -12,16 +12,16 @@ function isPost(event: ActivityEvent): boolean {
 	return event.type === "issue-comment" || isNewIssue;
 }
 
-function isAIAgentPost(event: ActivityEvent): boolean {
+export function isAIAgentPost(event: ActivityEvent): boolean {
 	return event.viaApp !== undefined && AI_AGENT_APPS.has(event.viaApp);
 }
 
 /**
  * Comments and issues that an AI agent posted for the account, more than
  * once. This is proof that the account uses automation, so it can never be
- * "organic" (see `capForAIAgentUse`). The proof adds no penalty: using an
- * agent is not spam. Whether the account is "automation" depends on how it
- * behaves, and the other checks measure that.
+ * "organic" (see `capForAIAttribution`). The proof adds no penalty: using an
+ * agent is not spam. Heavy use gets points from `ai-post-volume`, and the
+ * other checks measure how the account behaves.
  */
 export function detectAIAgentApp(events: ActivityEvent[]): Flag[] {
 	const allPosts = events.filter(isPost);

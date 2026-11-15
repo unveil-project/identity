@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { CONFIG } from "../src/config";
 import { detectOrganicSignals } from "../src/modifiers/organic-signals";
-import { humanScore, scoreFlags } from "../src/scoring";
-import type { Flag } from "../src/types";
+import { capForAIAttribution, humanScore, scoreFlags } from "../src/scoring";
+import type { Flag, FlagId } from "../src/types";
 import { rampPoints } from "../src/utils";
 import { event, flag, toEvents } from "./utils/events";
 
@@ -137,5 +137,36 @@ describe("detectOrganicSignals", () => {
 		const flags = [flag("pr-volume", 45)];
 
 		expect(detectOrganicSignals(mergedPRs(), flags)).toBe(0);
+	});
+});
+
+describe("capForAIAttribution", () => {
+	const AI_ATTRIBUTION_IDS: FlagId[] = [
+		"ai-agent-app",
+		"ai-branch-prefix",
+		"ai-written-text",
+		"ai-branch-volume",
+		"ai-post-volume",
+	];
+
+	function aiFlag(id: FlagId): Flag {
+		return { ...flag("ai-attribution", 0), id } as Flag;
+	}
+
+	it.each(AI_ATTRIBUTION_IDS)("keeps %s below organic", (id) => {
+		expect(capForAIAttribution(100, [aiFlag(id)])).toBe(
+			CONFIG.THRESHOLD_HUMAN - 1,
+		);
+	});
+
+	it("leaves a score that is already below organic", () => {
+		const flags = [aiFlag("ai-agent-app")];
+
+		expect(capForAIAttribution(69, flags)).toBe(69);
+		expect(capForAIAttribution(20, flags)).toBe(20);
+	});
+
+	it("does nothing without AI proof", () => {
+		expect(capForAIAttribution(100, [flag("pr-volume", 10)])).toBe(100);
 	});
 });
