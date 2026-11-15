@@ -1,5 +1,10 @@
 import { CONFIG } from "../config";
-import { densestEventWindow, eventTime, isOpenedPR } from "../events";
+import {
+	densestEventWindow,
+	eventTime,
+	hasHomeOwner,
+	isOpenedPR,
+} from "../events";
 import { spanDays } from "../time";
 import type { ActivityEvent, Flag } from "../types";
 import { levelFor, type RampAnchor, rampPoints } from "../utils";
@@ -78,6 +83,21 @@ function detectPRBursts(
 }
 
 /**
+ * PRs to the repos of one owner are a busy maintainer, not a spray, so they
+ * keep the base points. More points need PRs spread over many owners.
+ */
+function distributedPRPoints(
+	prs: ActivityEvent[],
+	busiest30Days: number,
+): number {
+	if (hasHomeOwner(prs)) {
+		return CONFIG.POINTS_PR_SPAM_DISTRIBUTED;
+	}
+
+	return rampPoints(busiest30Days, PR_DISTRIBUTED_RAMP);
+}
+
+/**
  * Many PRs spread over many repositories. Long-time contributors reach these
  * totals too, so the PRs must also come fast: many per week on average, or a
  * very busy month. More PRs in the busiest 30 days give more points.
@@ -106,7 +126,7 @@ function detectDistributedPRs(prs: ActivityEvent[]): Flag[] {
 	return [
 		{
 			id: "pr-distributed",
-			points: rampPoints(busiest30Days, PR_DISTRIBUTED_RAMP),
+			points: distributedPRPoints(prs, busiest30Days),
 			group: "pr-volume",
 			amplifiable: true,
 			facts: {

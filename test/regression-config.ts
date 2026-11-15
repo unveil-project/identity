@@ -134,7 +134,7 @@ export const REGRESSION_FIXTURES = {
 	"organic_29": "organic",
 	"mixed_24": "mixed",
 	"mixed_25": "mixed",
-	"automation_21": { expected: "mixed", knownAs: "automation" },
+	"automation_21": "automation",
 	"automation_22": "automation",
 	"automation_23": "automation",
 	"automation_24": "automation",

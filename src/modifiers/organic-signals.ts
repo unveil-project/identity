@@ -1,7 +1,7 @@
 import { CONFIG } from "../config";
 import { eventTime, isOpenedPR } from "../events";
 import { spanDays } from "../time";
-import type { ActivityEvent } from "../types";
+import type { ActivityEvent, Flag } from "../types";
 import { levelFor } from "../utils";
 
 const MERGED_PR_LEVELS = [
@@ -72,11 +72,24 @@ function mergedPRBonus(events: ActivityEvent[]): number {
 	return levelFor(merged.length, MERGED_PR_LEVELS)?.points ?? 0;
 }
 
+/**
+ * When we already flagged the PR volume as automated, merges of those PRs
+ * do not show a person, so they give no bonus.
+ */
+function hasAutomatedPRVolume(flags: readonly Flag[]): boolean {
+	return flags.some((flag) => flag.group === "pr-volume");
+}
+
 /** Points given back for signs of a real person. */
-export function detectOrganicSignals(events: ActivityEvent[]): number {
+export function detectOrganicSignals(
+	events: ActivityEvent[],
+	flags: readonly Flag[],
+): number {
 	if (events.length < CONFIG.MIN_EVENTS_FOR_ANALYSIS) {
 		return 0;
 	}
 
-	return issueEngagementBonus(events) + mergedPRBonus(events);
+	const mergedBonus = hasAutomatedPRVolume(flags) ? 0 : mergedPRBonus(events);
+
+	return issueEngagementBonus(events) + mergedBonus;
 }

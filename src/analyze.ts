@@ -155,7 +155,7 @@ export function analyze<Source = unknown>(
 	});
 	const uncappedScore = humanScore(
 		scored.total,
-		detectOrganicSignals(repoEvents),
+		detectOrganicSignals(repoEvents, flags),
 	);
 	const score = capForAIAgentUse(uncappedScore, flags);
 	const confidence = calculateConfidence(window);

@@ -130,6 +130,8 @@ export const CONFIG = {
 	YOUNG_PRS_PER_DAY_EXTREME: 7.5,
 	POINTS_YOUNG_PR_VOLUME_HIGH: 20,
 	POINTS_YOUNG_PR_VOLUME_EXTREME: 35,
+	YOUNG_PRS_PER_DAY_SEVERE: 20, // a young account with this many PRs per day is automation
+	POINTS_YOUNG_PR_VOLUME_SEVERE: 45, // same as POINTS_PRS_DAY_EXTREME for any account
 
 	// Pushes to the same repository in quick succession
 	TIGHT_COMMIT_SECONDS: 60 * 10, // two pushes this close count as a pair

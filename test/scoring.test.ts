@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { CONFIG } from "../src/config";
+import { detectOrganicSignals } from "../src/modifiers/organic-signals";
 import { humanScore, scoreFlags } from "../src/scoring";
 import type { Flag } from "../src/types";
 import { rampPoints } from "../src/utils";
-import { flag } from "./utils/events";
+import { event, flag, toEvents } from "./utils/events";
 
 describe("rampPoints", () => {
 	const anchors = [
@@ -102,5 +103,39 @@ describe("humanScore", () => {
 	it("stays between 0 and 100", () => {
 		expect(humanScore(0, 45)).toBe(100);
 		expect(humanScore(150, 45)).toBe(0);
+	});
+});
+
+describe("detectOrganicSignals", () => {
+	// 12 PRs the account opened, and maintainers merged all of them.
+	function mergedPRs() {
+		const authored = {
+			head: { repo: { url: "https://api.github.com/repos/user/repo" } },
+		};
+
+		return toEvents(
+			Array.from({ length: 12 }, (_, i) => [
+				event("PullRequestEvent", `2026-01-${10 + i}T10:00:00Z`, "o/r", {
+					action: "opened",
+					pull_request: { number: i, ...authored },
+				}),
+				event("PullRequestEvent", `2026-01-${10 + i}T12:00:00Z`, "o/r", {
+					action: "merged",
+					pull_request: { number: i, ...authored },
+				}),
+			]).flat(),
+		);
+	}
+
+	it("gives the merged-PR bonus to a calm account", () => {
+		expect(detectOrganicSignals(mergedPRs(), [])).toBe(
+			CONFIG.POINTS_ORGANIC_MERGED_PR_HIGH,
+		);
+	});
+
+	it("gives no merged-PR bonus when the PR volume was flagged", () => {
+		const flags = [flag("pr-volume", 45)];
+
+		expect(detectOrganicSignals(mergedPRs(), flags)).toBe(0);
 	});
 });

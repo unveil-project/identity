@@ -1473,7 +1473,8 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 			(f) => f.label === "Distributed PR pattern",
 		);
 		expect(spamFlag).toBeDefined();
-		expect(spamFlag?.points).toBe(55);
+		// All PRs go to one owner, so the flag keeps its base points.
+		expect(spamFlag?.points).toBe(45);
 		expect(spamFlag?.detail).toContain("100 PRs");
 		expect(spamFlag?.detail).toContain("different repositories");
 		expect(result.classification).toBe("automation");
@@ -1481,15 +1482,20 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 
 	describe("distributed PR points grow with the busiest 30 days", () => {
 		const DAY_MS = 24 * 60 * 60 * 1000;
+		const manyOwners = (i: number) => `owner${i % 17}/repo`;
+		const oneOwner = (i: number) => `acme/repo${i % 17}`;
 
-		function distributedPRAccount(prCount: number) {
+		function distributedPRAccount(
+			prCount: number,
+			repoFor: (i: number) => string = manyOwners,
+		) {
 			const start = new Date(2026, 1, 10, 12).getTime();
 			const step = (24 * DAY_MS) / prCount;
 			const prs = Array.from({ length: prCount }, (_, i) =>
 				event(
 					"PullRequestEvent",
 					new Date(start + i * step).toISOString(),
-					`target/repo${i % 17}`,
+					repoFor(i),
 					{ action: "opened" },
 				),
 			);
@@ -1497,7 +1503,7 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 				event(
 					"IssueCommentEvent",
 					new Date(2026, 2, 5, 10, i).toISOString(),
-					"target/repo0",
+					repoFor(0),
 				),
 			);
 			const pushes = Array.from({ length: 5 }, (_, i) =>
@@ -1524,7 +1530,7 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 			expect(distributedFlag(result)?.points).toBe(45);
 		});
 
-		it("gives more points at 85 PRs across 17 repos", () => {
+		it("gives more points at 85 PRs across 17 owners", () => {
 			const base = distributedFlag(distributedPRAccount(60))?.points ?? 0;
 			const result = distributedPRAccount(85);
 			const points = distributedFlag(result)?.points ?? 0;
@@ -1533,6 +1539,13 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 			expect(points).toBeLessThan(55);
 			expect(points).toBeGreaterThan(base);
 			expect(result.classification).toBe("automation");
+		});
+
+		it("keeps the base points when one owner gets most PRs", () => {
+			const result = distributedPRAccount(85, oneOwner);
+
+			expect(distributedFlag(result)?.points).toBe(45);
+			expect(result.classification).toBe("mixed");
 		});
 	});
 
@@ -1639,6 +1652,39 @@ describe("report - Extreme PR Spam Detection (Time-Based)", () => {
 			(f) => f.label === "Distributed PR pattern",
 		);
 		expect(distributedSpamFlag).toBeUndefined();
+	});
+});
+
+describe("report - Young Account PR Volume", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(date);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("gives 45 points to a young account with 20+ PRs per day", () => {
+		// 21 PRs within 21 hours, below the 30 PRs of the daily burst check.
+		const prs = Array.from({ length: 21 }, (_, i) =>
+			event(
+				"PullRequestEvent",
+				new Date(2026, 2, 9, 12 + i).toISOString(),
+				`owner${i}/repo`,
+				{ action: "opened" },
+			),
+		);
+
+		const result = reportGitHub({
+			user: user({ created_at: new Date(2026, 0, 20).toISOString() }),
+			events: prs,
+		});
+
+		const volumeFlag = result.flags.find(
+			(f) => f.id === "young-pr-volume-extreme",
+		);
+		expect(volumeFlag?.points).toBe(45);
 	});
 });
 
